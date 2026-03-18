@@ -1,0 +1,191 @@
+{
+  "url": "https://policestationrepuk.com/TestStripeFlow",
+  "path": "/TestStripeFlow",
+  "title": "TestStripeFlow | PoliceStationRepUK — Find Accredited Police Station Reps",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Alternative Stripe Flow Test Suite"
+    },
+    {
+      "level": 3,
+      "text": "Need a Police Station Rep in Kent?"
+    },
+    {
+      "level": 3,
+      "text": "Training Guides & Resources"
+    },
+    {
+      "level": 4,
+      "text": "Directories"
+    },
+    {
+      "level": 4,
+      "text": "For Representatives"
+    },
+    {
+      "level": 4,
+      "text": "Tools & Resources"
+    },
+    {
+      "level": 4,
+      "text": "Community"
+    },
+    {
+      "level": 3,
+      "text": "Regulatory Notice"
+    }
+  ],
+  "content": "Alternative Stripe Flow Test SuiteTesting KV-based payment verification (no auth required)Independent of Base44-App-Id HeadersRun All TestsTest 1: Stripe Confirmation (No Base44 SDK)PendingVerify stripeConfirm works independently without Base44 headersTest 2: Local Payment Check (KV Lookup)PendingVerify checkLocalPayment reads from KV independentlyTest 3: System Health CheckPendingVerify overall system health and connectivityTest 4: Base44 Update with Retry Logic (Skipped - Requires Auth)PendingThis test requires authentication and will be skippedTest 5: Checkout Function (Skipped - Requires Auth)PendingThis test requires authentication and will be skippedTest 6: PaymentSuccess Page SafetyPendingVerify PaymentSuccess doesn't make premature Base44 callsTest 7: KV Store IndependencePendingVerify KV operations work without Base44",
+  "links": [
+    {
+      "href": "/Home",
+      "text": "PSR UK"
+    },
+    {
+      "href": "/Blog",
+      "text": "Blog"
+    },
+    {
+      "href": "/CustodyNote",
+      "text": "🆕 Custody Note"
+    },
+    {
+      "href": "/Premium",
+      "text": "Browse Resources →"
+    },
+    {
+      "href": "/Directory",
+      "text": "Find a Rep"
+    },
+    {
+      "href": "/StationsDirectory",
+      "text": "Police Stations"
+    },
+    {
+      "href": "/Forces",
+      "text": "Police Forces"
+    },
+    {
+      "href": "/Firms",
+      "text": "Law Firms"
+    },
+    {
+      "href": "/Map",
+      "text": "Interactive Map"
+    },
+    {
+      "href": "/Register",
+      "text": "Register as Rep"
+    },
+    {
+      "href": "/Profile",
+      "text": "My Profile"
+    },
+    {
+      "href": "/GoFeatured",
+      "text": "Become Featured"
+    },
+    {
+      "href": "/PoliceStationRepJobsUK",
+      "text": "Rep Jobs UK"
+    },
+    {
+      "href": "/GetWork",
+      "text": "Get Work Guide"
+    },
+    {
+      "href": "/HowToBecomePoliceStationRep",
+      "text": "How to Become a Rep"
+    },
+    {
+      "href": "/PoliceStationCover",
+      "text": "Police Station Cover (Firms)"
+    },
+    {
+      "href": "/FormsLibrary",
+      "text": "Forms Library (CRM)"
+    },
+    {
+      "href": "/PoliceStationRates",
+      "text": "Station Rates (2025/26)"
+    },
+    {
+      "href": "/PACE",
+      "text": "PACE Codes"
+    },
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki"
+    },
+    {
+      "href": "/LegalUpdates",
+      "text": "Legal Updates"
+    },
+    {
+      "href": "/WhatsApp",
+      "text": "WhatsApp Group"
+    },
+    {
+      "href": "/Forum",
+      "text": "Community Forum"
+    },
+    {
+      "href": "/Contact",
+      "text": "Contact Us"
+    },
+    {
+      "href": "/FAQ",
+      "text": "Help & FAQ"
+    },
+    {
+      "href": "/About",
+      "text": "About"
+    },
+    {
+      "href": "/police-station-representatives-directory-england-wales",
+      "text": "About the PoliceStationRepUK Directory"
+    },
+    {
+      "href": "/Terms",
+      "text": "Terms"
+    },
+    {
+      "href": "/Privacy",
+      "text": "Privacy"
+    },
+    {
+      "href": "/Cookies",
+      "text": "Cookies"
+    },
+    {
+      "href": "/GDPR",
+      "text": "GDPR"
+    },
+    {
+      "href": "/DataProtection",
+      "text": "Data Protection"
+    },
+    {
+      "href": "/Accessibility",
+      "text": "Accessibility"
+    },
+    {
+      "href": "/Complaints",
+      "text": "Complaints"
+    },
+    {
+      "href": "/functions/sitemap",
+      "text": "Sitemap"
+    },
+    {
+      "href": "/functions/rss",
+      "text": "RSS Feed"
+    },
+    {
+      "href": "/cookies",
+      "text": "Details"
+    }
+  ],
+  "crawledAt": "2026-03-08T20:55:33.806Z"
+}

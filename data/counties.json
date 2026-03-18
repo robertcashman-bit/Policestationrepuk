@@ -1,0 +1,194 @@
+[
+  {
+    "name": "Bedfordshire",
+    "slug": "bedfordshire",
+    "repCount": 2,
+    "stationCount": 0
+  },
+  {
+    "name": "Berkshire",
+    "slug": "berkshire",
+    "repCount": 1,
+    "stationCount": 0
+  },
+  {
+    "name": "Buckinghamshire",
+    "slug": "buckinghamshire",
+    "repCount": 1,
+    "stationCount": 0
+  },
+  {
+    "name": "Cheshire",
+    "slug": "cheshire",
+    "repCount": 4,
+    "stationCount": 0
+  },
+  {
+    "name": "County Durham",
+    "slug": "county-durham",
+    "repCount": 1,
+    "stationCount": 0
+  },
+  {
+    "name": "Devon",
+    "slug": "devon",
+    "repCount": 2,
+    "stationCount": 0
+  },
+  {
+    "name": "Essex",
+    "slug": "essex",
+    "repCount": 19,
+    "stationCount": 0
+  },
+  {
+    "name": "Gloucestershire",
+    "slug": "gloucestershire",
+    "repCount": 1,
+    "stationCount": 0
+  },
+  {
+    "name": "Greater Manchester",
+    "slug": "greater-manchester",
+    "repCount": 3,
+    "stationCount": 0
+  },
+  {
+    "name": "Hampshire",
+    "slug": "hampshire",
+    "repCount": 2,
+    "stationCount": 0
+  },
+  {
+    "name": "Kent",
+    "slug": "kent",
+    "repCount": 16,
+    "stationCount": 2
+  },
+  {
+    "name": "Lancashire",
+    "slug": "lancashire",
+    "repCount": 9,
+    "stationCount": 0
+  },
+  {
+    "name": "Leicestershire",
+    "slug": "leicestershire",
+    "repCount": 3,
+    "stationCount": 0
+  },
+  {
+    "name": "Lincolnshire",
+    "slug": "lincolnshire",
+    "repCount": 2,
+    "stationCount": 0
+  },
+  {
+    "name": "London",
+    "slug": "london",
+    "repCount": 34,
+    "stationCount": 0
+  },
+  {
+    "name": "Merseyside",
+    "slug": "merseyside",
+    "repCount": 1,
+    "stationCount": 0
+  },
+  {
+    "name": "Middlesex",
+    "slug": "middlesex",
+    "repCount": 4,
+    "stationCount": 0
+  },
+  {
+    "name": "Norfolk",
+    "slug": "norfolk",
+    "repCount": 1,
+    "stationCount": 0
+  },
+  {
+    "name": "Northamptonshire",
+    "slug": "northamptonshire",
+    "repCount": 3,
+    "stationCount": 0
+  },
+  {
+    "name": "Northumberland",
+    "slug": "northumberland",
+    "repCount": 1,
+    "stationCount": 0
+  },
+  {
+    "name": "Nottinghamshire",
+    "slug": "nottinghamshire",
+    "repCount": 1,
+    "stationCount": 0
+  },
+  {
+    "name": "Powys",
+    "slug": "powys",
+    "repCount": 1,
+    "stationCount": 0
+  },
+  {
+    "name": "Shropshire",
+    "slug": "shropshire",
+    "repCount": 1,
+    "stationCount": 0
+  },
+  {
+    "name": "South Yorkshire",
+    "slug": "south-yorkshire",
+    "repCount": 2,
+    "stationCount": 0
+  },
+  {
+    "name": "Staffordshire",
+    "slug": "staffordshire",
+    "repCount": 2,
+    "stationCount": 0
+  },
+  {
+    "name": "Suffolk",
+    "slug": "suffolk",
+    "repCount": 1,
+    "stationCount": 0
+  },
+  {
+    "name": "Surrey",
+    "slug": "surrey",
+    "repCount": 3,
+    "stationCount": 0
+  },
+  {
+    "name": "Sussex",
+    "slug": "sussex",
+    "repCount": 4,
+    "stationCount": 0
+  },
+  {
+    "name": "Tyne and Wear",
+    "slug": "tyne-and-wear",
+    "repCount": 2,
+    "stationCount": 0
+  },
+  {
+    "name": "West Midlands",
+    "slug": "west-midlands",
+    "repCount": 12,
+    "stationCount": 1
+  },
+  {
+    "name": "West Yorkshire",
+    "slug": "west-yorkshire",
+    "repCount": 13,
+    "stationCount": 0
+  },
+  {
+    "name": "Yorkshire",
+    "slug": "yorkshire",
+    "repCount": 1,
+    "stationCount": 0
+  }
+]

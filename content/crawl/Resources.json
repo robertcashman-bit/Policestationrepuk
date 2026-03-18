@@ -1,0 +1,691 @@
+{
+  "url": "https://www.policestationrepuk.com/resources",
+  "path": "/resources",
+  "title": "Resources | PoliceStationRepUK — Find Accredited Police Station Reps",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Essential Legal Resources"
+    },
+    {
+      "level": 2,
+      "text": "Expand Your Reach with PoliceStationRepUK"
+    },
+    {
+      "level": 2,
+      "text": "How to Get Into Criminal Law"
+    },
+    {
+      "level": 2,
+      "text": "How to Become a Police Station Rep"
+    },
+    {
+      "level": 2,
+      "text": "Read Our Partner Blog"
+    },
+    {
+      "level": 2,
+      "text": "Key Legislation & Guidance"
+    },
+    {
+      "level": 3,
+      "text": "Sentencing Council"
+    },
+    {
+      "level": 3,
+      "text": "Criminal Procedure Rules"
+    },
+    {
+      "level": 3,
+      "text": "PACE Codes of Practice"
+    },
+    {
+      "level": 3,
+      "text": "Hansard - UK Parliamentary Debates"
+    },
+    {
+      "level": 3,
+      "text": "Criminal Practice Directions"
+    },
+    {
+      "level": 3,
+      "text": "Disclosure Manual (Attorney General)"
+    },
+    {
+      "level": 3,
+      "text": "Crown Court Compendium"
+    },
+    {
+      "level": 3,
+      "text": "Victims' Code"
+    },
+    {
+      "level": 3,
+      "text": "Youth Justice Legal Centre"
+    },
+    {
+      "level": 3,
+      "text": "BAILII (British and Irish Legal Information Institute)"
+    },
+    {
+      "level": 2,
+      "text": "UK Legislation & Statutes"
+    },
+    {
+      "level": 3,
+      "text": "Legislation.gov.uk"
+    },
+    {
+      "level": 3,
+      "text": "Police and Criminal Evidence Act 1984 (PACE)"
+    },
+    {
+      "level": 3,
+      "text": "Criminal Justice Act 2003"
+    },
+    {
+      "level": 3,
+      "text": "Youth Justice and Criminal Evidence Act 1999"
+    },
+    {
+      "level": 3,
+      "text": "Human Rights Act 1998"
+    },
+    {
+      "level": 3,
+      "text": "Prosecution of Offences Act 1985"
+    },
+    {
+      "level": 3,
+      "text": "Serious Crime Act 2007"
+    },
+    {
+      "level": 2,
+      "text": "Legal Aid & Forms"
+    },
+    {
+      "level": 3,
+      "text": "Legal Aid Agency"
+    },
+    {
+      "level": 3,
+      "text": "Criminal Legal Aid (Providers)"
+    },
+    {
+      "level": 3,
+      "text": "Criminal Legal Aid Manual"
+    },
+    {
+      "level": 3,
+      "text": "Criminal Bills Assessment Manual"
+    },
+    {
+      "level": 3,
+      "text": "Standard Crime Contract 2025"
+    },
+    {
+      "level": 3,
+      "text": "Standard Crime Contract 2022"
+    },
+    {
+      "level": 3,
+      "text": "Police Station Register Arrangements 2025"
+    },
+    {
+      "level": 3,
+      "text": "Legal Aid Guidance for Professionals"
+    },
+    {
+      "level": 3,
+      "text": "Legal Aid Means Testing"
+    },
+    {
+      "level": 3,
+      "text": "Apply for Criminal Legal Aid (SiLAS)"
+    },
+    {
+      "level": 2,
+      "text": "Professional & Regulatory Bodies"
+    },
+    {
+      "level": 3,
+      "text": "The Law Society"
+    },
+    {
+      "level": 3,
+      "text": "Solicitors Regulation Authority"
+    },
+    {
+      "level": 3,
+      "text": "The Bar Council"
+    },
+    {
+      "level": 3,
+      "text": "The Criminal Bar Association"
+    },
+    {
+      "level": 3,
+      "text": "Criminal Law Solicitors' Association (CLSA)"
+    },
+    {
+      "level": 3,
+      "text": "London Criminal Courts Solicitors' Association (LCCSA)"
+    },
+    {
+      "level": 2,
+      "text": "Courts & Justice System"
+    },
+    {
+      "level": 3,
+      "text": "HM Courts & Tribunals Service"
+    },
+    {
+      "level": 3,
+      "text": "Crown Prosecution Service"
+    },
+    {
+      "level": 3,
+      "text": "Ministry of Justice"
+    },
+    {
+      "level": 3,
+      "text": "Find a Court or Tribunal"
+    },
+    {
+      "level": 3,
+      "text": "CourtServe (Court Listings)"
+    },
+    {
+      "level": 3,
+      "text": "Courts and Tribunals Judiciary"
+    },
+    {
+      "level": 3,
+      "text": "Magistrates' Association"
+    },
+    {
+      "level": 3,
+      "text": "Solicitors Disciplinary Tribunal"
+    },
+    {
+      "level": 3,
+      "text": "HM Prison and Probation Service (HMPPS)"
+    },
+    {
+      "level": 3,
+      "text": "Parole Board"
+    },
+    {
+      "level": 3,
+      "text": "Youth Justice Board"
+    },
+    {
+      "level": 3,
+      "text": "UK Police Forces (Police.UK)"
+    },
+    {
+      "level": 3,
+      "text": "National Crime Agency"
+    },
+    {
+      "level": 2,
+      "text": "Barristers & Chambers"
+    },
+    {
+      "level": 3,
+      "text": "Legal 500 Bar Rankings"
+    },
+    {
+      "level": 3,
+      "text": "Chambers and Partners Bar Guide"
+    },
+    {
+      "level": 3,
+      "text": "Find a Barrister (Bar Council)"
+    },
+    {
+      "level": 3,
+      "text": "Criminal Bar Association Members"
+    },
+    {
+      "level": 3,
+      "text": "Clerksroom Direct Access"
+    },
+    {
+      "level": 3,
+      "text": "36 Group Chambers (Public Access)"
+    },
+    {
+      "level": 2,
+      "text": "Criminal Solicitor Firms & Directories"
+    },
+    {
+      "level": 3,
+      "text": "Legal 500 Solicitors Rankings"
+    },
+    {
+      "level": 3,
+      "text": "Chambers and Partners UK Guide"
+    },
+    {
+      "level": 3,
+      "text": "Law Society - Find a Solicitor"
+    },
+    {
+      "level": 3,
+      "text": "Duty Solicitors: Rotas & Guidance"
+    },
+    {
+      "level": 3,
+      "text": "The Legal Aid Practitioners Group (LAPG)"
+    },
+    {
+      "level": 2,
+      "text": "Criminal Law Forms & Templates"
+    },
+    {
+      "level": 3,
+      "text": "GOV.UK - All Criminal Legal Aid Forms"
+    },
+    {
+      "level": 3,
+      "text": "Police Station Call Form Templates"
+    },
+    {
+      "level": 3,
+      "text": "Magistrates Court Templates"
+    },
+    {
+      "level": 3,
+      "text": "Crown Court Forms"
+    },
+    {
+      "level": 2,
+      "text": "Oversight & Review Bodies"
+    },
+    {
+      "level": 3,
+      "text": "Independent Office for Police Conduct (IOPC)"
+    },
+    {
+      "level": 3,
+      "text": "Criminal Cases Review Commission (CCRC)"
+    },
+    {
+      "level": 3,
+      "text": "Legal Ombudsman"
+    },
+    {
+      "level": 3,
+      "text": "Information Commissioner's Office (ICO)"
+    },
+    {
+      "level": 3,
+      "text": "HM Inspectorate of Prisons"
+    },
+    {
+      "level": 3,
+      "text": "HM Inspectorate of Probation"
+    },
+    {
+      "level": 3,
+      "text": "HM Inspectorate of Constabulary (HMICFRS)"
+    },
+    {
+      "level": 2,
+      "text": "Client Support Services"
+    },
+    {
+      "level": 3,
+      "text": "Citizens Advice"
+    },
+    {
+      "level": 3,
+      "text": "Prisoners' Advice Service"
+    },
+    {
+      "level": 3,
+      "text": "Criminal Injuries Compensation Authority (CICA)"
+    },
+    {
+      "level": 3,
+      "text": "Victim Support"
+    },
+    {
+      "level": 3,
+      "text": "NHS Mental Health Crisis Services"
+    },
+    {
+      "level": 3,
+      "text": "Release (Drugs & Legal Advice)"
+    },
+    {
+      "level": 3,
+      "text": "Shelter (Housing Support)"
+    },
+    {
+      "level": 2,
+      "text": "Official Police Station Rep Accreditation"
+    },
+    {
+      "level": 3,
+      "text": "Cardiff University - PSRAS (Police Station Representative Accreditation Scheme)"
+    },
+    {
+      "level": 3,
+      "text": "Datalaw - PSRAS Assessment Provider"
+    },
+    {
+      "level": 3,
+      "text": "Solicitors Regulation Authority (SRA) - PSRAS Oversight"
+    },
+    {
+      "level": 2,
+      "text": "Training & CPD Providers"
+    },
+    {
+      "level": 3,
+      "text": "LCCSA (London Criminal Courts Solicitors' Association)"
+    },
+    {
+      "level": 3,
+      "text": "CLSA (Criminal Law Solicitors' Association)"
+    },
+    {
+      "level": 3,
+      "text": "Bond Solon Training"
+    },
+    {
+      "level": 3,
+      "text": "Legal Action Group"
+    },
+    {
+      "level": 3,
+      "text": "Crimeline (Complete)"
+    },
+    {
+      "level": 3,
+      "text": "The College of Policing"
+    },
+    {
+      "level": 3,
+      "text": "Judicial College"
+    },
+    {
+      "level": 3,
+      "text": "CILEx"
+    },
+    {
+      "level": 2,
+      "text": "Blogs & Expert Insights"
+    },
+    {
+      "level": 3,
+      "text": "PSR Kent Blog"
+    },
+    {
+      "level": 2,
+      "text": "General Legal Links & Resources"
+    },
+    {
+      "level": 3,
+      "text": "Fair Trials"
+    },
+    {
+      "level": 3,
+      "text": "Justice"
+    },
+    {
+      "level": 3,
+      "text": "Liberty"
+    },
+    {
+      "level": 3,
+      "text": "Prison Reform Trust"
+    },
+    {
+      "level": 3,
+      "text": "Transform Justice"
+    },
+    {
+      "level": 3,
+      "text": "Criminal Justice Alliance"
+    },
+    {
+      "level": 3,
+      "text": "Welsh Government - Justice"
+    },
+    {
+      "level": 3,
+      "text": "Legal Cheek"
+    },
+    {
+      "level": 3,
+      "text": "The Justice Gap"
+    },
+    {
+      "level": 3,
+      "text": "Law Society Gazette"
+    },
+    {
+      "level": 3,
+      "text": "Police Station Rep UK Directory"
+    },
+    {
+      "level": 3,
+      "text": "Police Station Agent"
+    },
+    {
+      "level": 3,
+      "text": "Quick Rep Search"
+    },
+    {
+      "level": 3,
+      "text": "Need a Police Station Rep in Kent?"
+    },
+    {
+      "level": 3,
+      "text": "Training Guides & Resources"
+    },
+    {
+      "level": 4,
+      "text": "Directories"
+    },
+    {
+      "level": 4,
+      "text": "For Representatives"
+    },
+    {
+      "level": 4,
+      "text": "Tools & Resources"
+    },
+    {
+      "level": 4,
+      "text": "Community"
+    },
+    {
+      "level": 3,
+      "text": "Regulatory Notice"
+    }
+  ],
+  "content": "HomeLegal ResourcesEssential Legal ResourcesA comprehensive collection of official resources, guidance, and tools for criminal law professionals.Solicitors & Chambers⚡ Limited Time Launch OfferExpand Your Reach with PoliceStationRepUKJoin the UK's fastest-growing network of criminal defence professionals.Free ListingGet your firm listed in our directory for free. Visible to hundreds of accredited reps.Link AdvertDrive traffic directly to your website with a premium link placement.How to apply:Simply click one of the buttons to email our team. Include your firm's name, SRA number, and logo (for premium ads). We'll verify your details and get you listed within 24 hours.Request Free ListingEnquire About AdsNEW GUIDEHow to Get Into Criminal LawComplete guide: SQE, apprenticeships, CILEX & career pathways.NOW FREEHow to Become a Police Station RepComplete PSRAS accreditation guide with timelines and costs.EXPERT INSIGHTSRead Our Partner BlogPractical guidance on police cautions, higher court advocacy & more.Checking 94 links...Checking...Key Legislation & GuidanceSentencing CouncilOfficial sentencing guidelines and guidance for all courtsCriminal Procedure RulesCurrent criminal procedure rules and practice directionsPACE Codes of PracticePolice and Criminal Evidence Act codes governing police powersHansard - UK Parliamentary DebatesOfficial record of all UK Parliamentary debates, including criminal justice legislation discussionsCriminal Practice DirectionsPractice directions for criminal courtsDisclosure Manual (Attorney General)Prosecution disclosure duties and guidelines for criminal proceedingsCrown Court CompendiumJudicial directions and guidance for Crown Court casesVictims' CodeCode of practice outlining victim rights in criminal proceedingsYouth Justice Legal CentreSpecialist guidance on youth justice and proceduresBAILII (British and Irish Legal Information Institute)Free access to UK and Irish case law, legislation, and legal materialsUK Legislation & StatutesLegislation.gov.ukOfficial source for UK legislation including all Acts and statutory instrumentsPolice and Criminal Evidence Act 1984 (PACE)Primary legislation governing police powers and criminal evidenceCriminal Justice Act 2003Key legislation covering criminal justice procedures and sentencingYouth Justice and Criminal Evidence Act 1999Legislation governing youth justice and witness evidenceHuman Rights Act 1998Incorporation of European Convention on Human Rights into UK lawProsecution of Offences Act 1985Legislation establishing the Crown Prosecution Service and prosecution proceduresSerious Crime Act 2007Legislation covering serious organized crime and criminal justice measuresLegal Aid & FormsLegal Aid AgencyLegal aid applications, guidance and contract informationCriminal Legal Aid (Providers)All criminal legal aid forms and provider information (stable GOV.UK hub)Criminal Legal Aid ManualComprehensive manual covering eligibility, means testing, billing and procedures for criminal legal aidCriminal Bills Assessment ManualOfficial LAA guidance for assessing and processing criminal legal aid bills and claimsStandard Crime Contract 2025Current contract specification and terms between LAA and criminal legal aid providersStandard Crime Contract 2022Previous contract specification (2022-2025)Police Station Register Arrangements 2025LAA guidance on police station representative register and quality standardsLegal Aid Guidance for ProfessionalsCentral directory of essential guidance and resources for legal aid providersLegal Aid Means TestingCheck client eligibility for legal aidApply for Criminal Legal Aid (SiLAS)Sign in to Legal Aid Services to apply for criminal legal aid onlineProfessional & Regulatory BodiesThe Law SocietyProfessional body for solicitors in England and WalesSolicitors Regulation AuthorityIndependent regulator of solicitors and law firmsThe Bar CouncilProvides a range of services to members of the BarThe Criminal Bar AssociationRepresents the views and interests of practising members of the Criminal BarCriminal Law Solicitors' Association (CLSA)Proudly represents Criminal Law Solicitors throughout England and WalesLondon Criminal Courts Solicitors' Association (LCCSA)Representative body for London criminal defence solicitorsCourts & Justice SystemHM Courts & Tribunals ServiceCourt listings, contact details and procedural informationCrown Prosecution ServiceProsecution guidance and legal guidance notesMinistry of JusticeJustice policy, statistics and guidanceFind a Court or TribunalLocate court addresses, contact details and directionsCourtServe (Court Listings)Daily court lists for Crown and magistrates' courtsCourts and Tribunals JudiciaryOfficial Judiciary website: news, guidance, and judicial informationMagistrates' AssociationGuidance and resources for magistrates and magistrates' courtsSolicitors Disciplinary TribunalIndependent tribunal that adjudicates upon alleged breaches of the rules and regulations of solicitorsHM Prison and Probation Service (HMPPS)Public sector prisons and probation services in England and WalesParole BoardParole hearings, decisions and guidance for England and WalesYouth Justice BoardYouth detention, youth offending teams and youth justice servicesUK Police Forces (Police.UK)Find your local police force in England, Wales and Northern IrelandNational Crime AgencyUK's lead agency against serious and organized crimeBarristers & ChambersLegal 500 Bar RankingsDirectory of leading barristers' chambers ranked by practice areaChambers and Partners Bar GuideIndependent rankings and reviews of barristers and chambersFind a Barrister (Bar Council)Official Bar Council directory and Direct Access portal to find barristersCriminal Bar Association MembersFind CBA member barristers specializing in criminal defenceClerksroom Direct AccessDirect access barristers for criminal cases36 Group Chambers (Public Access)National chambers with direct/public access criminal barristersCriminal Solicitor Firms & DirectoriesLegal 500 Solicitors RankingsTop-ranked criminal defence solicitor firms by regionChambers and Partners UK GuideIndependent rankings and reviews of solicitors firmsLaw Society - Find a SolicitorOfficial directory of all regulated solicitors in England and WalesDuty Solicitors: Rotas & GuidanceFind duty solicitors and information on duty solicitor schemesThe Legal Aid Practitioners Group (LAPG)Network of legal aid practitioners with member directoryCriminal Law Forms & TemplatesGOV.UK - All Criminal Legal Aid FormsCentral search for CRM1-CRM18, LAC1 and all official LAA formsPolice Station Call Form TemplatesStandard forms for police station work under legal aid contractMagistrates Court TemplatesOfficial court forms and templates for magistrates courtCrown Court FormsAll Crown Court procedural forms and templatesOversight & Review BodiesIndependent Office for Police Conduct (IOPC)Investigates police complaints and misconduct in England and WalesCriminal Cases Review Commission (CCRC)Independent body reviewing potential miscarriages of justiceLegal OmbudsmanIndependent service for resolving complaints about legal servicesInformation Commissioner's Office (ICO)UK's independent authority for data protection and information rightsHM Inspectorate of PrisonsIndependent inspections of prisons and immigration detentionHM Inspectorate of ProbationInspects probation services and youth offending workHM Inspectorate of Constabulary (HMICFRS)Independent inspection of police forces and fire servicesClient Support ServicesCitizens AdviceFree, confidential advice for people in England & WalesPrisoners' Advice ServiceFree legal advice and support to adult prisoners throughout England and WalesCriminal Injuries Compensation Authority (CICA)Compensation claims for victims of violent crimeVictim SupportIndependent charity providing specialist support to victims and witnessesNHS Mental Health Crisis ServicesMental health crisis support and urgent helplines across EnglandRelease (Drugs & Legal Advice)Specialist advice on drugs, drug law and human rightsShelter (Housing Support)Housing advice and support for vulnerable clientsOfficial Police Station Rep AccreditationCardiff University - PSRAS (Police Station Representative Accreditation Scheme)SRA-authorized PSRAS assessment organization. Official accreditation for police station representatives including training, Critical Incidents Test, portfolio assessment.Datalaw - PSRAS Assessment ProviderSRA-authorized PSRAS assessment organization. Provides official police station representative accreditation assessments and training courses.Solicitors Regulation Authority (SRA) - PSRAS OversightSRA authorizes and oversees PSRAS assessment organizations (Cardiff University and Datalaw) for police station representative accreditationTraining & CPD ProvidersLCCSA (London Criminal Courts Solicitors' Association)Training courses to prepare for PSRAS accreditation and ongoing CPD for London criminal defence solicitorsCLSA (Criminal Law Solicitors' Association)National training provider offering courses that prepare candidates for PSRAS assessmentBond Solon TrainingLegal training provider offering preparation courses for police station representative accreditationLegal Action GroupTraining courses and legal aid guidance, including police station work preparationCrimeline (Complete)CPD, updates and resources for criminal law practitionersThe College of PolicingPolice training standards and guidanceJudicial CollegeJudicial training materials and guidanceCILExChartered Institute of Legal Executives training and qualificationsBlogs & Expert InsightsPSR Kent BlogExpert articles on police cautions, higher court advocacy, and practical police station guidance from experienced practitionersGeneral Legal Links & ResourcesFair TrialsInternational criminal justice and fair trial rightsJusticeLaw reform and criminal justice policyLibertyProtecting civil liberties and human rightsPrison Reform TrustPrison conditions and sentencing policyTransform JusticeCriminal justice system reform and researchCriminal Justice AllianceCoalition working for a fair and effective criminal justice systemWelsh Government - JusticeWales-specific justice policies, guidance and servicesLegal CheekNews, careers and commentary for the legal professionThe Justice GapA magazine about law and justiceLaw Society GazetteNews and analysis for solicitors in England and WalesPolice Station Rep UK DirectoryPartner directory featuring enhanced representative profiles with additional features and visibilityPolice Station AgentProfessional agency services for dedicated representation support and coverageOur Internal ResourcesDon't forget to explore our own comprehensive library of forms, guides, and professional tools.Forms LibraryPolice StationsTraining GuidesCIT Exam PrepReps DirectoryQuick Rep SearchFind reps instantly by name, station, or countyAll StationsAll CountiesPlease note: All external links are provided for reference purposes only. We are not responsible for the content or availability of external websites. Always verify the most current information directly with official sources.",
+  "links": [
+    {
+      "href": "/Home",
+      "text": "PSR UK"
+    },
+    {
+      "href": "/Blog",
+      "text": "Blog"
+    },
+    {
+      "href": "/CustodyNote",
+      "text": "🆕 Custody Note"
+    },
+    {
+      "href": "/home",
+      "text": "Home"
+    },
+    {
+      "href": "/criminallawcareerguide",
+      "text": "NEW GUIDEHow to Get Into Criminal LawComplete guide: SQE, apprenticeships, CILEX & career pathways."
+    },
+    {
+      "href": "/howtobecome",
+      "text": "NOW FREEHow to Become a Police Station RepComplete PSRAS accreditation guide with timelines and costs."
+    },
+    {
+      "href": "/formslibrary",
+      "text": "Forms Library"
+    },
+    {
+      "href": "/stationsdirectory",
+      "text": "Police Stations"
+    },
+    {
+      "href": "/prepareforcit",
+      "text": "CIT Exam Prep"
+    },
+    {
+      "href": "/directory",
+      "text": "Reps Directory"
+    },
+    {
+      "href": "/Premium",
+      "text": "Browse Resources →"
+    },
+    {
+      "href": "/Directory",
+      "text": "Find a Rep"
+    },
+    {
+      "href": "/StationsDirectory",
+      "text": "Police Stations"
+    },
+    {
+      "href": "/Forces",
+      "text": "Police Forces"
+    },
+    {
+      "href": "/Firms",
+      "text": "Law Firms"
+    },
+    {
+      "href": "/Map",
+      "text": "Interactive Map"
+    },
+    {
+      "href": "/Register",
+      "text": "Register as Rep"
+    },
+    {
+      "href": "/Profile",
+      "text": "My Profile"
+    },
+    {
+      "href": "/GoFeatured",
+      "text": "Become Featured"
+    },
+    {
+      "href": "/PoliceStationRepJobsUK",
+      "text": "Rep Jobs UK"
+    },
+    {
+      "href": "/GetWork",
+      "text": "Get Work Guide"
+    },
+    {
+      "href": "/HowToBecomePoliceStationRep",
+      "text": "How to Become a Rep"
+    },
+    {
+      "href": "/PoliceStationCover",
+      "text": "Police Station Cover (Firms)"
+    },
+    {
+      "href": "/FormsLibrary",
+      "text": "Forms Library (CRM)"
+    },
+    {
+      "href": "/PoliceStationRates",
+      "text": "Station Rates (2025/26)"
+    },
+    {
+      "href": "/PACE",
+      "text": "PACE Codes"
+    },
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki"
+    },
+    {
+      "href": "/LegalUpdates",
+      "text": "Legal Updates"
+    },
+    {
+      "href": "/WhatsApp",
+      "text": "WhatsApp Group"
+    },
+    {
+      "href": "/Forum",
+      "text": "Community Forum"
+    },
+    {
+      "href": "/Contact",
+      "text": "Contact Us"
+    },
+    {
+      "href": "/FAQ",
+      "text": "Help & FAQ"
+    },
+    {
+      "href": "/About",
+      "text": "About"
+    },
+    {
+      "href": "/police-station-representatives-directory-england-wales",
+      "text": "About the PoliceStationRepUK Directory"
+    },
+    {
+      "href": "/Terms",
+      "text": "Terms"
+    },
+    {
+      "href": "/Privacy",
+      "text": "Privacy"
+    },
+    {
+      "href": "/Cookies",
+      "text": "Cookies"
+    },
+    {
+      "href": "/GDPR",
+      "text": "GDPR"
+    },
+    {
+      "href": "/DataProtection",
+      "text": "Data Protection"
+    },
+    {
+      "href": "/Accessibility",
+      "text": "Accessibility"
+    },
+    {
+      "href": "/Complaints",
+      "text": "Complaints"
+    },
+    {
+      "href": "/functions/sitemap",
+      "text": "Sitemap"
+    },
+    {
+      "href": "/functions/rss",
+      "text": "RSS Feed"
+    },
+    {
+      "href": "/cookies",
+      "text": "Details"
+    }
+  ],
+  "crawledAt": "2026-03-08T22:08:18.745Z"
+}

@@ -1,0 +1,31 @@
+import Link from 'next/link';
+
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+export function Breadcrumbs({ items, light }: { items: BreadcrumbItem[]; light?: boolean }) {
+  const textClass = light ? 'text-slate-400' : 'text-[var(--muted)]';
+  const linkClass = light ? 'text-slate-300 hover:text-white' : 'text-[var(--gold-hover)] hover:text-[var(--gold)]';
+  const activeClass = light ? 'text-white' : 'text-[var(--navy)]';
+
+  return (
+    <nav aria-label="Breadcrumb" className={`mb-4 text-sm ${textClass}`}>
+      <ol className="flex flex-wrap items-center gap-1">
+        {items.map((item, i) => (
+          <li key={i} className="flex items-center gap-1">
+            {i > 0 && <span className="px-1" aria-hidden>›</span>}
+            {item.href ? (
+              <Link href={item.href} className={`py-1 no-underline ${linkClass}`}>
+                {item.label}
+              </Link>
+            ) : (
+              <span className={`font-medium ${activeClass}`}>{item.label}</span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}

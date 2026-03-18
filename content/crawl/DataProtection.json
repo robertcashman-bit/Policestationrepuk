@@ -1,0 +1,263 @@
+{
+  "url": "https://www.policestationrepuk.com/dataprotection",
+  "path": "/dataprotection",
+  "title": "Dataprotection | PoliceStationRepUK — Find Accredited Police Station Reps",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Data Protection Policy"
+    },
+    {
+      "level": 2,
+      "text": "1. Policy Overview"
+    },
+    {
+      "level": 2,
+      "text": "2. Data Governance Framework"
+    },
+    {
+      "level": 2,
+      "text": "3. Technical Security Controls"
+    },
+    {
+      "level": 2,
+      "text": "4. Organizational Security Measures"
+    },
+    {
+      "level": 2,
+      "text": "5. Data Breach Management"
+    },
+    {
+      "level": 2,
+      "text": "6. Data Retention Standards"
+    },
+    {
+      "level": 2,
+      "text": "7. Third-Party Data Processors"
+    },
+    {
+      "level": 2,
+      "text": "8. International Data Transfers"
+    },
+    {
+      "level": 2,
+      "text": "9. Contact and Complaints"
+    },
+    {
+      "level": 3,
+      "text": "Reps Directory"
+    },
+    {
+      "level": 3,
+      "text": "Station Contacts"
+    },
+    {
+      "level": 3,
+      "text": "Forms Library"
+    },
+    {
+      "level": 3,
+      "text": "Resources"
+    },
+    {
+      "level": 3,
+      "text": "Need a Police Station Rep in Kent?"
+    },
+    {
+      "level": 3,
+      "text": "Training Guides & Resources"
+    },
+    {
+      "level": 4,
+      "text": "Directories"
+    },
+    {
+      "level": 4,
+      "text": "For Representatives"
+    },
+    {
+      "level": 4,
+      "text": "Tools & Resources"
+    },
+    {
+      "level": 4,
+      "text": "Community"
+    },
+    {
+      "level": 3,
+      "text": "Regulatory Notice"
+    }
+  ],
+  "content": "Data Protection PolicyLast updated: 08/03/20261. Policy Overview1.1 This Data Protection Policy outlines the technical and organizational measures Defence Legal Services Ltd implements to protect personal data processed through PoliceStationRepUK.1.2 This policy supplements our Privacy Policy and GDPR Policy.2. Data Governance Framework2.1 AccountabilitySenior management responsible for data protection complianceRegular compliance audits and reviewsDocumented policies and proceduresStaff training on data protection obligations2.2 DocumentationWe maintain comprehensive records including:Records of Processing Activities (ROPA)Data Protection Impact Assessments (DPIAs)Data breach incident logsData sharing agreements with processorsConsent records and opt-out requests2.3 Access ControlsRole-based access permissionsAdmin access restricted to authorized personnel onlyMulti-factor authentication for sensitive operationsRegular access rights reviewsAudit trail of all admin actions3. Technical Security Controls3.1 EncryptionIn Transit: TLS 1.2+ encryption for all data transmitted over the internetAt Rest: Database encryption for stored personal dataBackups: Encrypted backup files stored securely3.2 Infrastructure SecurityHosting on ISO 27001 certified platformsRegular security patches and updatesFirewall and DDoS protectionIntrusion detection and prevention systemsSecure development practices3.3 Authentication and AccessStrong password requirementsSession timeout and automatic logoutProtection against brute-force attacksSecure password reset mechanisms3.4 Monitoring and LoggingReal-time security monitoringAudit logs for data access and modificationsAnomaly detection for unusual activityLog retention for forensic analysis4. Organizational Security Measures4.1 Staff Training and AwarenessMandatory data protection training for all staffRegular refresher courses and updatesConfidentiality agreements for staff and contractorsClear escalation procedures for security concerns4.2 Policies and ProceduresAcceptable Use Policy for staff systemsClear desk and screen policySecure disposal procedures for physical recordsRemote working security guidelines4.3 Vendor ManagementDue diligence on all third-party processorsData Processing Agreements (DPAs) in placeRegular processor compliance reviewsClear contractual security requirements5. Data Breach Management5.1 Detection and Assessment24/7 monitoring for security incidentsImmediate assessment of breach severity and scopeClassification: containment, eradication, recovery5.2 Notification ProceduresICO notification within 72 hours (where required by law)Affected individuals notified without undue delayClear communication of risks and mitigation stepsDocumented breach response for compliance5.3 Post-Incident ReviewRoot cause analysisLessons learned documentationImplementation of preventative measuresPolicy and procedure updates where necessary6. Data Retention Standards6.1 Retention PeriodsActive user profiles:Duration of account + 30 days post-deletionInactive profiles (2+ years):Archived, then deleted after notificationBilling records:7 years (tax/accounting requirement)Support communications:3 yearsSecurity logs:1 yearBackups:90 days rolling retention6.2 Deletion ProceduresSecure deletion from production databasesRemoval from backups within retention periodAnonymization where deletion not possibleCertification of deletion upon request7. Third-Party Data Processors7.1 We use the following categories of processors:Database & Hosting: Supabase (EEA-based, ISO 27001 certified)Payment Processing: Stripe (PCI DSS compliant)Email Services: Transactional email providersAnalytics: Google Analytics (anonymized IP, GDPR compliant settings)7.2 All processors:Operate under Data Processing AgreementsProvide appropriate security guaranteesAre prohibited from using data for their own purposesComply with UK GDPR requirements8. International Data Transfers8.1 Where data is transferred outside the UK/EEA, we ensure:Adequacy decisions exist, orStandard Contractual Clauses (SCCs) are in place, orOther appropriate safeguards as recognized by UK law8.2 We conduct Transfer Impact Assessments (TIAs) for high-risk transfers.9. Contact and ComplaintsFor data protection enquiries or concerns:Email: robertcashman@defencelegalservices.co.ukSubject: \"Data Protection Enquiry\"You also have the right to complain to the ICO - see our ICO Statement.Reps DirectoryFind accredited repsBrowseStation ContactsPhone numbersSearchForms LibraryLegal aid formsAccessResourcesLegal guidanceExplore",
+  "links": [
+    {
+      "href": "/Home",
+      "text": "PSR UK"
+    },
+    {
+      "href": "/Blog",
+      "text": "Blog"
+    },
+    {
+      "href": "/CustodyNote",
+      "text": "🆕 Custody Note"
+    },
+    {
+      "href": "/ico",
+      "text": "ICO Statement"
+    },
+    {
+      "href": "/directory",
+      "text": "Browse"
+    },
+    {
+      "href": "/stationsdirectory",
+      "text": "Search"
+    },
+    {
+      "href": "/formslibrary",
+      "text": "Access"
+    },
+    {
+      "href": "/resources",
+      "text": "Explore"
+    },
+    {
+      "href": "/Premium",
+      "text": "Browse Resources →"
+    },
+    {
+      "href": "/Directory",
+      "text": "Find a Rep"
+    },
+    {
+      "href": "/StationsDirectory",
+      "text": "Police Stations"
+    },
+    {
+      "href": "/Forces",
+      "text": "Police Forces"
+    },
+    {
+      "href": "/Firms",
+      "text": "Law Firms"
+    },
+    {
+      "href": "/Map",
+      "text": "Interactive Map"
+    },
+    {
+      "href": "/Register",
+      "text": "Register as Rep"
+    },
+    {
+      "href": "/Profile",
+      "text": "My Profile"
+    },
+    {
+      "href": "/GoFeatured",
+      "text": "Become Featured"
+    },
+    {
+      "href": "/PoliceStationRepJobsUK",
+      "text": "Rep Jobs UK"
+    },
+    {
+      "href": "/GetWork",
+      "text": "Get Work Guide"
+    },
+    {
+      "href": "/HowToBecomePoliceStationRep",
+      "text": "How to Become a Rep"
+    },
+    {
+      "href": "/PoliceStationCover",
+      "text": "Police Station Cover (Firms)"
+    },
+    {
+      "href": "/FormsLibrary",
+      "text": "Forms Library (CRM)"
+    },
+    {
+      "href": "/PoliceStationRates",
+      "text": "Station Rates (2025/26)"
+    },
+    {
+      "href": "/PACE",
+      "text": "PACE Codes"
+    },
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki"
+    },
+    {
+      "href": "/LegalUpdates",
+      "text": "Legal Updates"
+    },
+    {
+      "href": "/WhatsApp",
+      "text": "WhatsApp Group"
+    },
+    {
+      "href": "/Forum",
+      "text": "Community Forum"
+    },
+    {
+      "href": "/Contact",
+      "text": "Contact Us"
+    },
+    {
+      "href": "/FAQ",
+      "text": "Help & FAQ"
+    },
+    {
+      "href": "/About",
+      "text": "About"
+    },
+    {
+      "href": "/police-station-representatives-directory-england-wales",
+      "text": "About the PoliceStationRepUK Directory"
+    },
+    {
+      "href": "/Terms",
+      "text": "Terms"
+    },
+    {
+      "href": "/Privacy",
+      "text": "Privacy"
+    },
+    {
+      "href": "/Cookies",
+      "text": "Cookies"
+    },
+    {
+      "href": "/GDPR",
+      "text": "GDPR"
+    },
+    {
+      "href": "/DataProtection",
+      "text": "Data Protection"
+    },
+    {
+      "href": "/Accessibility",
+      "text": "Accessibility"
+    },
+    {
+      "href": "/Complaints",
+      "text": "Complaints"
+    },
+    {
+      "href": "/functions/sitemap",
+      "text": "Sitemap"
+    },
+    {
+      "href": "/functions/rss",
+      "text": "RSS Feed"
+    },
+    {
+      "href": "/cookies",
+      "text": "Details"
+    }
+  ],
+  "crawledAt": "2026-03-08T22:10:50.360Z"
+}

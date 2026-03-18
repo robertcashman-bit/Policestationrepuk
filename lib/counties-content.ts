@@ -1,0 +1,132 @@
+import type { CountyContent } from './types';
+
+const countyContentMap: Record<string, CountyContent> = {
+  kent: {
+    metaTitle:
+      'Police Station Representatives Kent | 24/7 Duty Solicitor Cover',
+    metaDescription:
+      'Find accredited police station representatives in Kent. Experienced reps available for duty solicitor cover at Maidstone, Canterbury, Medway, Folkestone, and all Kent custody suites.',
+    h1: 'Police Station Representatives in Kent',
+    intro:
+      'Kent is one of the busiest policing areas in the South East of England. With major custody suites at Maidstone, Canterbury, Medway, and Folkestone, criminal solicitors across the county frequently need reliable police station representatives to provide cover at short notice. Whether you are a duty solicitor looking for overnight cover or a firm needing full-time outsourced police station attendance, our directory connects you with experienced, accredited representatives throughout Kent.',
+    sections: [
+      {
+        heading: 'Why Solicitors in Kent Need Police Station Representatives',
+        body: 'Kent Police operates one of the largest custody operations in England. The county handles thousands of detentions each year across its custody suites, with particular demand at Maidstone and Medway. For criminal defence solicitors, attending every police station call-out is neither practical nor cost-effective. Police station representatives offer a professional, accredited alternative. They attend the police station on behalf of the instructing solicitor, advise the client in custody, sit in on police interviews, and ensure the client\'s rights are protected throughout the detention process. This outsourced model allows solicitors to maintain 24/7 duty solicitor availability without the burden of attending every custody suite in person.',
+      },
+      {
+        heading: 'What Does a Police Station Representative Do?',
+        body: 'A police station representative is a non-solicitor who has been trained and accredited by the Law Society to provide legal advice and representation at police stations. They operate under the supervision of a qualified solicitor and are authorised to attend custody suites, take instructions from detained persons, provide legal advice before and during police interviews, and make representations regarding bail. In Kent, police station representatives regularly attend interviews for offences ranging from minor public order matters to serious allegations including assault, drug supply, fraud, and sexual offences. They are trained to handle all aspects of the custody process, including reviewing disclosure, advising on the right to silence, challenging unlawful detention, and ensuring compliance with the Police and Criminal Evidence Act 1984 (PACE) and its Codes of Practice.',
+      },
+      {
+        heading: 'Police Stations and Custody Suites in Kent',
+        body: 'Kent Police operates custody suites at several locations across the county. The main custody suites with 24-hour detention facilities are located at Maidstone, Canterbury, Folkestone, Medway (Gillingham), Tunbridge Wells, Dover, Dartford, and Ashford. Some smaller stations such as Margate and Gravesend may hold detainees temporarily but typically transfer them to larger suites. Our directory includes representatives who cover all of these locations, ensuring that wherever your client is held in Kent, you can find a qualified representative to attend promptly.',
+      },
+      {
+        heading: 'How to Find a Police Station Representative in Kent',
+        body: 'Use our directory to search for accredited police station representatives covering Kent. You can filter by specific police station, availability (including 24-hour, weekend, and night-time cover), and accreditation level. Each representative profile includes their contact details, the stations they cover, their experience, and their areas of specialism. You can contact representatives directly to arrange cover for duty solicitor shifts or individual client attendances. All representatives listed in our directory hold current Law Society accreditation and have been vetted for quality and reliability.',
+      },
+      {
+        heading: 'Benefits of Using Our Kent Representative Directory',
+        body: 'Our directory provides criminal solicitors in Kent with immediate access to a network of accredited police station representatives. Instead of relying on a single agent or scrambling to find cover at short notice, you can browse verified profiles, compare experience levels, and make contact directly. This is particularly valuable for firms operating on the duty solicitor rota across multiple Kent courts and police stations, as well as London firms that receive Kent call-outs through the Defence Solicitor Call Centre (DSCC). By outsourcing police station attendance to an experienced representative, solicitors can focus their time on court work, client conferences, and case preparation while maintaining full compliance with their Legal Aid Agency contract obligations.',
+      },
+    ],
+  },
+  london: {
+    metaTitle:
+      'Police Station Representatives London | Metropolitan Police Cover',
+    metaDescription:
+      'Find accredited police station representatives in London. Experienced reps covering all Metropolitan Police custody suites including Charing Cross, Brixton, Hackney, and more.',
+    h1: 'Police Station Representatives in London',
+    intro:
+      'London is the busiest jurisdiction for criminal defence work in the United Kingdom. The Metropolitan Police Service operates dozens of custody suites across the capital, generating enormous demand for police station representatives. Solicitors across London rely on accredited representatives to attend police stations on their behalf, ensuring clients receive timely legal advice whilst allowing firms to manage their workload effectively. Our directory connects you with experienced police station representatives covering every borough in London.',
+    sections: [
+      {
+        heading: 'Police Station Representation in the Capital',
+        body: 'The Metropolitan Police Service is the largest police force in the UK, processing tens of thousands of custody detentions every year. London solicitors face unique challenges: high case volumes, long travel times between stations, and unpredictable duty solicitor call-outs at all hours. Police station representatives are essential to the operation of criminal defence in London. They enable firms of all sizes to provide comprehensive duty solicitor cover and private client representation at police stations across all 32 London boroughs and the City of London. Whether your client is detained at Charing Cross, Brixton, Lewisham, or Tottenham, our directory helps you find a qualified representative who can attend quickly and provide the same standard of advice you would deliver personally.',
+      },
+      {
+        heading: 'What a London Police Station Rep Provides',
+        body: 'Police station representatives in London handle the full range of custody work. They attend the police station promptly after notification by the Defence Solicitor Call Centre or direct instruction from a solicitor. On arrival, they review the custody record, obtain disclosure from the investigating officer, consult privately with the client, advise on the evidence and the appropriate interview strategy, attend all police interviews, make representations regarding further detention and bail, and report back to the instructing solicitor. London representatives often handle complex and high-profile matters including terrorism, serious violence, organised crime, and large-scale fraud investigations. The best representatives combine legal knowledge with practical experience and an understanding of how Metropolitan Police custody units operate.',
+      },
+      {
+        heading: 'Major London Custody Suites',
+        body: 'The Metropolitan Police operates custody suites across London, though the number of active suites has reduced in recent years as the Met consolidates its custody estate. Key custody suites include Charing Cross (Westminster), Brixton (Lambeth), Lewisham, Hackney, Tottenham (Haringey), Croydon, Wandsworth, Islington, Southwark, and West End Central (Westminster). Each suite handles a high volume of detentions, and solicitors need representatives who know these facilities and can navigate the practicalities of attending each one. Our directory lists representatives who specify exactly which London stations they cover, making it easy to find the right person for any call-out.',
+      },
+      {
+        heading: 'Night and Weekend Cover in London',
+        body: 'Demand for police station representation in London is around the clock. Many detentions occur during evenings, nights, weekends, and bank holidays, when solicitors are less available. Our directory includes representatives who specialise in out-of-hours cover, including dedicated night-time representatives and those available exclusively at weekends. This ensures that duty solicitor obligations can be met 24 hours a day, 7 days a week, without the instructing solicitor needing to attend the police station personally at unsocial hours. Reliable out-of-hours cover is essential for maintaining your firm\'s reputation and your Legal Aid Agency contract compliance.',
+      },
+      {
+        heading: 'Choosing the Right Representative in London',
+        body: 'When selecting a police station representative in London, consider their geographical coverage, availability, accreditation, experience, and any specialist skills such as language abilities or expertise in particular offence types. Our directory provides detailed profiles for each representative so you can make an informed choice. All listed representatives hold current Law Society police station accreditation. We recommend building relationships with two or three reliable representatives to ensure you always have cover available when you need it, regardless of the time of day or the location of the custody suite.',
+      },
+    ],
+  },
+  essex: {
+    metaTitle:
+      'Police Station Representatives Essex | Custody Suite Cover 24/7',
+    metaDescription:
+      'Find accredited police station representatives in Essex. Professional reps available at Chelmsford, Southend, Basildon, Colchester, and all Essex custody suites.',
+    h1: 'Police Station Representatives in Essex',
+    intro:
+      'Essex is a large and diverse county with significant demand for police station representation. Essex Police operates major custody suites at Chelmsford, Southend, Basildon, Colchester, and Harlow, each handling high volumes of detentions. Criminal solicitors across Essex need reliable, accredited police station representatives who can attend at short notice and deliver professional advice to clients in custody. Our directory provides a comprehensive listing of experienced representatives covering all Essex police stations.',
+    sections: [
+      {
+        heading: 'Police Station Representation in Essex',
+        body: 'Essex Police is one of the larger county forces in England, covering a population of nearly two million people. The force deals with a wide range of criminal activity, from volume crime in urban areas like Southend and Basildon to organised crime and cross-border offending linked to London and the ports. Solicitors operating in Essex need police station representatives who understand the local policing landscape, know the custody suites, and can attend promptly. A good police station representative in Essex will have established relationships with custody sergeants, understand the typical disclosure practices of Essex Police investigating officers, and be able to advise clients effectively across all offence types.',
+      },
+      {
+        heading: 'The Role of an Essex Police Station Representative',
+        body: 'An accredited police station representative in Essex performs the same function as a qualified solicitor when attending a custody suite. They will review the circumstances of the arrest, check the custody record, obtain and assess police disclosure, provide confidential legal advice to the detainee, attend police interviews, challenge any breaches of PACE or the Codes of Practice, and make representations about bail or further detention. Representatives working in Essex regularly attend for offences including assault, burglary, drug supply, fraud, sexual offences, and motoring matters. The best representatives will provide a detailed attendance note to the instructing solicitor, enabling seamless case progression.',
+      },
+      {
+        heading: 'Essex Custody Suites and Stations',
+        body: 'Essex Police custody suites are located at Chelmsford, Southend-on-Sea, Basildon, Colchester, and Harlow. These are the primary detention facilities in the county, with most overnight and extended detentions processed through these suites. Some smaller stations may process initial arrests but will typically transfer detainees to the main custody suites for interview. Our directory helps you find representatives who cover specific Essex stations, so you can match the right person to every call-out. Each representative profile indicates which stations they attend regularly, their typical response times, and their availability for both scheduled and emergency attendances.',
+      },
+      {
+        heading: 'Finding Reliable Cover in Essex',
+        body: 'Reliability is the most important quality in a police station representative. When a solicitor sends a representative to attend a custody suite on their behalf, they need confidence that the representative will arrive promptly, provide competent advice, and represent the client professionally. Our Essex directory listings include verified representatives with established track records. You can filter by availability, specialism, and station coverage to find the ideal representative for your needs. Whether you need regular duty solicitor cover or occasional private client representation, our directory connects you with professionals who will protect your client and your reputation.',
+      },
+      {
+        heading: 'Outsourcing Police Station Work in Essex',
+        body: 'Many Essex solicitors are increasingly outsourcing police station attendance to accredited representatives. This approach offers significant advantages: reduced overheads, consistent 24/7 coverage, and the ability to handle multiple concurrent call-outs. By using our directory to find and instruct quality representatives, Essex firms can expand their duty solicitor coverage, take on more Legal Aid work, and serve clients across a wider geographical area. The police station representative model is well established in Essex and is recognised by the Legal Aid Agency as a legitimate and effective method of delivering police station legal advice.',
+      },
+    ],
+  },
+};
+
+export function getCountyContent(slug: string, countyName: string): CountyContent {
+  if (countyContentMap[slug]) {
+    return countyContentMap[slug];
+  }
+
+  return {
+    metaTitle: `Police Station Representatives ${countyName} | Duty Solicitor Cover`,
+    metaDescription: `Find accredited police station representatives in ${countyName}. Experienced reps available for duty solicitor cover at all ${countyName} custody suites. 24/7 availability.`,
+    h1: `Police Station Representatives in ${countyName}`,
+    intro: `${countyName} has a strong demand for qualified police station representatives. Criminal solicitors throughout ${countyName} rely on accredited representatives to attend custody suites on their behalf, providing expert legal advice to detained persons and ensuring full compliance with PACE and the Codes of Practice. Our directory connects you with experienced, vetted police station representatives covering all major custody suites in ${countyName}.`,
+    sections: [
+      {
+        heading: `Why Solicitors in ${countyName} Use Police Station Representatives`,
+        body: `Criminal defence solicitors in ${countyName} face the same challenge as firms across England and Wales: maintaining 24/7 duty solicitor availability while managing growing caseloads and tightening budgets. Police station representatives provide the solution. These accredited professionals attend police stations on behalf of the instructing solicitor, advise clients during detention, sit in on police interviews, and ensure that the client's rights are protected at every stage. By outsourcing police station attendance to a reliable representative, ${countyName} solicitors can maintain their Legal Aid Agency contract compliance, manage their workload, and ensure clients receive timely, professional advice regardless of when or where they are detained.`,
+      },
+      {
+        heading: `What a Police Station Representative Does in ${countyName}`,
+        body: `A police station representative is trained and accredited by the Law Society to provide legal advice and assistance at police stations. When instructed, they attend the relevant custody suite in ${countyName}, review the custody record and detention circumstances, obtain disclosure from the investigating officer, provide confidential advice to the detained person, attend police interviews, challenge any procedural irregularities, and make representations regarding bail or further detention. They cover the full spectrum of criminal offences from minor public order matters to serious indictable offences. After each attendance, the representative provides a detailed attendance note to the instructing solicitor, enabling seamless case management and court preparation.`,
+      },
+      {
+        heading: `Police Stations and Custody Suites in ${countyName}`,
+        body: `${countyName} has several active police stations and custody suites where detainees are held and interviewed. Our directory lists representatives who cover all major custody facilities in ${countyName}, ensuring that wherever your client is detained, you can find a qualified representative to attend. Each representative's profile specifies the stations they cover, their typical response times, and their availability for scheduled and emergency call-outs. This makes it straightforward to match the right representative to every police station attendance.`,
+      },
+      {
+        heading: `How to Choose a Representative in ${countyName}`,
+        body: `When selecting a police station representative in ${countyName}, consider their accreditation status, years of experience, geographical coverage, availability, and any specialist skills. All representatives in our directory hold current Law Society police station accreditation and have demonstrated their competence through practical experience. We recommend reviewing each representative's profile, checking their station coverage aligns with your needs, and contacting them directly to discuss availability and working arrangements. Building a relationship with reliable representatives is essential for any criminal defence firm that wants to provide consistent, high-quality police station advice.`,
+      },
+      {
+        heading: `Benefits of Our ${countyName} Representative Directory`,
+        body: `Our directory gives ${countyName} solicitors immediate access to a vetted network of accredited police station representatives. Instead of relying on word of mouth or struggling to find cover at short notice, you can search our directory, compare profiles, and contact representatives directly. Every listing includes full details of the representative's qualifications, coverage area, availability, and specialisms. This transparency helps you make informed decisions about who represents your clients at the police station. The directory is free to use for solicitors and is regularly updated to ensure accuracy and reliability.`,
+      },
+    ],
+  };
+}

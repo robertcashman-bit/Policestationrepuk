@@ -1,0 +1,35 @@
+{
+  "source": "Project components Header.tsx, Footer.tsx (after repair)",
+  "header": {
+    "primary": [
+      { "href": "/", "text": "Home" },
+      { "href": "/Blog", "text": "Blog" },
+      { "href": "/CustodyNote", "text": "Custody Note" },
+      { "href": "/Directory", "text": "Find a Rep" },
+      { "href": "/Register", "text": "Join the Directory (Free)" },
+      { "href": "/StationsDirectory", "text": "Station Numbers" },
+      { "href": "/FormsLibrary", "text": "Forms" },
+      { "href": "/Resources", "text": "Resources" },
+      { "href": "/Contact", "text": "Contact Us" },
+      { "href": "/About", "text": "About" }
+    ],
+    "maxVisible": 10,
+    "note": "When navLinks from mirror are provided, slice(0, 10) is used. Nav uses flex-wrap for responsive."
+  },
+  "footer": {
+    "links": [
+      { "href": "/", "label": "Home" },
+      { "href": "/Directory", "label": "Find a Rep" },
+      { "href": "/CustodyNote", "label": "Custody Note" },
+      { "href": "/Register", "label": "Register" },
+      { "href": "/StationsDirectory", "label": "Station Numbers" },
+      { "href": "/FormsLibrary", "label": "Forms" },
+      { "href": "/Resources", "label": "Resources" },
+      { "href": "/Blog", "label": "Blog" },
+      { "href": "/Contact", "label": "Contact" },
+      { "href": "/About", "label": "About" },
+      { "href": "/Privacy", "label": "Privacy" },
+      { "href": "/Terms", "label": "Terms" }
+    ]
+  }
+}

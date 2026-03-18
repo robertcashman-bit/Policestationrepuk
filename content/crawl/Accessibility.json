@@ -1,0 +1,255 @@
+{
+  "url": "https://www.policestationrepuk.com/accessibility",
+  "path": "/accessibility",
+  "title": "Accessibility | PoliceStationRepUK — Find Accredited Police Station Reps",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Accessibility Statement"
+    },
+    {
+      "level": 2,
+      "text": "1. Our Commitment"
+    },
+    {
+      "level": 2,
+      "text": "2. Accessibility Measures Implemented"
+    },
+    {
+      "level": 2,
+      "text": "3. Known Limitations"
+    },
+    {
+      "level": 2,
+      "text": "4. Assistive Technologies Supported"
+    },
+    {
+      "level": 2,
+      "text": "5. Feedback and Contact"
+    },
+    {
+      "level": 2,
+      "text": "6. Compliance Status"
+    },
+    {
+      "level": 2,
+      "text": "7. Enforcement Procedure"
+    },
+    {
+      "level": 2,
+      "text": "8. Technical Specifications"
+    },
+    {
+      "level": 3,
+      "text": "Reps Directory"
+    },
+    {
+      "level": 3,
+      "text": "Station Contacts"
+    },
+    {
+      "level": 3,
+      "text": "Forms Library"
+    },
+    {
+      "level": 3,
+      "text": "Resources"
+    },
+    {
+      "level": 3,
+      "text": "Need a Police Station Rep in Kent?"
+    },
+    {
+      "level": 3,
+      "text": "Training Guides & Resources"
+    },
+    {
+      "level": 4,
+      "text": "Directories"
+    },
+    {
+      "level": 4,
+      "text": "For Representatives"
+    },
+    {
+      "level": 4,
+      "text": "Tools & Resources"
+    },
+    {
+      "level": 4,
+      "text": "Community"
+    },
+    {
+      "level": 3,
+      "text": "Regulatory Notice"
+    }
+  ],
+  "content": "Accessibility StatementLast updated: 08/03/20261. Our Commitment1.1 Defence Legal Services Ltd is committed to ensuring PoliceStationRepUK is accessible to everyone, including people with disabilities.1.2 We aim to conform to the Web Content Accessibility Guidelines (WCAG) 2.2 Level AA standard.1.3 We continually work to improve accessibility and welcome feedback to help us serve all users effectively.2. Accessibility Measures Implemented2.1 Design and StructureSemantic HTML5 markup with proper heading hierarchy (h1-h6)Logical page structure and navigation orderClear, consistent layout across all pagesResponsive design that works on all screen sizesSkip links to bypass repetitive navigation2.2 Navigation and InteractionFull keyboard navigation support (Tab, Enter, Escape keys)Visible focus indicators on interactive elementsClear, descriptive link text (no \"click here\")Accessible dropdown menus and formsTouch-friendly button sizes for mobile users2.3 Visual DesignHigh color contrast ratios meeting WCAG AA standards (4.5:1 for normal text)Text that can be resized up to 200% without loss of functionalityClear, readable fonts (minimum 16px base size)Color not used as the sole means of conveying informationReduced motion options respected (prefers-reduced-motion)2.4 Content and ReadabilityPlain language where possibleClear explanations of technical termsDescriptive page titles and headingsAlt text for all meaningful imagesARIA labels and descriptions for complex components2.5 Screen Reader SupportTested with NVDA and JAWS screen readersProper ARIA landmark roles (navigation, main, complementary)Form labels properly associated with inputsError messages announced to screen readersLoading states and dynamic content announced3. Known Limitations3.1 Third-Party ContentExternal links (e.g., GOV.UK forms) are managed by third parties and may not meet our accessibility standardsEmbedded content (e.g., Google Maps) controlled by external providersWe provide alternatives where possible (e.g., text addresses alongside maps)3.2 PDF DocumentsSome linked PDF forms may not be fully tagged for screen readersWe link to official sources (GOV.UK) where accessibility is typically betterContact us if you need an alternative accessible format3.3 Legacy ContentOlder pages may not fully meet current standardsWe are progressively updating all contentPriority given to high-traffic and critical pages4. Assistive Technologies Supported4.1 Screen ReadersNVDA (Windows) - tested regularlyJAWS (Windows) - tested regularlyVoiceOver (macOS/iOS) - tested regularlyTalkBack (Android) - tested periodically4.2 Browsers and PlatformsTested and supported on:Chrome, Firefox, Safari, Edge (latest 2 versions)Windows, macOS, iOS, AndroidDesktop and mobile devices5. Feedback and Contact5.1 Report an Accessibility BarrierIf you encounter any accessibility issues or have suggestions for improvement:Email (Preferred)robertcashman@defencelegalservices.co.ukSubject: \"Accessibility Feedback\"Postal AddressAccessibility CoordinatorDefence Legal Services LtdGreenacre, London RoadWest Kingsdown, SevenoaksKent, TN15 6ERUnited Kingdom5.2 What to IncludeDescription of the accessibility barrierPage URL where the issue occursBrowser and assistive technology you're usingScreenshot or error message (if applicable)How the issue affects your use of the website5.3 Our ResponseAcknowledgement within 2 working daysInvestigation and resolution plan within 7 working daysFixes implemented as soon as reasonably possibleFollow-up to confirm issue is resolved6. Compliance Status6.1 Current ComplianceWe believe this website is partially compliant with WCAG 2.2 Level AA.6.2 Non-CompliancesSome third-party embedded content may not be fully accessibleCertain PDF documents linked from external sources may lack proper taggingLegacy content may not meet current standards (being updated progressively)6.3 Disproportionate BurdenAt present, we have not identified any accessibility improvements that would constitute a disproportionate burden under the Equality Act 2010.7. Enforcement Procedure7.1 If you are not satisfied with our response to an accessibility complaint, you may contact:Equality and Human Rights Commission (EHRC)Website: https://www.equalityhumanrights.com/Phone: 0808 800 0082Textphone: 0808 800 00847.2 Alternative Dispute ResolutionFor Northern Ireland residents, contact the Equality Commission for Northern Ireland.8. Technical Specifications8.1 This website relies on the following technologies:HTML5CSS3 (with Tailwind CSS framework)JavaScript (React framework)ARIA attributes for accessibility8.2 The website should work with JavaScript disabled, though some interactive features may be limited.We are dedicated to making our website accessible to the widest possible audience. This statement will be reviewed and updated regularly as we continue to improve accessibility.Reps DirectoryFind accredited repsBrowseStation ContactsPhone numbersSearchForms LibraryLegal aid formsAccessResourcesLegal guidanceExplore",
+  "links": [
+    {
+      "href": "/Home",
+      "text": "PSR UK"
+    },
+    {
+      "href": "/Blog",
+      "text": "Blog"
+    },
+    {
+      "href": "/CustodyNote",
+      "text": "🆕 Custody Note"
+    },
+    {
+      "href": "/directory",
+      "text": "Browse"
+    },
+    {
+      "href": "/stationsdirectory",
+      "text": "Search"
+    },
+    {
+      "href": "/formslibrary",
+      "text": "Access"
+    },
+    {
+      "href": "/resources",
+      "text": "Explore"
+    },
+    {
+      "href": "/Premium",
+      "text": "Browse Resources →"
+    },
+    {
+      "href": "/Directory",
+      "text": "Find a Rep"
+    },
+    {
+      "href": "/StationsDirectory",
+      "text": "Police Stations"
+    },
+    {
+      "href": "/Forces",
+      "text": "Police Forces"
+    },
+    {
+      "href": "/Firms",
+      "text": "Law Firms"
+    },
+    {
+      "href": "/Map",
+      "text": "Interactive Map"
+    },
+    {
+      "href": "/Register",
+      "text": "Register as Rep"
+    },
+    {
+      "href": "/Profile",
+      "text": "My Profile"
+    },
+    {
+      "href": "/GoFeatured",
+      "text": "Become Featured"
+    },
+    {
+      "href": "/PoliceStationRepJobsUK",
+      "text": "Rep Jobs UK"
+    },
+    {
+      "href": "/GetWork",
+      "text": "Get Work Guide"
+    },
+    {
+      "href": "/HowToBecomePoliceStationRep",
+      "text": "How to Become a Rep"
+    },
+    {
+      "href": "/PoliceStationCover",
+      "text": "Police Station Cover (Firms)"
+    },
+    {
+      "href": "/FormsLibrary",
+      "text": "Forms Library (CRM)"
+    },
+    {
+      "href": "/PoliceStationRates",
+      "text": "Station Rates (2025/26)"
+    },
+    {
+      "href": "/PACE",
+      "text": "PACE Codes"
+    },
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki"
+    },
+    {
+      "href": "/LegalUpdates",
+      "text": "Legal Updates"
+    },
+    {
+      "href": "/WhatsApp",
+      "text": "WhatsApp Group"
+    },
+    {
+      "href": "/Forum",
+      "text": "Community Forum"
+    },
+    {
+      "href": "/Contact",
+      "text": "Contact Us"
+    },
+    {
+      "href": "/FAQ",
+      "text": "Help & FAQ"
+    },
+    {
+      "href": "/About",
+      "text": "About"
+    },
+    {
+      "href": "/police-station-representatives-directory-england-wales",
+      "text": "About the PoliceStationRepUK Directory"
+    },
+    {
+      "href": "/Terms",
+      "text": "Terms"
+    },
+    {
+      "href": "/Privacy",
+      "text": "Privacy"
+    },
+    {
+      "href": "/Cookies",
+      "text": "Cookies"
+    },
+    {
+      "href": "/GDPR",
+      "text": "GDPR"
+    },
+    {
+      "href": "/DataProtection",
+      "text": "Data Protection"
+    },
+    {
+      "href": "/Accessibility",
+      "text": "Accessibility"
+    },
+    {
+      "href": "/Complaints",
+      "text": "Complaints"
+    },
+    {
+      "href": "/functions/sitemap",
+      "text": "Sitemap"
+    },
+    {
+      "href": "/functions/rss",
+      "text": "RSS Feed"
+    },
+    {
+      "href": "/cookies",
+      "text": "Details"
+    }
+  ],
+  "crawledAt": "2026-03-08T22:07:29.700Z"
+}

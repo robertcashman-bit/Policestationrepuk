@@ -1,36 +1,157 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Police Station Rep UK
+
+A modern, SEO-optimised directory platform for police station representatives in the United Kingdom. Built with Next.js, Tailwind CSS, and Supabase. Designed for fast Core Web Vitals (LCP < 1s) and gradual migration from the existing Wix site.
+
+## Tech Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Styling:** Tailwind CSS v4
+- **Database:** Supabase (PostgreSQL) — with static seed data fallback for Phase 1
+- **Language:** TypeScript
+- **Deployment:** Vercel or Cloudflare Pages
+
+## Project Structure
+
+```
+app/
+├── page.tsx                          # Homepage (H1, SEO content, county links, CTA)
+├── layout.tsx                        # Root layout with header/footer
+├── globals.css                       # Tailwind + CSS variables
+├── sitemap.ts                        # Dynamic XML sitemap
+├── robots.ts                         # robots.txt
+├── directory/page.tsx                # Directory search with filters (dynamic)
+├── register/page.tsx                 # Rep registration CTA
+├── county/[county]/page.tsx         # County pages (SSG) — served at /police-station-representatives-{county}
+├── rep/[slug]/page.tsx              # Representative profiles (SSG)
+└── police-station/[station]/page.tsx   # Police station pages (SSG)
+
+components/
+├── Header.tsx
+├── Footer.tsx
+├── Breadcrumbs.tsx
+├── RepCard.tsx
+├── StationCard.tsx
+├── DirectoryFilters.tsx              # Client-side directory filters
+└── JsonLd.tsx
+
+lib/
+├── data.ts                           # Data access (seed + Supabase when configured)
+├── types.ts                          # TypeScript types
+├── seo.ts                            # Metadata, JSON-LD schemas
+├── supabase.ts                       # Supabase client (optional)
+├── counties-content.ts               # SEO copy for county pages (Kent, London, Essex + generic)
+└── seed-data.ts                      # (optional) separate seed; current seed lives in data.ts
+
+supabase/
+└── schema.sql                        # Database schema for Phase 2+
+```
+
+## URL Structure
+
+| Page           | URL                                                                 | Rendering |
+|----------------|---------------------------------------------------------------------|-----------|
+| Homepage       | `/`                                                                 | Static    |
+| County         | `/police-station-representatives-{county}` (e.g. kent, london, essex) | SSG       |
+| Rep profile    | `/rep/{slug}`                                                       | SSG       |
+| Police station | `/police-station/{slug}`                                            | SSG       |
+| Directory      | `/directory`                                                        | Dynamic   |
+| Register       | `/register`                                                        | Static    |
+
+County URLs are implemented via Next.js rewrites: `/police-station-representatives-:county` → `/county/:county`.
+
+## SEO
+
+- **JSON-LD:** Organization (homepage), LegalService (reps), GovernmentBuilding (stations), BreadcrumbList (all pages)
+- **Canonical URLs** and **Open Graph** on all pages
+- **sitemap.xml** and **robots.txt** generated at build
+- **Heading hierarchy** and internal links throughout
+- **700+ word** county content for Kent, London, Essex; generic template for other counties
+
+## Performance
+
+- Static generation for homepage, county, rep, and station pages
+- Minimal client JS; directory filters are the only client component
+- Target **LCP < 1s** with edge deployment (Vercel/Cloudflare)
+- Cache headers set in `next.config.ts`
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Install and run
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment variables (optional for Phase 1)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create `.env.local` only when you connect Supabase (Phase 2+):
 
-## Learn More
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+```
 
-To learn more about Next.js, take a look at the following resources:
+**Phase 1:** The app runs without these. If they are missing or invalid (e.g. not a valid HTTP(S) URL), the app uses seed data from `lib/data.ts`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Production build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run build
+npm start
+```
 
-## Deploy on Vercel
+## Database (Phase 2+)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Create a project at [supabase.com](https://supabase.com).
+2. In the SQL Editor, run the contents of `supabase/schema.sql`.
+3. Populate tables (e.g. from seed data or migration).
+4. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in your environment.
+5. The data layer in `lib/data.ts` already checks `isSupabaseConfigured` and uses Supabase when available.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+### Vercel
+
+1. Push the repo to GitHub and import the project in [vercel.com](https://vercel.com).
+2. Add env vars in the Vercel dashboard (optional for Phase 1).
+3. Deploy; Vercel detects Next.js automatically.
+4. Set the production domain (e.g. policestationrepuk.com) in Vercel.
+
+### Cloudflare Pages
+
+1. Connect the repo in Cloudflare Pages.
+2. Build command: `npm run build`
+3. Build output directory: `.next`
+4. Use the Cloudflare Next.js adapter or run `npm run build` and `npm start` with a Node runtime; for full compatibility, consider the official Cloudflare + Next.js guide.
+5. Add `NEXT_PUBLIC_SUPABASE_*` env vars if using Supabase.
+
+### Note on `output: 'standalone'`
+
+For Docker or a custom Node server, add to `next.config.ts`:
+
+```ts
+output: 'standalone',
+```
+
+Then build and run the standalone server as per Next.js docs.
+
+## Migration strategy
+
+- **Phase 1:** This app runs alongside Wix. Use it as static SEO pages that link to the existing Wix directory where appropriate.
+- **Phase 2:** Migrate representative (and related) data into Supabase; keep using the same URLs.
+- **Phase 3:** Switch the main domain to this app and retire the Wix directory.
+- **Phase 4:** Add 301 redirects in `next.config.ts` (`redirects()`) for any legacy Wix URLs.
+
+Existing redirects in `next.config.ts` map paths like `/find-a-rep`, `/representatives`, `/contact-us`, `/about-us` to the new structure.
+
+## Licence
+
+Private — all rights reserved.

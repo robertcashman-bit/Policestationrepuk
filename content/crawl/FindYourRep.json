@@ -1,0 +1,51 @@
+{
+  "url": "https://policestationrepuk.com/FindYourRep",
+  "path": "/FindYourRep",
+  "title": "Find a Police Station Representative Near You | UK Directory",
+  "headings": [
+    {
+      "level": 1,
+      "text": "Find Your Rep"
+    },
+    {
+      "level": 3,
+      "text": "Search Directory"
+    },
+    {
+      "level": 3,
+      "text": "Station Contacts"
+    },
+    {
+      "level": 3,
+      "text": "Join the Network"
+    }
+  ],
+  "content": "Find Your RepDiscover which representatives cover any police station across England & Wales0Total Reps0Stations Covered1Max Reps per Station43Police ForcesView Mode:CloudBy ForceMapAll CountiesCloud View: Station names appear larger when more reps cover them. Click any station to see reps and contact details. Colors: Deep blue = highest, purple = medium, gray = lower.Loading coverage data...Search DirectoryFind reps by station or countyBrowse RepsStation ContactsPhone numbers for all UK stationsView StationsJoin the NetworkRegister as a rep todayGet Listed",
+  "links": [
+    {
+      "href": "/Home",
+      "text": "PSR UK"
+    },
+    {
+      "href": "/Blog",
+      "text": "Blog"
+    },
+    {
+      "href": "/CustodyNote",
+      "text": "🆕 Custody Note"
+    },
+    {
+      "href": "/directory",
+      "text": "Browse Reps"
+    },
+    {
+      "href": "/stationsdirectory",
+      "text": "View Stations"
+    },
+    {
+      "href": "/register",
+      "text": "Get Listed"
+    }
+  ],
+  "crawledAt": "2026-03-08T20:50:21.919Z"
+}

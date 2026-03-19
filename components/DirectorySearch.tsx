@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { DirectoryCard } from '@/components/DirectoryCard';
 import type { Representative, County, PoliceStation } from '@/lib/types';
 
@@ -200,8 +201,10 @@ export function DirectorySearch({
     return [...featured, ...nonFeatured];
   }, [reps, query, county, station, availability, accreditation, sort]);
 
-  const paged = filtered.slice(0, page * PAGE_SIZE);
-  const hasMore = paged.length < filtered.length;
+  const featuredReps = filtered.filter((r) => r.featured);
+  const nonFeaturedReps = filtered.filter((r) => !r.featured);
+  const pagedNonFeatured = nonFeaturedReps.slice(0, page * PAGE_SIZE);
+  const hasMoreNonFeatured = pagedNonFeatured.length < nonFeaturedReps.length;
 
   function resetFilters() {
     setQuery('');
@@ -228,7 +231,7 @@ export function DirectorySearch({
           <div className="sm:col-span-2 lg:col-span-2">
             <input
               type="text"
-              placeholder="Search by name, county, station, or specialism..."
+              placeholder="Search by name, county, station, town, force or postcode..."
               value={query}
               onChange={(e) => { setQuery(e.target.value); setPage(1); }}
               className="w-full rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)] focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]"
@@ -305,42 +308,71 @@ export function DirectorySearch({
 
         {/* Active filters / results count */}
         <div className="mt-4 flex items-center justify-between">
-          <p className="text-sm text-[var(--muted)]">
-            <strong className="font-semibold text-[var(--navy)]">{filtered.length}</strong> representative{filtered.length !== 1 ? 's' : ''} found
+          <p role="status" className="text-sm text-[var(--muted)]">
+            Showing <strong className="font-semibold text-[var(--navy)]">{filtered.length}</strong> representative{filtered.length !== 1 ? 's' : ''}
           </p>
-          {hasActiveFilters && (
-            <button
-              onClick={resetFilters}
-              className="text-sm font-medium text-[var(--gold-hover)] transition-colors hover:text-[var(--gold)]"
-            >
-              Clear all filters
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {hasActiveFilters && (
+              <button
+                onClick={resetFilters}
+                className="text-sm font-medium text-[var(--gold-hover)] transition-colors hover:text-[var(--gold)]"
+              >
+                Clear all filters
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
+      {/* Featured Representatives section */}
+      {featuredReps.length > 0 && (
+        <div className="mt-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-[var(--navy)]">Featured Representatives</h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">
+                Featured placements are promoted listings and are shown separately from standard directory results.
+              </p>
+            </div>
+            <Link href="/GoFeatured" className="btn-gold !min-h-[36px] !px-4 !py-1.5 !text-sm hidden sm:inline-flex no-underline">
+              Become Featured
+            </Link>
+          </div>
+          <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredReps.map((rep) => (
+              <DirectoryCard key={rep.id} rep={rep} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Directory heading */}
+      {nonFeaturedReps.length > 0 && (
+        <h2 className="mt-10 text-xl font-bold text-[var(--navy)]">Directory</h2>
+      )}
+
       {/* Results grid */}
-      {paged.length > 0 ? (
+      {pagedNonFeatured.length > 0 ? (
         <>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {paged.map((rep) => (
+          <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {pagedNonFeatured.map((rep) => (
               <DirectoryCard key={rep.id} rep={rep} />
             ))}
           </div>
 
           {/* Load more */}
-          {hasMore && (
+          {hasMoreNonFeatured && (
             <div className="mt-10 text-center">
               <button
                 onClick={() => setPage((p) => p + 1)}
                 className="btn-outline"
               >
-                Load more ({filtered.length - paged.length} remaining)
+                Load More Representatives ({nonFeaturedReps.length - pagedNonFeatured.length} remaining)
               </button>
             </div>
           )}
         </>
-      ) : (
+      ) : filtered.length === 0 ? (
         <div className="mt-8 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-12 text-center shadow-[var(--card-shadow)]">
           <p className="text-xl font-bold text-[var(--navy)]">No representatives found</p>
           <p className="mt-2 text-[var(--muted)]">
@@ -351,7 +383,7 @@ export function DirectorySearch({
             .
           </p>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

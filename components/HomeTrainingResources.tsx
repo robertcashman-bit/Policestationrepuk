@@ -1,65 +1,99 @@
 import Link from 'next/link';
 
-const RESOURCE_CARDS = [
+const GUIDES = [
   {
-    icon: '📚',
-    title: 'Training Guides',
-    description: '45+ professional development articles covering interview techniques, client management, and more.',
-    href: '/Premium',
-    cta: 'Browse Guides',
+    title: 'How to Become a Police Station Rep',
+    body: 'Complete PSRAS accreditation roadmap: eligibility requirements, enrollment process, portfolio building, Critical Incidents Test preparation, assessment stages, typical timelines, costs breakdown, and career progression pathways.',
+    href: '/HowToBecomePoliceStationRep',
   },
   {
-    icon: '💷',
-    title: 'Escape Fee Calculator',
-    description: 'Calculate whether your attendance qualifies for escape fees under the harmonised structure.',
-    href: '/EscapeFeeCalculator',
-    cta: 'Use Calculator',
+    title: 'Get Work as a Police Station Rep',
+    body: 'Comprehensive business development guide: setting up as a freelance rep, active outreach strategies, firm relationship building, pricing structures, service delivery excellence, client retention techniques, and scaling your practice.',
+    href: '/GetWork',
   },
   {
-    icon: '📋',
-    title: 'Forms Library',
-    description: 'Download CRM1, CRM2, CRM4, and other essential criminal legal aid forms.',
-    href: '/FormsLibrary',
-    cta: 'View Forms',
+    title: 'Police Station Work - Complete Wiki',
+    body: 'Extensive knowledge base covering: interview techniques, PACE compliance, disclosure procedures, legal aid claims, station-specific intelligence, common problems and solutions, billing best practices, and professional development.',
+    href: '/Wiki',
   },
-  {
-    icon: '⚖️',
-    title: 'PACE Codes',
-    description: 'Quick-reference guide to PACE Codes A–H for custody attendance and interview.',
-    href: '/PACE',
-    cta: 'View Codes',
-  },
+];
+
+const INCLUDED = [
+  'Complete "How to Become a Rep" guide',
+  'Complete "Get Work as a Rep" guide',
+  'Full Rep Wiki knowledge base',
+  'All resources & templates',
+];
+
+const FREE_REASONS = [
+  'No payment required',
+  'Full access for all users',
+  'Community-driven content',
+  'Regularly updated guides',
 ];
 
 export function HomeTrainingResources() {
   return (
-    <section className="bg-white py-14 sm:py-16">
-      <div className="page-container">
+    <section className="bg-white py-14 sm:py-16" aria-label="Training resources">
+      <div className="page-container !py-0">
         <div className="text-center">
-          <h3 className="text-xl font-bold text-[var(--navy)] sm:text-2xl">
+          <h2 className="text-2xl font-bold text-[var(--navy)] sm:text-3xl">
             Training Guides &amp; Resources
-          </h3>
-          <p className="mt-3 text-[var(--muted)]">
-            Free tools and guides for police station representatives.
+          </h2>
+          <p className="mt-2 text-[var(--muted)]">
+            Access training guides, Rep Wiki, and professional resources — all completely free
           </p>
         </div>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {RESOURCE_CARDS.map((card) => (
-            <Link
-              key={card.href}
-              href={card.href}
-              className="group flex flex-col rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)] no-underline transition-all hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--gold)]/40"
-            >
-              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--navy)] text-xl">
-                {card.icon}
-              </span>
-              <h4 className="mt-4 text-base font-bold text-[var(--navy)]">{card.title}</h4>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-[var(--muted)]">{card.description}</p>
-              <span className="mt-4 text-sm font-semibold text-[var(--gold-hover)] transition-colors group-hover:text-[var(--gold)]">
-                {card.cta} →
-              </span>
-            </Link>
-          ))}
+
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Link href="/Resources" className="btn-gold !text-sm">
+            Browse All Resources
+          </Link>
+        </div>
+
+        {/* What's Available */}
+        <div className="mt-10">
+          <h3 className="text-lg font-bold text-[var(--navy)]">What&apos;s Available</h3>
+          <div className="mt-4 grid gap-5 sm:grid-cols-3">
+            {GUIDES.map((g) => (
+              <Link
+                key={g.href}
+                href={g.href}
+                className="group rounded-xl border border-[var(--card-border)] bg-white p-6 shadow-sm no-underline transition-all hover:shadow-md hover:border-[var(--gold)]/40"
+              >
+                <h4 className="text-base font-bold text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
+                  {g.title}
+                </h4>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{g.body}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* What's Included + Why It's Free */}
+        <div className="mt-10 grid gap-8 sm:grid-cols-2">
+          <div>
+            <h3 className="text-lg font-bold text-[var(--navy)]">What&apos;s Included</h3>
+            <ul className="mt-3 space-y-2">
+              {INCLUDED.map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm text-[var(--muted)]">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-xs text-emerald-600">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-[var(--navy)]">Why It&apos;s Free</h3>
+            <ul className="mt-3 space-y-2">
+              {FREE_REASONS.map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm text-[var(--muted)]">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-xs text-blue-600">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>

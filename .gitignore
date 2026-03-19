@@ -41,3 +41,6 @@ next-env.d.ts
 
 # form submissions (runtime data, not source)
 /data/submissions/
+
+.vercel
+.env*.local

@@ -2,28 +2,29 @@ import Link from 'next/link';
 
 export function HomeRegisterCta() {
   return (
-    <section className="bg-[var(--navy)] py-16 sm:py-20">
-      <div className="page-container">
+    <section className="bg-gradient-to-br from-emerald-600 to-emerald-700 py-14 sm:py-16" aria-label="Join directory call to action">
+      <div className="page-container !py-0">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-h2 !mt-0 text-white">Are you a police station representative?</h2>
-          <p className="mt-4 text-lg text-slate-300">
-            Join our free directory and connect with criminal defence solicitors looking for
-            police station cover across England &amp; Wales. No fees, no subscriptions — ever.
+          <h2 className="text-2xl font-bold text-white sm:text-3xl">
+            Join the Directory — it&apos;s free
+          </h2>
+          <p className="mt-3 text-emerald-100">
+            Get discovered by criminal defence firms and receive more opportunities.
+          </p>
+          <p className="mt-2 text-sm text-emerald-200">
+            Takes 2–3 minutes • No fees, ever
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <Link href="/register" className="btn-gold w-full sm:w-auto">
-              Register for Free
+            <Link href="/register" className="flex w-full items-center justify-center rounded-xl bg-white px-8 py-4 text-base font-bold text-emerald-700 shadow-lg no-underline transition-all hover:bg-emerald-50 sm:w-auto">
+              Create free profile
             </Link>
-            <Link
-              href="/GoFeatured"
-              className="btn-outline w-full !border-slate-500 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)] sm:w-auto"
-            >
-              Become Featured
+            <Link href="/directory" className="flex w-full items-center justify-center rounded-xl border-2 border-white/30 px-8 py-4 text-base font-bold text-white no-underline transition-all hover:border-white hover:bg-white/10 sm:w-auto">
+              Search directory
+            </Link>
+            <Link href="/StationsDirectory" className="flex w-full items-center justify-center rounded-xl border-2 border-white/30 px-8 py-4 text-base font-bold text-white no-underline transition-all hover:border-white hover:bg-white/10 sm:w-auto">
+              Station numbers
             </Link>
           </div>
-          <p className="mt-6 text-sm text-slate-400">
-            No subscriptions, no hidden costs — create your free profile in minutes
-          </p>
         </div>
       </div>
     </section>

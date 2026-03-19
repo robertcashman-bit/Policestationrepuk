@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { getMirrorNavLinks, hasMirrorData } from '@/lib/mirror-data';
+import { CookieBanner } from '@/components/CookieBanner';
 import './globals.css';
 
 const inter = Inter({
@@ -23,7 +23,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'PoliceStationRepUK — Free Police Station Rep Directory UK',
+    default: 'Home | PoliceStationRepUK — Find Accredited Police Station Reps',
     template: '%s | PoliceStationRepUK',
   },
   description:
@@ -64,16 +64,16 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const navLinks = hasMirrorData() ? getMirrorNavLinks() : undefined;
   return (
     <html lang="en" className={inter.variable}>
       <body className="flex min-h-screen flex-col bg-[var(--background)] font-sans text-[var(--foreground)] antialiased">
         <a href="#main-content" className="skip-link">
-          Skip to main content
+          Skip to content
         </a>
-        <Header navLinks={navLinks} />
+        <Header />
         <main id="main-content" className="flex-1">{children}</main>
         <Footer />
+        <CookieBanner />
       </body>
     </html>
   );

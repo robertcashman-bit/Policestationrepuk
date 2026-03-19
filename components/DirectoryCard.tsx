@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import type { Representative } from '@/lib/types';
 
@@ -23,16 +26,16 @@ export interface DirectoryCardProps {
 }
 
 export function DirectoryCard({ rep }: DirectoryCardProps) {
+  const [showContact, setShowContact] = useState(false);
   const avail = getAvailabilityBadge(rep.availability);
   const phoneHref = rep.phone ? `tel:${rep.phone.replace(/\s/g, '')}` : null;
 
   return (
     <article className="group flex flex-col rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white shadow-[var(--card-shadow)] transition-all duration-200 hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--gold)]/40">
-      {/* Top accent bar */}
       <div className="h-1 rounded-t-[var(--radius-lg)] bg-gradient-to-r from-[var(--navy)] to-[var(--navy-mid)]" />
 
       <div className="flex flex-1 flex-col p-5 sm:p-6">
-        {/* Header row: accreditation + availability */}
+        {/* Badges */}
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${avail.color}`}>
             {avail.label}
@@ -40,20 +43,27 @@ export function DirectoryCard({ rep }: DirectoryCardProps) {
           <span className="rounded-full bg-[var(--navy)]/5 px-2.5 py-0.5 text-[11px] font-semibold text-[var(--navy)]">
             {rep.accreditation.includes('Duty') ? 'Duty Solicitor' : rep.accreditation.includes('Probationary') ? 'Probationary' : 'Accredited'}
           </span>
+          {rep.featured && (
+            <span className="rounded-full bg-[var(--gold)]/10 px-2.5 py-0.5 text-[11px] font-bold text-[var(--gold-hover)]">
+              ⭐ Featured
+            </span>
+          )}
         </div>
 
         {/* Name */}
         <h3 className="text-lg font-bold tracking-tight text-[var(--navy)]">
-          <Link
-            href={`/rep/${rep.slug}`}
-            className="no-underline transition-colors hover:text-[var(--gold-hover)]"
-          >
-            {rep.name}
-          </Link>
+          {rep.name}
         </h3>
 
+        {/* Quote/bio */}
+        {rep.bio && (
+          <blockquote className="mt-2 border-l-2 border-[var(--gold)]/30 pl-3 text-xs italic leading-relaxed text-[var(--muted)]">
+            &ldquo;{rep.bio.length > 120 ? rep.bio.slice(0, 118) + '…' : rep.bio}&rdquo;
+          </blockquote>
+        )}
+
         {/* Counties */}
-        <p className="mt-1.5 text-sm font-medium text-[var(--muted)]">
+        <p className="mt-2 text-sm font-medium text-[var(--muted)]">
           {rep.county}
         </p>
 
@@ -74,45 +84,53 @@ export function DirectoryCard({ rep }: DirectoryCardProps) {
           )}
         </div>
 
-        {/* Experience & languages */}
-        {(rep.yearsExperience || (rep.languages && rep.languages.length > 1)) && (
-          <div className="mt-3 flex flex-wrap gap-3 text-xs text-[var(--muted)]">
-            {rep.yearsExperience && (
-              <span>{rep.yearsExperience}+ years exp.</span>
+        <div className="flex-1" />
+
+        {/* Show Contact Details toggle */}
+        {showContact && (
+          <div className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
+            {phoneHref && (
+              <a href={phoneHref} className="block text-sm font-medium text-[var(--navy)] no-underline hover:text-[var(--gold-hover)]">
+                📞 {rep.phone}
+              </a>
             )}
-            {rep.languages && rep.languages.length > 1 && (
-              <span>{rep.languages.join(', ')}</span>
+            {rep.email && (
+              <a href={`mailto:${rep.email}`} className="mt-1 block text-sm font-medium text-[var(--navy)] no-underline hover:text-[var(--gold-hover)]">
+                ✉️ {rep.email}
+              </a>
+            )}
+            {!rep.phone && !rep.email && (
+              <p className="text-sm text-[var(--muted)]">View full profile for contact details</p>
             )}
           </div>
         )}
 
-        {/* Spacer */}
-        <div className="flex-1" />
-
         {/* CTA footer */}
-        <div className="mt-5 flex gap-2 border-t border-[var(--border)] pt-4">
-          {phoneHref ? (
-            <a
-              href={phoneHref}
-              aria-label={`Call ${rep.name}`}
-              className="btn-gold flex-1 !min-h-[40px] !px-3 !py-2 !text-sm"
-            >
-              📞 Call
-            </a>
-          ) : (
+        <div className="mt-4 flex flex-col gap-2 border-t border-[var(--border)] pt-4">
+          <button
+            onClick={() => setShowContact((v) => !v)}
+            className="btn-gold !min-h-[40px] w-full !px-3 !py-2 !text-sm"
+          >
+            {showContact ? 'Hide Contact Details' : 'Show Contact Details'}
+          </button>
+          <div className="flex gap-2">
             <Link
               href={`/rep/${rep.slug}`}
-              className="btn-gold flex-1 !min-h-[40px] !px-3 !py-2 !text-sm"
+              className="btn-outline flex-1 !min-h-[40px] !px-3 !py-2 !text-sm"
             >
-              Contact
+              View Full Profile
             </Link>
-          )}
-          <Link
-            href={`/rep/${rep.slug}`}
-            className="btn-outline flex-1 !min-h-[40px] !px-3 !py-2 !text-sm"
-          >
-            Profile →
-          </Link>
+            {rep.websiteUrl && (
+              <a
+                href={rep.websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline flex-1 !min-h-[40px] !px-3 !py-2 !text-sm"
+              >
+                Visit Website
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </article>

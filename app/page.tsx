@@ -2,27 +2,32 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { JsonLd } from '@/components/JsonLd';
 import { HomeHero } from '@/components/HomeHero';
-import { HomeHowItWorks } from '@/components/HomeHowItWorks';
-import { HomeRegisterCta } from '@/components/HomeRegisterCta';
-import { HomeKentSpotlight } from '@/components/HomeKentSpotlight';
+import { HomeCustodyNote } from '@/components/HomeCustodyNote';
+import { HomeRecentlyJoined } from '@/components/HomeRecentlyJoined';
 import { HomeTrainingResources } from '@/components/HomeTrainingResources';
-import { DirectoryCard } from '@/components/DirectoryCard';
+import { HomeFeaturedCarousel } from '@/components/HomeFeaturedCarousel';
+import { HomeWhyChoose } from '@/components/HomeWhyChoose';
+import { HomeTestimonials } from '@/components/HomeTestimonials';
+import { HomeBlogPreview } from '@/components/HomeBlogPreview';
+import { HomeRegisterCta } from '@/components/HomeRegisterCta';
+import { HomeQuickSearch } from '@/components/HomeQuickSearch';
+import { HomePhoneNumbers } from '@/components/HomePhoneNumbers';
+import { HomeAIAssistant } from '@/components/HomeAIAssistant';
+import { HomeKentSpotlight } from '@/components/HomeKentSpotlight';
 import { getAllReps, getAllStations, getAllCounties } from '@/lib/data';
 import { organizationSchema, webSiteSchema } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'PoliceStationRepUK — Free Police Station Rep Directory UK',
+  title: 'Home | PoliceStationRepUK — Find Accredited Police Station Reps',
   description:
     "The UK's free directory for police station cover. Find accredited police station representatives by county, station, or name. 100% free for solicitors and reps. No fees ever.",
   alternates: { canonical: 'https://policestationrepuk.com' },
 };
 
-const FEATURED_REP_COUNT = 6;
 const UK_FORCES_COUNT = 43;
 
 export default async function HomePage() {
   const [reps, stations, counties] = await Promise.all([getAllReps(), getAllStations(), getAllCounties()]);
-  const featuredReps = reps.slice(0, FEATURED_REP_COUNT);
 
   return (
     <>
@@ -32,10 +37,14 @@ export default async function HomePage() {
       {/* 1 — Hero */}
       <HomeHero repCount={reps.length} />
 
-      {/* 2 — Stats bar */}
-      <section className="border-b border-[var(--border)] bg-white py-10 sm:py-12">
+      {/* 2 — Stats: Trusted Nationwide Coverage */}
+      <section className="border-b border-[var(--border)] bg-white py-10 sm:py-12" aria-label="Site statistics">
         <div className="page-container !py-0">
-          <div className="grid grid-cols-2 gap-6 text-center sm:grid-cols-4">
+          <div className="text-center">
+            <h2 className="text-xl font-bold text-[var(--navy)] sm:text-2xl">Trusted Nationwide Coverage</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">Real-time access to the UK&apos;s largest network</p>
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-6 text-center sm:grid-cols-4">
             <div>
               <p className="text-3xl font-extrabold text-[var(--navy)] sm:text-4xl">{reps.length}+</p>
               <p className="mt-1 text-sm font-medium text-[var(--muted)]">Representatives</p>
@@ -56,77 +65,60 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 3 — Featured representatives */}
-      <section className="bg-[var(--background)] py-14 sm:py-16" aria-label="Featured representatives">
-        <div className="page-container">
-          <div className="flex items-end justify-between">
-            <div>
-              <h2 className="text-h2 !mt-0 text-[var(--navy)]">Featured representatives</h2>
-              <p className="mt-2 text-[var(--muted)]">
-                Accredited police station representatives from our directory.
-              </p>
-            </div>
-            <Link
-              href="/directory"
-              className="hidden text-sm font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)] sm:block"
-            >
-              View all {reps.length}+ reps →
-            </Link>
-          </div>
-          {featuredReps.length > 0 && (
-            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {featuredReps.map((rep) => (
-                <DirectoryCard key={rep.id} rep={rep} />
-              ))}
-            </div>
-          )}
-          <p className="mt-8 text-center sm:hidden">
-            <Link href="/directory" className="btn-outline !text-sm">
-              View full directory →
-            </Link>
-          </p>
-        </div>
-      </section>
+      {/* 3 — CustodyNote promo */}
+      <HomeCustodyNote />
 
-      {/* 4 — How it works */}
-      <HomeHowItWorks />
+      {/* 4 — Recently Joined */}
+      <HomeRecentlyJoined reps={reps} />
 
-      {/* 5 — County quick links */}
-      <section className="border-y border-[var(--border)] bg-[var(--background)] py-14 sm:py-16">
-        <div className="page-container">
-          <div className="text-center">
-            <h2 className="text-h2 !mt-0 text-[var(--navy)]">Browse by county</h2>
-            <p className="mt-2 text-[var(--muted)]">
-              Find representatives in your area.
-            </p>
-          </div>
-          <div className="mt-8 flex flex-wrap justify-center gap-2">
-            {counties.slice(0, 20).map((county) => (
-              <Link
-                key={county.slug}
-                href={`/directory/${county.slug}`}
-                className="rounded-full border border-[var(--card-border)] bg-white px-4 py-2 text-sm font-medium text-[var(--navy)] no-underline shadow-sm transition-all hover:border-[var(--gold)]/40 hover:shadow-md"
-              >
-                {county.name}
-              </Link>
-            ))}
-          </div>
-          <p className="mt-6 text-center">
-            <Link href="/PoliceStationRepsByCounty" className="text-sm font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
-              View all counties →
-            </Link>
-          </p>
-        </div>
-      </section>
-
-      {/* 6 — Kent spotlight */}
-      <HomeKentSpotlight />
-
-      {/* 7 — Training resources */}
+      {/* 5 — Training Guides (detailed) */}
       <HomeTrainingResources />
 
-      {/* 8 — Register CTA */}
+      {/* 6 — Featured Premium Reps carousel */}
+      <HomeFeaturedCarousel />
+
+      {/* 7 — Why Choose */}
+      <HomeWhyChoose />
+
+      {/* 8 — Testimonials */}
+      <HomeTestimonials />
+
+      {/* 9 — Blog preview */}
+      <HomeBlogPreview />
+
+      {/* 10 — Join the Directory CTA */}
       <HomeRegisterCta />
+
+      {/* 11 — Quick Search + Out-of-hours */}
+      <HomeQuickSearch />
+
+      {/* 12 — Phone Numbers */}
+      <HomePhoneNumbers />
+
+      {/* 13 — AI Assistant */}
+      <HomeAIAssistant />
+
+      {/* 14 — Kent Spotlight */}
+      <HomeKentSpotlight />
+
+      {/* 15 — Second Training block (footer-adjacent) */}
+      <section className="bg-white py-14 sm:py-16">
+        <div className="page-container !py-0">
+          <div className="text-center">
+            <h3 className="text-xl font-bold text-[var(--navy)] sm:text-2xl">
+              Training Guides &amp; Resources
+            </h3>
+            <p className="mt-2 text-[var(--muted)]">
+              Access training guides, Rep Wiki, and professional resources — all free.
+            </p>
+          </div>
+          <div className="mt-6 flex justify-center">
+            <Link href="/Resources" className="btn-gold !text-sm">
+              Browse Resources →
+            </Link>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

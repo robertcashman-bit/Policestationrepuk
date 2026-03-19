@@ -16,13 +16,13 @@ export function HomeRegisterCta() {
           </p>
           <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link href="/register" className="flex w-full items-center justify-center rounded-xl bg-white px-8 py-4 text-base font-bold text-emerald-700 shadow-lg no-underline transition-all hover:bg-emerald-50 sm:w-auto">
-              Create free profile
+              Create My Free Profile
             </Link>
             <Link href="/directory" className="flex w-full items-center justify-center rounded-xl border-2 border-white/30 px-8 py-4 text-base font-bold text-white no-underline transition-all hover:border-white hover:bg-white/10 sm:w-auto">
-              Search directory
+              Search Directory
             </Link>
             <Link href="/StationsDirectory" className="flex w-full items-center justify-center rounded-xl border-2 border-white/30 px-8 py-4 text-base font-bold text-white no-underline transition-all hover:border-white hover:bg-white/10 sm:w-auto">
-              Station numbers
+              Station Numbers
             </Link>
           </div>
         </div>

@@ -90,7 +90,10 @@ export default async function HomePage() {
       <HomeRegisterCta />
 
       {/* 11 — Quick Search + Out-of-hours */}
-      <HomeQuickSearch />
+      <HomeQuickSearch
+        stations={stations.map((s) => s.name)}
+        counties={counties.map((c) => c.name)}
+      />
 
       {/* 12 — Phone Numbers */}
       <HomePhoneNumbers />
@@ -112,7 +115,10 @@ export default async function HomePage() {
               Access training guides, Rep Wiki, and professional resources — all free.
             </p>
           </div>
-          <div className="mt-6 flex justify-center">
+          <div className="mt-6 flex flex-col items-center gap-3">
+            <Link href="/Resources" className="text-sm font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
+              Browse Resources →
+            </Link>
             <Link href="/Resources" className="btn-gold !text-sm">
               Browse Resources →
             </Link>

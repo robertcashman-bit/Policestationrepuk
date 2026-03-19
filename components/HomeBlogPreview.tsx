@@ -47,11 +47,14 @@ export function HomeBlogPreview() {
           ))}
         </div>
 
-        <p className="mt-8 text-center">
+        <div className="mt-8 flex flex-col items-center gap-3">
           <Link href="/Blog" className="text-sm font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
             Browse blog articles
           </Link>
-        </p>
+          <Link href="/Blog" className="btn-gold !text-sm">
+            Browse All Articles
+          </Link>
+        </div>
       </div>
     </section>
   );

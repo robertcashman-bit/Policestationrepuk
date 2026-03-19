@@ -4,17 +4,25 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-export function HomeQuickSearch() {
+interface QuickSearchProps {
+  stations?: string[];
+  counties?: string[];
+}
+
+export function HomeQuickSearch({ stations = [], counties = [] }: QuickSearchProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
+  const [station, setStation] = useState('');
+  const [county, setCounty] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim()) {
-      router.push(`/directory?q=${encodeURIComponent(query.trim())}`);
-    } else {
-      router.push('/directory');
-    }
+    const params = new URLSearchParams();
+    if (query.trim()) params.set('q', query.trim());
+    if (station) params.set('station', station);
+    if (county) params.set('county', county);
+    const qs = params.toString();
+    router.push(qs ? `/directory?${qs}` : '/directory');
   };
 
   return (
@@ -37,26 +45,47 @@ export function HomeQuickSearch() {
               Find reps instantly by name, station, or county
             </p>
 
-            <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by name..."
-                className="flex-1 rounded-lg border border-[var(--border)] px-4 py-3 text-sm outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
+                className="w-full rounded-lg border border-[var(--border)] px-4 py-3 text-sm outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
               />
-              <button type="submit" className="btn-gold !min-h-[44px] !px-6 !text-sm">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <select
+                  value={station}
+                  onChange={(e) => setStation(e.target.value)}
+                  aria-label="Filter by station"
+                  className="rounded-lg border border-[var(--border)] px-4 py-3 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
+                >
+                  <option value="">Filter by station</option>
+                  {stations.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <select
+                  value={county}
+                  onChange={(e) => setCounty(e.target.value)}
+                  aria-label="Filter by county"
+                  className="rounded-lg border border-[var(--border)] px-4 py-3 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
+                >
+                  <option value="">Filter by county</option>
+                  {counties.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <button type="submit" className="btn-gold !min-h-[44px] w-full !text-sm">
                 Search Directory
               </button>
             </form>
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Link href="/directory" className="btn-gold w-full sm:w-auto">
-              Search directory
-            </Link>
             <Link href="/StationsDirectory" className="btn-outline w-full sm:w-auto">
-              Station numbers
+              Station phone numbers
             </Link>
             <Link href="/Forces" className="btn-outline w-full sm:w-auto">
               Browse by force

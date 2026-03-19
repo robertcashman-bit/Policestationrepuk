@@ -13,6 +13,7 @@ const DIRECTORY_LINKS = [
 
 const REP_LINKS = [
   { href: '/register', label: 'Register as Rep' },
+  { href: '/register', label: 'My Profile' },
   { href: '/GoFeatured', label: 'Become Featured' },
   { href: '/PoliceStationRepJobsUK', label: 'Rep Jobs UK' },
   { href: '/GetWork', label: 'Get Work Guide' },
@@ -31,6 +32,7 @@ const TOOLS_LINKS = [
 
 const COMMUNITY_LINKS = [
   { href: '/WhatsApp', label: 'WhatsApp Group' },
+  { href: '/WhatsApp', label: 'Facebook Group' },
   { href: '/Forum', label: 'Community Forum' },
   { href: '/Blog', label: 'Read Our Blog' },
   { href: '/Contact', label: 'Contact Us' },

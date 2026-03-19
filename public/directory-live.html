@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Live Directory — PoliceStationRepUK</title>
+  <style>
+    :root {
+      --navy: #0f172a;
+      --navy-light: #1e293b;
+      --gold: #d4a843;
+      --gold-hover: #b8922e;
+      --gold-pale: #fef9ee;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --card-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --card-hover: 0 4px 12px rgba(0,0,0,.1);
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--navy);
+      line-height: 1.6;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+
+    .header {
+      background: linear-gradient(135deg, #1e40af, #312e81);
+      padding: 40px 20px;
+      text-align: center;
+      color: white;
+    }
+    .header h1 { font-size: 28px; font-weight: 800; }
+    .header p { margin-top: 8px; font-size: 16px; color: rgba(255,255,255,.7); }
+
+    .stats-bar {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .stat {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+    .stat strong { font-size: 18px; display: block; }
+
+    .filters {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: var(--card-shadow);
+    }
+    .filters-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 768px) {
+      .filters-grid { grid-template-columns: 1fr; }
+    }
+    .filters input, .filters select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--navy);
+    }
+    .filters input:focus, .filters select:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(212,168,67,.2);
+    }
+    .results-count {
+      margin-top: 12px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .results-count strong { color: var(--navy); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .card:hover {
+      box-shadow: var(--card-hover);
+      border-color: rgba(212,168,67,.4);
+    }
+    .card-bar { height: 4px; background: linear-gradient(90deg, var(--navy), var(--navy-light)); }
+    .card-body { padding: 20px; }
+
+    .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      padding: 3px 10px;
+      border-radius: 50px;
+      border: 1px solid transparent;
+    }
+    .badge-avail { background: #ecfdf5; color: #059669; border-color: #a7f3d0; }
+    .badge-accred { background: rgba(15,23,42,.05); color: var(--navy); }
+    .badge-featured { background: rgba(212,168,67,.1); color: var(--gold-hover); }
+
+    .card h3 { font-size: 18px; font-weight: 700; }
+    .card .county { font-size: 14px; color: var(--muted); margin-top: 4px; }
+    .card .bio {
+      margin-top: 8px;
+      padding-left: 12px;
+      border-left: 2px solid rgba(212,168,67,.3);
+      font-size: 13px;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    .stations { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .station-pill {
+      background: var(--gold-pale);
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 50px;
+    }
+    .station-more {
+      background: #f1f5f9;
+      color: var(--muted);
+    }
+
+    .contact-section {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .contact-section a {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--navy);
+      text-decoration: none;
+      margin-bottom: 4px;
+    }
+    .contact-section a:hover { color: var(--gold-hover); }
+
+    .card-footer {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-toggle {
+      width: 100%;
+      padding: 10px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-hover));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .btn-toggle:hover { opacity: .9; }
+
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .error {
+      text-align: center;
+      padding: 40px;
+      color: #dc2626;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: var(--radius);
+    }
+    .no-results {
+      text-align: center;
+      padding: 60px;
+      color: var(--muted);
+    }
+    .no-results h3 { font-size: 20px; color: var(--navy); }
+    .clear-btn {
+      margin-top: 12px;
+      background: none;
+      border: none;
+      color: var(--gold-hover);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .clear-btn:hover { color: var(--gold); }
+
+    .footer {
+      text-align: center;
+      padding: 30px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Police Station Representatives — Live Directory</h1>
+    <p>Data scraped from policestationrepuk.com and rendered dynamically</p>
+    <div class="stats-bar" id="stats-bar"></div>
+  </div>
+
+  <div class="container">
+    <div class="filters">
+      <div class="filters-grid">
+        <input type="text" id="search-input" placeholder="Search by name or county..." />
+        <select id="county-filter">
+          <option value="">All counties</option>
+        </select>
+        <select id="availability-filter">
+          <option value="">All availability</option>
+          <option value="24/7">24/7</option>
+          <option value="Evenings">Evenings / Nights</option>
+          <option value="Weekends">Weekends</option>
+          <option value="Daytime">Daytime</option>
+          <option value="Flexible">Flexible</option>
+          <option value="Available">Available</option>
+        </select>
+      </div>
+      <div class="results-count" id="results-count"></div>
+    </div>
+
+    <div id="directory-grid" class="grid"></div>
+    <div id="loading" class="loading">Loading directory data...</div>
+    <div id="error" class="error" style="display:none"></div>
+  </div>
+
+  <div class="footer">
+    <p>Data pipeline powered by Puppeteer scraper &mdash; auto-refreshes every 6-12 hours</p>
+    <p id="last-updated"></p>
+  </div>
+
+<script>
+(function () {
+  const API_URL = '/api/scraped-reps';
+  const JSON_FALLBACK = '/scraped-reps.json';
+
+  let allReps = [];
+  let filteredReps = [];
+
+  const gridEl = document.getElementById('directory-grid');
+  const loadingEl = document.getElementById('loading');
+  const errorEl = document.getElementById('error');
+  const searchInput = document.getElementById('search-input');
+  const countyFilter = document.getElementById('county-filter');
+  const availFilter = document.getElementById('availability-filter');
+  const resultsCount = document.getElementById('results-count');
+  const statsBar = document.getElementById('stats-bar');
+  const lastUpdated = document.getElementById('last-updated');
+
+  async function fetchData() {
+    const urls = [API_URL, JSON_FALLBACK, '/data/scraped-reps.json', '/data/reps.json'];
+
+    for (const url of urls) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) continue;
+        const json = await res.json();
+        const reps = json.reps || json;
+        if (Array.isArray(reps) && reps.length > 0) return reps;
+      } catch {
+        continue;
+      }
+    }
+
+    throw new Error('Could not load rep data from any source');
+  }
+
+  function populateCountyFilter(reps) {
+    const counties = [...new Set(reps.map((r) => r.county).filter(Boolean))].sort();
+    counties.forEach((c) => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      countyFilter.appendChild(opt);
+    });
+  }
+
+  function showStats(reps) {
+    const counties = new Set(reps.map((r) => r.county).filter(Boolean));
+    const stations = new Set(reps.flatMap((r) => r.stations || []));
+    const featured = reps.filter((r) => r.featured).length;
+
+    statsBar.innerHTML = `
+      <div class="stat"><strong>${reps.length}</strong> Representatives</div>
+      <div class="stat"><strong>${counties.size}</strong> Counties</div>
+      <div class="stat"><strong>${stations.size}</strong> Stations</div>
+      <div class="stat"><strong>${featured}</strong> Featured</div>
+    `;
+  }
+
+  function filterReps() {
+    const query = searchInput.value.toLowerCase().trim();
+    const county = countyFilter.value;
+    const avail = availFilter.value;
+
+    filteredReps = allReps.filter((r) => {
+      if (query) {
+        const match =
+          (r.name || '').toLowerCase().includes(query) ||
+          (r.county || '').toLowerCase().includes(query) ||
+          (r.stations || []).some((s) => s.toLowerCase().includes(query));
+        if (!match) return false;
+      }
+      if (county && r.county !== county) return false;
+      if (avail && !(r.availability || '').includes(avail)) return false;
+      return true;
+    });
+
+    const featured = filteredReps.filter((r) => r.featured);
+    const regular = filteredReps.filter((r) => !r.featured);
+    filteredReps = [...featured, ...regular];
+
+    resultsCount.innerHTML = `Showing <strong>${filteredReps.length}</strong> of ${allReps.length} representatives`;
+    renderGrid();
+  }
+
+  function renderCard(rep) {
+    const id = (rep.slug || rep.name).replace(/[^a-z0-9-]/gi, '-');
+
+    const stationHtml = (rep.stations || [])
+      .slice(0, 4)
+      .map((s) => `<span class="station-pill">${esc(s)}</span>`)
+      .join('');
+    const moreCount = (rep.stations || []).length - 4;
+    const moreHtml = moreCount > 0
+      ? `<span class="station-pill station-more">+${moreCount} more</span>`
+      : '';
+
+    return `
+      <div class="card" data-id="${id}">
+        <div class="card-bar"></div>
+        <div class="card-body">
+          <div class="badges">
+            ${rep.availability ? `<span class="badge badge-avail">${esc(rep.availability)}</span>` : ''}
+            ${rep.accreditation ? `<span class="badge badge-accred">${esc(rep.accreditation)}</span>` : ''}
+            ${rep.featured ? '<span class="badge badge-featured">⭐ Featured</span>' : ''}
+          </div>
+          <h3>${esc(rep.name)}</h3>
+          <p class="county">${esc(rep.county || '')}</p>
+          ${rep.bio ? `<p class="bio">&ldquo;${esc(rep.bio.length > 120 ? rep.bio.slice(0, 118) + '…' : rep.bio)}&rdquo;</p>` : ''}
+          <div class="stations">${stationHtml}${moreHtml}</div>
+          <div class="contact-section" id="contact-${id}" style="display:none">
+            ${rep.phone ? `<a href="tel:${esc(rep.phone.replace(/\s/g, ''))}">📞 ${esc(rep.phone)}</a>` : ''}
+            ${rep.email ? `<a href="mailto:${esc(rep.email)}">✉️ ${esc(rep.email)}</a>` : ''}
+            ${!rep.phone && !rep.email ? '<span style="font-size:13px;color:var(--muted)">No contact details available</span>' : ''}
+          </div>
+          <div class="card-footer">
+            <button class="btn-toggle" onclick="toggleContact('${id}', this)">Show Contact Details</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function esc(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  function renderGrid() {
+    if (filteredReps.length === 0) {
+      gridEl.innerHTML = `
+        <div class="no-results" style="grid-column: 1/-1">
+          <h3>No representatives found</h3>
+          <p>Try adjusting your filters</p>
+          <button class="clear-btn" onclick="clearFilters()">Clear all filters</button>
+        </div>
+      `;
+      return;
+    }
+    gridEl.innerHTML = filteredReps.map(renderCard).join('');
+  }
+
+  window.toggleContact = function (id, btn) {
+    const el = document.getElementById('contact-' + id);
+    if (!el) return;
+    const visible = el.style.display !== 'none';
+    el.style.display = visible ? 'none' : 'block';
+    btn.textContent = visible ? 'Show Contact Details' : 'Hide Contact Details';
+  };
+
+  window.clearFilters = function () {
+    searchInput.value = '';
+    countyFilter.value = '';
+    availFilter.value = '';
+    filterReps();
+  };
+
+  searchInput.addEventListener('input', filterReps);
+  countyFilter.addEventListener('change', filterReps);
+  availFilter.addEventListener('change', filterReps);
+
+  async function init() {
+    try {
+      allReps = await fetchData();
+      loadingEl.style.display = 'none';
+      populateCountyFilter(allReps);
+      showStats(allReps);
+      filterReps();
+      lastUpdated.textContent = `Data loaded at ${new Date().toLocaleString()}`;
+    } catch (err) {
+      loadingEl.style.display = 'none';
+      errorEl.style.display = 'block';
+      errorEl.innerHTML = `<h3>Failed to load data</h3><p>${esc(err.message)}</p><p>Run the scraper first: <code>npm run scrape</code></p>`;
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

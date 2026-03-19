@@ -13,15 +13,23 @@
     "crawl:batched": "npx playwright install chromium && npx tsx scripts/crawl-batched.ts",
     "classify": "npx tsx scripts/classify-pages.ts",
     "transform-data": "npx tsx scripts/transform-to-directory-data.ts",
-    "generate-seo": "node scripts/generate-static-seo.js"
+    "generate-seo": "node scripts/generate-static-seo.js",
+    "scrape": "node scripts/scraper.js",
+    "scrape:org": "node scripts/scraper.js --url https://policestationrepuk.org",
+    "api": "node scripts/server.js",
+    "api:dev": "PORT=4000 node scripts/server.js",
+    "pipeline": "node scripts/scraper.js && node scripts/server.js"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.22",
     "@supabase/supabase-js": "^2.49.1",
+    "cors": "^2.8.6",
     "dotenv": "^17.3.1",
+    "express": "^5.2.1",
     "leaflet": "^1.9.4",
     "marked": "^17.0.4",
     "next": "^15.2.3",
+    "puppeteer": "^24.40.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "resend": "^6.9.4"

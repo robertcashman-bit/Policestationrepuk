@@ -5,6 +5,7 @@ import { Footer } from '@/components/Footer';
 import { CookieBanner } from '@/components/CookieBanner';
 import { HelpChatButton } from '@/components/HelpChatButton';
 import './globals.css';
+import { SITE_URL } from '@/lib/seo-layer/config';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -12,8 +13,6 @@ const inter = Inter({
   display: 'swap',
   preload: true,
 });
-
-const SITE_URL = 'https://policestationrepuk.com';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -72,7 +71,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <Header />
-        <main id="main-content" className="flex-1">{children}</main>
+        <main id="main-content" className="site-shell-main flex-1 w-full min-w-0">{children}</main>
         <Footer />
         <HelpChatButton />
         <CookieBanner />

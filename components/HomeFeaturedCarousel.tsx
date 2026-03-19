@@ -2,32 +2,17 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import type { Representative } from '@/lib/types';
 
-const FEATURED_REPS = [
-  {
-    name: 'Always available - Usman Iqbal',
-    quote: 'Available 24/7 covering police station in West Yorkshire, North Yorkshire Greater Manchester and South Yorkshire!',
-    slug: 'usman-iqbal',
-  },
-  {
-    name: 'Robert Cashman',
-    quote: '35 years experience in criminal law. Higher Court Advocate qualification. Specialist in high-quality police station representation. Available 24/7 across Kent and Met border areas.',
-    slug: 'robert-cashman',
-    website: 'https://defencelegalservices.co.uk',
-  },
-  {
-    name: 'Terry Limby',
-    quote: '25 years in legal background Within 60 mins travel to any Kent Police Station Priory Court - Border Force/NCA covered HMP Rochester, HMP Swaleside and HMP Elmley covered All notes back within 24 hours',
-    slug: 'terry-limby',
-    website: 'https://terrylimby.co.uk',
-  },
-];
-
-export function HomeFeaturedCarousel() {
+export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Representative[] }) {
   const [current, setCurrent] = useState(0);
   const [showContact, setShowContact] = useState<Record<number, boolean>>({});
 
-  const rep = FEATURED_REPS[current];
+  if (!featuredReps || featuredReps.length === 0) return null;
+
+  const rep = featuredReps[current];
+  const quote = rep.bio || rep.notes || '';
+  const website = rep.websiteUrl || '';
 
   const toggleContact = (idx: number) => {
     setShowContact((prev) => ({ ...prev, [idx]: !prev[idx] }));
@@ -44,9 +29,11 @@ export function HomeFeaturedCarousel() {
         <div className="mx-auto mt-8 max-w-2xl">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm sm:p-8">
             <h3 className="text-xl font-bold text-white">{rep.name}</h3>
-            <blockquote className="mt-4 border-l-4 border-[var(--gold)] pl-4 text-sm italic leading-relaxed text-slate-300">
-              &ldquo;{rep.quote}&rdquo;
-            </blockquote>
+            {quote ? (
+              <blockquote className="mt-4 border-l-4 border-[var(--gold)] pl-4 text-sm italic leading-relaxed text-slate-300">
+                &ldquo;{quote}&rdquo;
+              </blockquote>
+            ) : null}
 
             <div className="mt-6 flex flex-wrap gap-3">
               <button
@@ -58,16 +45,28 @@ export function HomeFeaturedCarousel() {
               <Link href={`/rep/${rep.slug}`} className="btn-outline !min-h-[40px] !border-slate-500 !px-4 !py-2 !text-sm !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)]">
                 View Full Profile
               </Link>
-              {rep.website && (
-                <Link href={rep.website} target="_blank" rel="noopener noreferrer" className="btn-outline !min-h-[40px] !border-slate-500 !px-4 !py-2 !text-sm !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)]">
+              {website ? (
+                <Link href={website} target="_blank" rel="noopener noreferrer" className="btn-outline !min-h-[40px] !border-slate-500 !px-4 !py-2 !text-sm !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)]">
                   Visit Website
                 </Link>
-              )}
+              ) : null}
             </div>
 
             {showContact[current] && (
               <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
-                <p>View the full profile for contact details →</p>
+                {rep.phone ? (
+                  <a href={`tel:${rep.phone.replace(/\s/g, '')}`} className="block font-medium text-white no-underline hover:text-[var(--gold)]">
+                    📞 {rep.phone}
+                  </a>
+                ) : null}
+                {rep.email ? (
+                  <a href={`mailto:${rep.email}`} className="mt-2 block font-medium text-white no-underline hover:text-[var(--gold)]">
+                    ✉️ {rep.email}
+                  </a>
+                ) : null}
+                {!rep.phone && !rep.email ? (
+                  <p>View the full profile for contact details →</p>
+                ) : null}
                 <Link href={`/rep/${rep.slug}`} className="mt-2 inline-block font-semibold text-[var(--gold)] no-underline hover:text-[var(--gold-hover)]">
                   Go to profile
                 </Link>
@@ -78,14 +77,14 @@ export function HomeFeaturedCarousel() {
           {/* Navigation */}
           <div className="mt-6 flex items-center justify-center gap-4">
             <button
-              onClick={() => setCurrent((c) => (c - 1 + FEATURED_REPS.length) % FEATURED_REPS.length)}
+              onClick={() => setCurrent((c) => (c - 1 + featuredReps.length) % featuredReps.length)}
               className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white transition-colors hover:bg-white/10"
               aria-label="Previous spotlight rep"
             >
               ←
             </button>
             <div className="flex gap-2">
-              {FEATURED_REPS.map((_, i) => (
+              {featuredReps.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrent(i)}
@@ -95,7 +94,7 @@ export function HomeFeaturedCarousel() {
               ))}
             </div>
             <button
-              onClick={() => setCurrent((c) => (c + 1) % FEATURED_REPS.length)}
+              onClick={() => setCurrent((c) => (c + 1) % featuredReps.length)}
               className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white transition-colors hover:bg-white/10"
               aria-label="Next spotlight rep"
             >

@@ -1,62 +1,34 @@
 'use client';
 
 import Link from 'next/link';
+import { SITE_URL } from '@/lib/seo-layer/config';
+import {
+  FOOTER_COLUMN_TITLES,
+  FOOTER_COMMUNITY,
+  FOOTER_DIRECTORIES,
+  FOOTER_FOR_REPRESENTATIVES,
+  FOOTER_LEGAL,
+  FOOTER_REGULATORY_BODY,
+  FOOTER_REGULATORY_TITLE,
+  FOOTER_SPOTLIGHT_KENT_BODY,
+  FOOTER_SPOTLIGHT_KENT_TITLE,
+  FOOTER_SPOTLIGHT_TRAINING_BODY,
+  FOOTER_SPOTLIGHT_TRAINING_TITLE,
+  FOOTER_TOOLS,
+  FOOTER_UTILITY_COOKIE_SETTINGS,
+  FOOTER_UTILITY_RSS_HREF,
+  FOOTER_UTILITY_RSS_LABEL,
+  FOOTER_UTILITY_SHARE,
+  FOOTER_UTILITY_SITEMAP_HREF,
+  FOOTER_UTILITY_SITEMAP_LABEL,
+  FOOTER_UTILITY_TOP,
+  type FooterLink,
+} from '@/lib/site-navigation';
 
-const DIRECTORY_LINKS = [
-  { href: '/directory', label: 'Find a Rep' },
-  { href: '/StationsDirectory', label: 'Police Stations' },
-  { href: '/Forces', label: 'Police Forces' },
-  { href: '/Firms', label: 'Law Firms' },
-  { href: '/Map', label: 'Interactive Map' },
-  { href: '/GoFeatured', label: 'Featured Directory' },
-];
-
-const REP_LINKS = [
-  { href: '/register', label: 'Register as Rep' },
-  { href: '/register', label: 'My Profile' },
-  { href: '/GoFeatured', label: 'Become Featured' },
-  { href: '/PoliceStationRepJobsUK', label: 'Rep Jobs UK' },
-  { href: '/GetWork', label: 'Get Work Guide' },
-  { href: '/HowToBecomePoliceStationRep', label: 'How to Become a Rep' },
-  { href: '/PoliceStationCover', label: 'Police Station Cover (Firms)' },
-];
-
-const TOOLS_LINKS = [
-  { href: '/FormsLibrary', label: 'Forms Library (CRM)' },
-  { href: '/PoliceStationRates', label: 'Station Rates (2025/26)' },
-  { href: '/PACE', label: 'PACE Codes' },
-  { href: '/Wiki', label: 'Rep Wiki' },
-  { href: '/LegalUpdates', label: 'Legal Updates' },
-  { href: '/Premium', label: 'Training Resources' },
-];
-
-const COMMUNITY_LINKS = [
-  { href: '/WhatsApp', label: 'WhatsApp Group' },
-  { href: '/WhatsApp', label: 'Facebook Group' },
-  { href: '/Forum', label: 'Community Forum' },
-  { href: '/Blog', label: 'Read Our Blog' },
-  { href: '/Contact', label: 'Contact Us' },
-  { href: '/FAQ', label: 'Help & FAQ' },
-];
-
-const LEGAL_LINKS = [
-  { href: '/About', label: 'About' },
-  { href: '/About', label: 'About the PoliceStationRepUK Directory' },
-  { href: '/Terms', label: 'Terms' },
-  { href: '/Privacy', label: 'Privacy' },
-  { href: '/Cookies', label: 'Cookies' },
-  { href: '/GDPR', label: 'GDPR' },
-  { href: '/DataProtection', label: 'Data Protection' },
-  { href: '/Accessibility', label: 'Accessibility' },
-  { href: '/Complaints', label: 'Complaints' },
-];
-
-function FooterColumn({ title, links }: { title: string; links: { href: string; label: string }[] }) {
+function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <div>
-      <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">
-        {title}
-      </h4>
+      <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">{title}</h4>
       <ul className="mt-4 space-y-1.5">
         {links.map((link, i) => (
           <li key={`${link.href}-${i}`}>
@@ -81,11 +53,13 @@ export function Footer() {
   };
 
   const handleShare = async () => {
-    const url = typeof window !== 'undefined' ? window.location.href : 'https://policestationrepuk.com';
+    const url = typeof window !== 'undefined' ? window.location.href : SITE_URL;
     if (navigator.share) {
       try {
         await navigator.share({ title: 'PoliceStationRepUK', url });
-      } catch {}
+      } catch {
+        /* user cancelled */
+      }
     } else {
       await navigator.clipboard.writeText(url);
     }
@@ -95,75 +69,71 @@ export function Footer() {
     <footer className="mt-auto border-t border-[var(--navy-light)] bg-[var(--navy)]">
       <div className="mx-auto max-w-[var(--container-max)] px-5 py-14 sm:px-6 md:px-8">
         <div className="grid gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-5">
-          <FooterColumn title="Directories" links={DIRECTORY_LINKS} />
-          <FooterColumn title="For Representatives" links={REP_LINKS} />
-          <FooterColumn title="Tools & Resources" links={TOOLS_LINKS} />
-          <FooterColumn title="Community" links={COMMUNITY_LINKS} />
-          <FooterColumn title="Legal" links={LEGAL_LINKS} />
+          <FooterColumn title={FOOTER_COLUMN_TITLES.directories} links={FOOTER_DIRECTORIES} />
+          <FooterColumn
+            title={FOOTER_COLUMN_TITLES.forRepresentatives}
+            links={FOOTER_FOR_REPRESENTATIVES}
+          />
+          <FooterColumn title={FOOTER_COLUMN_TITLES.tools} links={FOOTER_TOOLS} />
+          <FooterColumn title={FOOTER_COLUMN_TITLES.community} links={FOOTER_COMMUNITY} />
+          <FooterColumn title={FOOTER_COLUMN_TITLES.legal} links={FOOTER_LEGAL} />
         </div>
 
-        {/* Kent spotlight + Resources in footer */}
+        {/* Mid-footer spotlight — same section titles/copy hierarchy as homepage */}
         <div className="mt-10 grid gap-8 border-t border-[var(--navy-light)] pt-8 sm:grid-cols-2">
           <div>
-            <h3 className="text-sm font-bold text-white">Need a Police Station Rep in Kent?</h3>
-            <p className="mt-1 text-xs text-slate-400">
-              Duty Solicitor • 24/7 Immediate Coverage • All Kent stations
-            </p>
+            <h3 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_KENT_TITLE}</h3>
+            <p className="mt-1 text-xs text-slate-400">{FOOTER_SPOTLIGHT_KENT_BODY}</p>
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white">Training Guides &amp; Resources</h3>
-            <p className="mt-1 text-xs text-slate-400">
-              Access training guides, Rep Wiki, and professional resources — all free.
-            </p>
+            <h3 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_TRAINING_TITLE}</h3>
+            <p className="mt-1 text-xs text-slate-400">{FOOTER_SPOTLIGHT_TRAINING_BODY}</p>
           </div>
         </div>
 
-        {/* Regulatory Notice */}
         <div className="mt-8 border-t border-[var(--navy-light)] pt-8">
           <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">
-            Regulatory Notice
+            {FOOTER_REGULATORY_TITLE}
           </h3>
-          <p className="mt-3 max-w-4xl text-xs leading-relaxed text-slate-500">
-            PoliceStationRepUK.com is a professional directory and information platform. This website
-            does not provide legal advice, does not offer regulated legal services, and is not authorised
-            or regulated by the Solicitors Regulation Authority (SRA), the Bar Standards Board, or the
-            Legal Aid Agency. All representatives listed are self-registered and independently responsible
-            for their own accreditation, insurance, and regulatory compliance. Users should verify
-            credentials independently before instructing any representative.
-          </p>
+          <p className="mt-3 max-w-4xl text-xs leading-relaxed text-slate-500">{FOOTER_REGULATORY_BODY}</p>
           <p className="mt-3 text-xs text-slate-500">
             &copy; {year} PoliceStationRepUK. All rights reserved.
           </p>
         </div>
 
-        {/* Bottom actions */}
         <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-[var(--navy-light)] pt-6">
           <button
+            type="button"
             onClick={handleShare}
             className="text-xs font-medium text-slate-400 transition-colors hover:text-white"
           >
-            Share Directory
+            {FOOTER_UTILITY_SHARE}
           </button>
           <button
+            type="button"
             onClick={scrollToTop}
             className="text-xs font-medium text-slate-400 transition-colors hover:text-white"
           >
-            Top
+            {FOOTER_UTILITY_TOP}
           </button>
-          <Link href="/sitemap.xml" className="text-xs text-slate-400 no-underline hover:text-white">
-            Sitemap
+          <Link
+            href={FOOTER_UTILITY_SITEMAP_HREF}
+            className="text-xs text-slate-400 no-underline hover:text-white"
+          >
+            {FOOTER_UTILITY_SITEMAP_LABEL}
           </Link>
-          <Link href="/functions/rss" className="text-xs text-slate-400 no-underline hover:text-white">
-            RSS Feed
+          <Link href={FOOTER_UTILITY_RSS_HREF} className="text-xs text-slate-400 no-underline hover:text-white">
+            {FOOTER_UTILITY_RSS_LABEL}
           </Link>
           <button
+            type="button"
             className="text-xs font-medium text-slate-400 transition-colors hover:text-white"
             onClick={() => {
               localStorage.removeItem('cookies-accepted');
               window.location.reload();
             }}
           >
-            Cookie Settings
+            {FOOTER_UTILITY_COOKIE_SETTINGS}
           </button>
         </div>
       </div>

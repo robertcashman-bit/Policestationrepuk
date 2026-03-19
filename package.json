@@ -18,7 +18,10 @@
     "scrape:org": "node scripts/scraper.js --url https://policestationrepuk.org",
     "api": "node scripts/server.js",
     "api:dev": "PORT=4000 node scripts/server.js",
-    "pipeline": "node scripts/scraper.js && node scripts/server.js"
+    "pipeline": "node scripts/scraper.js && node scripts/server.js",
+    "parity": "npx tsx scripts/parity-verify.ts",
+    "visual-parity": "npx playwright install chromium && npx tsx scripts/visual-parity.ts",
+    "parity:full": "npx tsx scripts/final-parity-suite.ts"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.22",
@@ -45,7 +48,9 @@
     "cheerio": "^1.2.0",
     "eslint": "^9.22.0",
     "eslint-config-next": "^15.2.3",
+    "pixelmatch": "^7.1.0",
     "playwright": "^1.58.2",
+    "pngjs": "^7.0.0",
     "tailwindcss": "^4.0.14",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"

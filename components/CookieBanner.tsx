@@ -19,7 +19,10 @@ export function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border)] bg-white px-5 py-4 shadow-lg">
+    <div
+      data-parity-mask
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border)] bg-white px-5 py-4 shadow-lg"
+    >
       <div className="mx-auto flex max-w-[var(--container-max)] flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <span className="text-sm font-bold text-[var(--navy)]">Cookies</span>

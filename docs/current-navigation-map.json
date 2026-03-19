@@ -1,5 +1,9 @@
 {
-  "source": "Project components Header.tsx, Footer.tsx (after repair)",
+  "sourceOfTruth": "lib/site-navigation.ts",
+  "derivedFrom": [
+    "docs/live-site-map.json (navigation.primary)",
+    "data/page-content.json homepage links + footer headings for sections"
+  ],
   "header": {
     "primary": [
       { "href": "/", "text": "Home" },
@@ -13,23 +17,18 @@
       { "href": "/Contact", "text": "Contact Us" },
       { "href": "/About", "text": "About" }
     ],
-    "maxVisible": 10,
-    "note": "When navLinks from mirror are provided, slice(0, 10) is used. Nav uses flex-wrap for responsive."
+    "layout": "Brand (home link) first; desktop nav wraps flush right; mobile Menu + drawer with same 10 links + Join CTA",
+    "shareStrip": "Share this directory with colleagues"
   },
   "footer": {
-    "links": [
-      { "href": "/", "label": "Home" },
-      { "href": "/Directory", "label": "Find a Rep" },
-      { "href": "/CustodyNote", "label": "Custody Note" },
-      { "href": "/Register", "label": "Register" },
-      { "href": "/StationsDirectory", "label": "Station Numbers" },
-      { "href": "/FormsLibrary", "label": "Forms" },
-      { "href": "/Resources", "label": "Resources" },
-      { "href": "/Blog", "label": "Blog" },
-      { "href": "/Contact", "label": "Contact" },
-      { "href": "/About", "label": "About" },
-      { "href": "/Privacy", "label": "Privacy" },
-      { "href": "/Terms", "label": "Terms" }
-    ]
+    "columns": [
+      "Directories",
+      "For Representatives",
+      "Tools & Resources",
+      "Community",
+      "Legal"
+    ],
+    "utilityRow": ["Share Directory", "Top", "Sitemap → /functions/sitemap", "RSS Feed → /functions/rss", "Cookie Settings"],
+    "regulatoryTitle": "Regulatory Notice"
   }
 }

@@ -1,6 +1,5 @@
 import type { MetadataRoute } from 'next';
-
-const BASE = 'https://policestationrepuk.com';
+import { SITE_URL } from '@/lib/seo-layer/config';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/'],
     },
-    sitemap: `${BASE}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

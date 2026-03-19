@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { getMirrorPage, getMirrorPaths, hasMirrorData } from '@/lib/mirror-data';
 import { getLiveSiteSingleSegmentPaths } from '@/lib/live-site-paths';
 import { pathToTitle } from '@/lib/sitemap-paths';
+import { getCountySlugSet } from '@/lib/county-slugs';
 
 const SITE_TITLE = 'PoliceStationRepUK';
 
@@ -119,13 +120,18 @@ const DEDICATED_ROUTES = new Set([
 
 /** Pre-render paths that have mirror content; rest served on demand. */
 export function generateStaticParams() {
+  const countySlugs = getCountySlugSet();
   const mirrorPaths = hasMirrorData()
     ? getMirrorPaths().filter(
-        (p) => p !== '/' && !p.includes('/') && !DEDICATED_ROUTES.has(p)
+        (p) =>
+          p !== '/' &&
+          !p.includes('/') &&
+          !DEDICATED_ROUTES.has(p) &&
+          !countySlugs.has(p),
       )
     : [];
   const livePaths = getLiveSiteSingleSegmentPaths().filter(
-    (p) => !DEDICATED_ROUTES.has(p)
+    (p) => !DEDICATED_ROUTES.has(p) && !countySlugs.has(p),
   );
   const combined = Array.from(new Set([...mirrorPaths, ...livePaths]));
   return combined.map((slug) => ({ slug }));
@@ -191,10 +197,11 @@ export default async function SlugPage({ params }: PageProps) {
   const mirror = getMirrorPage(slug);
   const title = pathToTitle(slug);
 
+  const countySlugs = getCountySlugSet();
   const mirrorPaths = hasMirrorData() ? getMirrorPaths().filter((p) => p !== '/' && !p.includes('/')) : [];
   const livePaths = getLiveSiteSingleSegmentPaths();
-  const allowedSlugs = Array.from(new Set([...mirrorPaths, ...livePaths]));
-  if (!allowedSlugs.includes(slug)) notFound();
+  const allowedSlugs = Array.from(new Set([...mirrorPaths, ...livePaths])).filter((s) => !countySlugs.has(s));
+  if (countySlugs.has(slug) || !allowedSlugs.includes(slug)) notFound();
 
   const page = mirror && !mirror.error ? mirror : null;
   const links = page?.links ?? MAIN_LINKS.map((l) => ({ href: l.href, text: l.text }));

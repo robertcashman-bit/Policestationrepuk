@@ -13,9 +13,8 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const { getAllReps } = await import('@/lib/data');
-  const reps = await getAllReps();
-  return reps.map((r) => ({ slug: r.slug }));
+  const { getAllRepPathSlugs } = await import('@/lib/data');
+  return getAllRepPathSlugs().map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps) {
@@ -25,7 +24,7 @@ export async function generateMetadata({ params }: PageProps) {
   return buildMetadata({
     title: `${rep.name} | Police Station Representative`,
     description: `Accredited police station representative ${rep.name}. Covers ${rep.county}. ${rep.accreditation}. Available for duty solicitor cover.`,
-    path: `/rep/${slug}`,
+    path: `/rep/${rep.slug}`,
   });
 }
 
@@ -42,7 +41,11 @@ export default async function RepPage({ params }: PageProps) {
   const rep = await getRepBySlug(slug);
   if (!rep) notFound();
 
-  const avail = AVAIL_MAP[rep.availability] ?? { label: rep.availability, color: 'bg-slate-50 text-slate-700 border-slate-200' };
+  const availabilityLabel = rep.availability || 'Availability on request';
+  const avail = AVAIL_MAP[rep.availability] ?? {
+    label: availabilityLabel,
+    color: 'bg-slate-50 text-slate-700 border-slate-200',
+  };
 
   const legalService = legalServiceSchema({ name: rep.name, slug: rep.slug, counties: [rep.county].filter(Boolean), accreditation: rep.accreditation, phone: rep.phone });
   const person = personSchema({ name: rep.name, slug: rep.slug, phone: rep.phone, accreditation: rep.accreditation, counties: [rep.county].filter(Boolean) });
@@ -61,7 +64,11 @@ export default async function RepPage({ params }: PageProps) {
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <span className={`rounded-full border px-3 py-1 text-xs font-bold ${avail.color}`}>{avail.label}</span>
             <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white">
-              {rep.accreditation.includes('Duty') ? 'Duty Solicitor Accredited' : rep.accreditation.includes('Probationary') ? 'Probationary Representative' : 'Law Society Accredited'}
+              {(rep.accreditation || '').includes('Duty')
+                ? 'Duty Solicitor Accredited'
+                : (rep.accreditation || '').includes('Probationary')
+                  ? 'Probationary Representative'
+                  : 'Law Society Accredited'}
             </span>
           </div>
           <h1 className="mt-3 text-h1 text-white">{rep.name}</h1>

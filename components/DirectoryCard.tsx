@@ -27,7 +27,7 @@ export interface DirectoryCardProps {
 
 export function DirectoryCard({ rep }: DirectoryCardProps) {
   const [showContact, setShowContact] = useState(false);
-  const avail = getAvailabilityBadge(rep.availability);
+  const avail = getAvailabilityBadge(rep.availability || '');
   const phoneHref = rep.phone ? `tel:${rep.phone.replace(/\s/g, '')}` : null;
 
   return (
@@ -41,7 +41,11 @@ export function DirectoryCard({ rep }: DirectoryCardProps) {
             {avail.label}
           </span>
           <span className="rounded-full bg-[var(--navy)]/5 px-2.5 py-0.5 text-[11px] font-semibold text-[var(--navy)]">
-            {rep.accreditation.includes('Duty') ? 'Duty Solicitor' : rep.accreditation.includes('Probationary') ? 'Probationary' : 'Accredited'}
+            {(rep.accreditation || '').includes('Duty')
+              ? 'Duty Solicitor'
+              : (rep.accreditation || '').includes('Probationary')
+                ? 'Probationary'
+                : 'Accredited'}
           </span>
           {rep.featured && (
             <span className="rounded-full bg-[var(--gold)]/10 px-2.5 py-0.5 text-[11px] font-bold text-[var(--gold-hover)]">
@@ -69,7 +73,7 @@ export function DirectoryCard({ rep }: DirectoryCardProps) {
 
         {/* Stations as pills */}
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {rep.stations.slice(0, 4).map((station) => (
+          {(rep.stations || []).slice(0, 4).map((station) => (
             <span
               key={station}
               className="rounded-full bg-[var(--gold-pale)] px-2.5 py-0.5 text-xs font-medium text-[var(--navy)]"
@@ -77,9 +81,9 @@ export function DirectoryCard({ rep }: DirectoryCardProps) {
               {station}
             </span>
           ))}
-          {rep.stations.length > 4 && (
+          {(rep.stations || []).length > 4 && (
             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-[var(--muted)]">
-              +{rep.stations.length - 4} more
+              +{(rep.stations || []).length - 4} more
             </span>
           )}
         </div>

@@ -4,12 +4,13 @@ import { Suspense } from 'react';
 import { getAllReps, getAllCounties, getAllStations } from '@/lib/data';
 import { DirectorySearch } from '@/components/DirectorySearch';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
   title: 'Free Rep Directory | Find Police Station Representatives UK — No Fees Ever',
   description:
     '100% free directory of accredited police station representatives for outsourced cover. Search by station, county, or availability. No subscription, no listing fees — completely free for criminal defence firms and solicitors.',
-  alternates: { canonical: 'https://policestationrepuk.com/Directory' },
+  alternates: { canonical: `${SITE_URL}/directory` },
 };
 
 interface PageProps {
@@ -55,6 +56,9 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
 
           {/* Sub-navigation */}
           <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/search" className="btn-outline !border-white/20 !text-white !text-sm hover:!border-white hover:!bg-white/10">
+              🔍 Search
+            </Link>
             <Link href="/Map" className="btn-outline !border-white/20 !text-white !text-sm hover:!border-white hover:!bg-white/10">
               📍 Map View
             </Link>

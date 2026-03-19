@@ -73,7 +73,7 @@ scripts/
 
 1. **Crawl content:** Run `npm run crawl` (or `CRAWL_LIMIT=5 npm run crawl` to test) so `[slug]` pages show real titles/headings/content from the live site.
 2. **Subdomain DNS:** If using new.policestationrepuk.com, add A record `new` → `76.76.21.21` (see DEPLOY-SUBDOMAIN.md).
-3. **Env:** Set `NEXT_PUBLIC_SITE_URL` in production to the final domain (or leave default policestationrepuk.com).
+3. **Env:** Set `NEXT_PUBLIC_SITE_URL` in production to the final domain (default in app is `https://policestationrepuk.org`; override for .com or other hosts).
 4. **Supabase (Phase 2):** Run `supabase/schema.sql`, set `NEXT_PUBLIC_SUPABASE_*`, then data layer uses DB instead of seed.
 
 Nothing blocking; build passes and the app is ready to deploy.

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAllCounties, getRepsByCounty } from '@/lib/data';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const dynamic = 'force-static';
 export const revalidate = false;
@@ -9,7 +10,7 @@ export const metadata = {
   title: 'Counties | Police Station Representative Directory',
   description:
     'Browse police station representatives by county. Find accredited reps in Kent, London, Essex, Surrey, Sussex, and across England and Wales.',
-  alternates: { canonical: 'https://policestationrepuk.com/directory/counties' },
+  alternates: { canonical: `${SITE_URL}/directory/counties` },
 };
 
 export default async function DirectoryCountiesPage() {

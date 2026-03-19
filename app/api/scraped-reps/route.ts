@@ -1,59 +1,54 @@
 import { NextResponse } from 'next/server';
 import path from 'path';
 import fs from 'fs';
+import { getAllReps, getDirectoryRepSource } from '@/lib/data';
+import { repMatchesCountyName } from '@/lib/county-matching';
+import type { Representative } from '@/lib/types';
 
 export async function GET(request: Request) {
-  const scrapedPath = path.join(process.cwd(), 'data', 'scraped-reps.json');
-  const fallbackPath = path.join(process.cwd(), 'data', 'reps.json');
-
-  const filePath = fs.existsSync(scrapedPath) ? scrapedPath : fallbackPath;
-
-  if (!fs.existsSync(filePath)) {
-    return NextResponse.json({ error: 'No data available' }, { status: 404 });
-  }
-
   try {
-    const raw = fs.readFileSync(filePath, 'utf-8');
-    const reps = JSON.parse(raw);
+    let reps = await getAllReps();
+    const repSource = getDirectoryRepSource();
 
     const url = new URL(request.url);
     const county = url.searchParams.get('county');
     const q = url.searchParams.get('q');
     const availability = url.searchParams.get('availability');
 
-    let filtered = Array.isArray(reps) ? reps : [];
-
     if (county) {
-      filtered = filtered.filter(
-        (r: Record<string, string>) => (r.county || '').toLowerCase() === county.toLowerCase()
-      );
+      reps = reps.filter((r) => repMatchesCountyName(r.county, county));
     }
     if (q) {
       const query = q.toLowerCase();
-      filtered = filtered.filter(
-        (r: Record<string, unknown>) =>
-          ((r.name as string) || '').toLowerCase().includes(query) ||
-          ((r.county as string) || '').toLowerCase().includes(query) ||
-          ((r.stations as string[]) || []).some((s: string) => s.toLowerCase().includes(query))
+      reps = reps.filter(
+        (r) =>
+          (r.name || '').toLowerCase().includes(query) ||
+          (r.county || '').toLowerCase().includes(query) ||
+          (r.stations || []).some((s) => s.toLowerCase().includes(query)),
       );
     }
     if (availability) {
-      filtered = filtered.filter(
-        (r: Record<string, string>) =>
-          (r.availability || '').toLowerCase().includes(availability.toLowerCase())
-      );
+      const a = availability.toLowerCase();
+      reps = reps.filter((r) => (r.availability || '').toLowerCase().includes(a));
     }
 
+    const dir = path.join(process.cwd(), 'data');
+    const scrapedPath = path.join(dir, 'scraped-reps.json');
+    const fallbackPath = path.join(dir, 'reps.json');
+    const stampPath = fs.existsSync(scrapedPath) ? scrapedPath : fallbackPath;
+    const lastModified = fs.existsSync(stampPath) ? fs.statSync(stampPath).mtime.toISOString() : null;
+
     return NextResponse.json({
-      total: filtered.length,
-      source: fs.existsSync(scrapedPath) ? 'scraped-reps.json' : 'reps.json',
-      lastModified: fs.statSync(filePath).mtime.toISOString(),
-      reps: filtered,
+      total: reps.length,
+      source: repSource === 'scraped' ? 'scraped-reps.json (primary, merged with reps.json gaps)' : 'reps.json (fallback)',
+      repSource,
+      lastModified,
+      reps: reps as Representative[],
     });
   } catch (err) {
     return NextResponse.json(
-      { error: 'Failed to read data', details: (err as Error).message },
-      { status: 500 }
+      { error: 'Failed to load representatives', details: (err as Error).message },
+      { status: 500 },
     );
   }
 }

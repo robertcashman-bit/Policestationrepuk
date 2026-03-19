@@ -1,5 +1,30 @@
 import type { NextConfig } from "next";
+import fs from "fs";
 import path from "path";
+
+/** Short URLs like /kent → /county/kent (same page component, live rep data). */
+function countyShortRewrites(): { source: string; destination: string }[] {
+  try {
+    const file = path.join(process.cwd(), "data", "counties.json");
+    const counties = JSON.parse(fs.readFileSync(file, "utf-8")) as { slug: string }[];
+    const reserved = new Set([
+      "api",
+      "directory",
+      "register",
+      "rep",
+      "county",
+      "police-station",
+      "county-seo",
+      "search",
+      "_next",
+    ]);
+    return counties
+      .filter((c) => c.slug && !reserved.has(c.slug))
+      .map((c) => ({ source: `/${c.slug}`, destination: `/county/${c.slug}` }));
+  } catch {
+    return [];
+  }
+}
 
 const nextConfig: NextConfig = {
   images: {
@@ -9,6 +34,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "policestationrepuk.com" },
       { protocol: "https", hostname: "**.policestationrepuk.com" },
+      { protocol: "https", hostname: "policestationrepuk.org" },
+      { protocol: "https", hostname: "**.policestationrepuk.org" },
       { protocol: "https", hostname: "static.wixstatic.com" },
     ],
   },
@@ -26,6 +53,7 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     return [
+      ...countyShortRewrites(),
       {
         source: "/police-station-representatives-:county",
         destination: "/county/:county",
@@ -132,6 +160,32 @@ const nextConfig: NextConfig = {
         destination: "/About",
         permanent: true,
       },
+      // Legacy Wix / RSS discovery paths → in-app equivalents
+      {
+        source: "/functions/sitemap",
+        destination: "/sitemap.xml",
+        permanent: true,
+      },
+      {
+        source: "/functions/rss",
+        destination: "/Blog",
+        permanent: true,
+      },
+      {
+        source: "/feed.xml",
+        destination: "/sitemap.xml",
+        permanent: true,
+      },
+      {
+        source: "/feed",
+        destination: "/Blog",
+        permanent: true,
+      },
+      {
+        source: "/servicesvoluntaryinterviews",
+        destination: "/InterviewUnderCaution",
+        permanent: true,
+      },
       // Base44 legacy redirects
       {
         source: "/police-station-rep-registration",
@@ -195,6 +249,7 @@ const nextConfig: NextConfig = {
       { source: "/firms", destination: "/Firms", permanent: true },
       { source: "/home", destination: "/", permanent: true },
       { source: "/Home", destination: "/", permanent: true },
+      { source: "/Search", destination: "/search", permanent: true },
       // Legacy Wix-era aliases
       { source: "/f-a-q", destination: "/FAQ", permanent: true },
       { source: "/g-d-p-r", destination: "/GDPR", permanent: true },

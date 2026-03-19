@@ -16,18 +16,20 @@ import { HomeAIAssistant } from '@/components/HomeAIAssistant';
 import { HomeKentSpotlight } from '@/components/HomeKentSpotlight';
 import { getAllReps, getAllStations, getAllCounties } from '@/lib/data';
 import { organizationSchema, webSiteSchema } from '@/lib/seo';
+import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
   title: 'Home | PoliceStationRepUK — Find Accredited Police Station Reps',
   description:
     "The UK's free directory for police station cover. Find accredited police station representatives by county, station, or name. 100% free for solicitors and reps. No fees ever.",
-  alternates: { canonical: 'https://policestationrepuk.com' },
+  alternates: { canonical: SITE_URL },
 };
 
 const UK_FORCES_COUNT = 43;
 
 export default async function HomePage() {
   const [reps, stations, counties] = await Promise.all([getAllReps(), getAllStations(), getAllCounties()]);
+  const featuredReps = reps.filter((r) => r.featured).sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <>
@@ -75,7 +77,7 @@ export default async function HomePage() {
       <HomeTrainingResources />
 
       {/* 6 — Featured Premium Reps carousel */}
-      <HomeFeaturedCarousel />
+      <HomeFeaturedCarousel featuredReps={featuredReps} />
 
       {/* 7 — Why Choose */}
       <HomeWhyChoose />

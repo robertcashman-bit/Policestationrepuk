@@ -3,8 +3,10 @@
  * Override via env if needed: NEXT_PUBLIC_SITE_URL
  */
 
+/** Production default: .org clone; override with NEXT_PUBLIC_SITE_URL if needed. */
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() || 'https://policestationrepuk.com';
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '').trim() ||
+  'https://policestationrepuk.org';
 export const SITE_NAME = 'PoliceStationRepUK';
 
 export const DEFAULT_DESCRIPTION =

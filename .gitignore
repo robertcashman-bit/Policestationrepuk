@@ -35,6 +35,13 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Parity / visual CI outputs (regenerate: npm run parity, npm run visual-parity)
+/screenshots/
+/docs/visual-parity-report.json
+/docs/VISUAL-PARITY-REPORT.md
+/docs/FINAL-PARITY-SUMMARY.md
+/docs/PARITY-VERIFICATION-REPORT.md
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

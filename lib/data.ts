@@ -1,29 +1,135 @@
 import path from 'path';
 import fs from 'fs';
 import type { Representative, PoliceStation, County, SearchFilters, WikiArticle, LawFirm, LegalUpdate, FormDocument } from './types';
+import {
+  mergeScrapedWithFallback,
+  fallbackOnlyReps,
+  coerceScrapedRows,
+  finalizeRepresentative,
+} from './rep-merge';
+import { repMatchesCountyName } from './county-matching';
 
-let _fileData: { counties: County[]; stations: PoliceStation[]; reps: Representative[] } | null = null;
+type FileData = {
+  counties: County[];
+  stations: PoliceStation[];
+  reps: Representative[];
+  /** alternate URL slug -> canonical slug */
+  slugAliases: Record<string, string>;
+  /** 'scraped' | 'fallback' — which list drove rep count */
+  repSource: 'scraped' | 'fallback';
+};
 
-function loadDataFromFiles(): typeof _fileData {
+let _fileData: FileData | null = null;
+
+function readJson<T>(filePath: string): T | null {
+  try {
+    if (fs.existsSync(filePath)) {
+      return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as T;
+    }
+  } catch {
+    /* invalid JSON or missing — treat as unavailable */
+  }
+  return null;
+}
+
+function dedupeRepsBySlug(reps: Representative[]): Representative[] {
+  const seen = new Set<string>();
+  const out: Representative[] = [];
+  for (const r of reps) {
+    const key = (r.slug || '').toLowerCase();
+    if (!key || key === 'unknown') continue;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(r);
+  }
+  return out;
+}
+
+function loadDataFromFiles(): FileData | null {
   if (_fileData !== null) return _fileData;
   if (typeof window !== 'undefined') return null;
+
   try {
     const dir = path.join(process.cwd(), 'data');
     const countiesPath = path.join(dir, 'counties.json');
     const stationsPath = path.join(dir, 'stations.json');
+    const scrapedPath = path.join(dir, 'scraped-reps.json');
     const repsPath = path.join(dir, 'reps.json');
-    if (fs.existsSync(countiesPath) && fs.existsSync(stationsPath) && fs.existsSync(repsPath)) {
-      _fileData = {
-        counties: JSON.parse(fs.readFileSync(countiesPath, 'utf-8')),
-        stations: JSON.parse(fs.readFileSync(stationsPath, 'utf-8')),
-        reps: JSON.parse(fs.readFileSync(repsPath, 'utf-8')),
-      };
-      return _fileData;
+
+    if (!fs.existsSync(countiesPath) || !fs.existsSync(stationsPath)) {
+      return null;
     }
+
+    const counties: County[] = readJson(countiesPath) ?? [];
+    const stations: PoliceStation[] = readJson(stationsPath) ?? [];
+    const fallbackRepsRaw = readJson<unknown>(repsPath);
+    const fallbackReps: Representative[] = Array.isArray(fallbackRepsRaw)
+      ? (fallbackRepsRaw as Representative[])
+      : [];
+
+    const scrapedParsed = readJson<unknown>(scrapedPath);
+    const scrapedRows = coerceScrapedRows(scrapedParsed);
+    const useScraped = scrapedRows.length > 0;
+
+    let merged: { reps: Representative[]; slugAliases: Record<string, string> };
+    let repSource: 'scraped' | 'fallback';
+
+    if (useScraped) {
+      try {
+        merged = mergeScrapedWithFallback(scrapedRows, fallbackReps);
+        repSource = 'scraped';
+      } catch {
+        merged = fallbackOnlyReps(fallbackReps);
+        repSource = 'fallback';
+      }
+    } else {
+      merged = fallbackOnlyReps(fallbackReps);
+      repSource = 'fallback';
+    }
+
+    const reps = dedupeRepsBySlug(merged.reps).map((r) => finalizeRepresentative(r));
+
+    _fileData = {
+      counties,
+      stations,
+      reps,
+      slugAliases: merged.slugAliases,
+      repSource,
+    };
+    return _fileData;
   } catch {
-    // ignore missing or invalid data files
+    return null;
   }
-  return null;
+}
+
+function resolveRepSlug(slug: string): string {
+  const file = loadDataFromFiles();
+  if (!file) return slug;
+  const lower = slug.toLowerCase();
+  if (file.slugAliases[slug]) return file.slugAliases[slug];
+  if (file.slugAliases[lower]) return file.slugAliases[lower];
+  const hit = Object.entries(file.slugAliases).find(([k]) => k.toLowerCase() === lower);
+  return hit ? hit[1] : slug;
+}
+
+/** All slug values that should resolve to a rep profile (canonical + aliases). */
+export function getAllRepPathSlugs(): string[] {
+  const file = loadDataFromFiles();
+  if (!file) return [];
+  const slugs = new Set<string>();
+  for (const r of file.reps) slugs.add(r.slug);
+  for (const [alias, canonical] of Object.entries(file.slugAliases)) {
+    slugs.add(alias);
+    slugs.add(canonical);
+  }
+  return [...slugs];
+}
+
+/** For diagnostics / API: whether directory reps came from scrape merge or reps.json only */
+export function getDirectoryRepSource(): 'scraped' | 'fallback' | 'none' {
+  const file = loadDataFromFiles();
+  if (!file) return 'none';
+  return file.repSource;
 }
 
 export async function getAllCounties(): Promise<County[]> {
@@ -40,20 +146,24 @@ export async function getStationsByCounty(county: string): Promise<PoliceStation
   const file = loadDataFromFiles();
   if (!file) return [];
   return file.stations.filter(
-    (s) => s.forceName?.toLowerCase().includes(county.toLowerCase()) ||
-           s.county?.toLowerCase() === county.toLowerCase()
+    (s) =>
+      s.forceName?.toLowerCase().includes(county.toLowerCase()) ||
+      s.county?.toLowerCase() === county.toLowerCase(),
   );
 }
 
 export async function getRepsByCounty(county: string): Promise<Representative[]> {
   const file = loadDataFromFiles();
   if (!file) return [];
-  return file.reps.filter((r) => r.county.toLowerCase() === county.toLowerCase());
+  return file.reps.filter((r) => repMatchesCountyName(r.county, county));
 }
 
 export async function getRepBySlug(slug: string): Promise<Representative | undefined> {
   const file = loadDataFromFiles();
-  return file?.reps.find((r) => r.slug === slug);
+  if (!file) return undefined;
+  const canonical = resolveRepSlug(slug);
+  const lower = canonical.toLowerCase();
+  return file.reps.find((r) => r.slug.toLowerCase() === lower);
 }
 
 export async function getAllReps(): Promise<Representative[]> {
@@ -74,7 +184,8 @@ export async function getAllStations(): Promise<PoliceStation[]> {
 export async function getRepsByStation(stationName: string): Promise<Representative[]> {
   const file = loadDataFromFiles();
   if (!file) return [];
-  return file.reps.filter((r) => r.stations.some((s) => s.toLowerCase().includes(stationName.toLowerCase())));
+  const q = stationName.toLowerCase();
+  return file.reps.filter((r) => (r.stations || []).some((s) => s.toLowerCase().includes(q)));
 }
 
 export function countySlugToPageSlug(countySlug: string): string {
@@ -88,25 +199,27 @@ export function pageSlugToCountySlug(pageSlug: string): string {
 export async function searchRepresentatives(filters: SearchFilters): Promise<Representative[]> {
   let results = await getAllReps();
   if (filters.county) {
-    results = results.filter((r) => r.county.toLowerCase() === filters.county!.toLowerCase());
+    results = results.filter((r) => repMatchesCountyName(r.county, filters.county!));
   }
   if (filters.station) {
-    results = results.filter((r) => r.stations.some((s) => s.toLowerCase().includes(filters.station!.toLowerCase())));
+    const st = filters.station.toLowerCase();
+    results = results.filter((r) => (r.stations || []).some((s) => s.toLowerCase().includes(st)));
   }
   if (filters.availability) {
-    results = results.filter((r) => r.availability.toLowerCase() === filters.availability!.toLowerCase());
+    const a = filters.availability.toLowerCase();
+    results = results.filter((r) => (r.availability || '').toLowerCase().includes(a));
   }
   if (filters.accreditation) {
     const acc = filters.accreditation.toLowerCase();
-    results = results.filter((r) => r.accreditation.toLowerCase().includes(acc));
+    results = results.filter((r) => (r.accreditation || '').toLowerCase().includes(acc));
   }
   if (filters.query) {
     const q = filters.query.toLowerCase();
     results = results.filter(
       (r) =>
-        r.name.toLowerCase().includes(q) ||
-        r.county.toLowerCase().includes(q) ||
-        r.stations.some((s) => s.toLowerCase().includes(q)),
+        (r.name || '').toLowerCase().includes(q) ||
+        (r.county || '').toLowerCase().includes(q) ||
+        (r.stations || []).some((s) => s.toLowerCase().includes(q)),
     );
   }
   return results;
@@ -119,9 +232,12 @@ function loadJsonFile<T>(filename: string): T[] {
   try {
     const filePath = path.join(process.cwd(), 'data', filename);
     if (fs.existsSync(filePath)) {
-      return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      const raw = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+      return Array.isArray(raw) ? raw : [];
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return [];
 }
 

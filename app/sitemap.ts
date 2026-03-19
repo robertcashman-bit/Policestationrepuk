@@ -9,13 +9,13 @@ import {
 } from '@/lib/data';
 import { getMirrorPaths, hasMirrorData } from '@/lib/mirror-data';
 import { SITEMAP_PATHS } from '@/lib/sitemap-paths';
-
-const BASE = 'https://policestationrepuk.com';
+import { SITE_URL as BASE } from '@/lib/seo-layer/config';
 const now = new Date();
 
 const HIGH_PRIORITY_PAGES = [
   { path: '', priority: 1, freq: 'daily' as const },
   { path: 'directory', priority: 0.95, freq: 'daily' as const },
+  { path: 'search', priority: 0.9, freq: 'daily' as const },
   { path: 'register', priority: 0.9, freq: 'weekly' as const },
   { path: 'Blog', priority: 0.85, freq: 'daily' as const },
   { path: 'StationsDirectory', priority: 0.85, freq: 'weekly' as const },

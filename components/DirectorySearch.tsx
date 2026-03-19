@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { DirectoryCard } from '@/components/DirectoryCard';
 import type { Representative, County, PoliceStation } from '@/lib/types';
+import { repMatchesCountyName } from '@/lib/county-matching';
 
 interface DirectorySearchProps {
   reps: Representative[];
@@ -18,7 +19,7 @@ interface DirectorySearchProps {
 }
 
 function normalizeAvailability(raw: string): string {
-  const lower = raw.toLowerCase().trim();
+  const lower = (raw || '').toLowerCase().trim();
   if (!lower) return 'unknown';
 
   if (/24\s*[\/\s]?\s*7|24\s*hour|all\s*hour|anytime|any\s*time|full\s*time|any$|all$|all\s*day|mon-sun\s*24|at any time|most\s*days/i.test(lower))
@@ -157,22 +158,20 @@ export function DirectorySearch({
       const q = query.toLowerCase();
       result = result.filter(
         (r) =>
-          r.name.toLowerCase().includes(q) ||
-          r.county.toLowerCase().includes(q) ||
-          r.stations.some((s) => s.toLowerCase().includes(q)) ||
+          (r.name || '').toLowerCase().includes(q) ||
+          (r.county || '').toLowerCase().includes(q) ||
+          (r.stations || []).some((s) => s.toLowerCase().includes(q)) ||
           r.specialisms?.some((s) => s.toLowerCase().includes(q))
       );
     }
 
     if (county) {
-      result = result.filter((r) =>
-        r.county.toLowerCase() === county.toLowerCase()
-      );
+      result = result.filter((r) => repMatchesCountyName(r.county, county));
     }
 
     if (station) {
       result = result.filter((r) =>
-        r.stations.some((s) => s.toLowerCase().includes(station.toLowerCase()))
+        (r.stations || []).some((s) => s.toLowerCase().includes(station.toLowerCase()))
       );
     }
 
@@ -182,7 +181,7 @@ export function DirectorySearch({
 
     if (accreditation) {
       result = result.filter((r) =>
-        r.accreditation.toLowerCase().includes(accreditation.toLowerCase())
+        (r.accreditation || '').toLowerCase().includes(accreditation.toLowerCase())
       );
     }
 
@@ -191,8 +190,8 @@ export function DirectorySearch({
 
     const sortFn = (a: Representative, b: Representative) => {
       if (sort === 'experience') return (b.yearsExperience ?? 0) - (a.yearsExperience ?? 0);
-      if (sort === 'stations') return b.stations.length - a.stations.length;
-      return a.name.localeCompare(b.name);
+      if (sort === 'stations') return (b.stations || []).length - (a.stations || []).length;
+      return (a.name || '').localeCompare(b.name || '');
     };
 
     featured.sort(sortFn);

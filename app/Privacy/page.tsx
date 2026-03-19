@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
+import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const metadata = buildMetadata({
   title: 'Privacy Policy',
@@ -56,7 +57,13 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <span className="font-semibold text-[var(--navy)]">Website:</span>{' '}
-                policestationrepuk.com
+                <a
+                  href={SITE_URL}
+                  className="text-[var(--gold-hover)] hover:underline"
+                  rel="noopener noreferrer"
+                >
+                  {SITE_URL.replace(/^https?:\/\//, '')}
+                </a>
               </li>
             </ul>
           </div>

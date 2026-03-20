@@ -89,7 +89,7 @@ export default function PoliceStationRatesPage() {
                 Higher rate for cases previously in the lower tier
               </li>
               <li className="flex gap-2">
-                <span className="mt-0.5 shrink-0 text-amber-600">—</span>
+                <span className="mt-0.5 shrink-0 text-yellow-600">—</span>
                 Lower rate for cases previously in the higher tier
               </li>
               <li className="flex gap-2">
@@ -178,18 +178,18 @@ export default function PoliceStationRatesPage() {
             </ul>
           </div>
           <div>
-            <h3 className="mb-3 font-semibold text-amber-700">Single Fee Only If:</h3>
+            <h3 className="mb-3 font-semibold text-yellow-700">Single Fee Only If:</h3>
             <ul className="space-y-2 text-sm text-[var(--muted)]">
               <li className="flex gap-2">
-                <span className="mt-0.5 shrink-0 text-amber-600">—</span>
+                <span className="mt-0.5 shrink-0 text-yellow-600">—</span>
                 Multiple offences arise from the same incident or detention period
               </li>
               <li className="flex gap-2">
-                <span className="mt-0.5 shrink-0 text-amber-600">—</span>
+                <span className="mt-0.5 shrink-0 text-yellow-600">—</span>
                 Additional interviews take place during the same continuous detention
               </li>
               <li className="flex gap-2">
-                <span className="mt-0.5 shrink-0 text-amber-600">—</span>
+                <span className="mt-0.5 shrink-0 text-yellow-600">—</span>
                 A single attendance covers multiple connected matters
               </li>
             </ul>

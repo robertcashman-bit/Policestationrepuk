@@ -6,10 +6,11 @@
   --navy-light: #3b82f6;
   --navy-mid: #60a5fa;
   --navy-surface: #93c5fd;
-  --gold: #d4a843;
-  --gold-hover: #c49a2e;
-  --gold-light: #f5edda;
-  --gold-pale: #faf7f0;
+  /* Brand yellow (was gold) — CTAs, accents, trust chips */
+  --gold: #facc15;
+  --gold-hover: #eab308;
+  --gold-light: #fef9c3;
+  --gold-pale: #fefce8;
 
   /* Ink for long copy & gold buttons — stays dark for contrast */
   --ink: #1e3a8a;
@@ -17,15 +18,15 @@
   --foreground: #1e3a8a;
   --primary: #1d4ed8;
   --primary-hover: #2563eb;
-  --accent: #d4a843;
-  --accent-hover: #c49a2e;
-  --accent-soft: rgba(212, 168, 67, 0.12);
+  --accent: #facc15;
+  --accent-hover: #eab308;
+  --accent-soft: rgba(250, 204, 21, 0.14);
   --blue-accent: #2563eb;
   --blue-hover: #1d4ed8;
   --muted: #4a5e78;
   /* Default in-content links — brand gold (Wix-style accents); chrome uses --header-link* / --footer-link* */
-  --link: #c49a2e;
-  --link-hover: #a67c1a;
+  --link: #ca8a04;
+  --link-hover: #a16207;
   /* Chrome nav/footer: high contrast on navy (Wix-style light links) */
   --header-link: #e2e8f0;
   --header-link-hover: #ffffff;

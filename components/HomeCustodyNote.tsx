@@ -13,7 +13,7 @@ export function HomeCustodyNote() {
             focus on the client, not the paperwork.
           </p>
 
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-5 py-2 text-sm font-semibold text-amber-300">
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-5 py-2 text-sm font-semibold text-yellow-300">
             🎁 Exclusive for PSR UK members — 25% off your subscription
           </div>
 

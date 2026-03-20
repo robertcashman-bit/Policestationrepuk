@@ -16,7 +16,7 @@ function getAvailabilityBadge(raw: string): { label: string; color: string } {
   if (/day(time|s)|morning|afternoon|mon.*fri|9.*5|8.*6/i.test(lower))
     return { label: 'Daytime', color: 'bg-blue-500/10 text-blue-700 border-blue-200' };
   if (/flexi|arrangement|please\s*call|usually|general/i.test(lower))
-    return { label: 'Flexible', color: 'bg-amber-500/10 text-amber-700 border-amber-200' };
+    return { label: 'Flexible', color: 'bg-yellow-500/10 text-yellow-700 border-yellow-200' };
   if (!raw || lower === 'any' || lower === 'all' || lower === 'most')
     return { label: 'Available', color: 'bg-emerald-500/10 text-emerald-700 border-emerald-200' };
   return { label: raw.length > 20 ? raw.slice(0, 18) + '…' : raw, color: 'bg-slate-100 text-slate-700 border-slate-200' };

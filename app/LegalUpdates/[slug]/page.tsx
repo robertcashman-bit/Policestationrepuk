@@ -35,7 +35,7 @@ function categoryColor(cat: string) {
     case 'PACE Updates':
       return 'border-purple-200 bg-purple-50 text-purple-700';
     case 'Fees & Billing':
-      return 'border-amber-200 bg-amber-50 text-amber-700';
+      return 'border-yellow-200 bg-yellow-50 text-yellow-700';
     default:
       return 'border-gray-200 bg-gray-50 text-gray-700';
   }

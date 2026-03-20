@@ -244,7 +244,7 @@ export default function EscapeFeeCalculatorPage() {
               className={`mt-6 rounded-[var(--radius)] border p-5 ${
                 result.escapes
                   ? 'border-emerald-200 bg-emerald-50'
-                  : 'border-amber-200 bg-amber-50'
+                  : 'border-yellow-200 bg-yellow-50'
               }`}
             >
               <h3 className="text-lg font-semibold text-[var(--foreground)]">
@@ -272,7 +272,7 @@ export default function EscapeFeeCalculatorPage() {
                 </p>
                 <p className="mt-2 text-base font-bold text-[var(--foreground)]">
                   You should claim:{' '}
-                  <span className={result.escapes ? 'text-emerald-700' : 'text-amber-700'}>
+                  <span className={result.escapes ? 'text-emerald-700' : 'text-yellow-700'}>
                     £{result.claimAmount.toFixed(2)}
                   </span>
                   {result.escapes ? ' (hourly rate)' : ' (fixed fee)'}

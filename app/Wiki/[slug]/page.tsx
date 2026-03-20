@@ -30,13 +30,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 const DIFFICULTY_COLORS: Record<string, string> = {
   Beginner: 'bg-emerald-100 text-emerald-800',
-  Intermediate: 'bg-amber-100 text-amber-800',
+  Intermediate: 'bg-yellow-100 text-yellow-800',
   Advanced: 'bg-red-100 text-red-800',
 };
 
 const FACT_CHECK_LABELS: Record<string, { label: string; className: string }> = {
   verified: { label: 'Fact-Checked', className: 'bg-emerald-100 text-emerald-800' },
-  pending: { label: 'Pending Review', className: 'bg-amber-100 text-amber-800' },
+  pending: { label: 'Pending Review', className: 'bg-yellow-100 text-yellow-800' },
   unverified: { label: 'Unverified', className: 'bg-slate-100 text-slate-600' },
 };
 

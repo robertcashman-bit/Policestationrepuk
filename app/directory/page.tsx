@@ -86,20 +86,20 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
       </section>
 
       {/* Accreditation notice */}
-      <section className="border-b border-amber-200 bg-amber-50 py-4">
+      <section className="border-b border-yellow-200 bg-yellow-50 py-4">
         <div className="page-container !py-0">
           <div className="flex gap-3">
-            <span className="text-2xl leading-none text-amber-600" aria-hidden>
+            <span className="text-2xl leading-none text-yellow-600" aria-hidden>
               ⚠️
             </span>
             <div className="min-w-0 flex-1">
-              <h2 className="text-sm font-bold text-amber-800">
+              <h2 className="text-sm font-bold text-yellow-800">
                 Important: Full Accreditation Required
               </h2>
-              <p className="mt-1 text-xs leading-relaxed text-amber-700">
+              <p className="mt-1 text-xs leading-relaxed text-yellow-700">
                 You must be a fully accredited police station representative (or Duty Solicitor) to be
                 listed in this directory. Probationary representatives are{' '}
-                <strong className="font-bold text-amber-900">not eligible</strong> to work as freelance
+                <strong className="font-bold text-yellow-900">not eligible</strong> to work as freelance
                 agents. Under the Standard Crime Contract Specification and LAA Police Station Register
                 Arrangements, a Probationary Representative must be registered under a specific
                 Supervising Solicitor at a specific provider (firm).
@@ -107,7 +107,7 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
               <p className="mt-2">
                 <Link
                   href="/AccreditedRepresentativeGuide"
-                  className="text-xs font-semibold text-amber-800 no-underline hover:text-amber-600"
+                  className="text-xs font-semibold text-yellow-800 no-underline hover:text-yellow-600"
                 >
                   Standard Crime Contract Specification →
                 </Link>

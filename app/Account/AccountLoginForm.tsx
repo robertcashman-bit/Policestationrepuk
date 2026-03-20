@@ -18,7 +18,7 @@ export function AccountLoginForm() {
       {submitted && (
         <div
           role="status"
-          className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950"
+          className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-950"
         >
           <p className="font-semibold text-[var(--navy)]">Thanks — we’ve noted your sign-in request.</p>
           <p className="mt-2 text-[var(--muted)]">

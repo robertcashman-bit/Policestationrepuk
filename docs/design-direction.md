@@ -19,14 +19,15 @@ Clean, professional legal service website. Quality bar: **Stripe, Linear, Vercel
 
 ### Colour
 
-Defined in `app/globals.css` (CSS variables). Brand blue & gold palette (aligned with policestationrepuk.org hero/header blues):
+Defined in `app/globals.css` (CSS variables). Brand blue & **yellow** accent palette (CTAs read as yellow, not antique gold):
 
 | Variable | Value | Use |
 |----------|--------|-----|
 | `--navy` | `#2563eb` | Header, footer, dark-section backgrounds, accent text on light surfaces |
 | `--navy-light` / `--navy-mid` | `#3b82f6` / `#60a5fa` | Borders on chrome, gradients |
-| `--ink` | `#1e3a8a` | Long body copy, text on gold buttons (high contrast) |
-| `--gold` | `#d4a843` | Primary CTA, accent colour, trust badges |
+| `--ink` | `#1e3a8a` | Long body copy, text on yellow CTA buttons (high contrast) |
+| `--gold` | `#facc15` | Primary CTA, accent colour, trust badges (variable name kept for compatibility) |
+| `--gold-hover` | `#eab308` | CTA hover state |
 | `--background` | `#f5f7fa` | Page background (light blue-grey) |
 | `--foreground` | `#1e3a8a` | Default body text |
 | `--muted` | `#4a5e78` | Secondary text, captions |
@@ -35,7 +36,8 @@ Defined in `app/globals.css` (CSS variables). Brand blue & gold palette (aligned
 
 - **Backgrounds:** Light blue-grey (`--background`) for page; white for cards; brand blue (`--navy` gradient) for headers/hero-style bands.
 - **Text:** `--ink` / `--foreground` for paragraphs; `--navy` for strong accents and many headings on white; muted for secondary.
-- **CTAs:** Gold for primary; white or outline on blue sections; use `--ink` (not `--navy`) for label text on gold fills.
+- **CTAs:** Yellow (`--gold`) for primary; white or outline on blue sections; use `--ink` (not `--navy`) for label text on yellow fills.
+- **Tailwind:** Use **`yellow-*`** utilities for in-component callouts and chips (not `amber-*`), so UI matches the CSS token yellows.
 
 ### Typography
 

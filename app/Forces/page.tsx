@@ -88,7 +88,7 @@ export default function ForcesPage() {
 
       <div className="page-container">
 
-      <div className="mb-8 rounded-[var(--radius)] border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-800">
+      <div className="mb-8 rounded-[var(--radius)] border border-yellow-200 bg-yellow-50 p-4 text-sm leading-relaxed text-yellow-800">
         Listings are provided for professional reference only. PoliceStationRepUK.com does not
         verify availability, does not arrange attendance, and does not recommend or endorse any
         individual listed.

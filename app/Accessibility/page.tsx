@@ -129,11 +129,11 @@ export default function AccessibilityPage() {
           </h3>
           <ul className="mb-6 space-y-1.5 text-sm text-[var(--muted)]">
             <li className="flex gap-2">
-              <span className="text-amber-600">&#x26A0;</span>External links (e.g., GOV.UK forms)
+              <span className="text-yellow-600">&#x26A0;</span>External links (e.g., GOV.UK forms)
               are managed by third parties and may not meet our accessibility standards
             </li>
             <li className="flex gap-2">
-              <span className="text-amber-600">&#x26A0;</span>Embedded content (e.g., Google Maps)
+              <span className="text-yellow-600">&#x26A0;</span>Embedded content (e.g., Google Maps)
               controlled by external providers
             </li>
             <li className="flex gap-2">
@@ -147,7 +147,7 @@ export default function AccessibilityPage() {
           </h3>
           <ul className="mb-6 space-y-1.5 text-sm text-[var(--muted)]">
             <li className="flex gap-2">
-              <span className="text-amber-600">&#x26A0;</span>Some linked PDF forms may not be
+              <span className="text-yellow-600">&#x26A0;</span>Some linked PDF forms may not be
               fully tagged for screen readers
             </li>
             <li className="flex gap-2">
@@ -165,7 +165,7 @@ export default function AccessibilityPage() {
           </h3>
           <ul className="space-y-1.5 text-sm text-[var(--muted)]">
             <li className="flex gap-2">
-              <span className="text-amber-600">&#x26A0;</span>Older pages may not fully meet
+              <span className="text-yellow-600">&#x26A0;</span>Older pages may not fully meet
               current standards
             </li>
             <li className="flex gap-2">
@@ -308,15 +308,15 @@ export default function AccessibilityPage() {
           </h3>
           <ul className="mb-4 space-y-1.5 text-sm text-[var(--muted)]">
             <li className="flex gap-2">
-              <span className="text-amber-600">&#x26A0;</span>Some third-party embedded content may
+              <span className="text-yellow-600">&#x26A0;</span>Some third-party embedded content may
               not be fully accessible
             </li>
             <li className="flex gap-2">
-              <span className="text-amber-600">&#x26A0;</span>Certain PDF documents linked from
+              <span className="text-yellow-600">&#x26A0;</span>Certain PDF documents linked from
               external sources may lack proper tagging
             </li>
             <li className="flex gap-2">
-              <span className="text-amber-600">&#x26A0;</span>Legacy content may not meet current
+              <span className="text-yellow-600">&#x26A0;</span>Legacy content may not meet current
               standards (being updated progressively)
             </li>
           </ul>

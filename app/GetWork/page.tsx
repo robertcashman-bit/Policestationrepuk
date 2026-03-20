@@ -132,9 +132,9 @@ export default function GetWorkPage() {
       <div className="page-container">
 
       {/* Regulatory notice */}
-      <div className="mb-12 rounded-[var(--radius-lg)] border border-amber-300 bg-amber-50 p-6">
-        <h2 className="text-base font-bold text-amber-900">⚠ Important Regulatory Notice</h2>
-        <p className="mt-2 text-sm leading-relaxed text-amber-800">
+      <div className="mb-12 rounded-[var(--radius-lg)] border border-yellow-300 bg-yellow-50 p-6">
+        <h2 className="text-base font-bold text-yellow-900">⚠ Important Regulatory Notice</h2>
+        <p className="mt-2 text-sm leading-relaxed text-yellow-800">
           <strong>Probationary representatives</strong> cannot work on a freelance basis. If you are
           still building your portfolio and have not yet passed the Critical Incident Test (CIT),
           you must work under the direct supervision of an accredited representative or duty

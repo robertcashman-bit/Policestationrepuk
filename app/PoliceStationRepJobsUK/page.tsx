@@ -78,8 +78,8 @@ export default function PoliceStationRepJobsUKPage() {
             </div>
           ))}
         </div>
-        <div className="mt-4 rounded-[var(--radius)] border border-amber-200 bg-amber-50 p-4">
-          <p className="text-sm text-amber-800">
+        <div className="mt-4 rounded-[var(--radius)] border border-yellow-200 bg-yellow-50 p-4">
+          <p className="text-sm text-yellow-800">
             <strong>Important:</strong> All police station representatives must either hold PSRAS
             accreditation or be a qualified duty solicitor. Representatives are regulated by the
             Solicitors Regulation Authority (SRA) and must be associated with an SRA-regulated firm.

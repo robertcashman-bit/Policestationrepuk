@@ -127,7 +127,7 @@ export default function TermsPage() {
           <h2 className="text-h2 mb-4 text-[var(--navy)]">
             Verification &amp; Accuracy Notice
           </h2>
-          <div className="rounded-[var(--radius-lg)] border border-amber-200 bg-amber-50/50 p-6 dark:border-amber-900/30 dark:bg-amber-950/20">
+          <div className="rounded-[var(--radius-lg)] border border-yellow-200 bg-yellow-50/50 p-6 dark:border-yellow-900/30 dark:bg-yellow-950/20">
             <p className="mb-3 text-sm font-semibold text-[var(--navy)]">
               Important &mdash; Please Read:
             </p>
@@ -137,18 +137,18 @@ export default function TermsPage() {
             </p>
             <ul className="mb-4 space-y-1.5 text-sm text-[var(--muted)]">
               <li className="flex gap-2">
-                <span className="text-amber-600">&#x26A0;</span>Ongoing availability or workload
+                <span className="text-yellow-600">&#x26A0;</span>Ongoing availability or workload
               </li>
               <li className="flex gap-2">
-                <span className="text-amber-600">&#x26A0;</span>Professional indemnity insurance
+                <span className="text-yellow-600">&#x26A0;</span>Professional indemnity insurance
                 status
               </li>
               <li className="flex gap-2">
-                <span className="text-amber-600">&#x26A0;</span>Performance, conduct, or quality of
+                <span className="text-yellow-600">&#x26A0;</span>Performance, conduct, or quality of
                 service
               </li>
               <li className="flex gap-2">
-                <span className="text-amber-600">&#x26A0;</span>Ongoing accreditation status with
+                <span className="text-yellow-600">&#x26A0;</span>Ongoing accreditation status with
                 regulatory bodies
               </li>
             </ul>

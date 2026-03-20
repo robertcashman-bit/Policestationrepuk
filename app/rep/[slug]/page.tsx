@@ -34,7 +34,7 @@ const AVAIL_MAP: Record<string, { label: string; color: string }> = {
   'part-time': { label: 'Part-time', color: 'bg-blue-50 text-blue-700 border-blue-200' },
   weekends: { label: 'Weekends', color: 'bg-violet-50 text-violet-700 border-violet-200' },
   nights: { label: 'Nights', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-  'on-call': { label: 'On-call', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  'on-call': { label: 'On-call', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
 };
 
 export default async function RepPage({ params }: PageProps) {

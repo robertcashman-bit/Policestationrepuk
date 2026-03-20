@@ -70,7 +70,7 @@ export default function ContactPage() {
           </section>
 
           {/* Regulatory notice */}
-          <div className="mt-6 rounded-[var(--radius)] border border-amber-200 bg-amber-50 p-4 text-xs leading-relaxed text-amber-900">
+          <div className="mt-6 rounded-[var(--radius)] border border-yellow-200 bg-yellow-50 p-4 text-xs leading-relaxed text-yellow-900">
             <strong>Important Notice:</strong> PoliceStationRepUK is operated by{' '}
             <strong>Defence Legal Services Ltd</strong> — an independent directory service. We are{' '}
             <strong>not</strong> affiliated with The Law Society, SRA, LCCSA, CLSA, the Legal

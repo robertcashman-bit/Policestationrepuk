@@ -119,7 +119,7 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
 
       <div className="page-container">
         {/* CustodyNote banner */}
-        <div className="mb-6 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-gradient-to-r from-slate-900 to-slate-800 p-[var(--card-padding)] text-center shadow-[var(--card-shadow)]">
+        <div className="mb-6 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-gradient-to-r from-[var(--navy)] to-[var(--navy-mid)] p-[var(--card-padding)] text-center shadow-[var(--card-shadow)]">
           <Link href="https://custodynote.com" target="_blank" rel="noopener noreferrer" className="no-underline">
             <p className="text-sm font-bold text-white">
               Custody Note — The app for freelance reps

@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export function HomeCustodyNote() {
   return (
-    <section className="section-pad bg-gradient-to-br from-[#0f172a] to-[#1e293b]" aria-label="Custody Note promotion">
+    <section className="section-pad bg-gradient-to-br from-[var(--navy)] to-[var(--navy-mid)]" aria-label="Custody Note promotion">
       <div className="page-container !py-0">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-h2 mt-0 text-white">Custody Note</h2>

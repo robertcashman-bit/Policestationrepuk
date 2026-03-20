@@ -34,14 +34,14 @@ function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) 
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[32px] items-center text-sm text-slate-400 no-underline transition-colors hover:text-white"
+                className="inline-flex min-h-[32px] items-center text-sm text-[var(--footer-link)] no-underline transition-colors hover:text-[var(--footer-link-hover)]"
               >
                 {link.label}
               </a>
             ) : (
               <Link
                 href={link.href}
-                className="inline-flex min-h-[32px] items-center text-sm text-slate-400 no-underline transition-colors hover:text-white"
+                className="inline-flex min-h-[32px] items-center text-sm text-[var(--footer-link)] no-underline transition-colors hover:text-[var(--footer-link-hover)]"
               >
                 {link.label}
               </Link>
@@ -95,16 +95,19 @@ export function Footer() {
         <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--navy-light)] pt-6">
           <Link
             href={FOOTER_UTILITY_SITEMAP_HREF}
-            className="text-xs text-slate-400 no-underline hover:text-white"
+            className="text-xs text-[var(--footer-link)] no-underline hover:text-[var(--footer-link-hover)]"
           >
             {FOOTER_UTILITY_SITEMAP_LABEL}
           </Link>
-          <Link href={FOOTER_UTILITY_RSS_HREF} className="text-xs text-slate-400 no-underline hover:text-white">
+          <Link
+            href={FOOTER_UTILITY_RSS_HREF}
+            className="text-xs text-[var(--footer-link)] no-underline hover:text-[var(--footer-link-hover)]"
+          >
             {FOOTER_UTILITY_RSS_LABEL}
           </Link>
           <button
             type="button"
-            className="text-xs font-medium text-slate-400 transition-colors hover:text-white"
+            className="text-xs font-medium text-[var(--footer-link)] transition-colors hover:text-[var(--footer-link-hover)]"
             onClick={() => {
               localStorage.removeItem('cookies-accepted');
               window.location.reload();

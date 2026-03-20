@@ -21,6 +21,16 @@
   --blue-accent: #2563eb;
   --blue-hover: #1d4ed8;
   --muted: #4a5e78;
+  /* Default in-content links — brand gold (Wix-style accents); chrome uses --header-link* / --footer-link* */
+  --link: #c49a2e;
+  --link-hover: #a67c1a;
+  --header-link: #f1f5f9;
+  --header-link-hover: #ffffff;
+  --footer-link: #cbd5e1;
+  --footer-link-hover: #ffffff;
+  --breadcrumb-on-dark: #94a3b8;
+  --breadcrumb-link-on-dark: #e2e8f0;
+  --breadcrumb-active-on-dark: #ffffff;
   --border: #d1d9e6;
   --card-bg: #ffffff;
   --card-border: #e0e7ef;
@@ -284,13 +294,22 @@ p {
   line-height: 1.65;
 }
 
-a {
-  color: var(--primary);
-  text-decoration: none;
-}
-a:hover {
-  color: var(--primary-hover);
-  text-decoration: underline;
+/**
+ * Base link styles MUST live in @layer base so Tailwind utilities (e.g. text-slate-300 on header <a>)
+ * are not overridden by unlayered rules — which previously forced --primary (navy) on all links and
+ * made nav/footer links invisible on the navy bar.
+ */
+@layer base {
+  a {
+    color: var(--link);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--link) 35%, transparent);
+    text-underline-offset: 0.18em;
+  }
+  a:hover {
+    color: var(--link-hover);
+    text-decoration-color: color-mix(in srgb, var(--link-hover) 55%, transparent);
+  }
 }
 
 /* Button styles — proportions aligned to typical source CTAs */

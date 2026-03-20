@@ -7,6 +7,7 @@ import {
   getAllWikiArticles,
   getAllLegalUpdates,
 } from '@/lib/data';
+import { getAllBlogPosts } from '@/lib/blog-data';
 import { getMirrorPaths, hasMirrorData } from '@/lib/mirror-data';
 import { SITEMAP_PATHS } from '@/lib/sitemap-paths';
 import { SITE_URL as BASE } from '@/lib/seo-layer/config';
@@ -142,6 +143,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'monthly' as const,
     priority: 0.6,
   }));
+  const blogPostUrls = getAllBlogPosts().map((p) => ({
+    url: `${BASE}/Blog/${p.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.55,
+  }));
 
-  return [...entries, ...countyUrls, ...repUrls, ...stationUrls, ...wikiUrls, ...legalUpdateUrls];
+  return [...entries, ...countyUrls, ...repUrls, ...stationUrls, ...wikiUrls, ...legalUpdateUrls, ...blogPostUrls];
 }

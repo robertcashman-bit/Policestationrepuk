@@ -187,6 +187,12 @@ const nextConfig: NextConfig = {
         destination: "/Blog",
         permanent: true,
       },
+      // Lowercase blog article paths → canonical `app/Blog/[slug]` (Linux URLs are case-sensitive)
+      {
+        source: "/blog/:slug",
+        destination: "/Blog/:slug",
+        permanent: true,
+      },
       {
         source: "/servicesvoluntaryinterviews",
         destination: "/InterviewUnderCaution",

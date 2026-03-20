@@ -31,7 +31,7 @@ export async function HomeBlogPreview() {
           {posts.map((article) => (
             <Link
               key={article.slug}
-              href={`/blog/${article.slug}`}
+              href={`/Blog/${article.slug}`}
               className="group card-surface no-underline transition-shadow hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--gold)]/40"
             >
               <h3 className="mt-0 text-lg font-bold leading-snug text-[var(--navy)] group-hover:text-[var(--gold-hover)]">

@@ -41,7 +41,7 @@ export default function BlogPage() {
         {posts.map((post) => (
           <Link
             key={post.slug}
-            href={`/blog/${post.slug}`}
+            href={`/Blog/${post.slug}`}
             className="group block rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 no-underline shadow-[var(--card-shadow)] transition-all hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
           >
             <p className="text-sm font-medium leading-snug text-[var(--navy)] group-hover:text-[var(--gold-hover)]">

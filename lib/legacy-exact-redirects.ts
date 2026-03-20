@@ -56,6 +56,7 @@ export const LEGACY_EXACT_REDIRECTS: Record<string, string> = {
   '/repfaqmaster': '/RepFAQMaster',
   '/subscribe': '/Subscribe',
   '/account': '/Account',
+  '/profile': '/Profile',
   '/login': '/Account',
   '/sign-in': '/Account',
 };

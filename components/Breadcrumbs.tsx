@@ -14,9 +14,11 @@ export function Breadcrumbs({
   light?: boolean;
   className?: string;
 }) {
-  const textClass = light ? 'text-slate-400' : 'text-[var(--muted)]';
-  const linkClass = light ? 'text-slate-300 hover:text-white' : 'text-[var(--gold-hover)] hover:text-[var(--gold)]';
-  const activeClass = light ? 'text-white' : 'text-[var(--navy)]';
+  const textClass = light ? 'text-[var(--breadcrumb-on-dark)]' : 'text-[var(--muted)]';
+  const linkClass = light
+    ? 'text-[var(--breadcrumb-link-on-dark)] hover:text-[var(--breadcrumb-active-on-dark)]'
+    : 'text-[var(--gold-hover)] hover:text-[var(--gold)]';
+  const activeClass = light ? 'text-[var(--breadcrumb-active-on-dark)]' : 'text-[var(--navy)]';
 
   return (
     <nav

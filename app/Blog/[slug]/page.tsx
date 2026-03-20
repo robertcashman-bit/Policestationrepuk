@@ -180,7 +180,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
                   rel="noopener noreferrer"
                   className="btn-gold mt-6 inline-flex !no-underline"
                 >
-                  Read full article on PoliceStationRepUK.com →
+                  Read full article on original site →
                 </a>
               </div>
 

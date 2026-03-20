@@ -10,6 +10,7 @@ const SITE_TITLE = 'PoliceStationRepUK';
 const MAIN_LINKS = [
   { href: '/', text: 'Home' },
   { href: '/directory', text: 'Find a Rep' },
+  { href: '/search', text: 'Search directory' },
   { href: '/CustodyNote', text: 'CustodyNote' },
   { href: '/register', text: 'Register' },
   { href: '/Contact', text: 'Contact' },

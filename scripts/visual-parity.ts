@@ -30,9 +30,17 @@ interface RowResult {
   height?: number;
 }
 
+/** Stable filenames (Windows FS is case-insensitive — /Directory vs /directory must not collide). */
 function pathToFilename(route: string): string {
-  const s = route === '/' ? 'home' : route.replace(/^\//, '').replace(/\//g, '__');
-  return s.replace(/[^a-zA-Z0-9._-]/g, '_') || 'home';
+  if (route === '/') return 'home';
+  const disambig: Record<string, string> = {
+    '/Directory': 'directory__capital-D',
+    '/directory': 'directory__lower-d',
+    '/search': 'search',
+  };
+  if (disambig[route]) return disambig[route];
+  const s = route.replace(/^\//, '').replace(/\//g, '__');
+  return s.replace(/[^a-zA-Z0-9._-]/g, '_') || 'route';
 }
 
 async function injectStability(page: Page): Promise<void> {
@@ -55,6 +63,7 @@ async function capture(page: Page, url: string): Promise<Buffer> {
     timeout: visualParityConfig.navigationTimeoutMs,
   });
   await page.evaluate(() => window.scrollTo(0, 0));
+  await page.evaluate(() => document.fonts.ready);
   await injectStability(page);
   await new Promise((r) => setTimeout(r, visualParityConfig.postLoadWaitMs));
   const buf = await page.screenshot({
@@ -108,10 +117,10 @@ function compareBuffers(bufA: Buffer, bufB: Buffer): {
 
 function orderPaths(allPaths: string[]): string[] {
   const priority = buildPriorityPaths();
-  const set = new Set(allPaths);
+  /** Priority routes first (always), even when absent from crawl map — fixes `/search` missing from live-site-map.json. */
   const out: string[] = [];
   for (const p of priority) {
-    if (set.has(p)) out.push(p);
+    if (!out.includes(p)) out.push(p);
   }
   for (const p of allPaths) {
     if (!out.includes(p)) out.push(p);

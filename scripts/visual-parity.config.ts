@@ -70,9 +70,14 @@ html { scroll-behavior: auto !important; }
 /** Optional selectors (source is Wix — IDs differ); extend via VISUAL_PARITY_MASK comma-separated */
 export const DEFAULT_MASK_SELECTORS = [
   '[data-parity-mask]',
+  '.psr-cookie-bar',
   // Common consent / chat (broad — may need tune per source)
   'iframe[title*="cookie" i]',
   'div[id*="banner" i][class*="cookie" i]',
+  /** Wix / consent UI fragments frequently fixed at bottom of viewport */
+  'div[role="dialog"][aria-label*="cookie" i]',
+  '[data-hook="cookie-banner"]',
+  'div[class*="wixui-consent" i]',
 ];
 
 export const visualParityConfig = {

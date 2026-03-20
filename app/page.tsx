@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
 import { JsonLd } from '@/components/JsonLd';
 import { HomeHero } from '@/components/HomeHero';
@@ -25,7 +24,10 @@ export const metadata: Metadata = {
   alternates: { canonical: SITE_URL },
 };
 
-const UK_FORCES_COUNT = 43;
+/** Matches homepage / Wix crawl marketing strip (rounded figures — not live DB totals). */
+const UK_FORCES_COUNT = 42;
+const MARKETING_REPS_DISPLAY = 300;
+const MARKETING_STATIONS_DISPLAY = 500;
 
 export default async function HomePage() {
   const [reps, stations, counties] = await Promise.all([getAllReps(), getAllStations(), getAllCounties()]);
@@ -36,97 +38,61 @@ export default async function HomePage() {
       <JsonLd data={organizationSchema()} />
       <JsonLd data={webSiteSchema() as Record<string, unknown>} />
 
-      {/* 1 — Hero */}
-      <HomeHero repCount={reps.length} />
+      <HomeHero />
 
-      {/* 2 — Stats: Trusted Nationwide Coverage */}
-      <section className="border-b border-[var(--border)] bg-white py-10 sm:py-12" aria-label="Site statistics">
+      <section className="section-pad-compact border-b border-[var(--border)] bg-white" aria-label="Site statistics">
         <div className="page-container !py-0">
           <div className="text-center">
-            <h2 className="text-xl font-bold text-[var(--navy)] sm:text-2xl">Trusted Nationwide Coverage</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">Real-time access to the UK&apos;s largest network</p>
+            <h2 className="text-h2 mt-0 text-[var(--navy)]">Trusted Nationwide Coverage</h2>
+            <p className="mt-1.5 text-sm leading-normal text-[var(--muted)]">Real-time access to the UK&apos;s largest network</p>
           </div>
-          <div className="mt-6 grid grid-cols-2 gap-6 text-center sm:grid-cols-4">
+          <div className="mt-5 grid grid-cols-3 gap-4 text-center sm:mt-6 sm:gap-6">
             <div>
-              <p className="text-3xl font-extrabold text-[var(--navy)] sm:text-4xl">{reps.length}+</p>
-              <p className="mt-1 text-sm font-medium text-[var(--muted)]">Representatives</p>
+              <p className="text-[1.75rem] font-extrabold leading-none text-[var(--navy)] sm:text-4xl">
+                {MARKETING_REPS_DISPLAY}+
+              </p>
+              <p className="mt-1 text-sm font-medium text-[var(--muted)]">Reps</p>
             </div>
             <div>
-              <p className="text-3xl font-extrabold text-[var(--navy)] sm:text-4xl">{stations.length}+</p>
+              <p className="text-[1.75rem] font-extrabold leading-none text-[var(--navy)] sm:text-4xl">
+                {MARKETING_STATIONS_DISPLAY}+
+              </p>
               <p className="mt-1 text-sm font-medium text-[var(--muted)]">Stations</p>
             </div>
             <div>
-              <p className="text-3xl font-extrabold text-[var(--navy)] sm:text-4xl">{UK_FORCES_COUNT}</p>
-              <p className="mt-1 text-sm font-medium text-[var(--muted)]">Police Forces</p>
-            </div>
-            <div>
-              <p className="text-3xl font-extrabold text-[var(--navy)] sm:text-4xl">{counties.length}</p>
-              <p className="mt-1 text-sm font-medium text-[var(--muted)]">Counties Covered</p>
+              <p className="text-[1.75rem] font-extrabold leading-none text-[var(--navy)] sm:text-4xl">{UK_FORCES_COUNT}</p>
+              <p className="mt-1 text-sm font-medium text-[var(--muted)]">Forces</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3 — CustodyNote promo */}
+      <HomeKentSpotlight />
+
       <HomeCustodyNote />
 
-      {/* 4 — Recently Joined */}
       <HomeRecentlyJoined reps={reps} />
 
-      {/* 5 — Training Guides (detailed) */}
       <HomeTrainingResources />
 
-      {/* 6 — Featured Premium Reps carousel */}
       <HomeFeaturedCarousel featuredReps={featuredReps} />
 
-      {/* 7 — Why Choose */}
       <HomeWhyChoose />
 
-      {/* 8 — Testimonials */}
       <HomeTestimonials />
 
-      {/* 9 — Blog preview */}
       <HomeBlogPreview />
 
-      {/* 10 — Join the Directory CTA */}
       <HomeRegisterCta />
 
-      {/* 11 — Quick Search + Out-of-hours */}
       <HomeQuickSearch
         stations={stations.map((s) => s.name)}
         counties={counties.map((c) => c.name)}
       />
 
-      {/* 12 — Phone Numbers */}
       <HomePhoneNumbers />
 
-      {/* 13 — AI Assistant */}
       <HomeAIAssistant />
-
-      {/* 14 — Kent Spotlight */}
-      <HomeKentSpotlight />
-
-      {/* 15 — Second Training block (footer-adjacent) */}
-      <section className="bg-white py-14 sm:py-16">
-        <div className="page-container !py-0">
-          <div className="text-center">
-            <h3 className="text-xl font-bold text-[var(--navy)] sm:text-2xl">
-              Training Guides &amp; Resources
-            </h3>
-            <p className="mt-2 text-[var(--muted)]">
-              Access training guides, Rep Wiki, and professional resources — all free.
-            </p>
-          </div>
-          <div className="mt-6 flex flex-col items-center gap-3">
-            <Link href="/Resources" className="text-sm font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
-              Browse Resources →
-            </Link>
-            <Link href="/Resources" className="btn-gold !text-sm">
-              Browse Resources →
-            </Link>
-          </div>
-        </div>
-      </section>
     </>
   );
 }

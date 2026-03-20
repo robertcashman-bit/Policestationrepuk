@@ -34,10 +34,10 @@ const FREE_REASONS = [
 
 export function HomeTrainingResources() {
   return (
-    <section className="bg-white py-14 sm:py-16" aria-label="Training resources">
+    <section className="section-pad bg-white" aria-label="Training resources">
       <div className="page-container !py-0">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-[var(--navy)] sm:text-3xl">
+          <h2 className="text-h2 mt-0 text-[var(--navy)]">
             Training Guides &amp; Resources
           </h2>
           <p className="mt-2 text-[var(--muted)]">
@@ -46,8 +46,8 @@ export function HomeTrainingResources() {
         </div>
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/Resources" className="btn-gold !text-sm">
-            Browse All Resources
+          <Link href="/Premium" className="btn-gold !text-sm">
+            Browse Resources →
           </Link>
         </div>
 
@@ -59,7 +59,7 @@ export function HomeTrainingResources() {
               <Link
                 key={g.href}
                 href={g.href}
-                className="group rounded-xl border border-[var(--card-border)] bg-white p-6 shadow-sm no-underline transition-all hover:shadow-md hover:border-[var(--gold)]/40"
+                className="group card-surface no-underline transition-shadow hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--gold)]/40"
               >
                 <h4 className="text-base font-bold text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
                   {g.title}

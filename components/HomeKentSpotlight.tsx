@@ -1,9 +1,9 @@
 export function HomeKentSpotlight() {
   return (
-    <section className="bg-[var(--gold-pale)] py-14 sm:py-16">
+    <section className="section-pad bg-[var(--gold-pale)]">
       <div className="page-container !py-0">
         <div className="mx-auto max-w-3xl text-center">
-          <h3 className="text-xl font-bold text-[var(--navy)] sm:text-2xl">
+          <h3 className="text-h3 mt-0 text-[var(--navy)]">
             Need a Police Station Rep in Kent?
           </h3>
           <p className="mt-2 text-sm font-medium text-[var(--muted)]">
@@ -23,11 +23,6 @@ export function HomeKentSpotlight() {
               💬 Send SMS to 07535 494446
             </a>
           </div>
-          <button
-            className="mt-4 text-sm font-medium text-[var(--gold-hover)] hover:text-[var(--gold)]"
-          >
-            Show details
-          </button>
         </div>
       </div>
     </section>

@@ -1,63 +1,91 @@
 import Link from 'next/link';
 
-export function HomeHero({ repCount }: { repCount?: number }) {
-  const count = repCount && repCount > 0 ? repCount : 258;
+const HERO_QUICK_LINKS = [
+  { href: '/StationsDirectory', label: '📞 Station Numbers' },
+  { href: '/FormsLibrary', label: '📄 Forms' },
+  { href: '/Resources', label: '🌐 Resources' },
+] as const;
+
+/** Hero trust badge uses live marketing figure (page crawl / Wix homepage), not DB counts — avoids parity drift. */
+const TRUST_BADGE_COUNT = 258;
+
+export function HomeHero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#1e40af] via-[#1e3a8a] to-[#312e81] py-16 sm:py-20 md:py-28">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,_rgba(255,255,255,0.05)_0%,_transparent_70%)]" />
+    <section
+      className="hero-gradient-source relative overflow-hidden"
+      style={{ paddingTop: 'var(--hero-pad-y)', paddingBottom: 'var(--hero-pad-y)' }}
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,_rgba(255,255,255,0.08)_0%,_transparent_55%)]" />
 
       <div className="page-container relative !py-0">
-        <div className="mx-auto max-w-3xl text-center">
-          {/* Trust badge */}
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm">
-            <span className="flex h-4 w-4 items-center justify-center text-xs">☑️</span>
-            Trusted by {count}+ Professionals
+        <div className="mx-auto max-w-[var(--hero-max-inner)] text-center">
+          {/* Trust badge — chart icon reads closer to live “📈” strip */}
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-[0.8125rem] font-semibold leading-snug text-white backdrop-blur-sm sm:text-sm">
+            <span className="text-base" aria-hidden>
+              📈
+            </span>
+            Trusted by {TRUST_BADGE_COUNT}+ Professionals
           </div>
 
-          <h1 className="text-h1 text-white sm:text-5xl md:text-6xl">
+          <h1 className="text-h1 text-white">
             The UK&apos;s Free Directory for{' '}
             <span className="bg-gradient-to-r from-cyan-300 to-cyan-400 bg-clip-text text-transparent">
               Police Station Cover
             </span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-200 sm:text-xl">
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-[1.65] text-slate-200 sm:mt-[var(--space-hero-stack-lg)] sm:text-[1.0625rem] sm:leading-[1.65]">
             Connecting criminal defence firms and solicitors with accredited police station
             representatives across England &amp; Wales.{' '}
             <strong className="font-bold text-white">100% free</strong> — no fees to join, search, or use. Ever.
           </p>
 
-          <p className="mt-4 text-sm text-slate-300">
-            ✓ No subscriptions, no hidden costs — create your free profile in minutes
-          </p>
-
-          {/* Green pill badges */}
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
+          {/* Green pill badges — stronger border per live */}
+          <div className="mt-4 flex flex-wrap justify-center gap-2.5 sm:gap-3">
             {['Free to Join', 'Free to Search', 'Free Resources'].map((label) => (
               <span
                 key={label}
-                className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-300"
+                className="inline-flex items-center gap-1.5 rounded-full border-2 border-emerald-400/70 bg-emerald-500/15 px-3.5 py-1.5 text-[0.8125rem] font-semibold text-emerald-200 sm:px-4 sm:py-2 sm:text-sm"
               >
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-xs text-white">✓</span>
+                <span className="text-emerald-300" aria-hidden>
+                  ✓
+                </span>
                 {label}
               </span>
             ))}
           </div>
 
           {/* Large CTA buttons */}
-          <div className="mt-10 flex flex-col gap-4">
+          <div className="mt-8 flex flex-col gap-2.5 sm:mt-9 sm:gap-3">
             <Link
-              href="/directory"
-              className="flex w-full items-center justify-center rounded-xl bg-white px-8 py-5 text-lg font-bold text-[var(--navy)] shadow-lg transition-all hover:bg-slate-50 hover:shadow-xl no-underline"
+              href="/Directory"
+              className="flex min-h-[48px] w-full items-center justify-center rounded-[var(--radius-lg)] bg-white px-6 py-3.5 text-[0.9375rem] font-bold leading-tight text-[var(--navy)] shadow-[var(--card-shadow)] transition-colors hover:bg-slate-50 no-underline sm:min-h-[52px] sm:py-4 sm:text-[1rem]"
             >
               🔍 Find a Rep
             </Link>
             <Link
-              href="/register"
-              className="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-8 py-5 text-lg font-bold text-white shadow-lg transition-all hover:from-violet-700 hover:to-purple-700 hover:shadow-xl no-underline"
+              href="/Register"
+              className="flex min-h-[48px] w-full items-center justify-center rounded-[var(--radius-lg)] bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-3.5 text-[0.9375rem] font-bold leading-tight text-white shadow-[var(--card-shadow)] transition-colors hover:from-violet-700 hover:to-purple-700 no-underline sm:min-h-[52px] sm:py-4 sm:text-[1rem]"
             >
               Join the Directory (Free)
             </Link>
+          </div>
+
+          <p className="mt-3.5 text-sm leading-snug text-slate-300 sm:mt-4">
+            ✓ No subscriptions, no hidden costs — create your free profile in minutes
+          </p>
+
+          {/* In-hero quick links — sequence from crawl (after CTAs + reassurance line) */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-semibold sm:mt-7">
+            {HERO_QUICK_LINKS.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-white/95 no-underline transition-colors hover:text-[var(--gold)]"
+              >
+                {label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

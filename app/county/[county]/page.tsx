@@ -69,7 +69,7 @@ export default async function CountyPage({ params }: PageProps) {
       <JsonLd data={breadcrumbSchemaData} />
       {reps.length > 0 && <JsonLd data={legalServiceSchema({ name: reps[0].name, slug: reps[0].slug, counties: [reps[0].county].filter(Boolean), accreditation: reps[0].accreditation, phone: reps[0].phone })} />}
       <div className="page-container">
-        <div className="mx-auto max-w-6xl">
+        <div className="w-full min-w-0">
           <Breadcrumbs items={breadcrumbItems} />
           <h1 className="text-h1 text-[var(--foreground)]">{content.h1}</h1>
           <p className="mt-4 max-w-3xl text-base leading-relaxed text-[var(--muted)]">
@@ -77,7 +77,7 @@ export default async function CountyPage({ params }: PageProps) {
           </p>
 
           {content.sections.map((section, i) => (
-            <section key={i} className="mt-8 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--card-shadow)] sm:p-6">
+            <section key={i} className="mt-8 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-[var(--card-padding)] shadow-[var(--card-shadow)]">
               <h2 className="text-h2 text-[var(--foreground)]">{section.heading}</h2>
               <p className="mt-2 max-w-3xl leading-relaxed text-[var(--foreground)]">{section.body}</p>
             </section>

@@ -27,10 +27,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
   return (
     <>
-      <section className="border-b border-[var(--border)] bg-white py-6">
+      <section className="section-pad-compact border-b border-[var(--border)] bg-white">
         <div className="page-container !py-0">
-          <h1 className="text-xl font-bold text-[var(--navy)] sm:text-2xl">Search representatives</h1>
-          <p className="mt-2 text-sm text-[var(--muted)]">
+          <h1 className="text-h2 mt-0 text-[var(--navy)]">Search representatives</h1>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
             Filter live directory listings by county, custody suite, accreditation, availability, or free-text
             search. All results are loaded from the Scraped rep pipeline (with reps.json fallback).
           </p>
@@ -38,10 +38,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
         </div>
       </section>
 
-      <section className="bg-gradient-to-b from-[#1e40af] via-[#1e3a8a] to-[#312e81] py-8 sm:py-10">
+      <section className="hero-band hero-gradient-source">
         <div className="page-container !py-0">
           <p className="text-sm text-slate-300">
-            <Link href="/directory" className="font-semibold text-white no-underline hover:underline">
+            <Link href="/Directory" className="font-semibold text-white no-underline hover:underline">
               Full directory hub →
             </Link>
           </p>
@@ -54,6 +54,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
             reps={reps}
             counties={counties}
             stations={stations}
+            urlBase="/search"
             defaultCounty={params.county ?? ''}
             defaultStation={params.station ?? ''}
             defaultAvailability={params.availability ?? ''}

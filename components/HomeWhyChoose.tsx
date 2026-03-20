@@ -18,28 +18,28 @@ export function HomeWhyChoose() {
   ];
 
   return (
-    <section className="bg-white py-14 sm:py-16" aria-label="Key features">
+    <section className="section-pad bg-white" aria-label="Key features">
       <div className="page-container !py-0">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-[var(--navy)] sm:text-3xl">
+          <h2 className="text-h2 mt-0 text-[var(--navy)]">
             Why Choose PoliceStationRepUK?
           </h2>
-          <p className="mt-2 text-[var(--muted)]">
+          <p className="mt-2 text-sm text-[var(--muted)]">
             The most comprehensive network for criminal defence professionals
           </p>
         </div>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:grid-cols-3 sm:mt-10 sm:gap-6">
           {features.map((f) => (
             <div
               key={f.title}
-              className="rounded-xl border border-[var(--card-border)] bg-white p-7 text-center shadow-sm transition-all hover:shadow-md"
+              className="card-surface text-center transition-shadow hover:shadow-[var(--card-shadow-hover)]"
             >
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--navy)] text-2xl text-white">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--navy)] text-xl text-white sm:h-14 sm:w-14 sm:text-2xl">
                 {f.icon}
               </div>
-              <h3 className="mt-5 text-lg font-bold text-[var(--navy)]">{f.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">{f.body}</p>
+              <h3 className="mt-4 text-base font-bold text-[var(--navy)] sm:mt-5 sm:text-lg">{f.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--muted)] sm:mt-3">{f.body}</p>
             </div>
           ))}
         </div>

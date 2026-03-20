@@ -32,6 +32,7 @@ export const revalidate = false;
 /** Paths that have dedicated page files — exclude from [slug] catch-all (all casings). */
 const DEDICATED_ROUTES = new Set([
   'About', 'about',
+  'Account', 'account',
   'Accessibility', 'accessibility',
   'Blog', 'blog',
   'Complaints', 'complaints',
@@ -63,6 +64,8 @@ const DEDICATED_ROUTES = new Set([
   'directory', 'Directory',
   'EscapeFeeCalculator', 'escapefeecalculator',
   'Wiki', 'wiki',
+  /** Dedicated `app/search/page.tsx` — must not collide with [slug] static params */
+  'search', 'Search',
   'PoliceStationRepsByCounty', 'policestationrepsbycounty',
   'Map', 'map',
   'PoliceStationRepsKent', 'policestationrepskent',

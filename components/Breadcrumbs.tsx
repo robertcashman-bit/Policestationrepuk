@@ -5,13 +5,24 @@ export interface BreadcrumbItem {
   href?: string;
 }
 
-export function Breadcrumbs({ items, light }: { items: BreadcrumbItem[]; light?: boolean }) {
+export function Breadcrumbs({
+  items,
+  light,
+  className,
+}: {
+  items: BreadcrumbItem[];
+  light?: boolean;
+  className?: string;
+}) {
   const textClass = light ? 'text-slate-400' : 'text-[var(--muted)]';
   const linkClass = light ? 'text-slate-300 hover:text-white' : 'text-[var(--gold-hover)] hover:text-[var(--gold)]';
   const activeClass = light ? 'text-white' : 'text-[var(--navy)]';
 
   return (
-    <nav aria-label="Breadcrumb" className={`mb-4 text-sm ${textClass}`}>
+    <nav
+      aria-label="Breadcrumb"
+      className={`${light ? 'mb-2' : 'mb-4'} text-sm ${textClass} ${className ?? ''}`.trim()}
+    >
       <ol className="flex flex-wrap items-center gap-1">
         {items.map((item, i) => (
           <li key={i} className="flex items-center gap-1">

@@ -32,6 +32,35 @@ function readJson<T>(filePath: string): T | null {
   return null;
 }
 
+function trimField(s: unknown): string {
+  if (s == null) return '';
+  return String(s).trim();
+}
+
+/** When county is missing, infer from first matching station in stations.json. */
+function enrichRepCountyFromStations(rep: Representative, stations: PoliceStation[]): Representative {
+  if (trimField(rep.county)) return rep;
+  for (const label of rep.stations || []) {
+    const needle = label.toLowerCase().trim();
+    if (!needle) continue;
+    const hit = stations.find((s) => {
+      const n = trimField(s.name).toLowerCase();
+      return n && (n.includes(needle) || needle.includes(n));
+    });
+    if (hit) {
+      const c = trimField(hit.county) || trimField(hit.forceName);
+      if (c) {
+        return {
+          ...rep,
+          county: c,
+          addressCounty: trimField(rep.addressCounty) || c,
+        };
+      }
+    }
+  }
+  return rep;
+}
+
 function dedupeRepsBySlug(reps: Representative[]): Representative[] {
   const seen = new Set<string>();
   const out: Representative[] = [];
@@ -87,7 +116,9 @@ function loadDataFromFiles(): FileData | null {
       repSource = 'fallback';
     }
 
-    const reps = dedupeRepsBySlug(merged.reps).map((r) => finalizeRepresentative(r));
+    const reps = dedupeRepsBySlug(merged.reps)
+      .map((r) => enrichRepCountyFromStations(r, stations))
+      .map((r) => finalizeRepresentative(r));
 
     _fileData = {
       counties,

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { SITE_URL } from '@/lib/seo-layer/config';
 import {
@@ -9,7 +10,42 @@ import {
   HEADER_SHARE_LABEL_COPIED,
   HEADER_MOBILE_CTA_HREF,
   HEADER_MOBILE_CTA_TEXT,
+  HEADER_HELP_HREF,
+  HEADER_LOGIN_HREF,
 } from '@/lib/site-navigation';
+
+function NavItem({
+  href,
+  children,
+  className,
+  onNavigate,
+  external,
+}: {
+  href: string;
+  children: ReactNode;
+  className: string;
+  onNavigate?: () => void;
+  external?: boolean;
+}) {
+  if (external) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+        onClick={onNavigate}
+      >
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link href={href} className={className} onClick={onNavigate}>
+      {children}
+    </Link>
+  );
+}
 
 export function Header() {
   const [open, setOpen] = useState(false);
@@ -30,64 +66,97 @@ export function Header() {
     }
   };
 
+  const desktopNavLinkClass =
+    'rounded-lg px-2.5 py-2 text-[12px] font-medium leading-snug text-slate-300 no-underline transition-colors hover:bg-[var(--navy-light)] hover:text-white xl:px-3 xl:text-[13px]';
+  const custodyNavClass =
+    'ml-0.5 inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-[12px] font-semibold leading-snug text-white no-underline shadow-sm transition-colors hover:bg-emerald-700 xl:text-[13px]';
+
   return (
     <>
       <header className="sticky top-0 z-30 border-b border-[var(--navy-light)] bg-[var(--navy)]">
-        <div className="mx-auto flex max-w-[var(--container-max)] items-center justify-between gap-4 px-5 py-3 sm:px-6 md:px-8">
-          {/* Brand first (structure matches typical .com header: logo / nav) */}
-          <Link
-            href="/"
-            aria-label="PoliceStationRepUK home"
-            className="flex shrink-0 items-center gap-2 no-underline"
-          >
-            <span
-              className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--gold)] text-lg"
-              aria-hidden
+        {/* Wix parity: menu + brand left | centred nav | Help + Log In right (desktop) */}
+        <div className="mx-auto flex max-w-[var(--container-max)] items-center justify-between gap-3 px-[var(--container-gutter)] py-2.5 sm:px-6 lg:px-8">
+          <div className="flex min-w-0 flex-1 items-center gap-3 lg:flex-initial lg:gap-4">
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-label={open ? 'Close menu' : 'Open menu'}
+              aria-expanded={open}
+              className="flex shrink-0 items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-orange-600 lg:hidden"
             >
-              ⚖️
-            </span>
-          </Link>
+              {open ? (
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
+                  <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
+                  <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              )}
+              Menu
+            </button>
 
-          {/* Desktop: primary nav only — 10 items, order & labels from source */}
+            <Link
+              href="/"
+              aria-label="PoliceStationRepUK home"
+              className="flex min-w-0 shrink-0 items-center gap-2 no-underline"
+            >
+              <span
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--gold)] text-lg"
+                aria-hidden
+              >
+                ⚖️
+              </span>
+              <span className="hidden truncate text-sm font-bold tracking-tight text-white sm:inline">PSR UK</span>
+            </Link>
+          </div>
+
           <nav
-            className="hidden max-w-[calc(100%-4rem)] flex-1 flex-wrap items-center justify-end gap-0.5 lg:flex"
+            className="hidden flex-1 flex-wrap items-center justify-center gap-0.5 lg:flex"
             aria-label="Main navigation"
           >
             {PRIMARY_NAV.map((link) => (
-              <Link
+              <NavItem
                 key={`${link.href}-${link.text}`}
                 href={link.href}
-                className="rounded-lg px-3 py-2 text-[13px] font-medium text-slate-300 no-underline transition-colors hover:bg-[var(--navy-light)] hover:text-white"
+                className={link.href === '/CustodyNote' ? custodyNavClass : desktopNavLinkClass}
               >
-                {link.text}
-              </Link>
+                {link.href === '/CustodyNote' ? (
+                  <>
+                    <span aria-hidden className="text-sm">
+                      📄
+                    </span>
+                    {link.text}
+                  </>
+                ) : (
+                  link.text
+                )}
+              </NavItem>
             ))}
           </nav>
 
-          {/* Mobile menu toggle */}
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? 'Close menu' : 'Open menu'}
-            aria-expanded={open}
-            className="flex items-center gap-2 rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-bold text-[var(--navy)] transition-colors hover:bg-[var(--gold-hover)] lg:hidden"
-          >
-            {open ? (
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
-                <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-              </svg>
-            ) : (
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
-                <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-              </svg>
-            )}
-            Menu
-          </button>
+          <div className="hidden shrink-0 items-center gap-3 lg:flex">
+            <Link
+              href={HEADER_HELP_HREF}
+              className="text-sm font-medium text-slate-300 no-underline transition-colors hover:text-white"
+            >
+              Help
+            </Link>
+            <Link
+              href={HEADER_LOGIN_HREF}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-sm font-semibold text-[var(--navy)] shadow-sm no-underline transition-colors hover:bg-slate-100"
+            >
+              Log In
+              <span aria-hidden className="text-base leading-none">
+                →
+              </span>
+            </Link>
+          </div>
         </div>
 
         {/* Share strip — same CTA as source */}
         <div className="border-t border-[var(--navy-light)] bg-white">
-          <div className="mx-auto flex max-w-[var(--container-max)] items-center justify-center gap-2 px-5 py-2 sm:px-6">
+          <div className="mx-auto flex max-w-[var(--container-max)] items-center justify-center gap-2 px-[var(--container-gutter)] py-1.5 sm:px-6 lg:px-8">
             <button
               type="button"
               onClick={handleShare}
@@ -119,16 +188,43 @@ export function Header() {
           <div className="border-t border-[var(--navy-light)] bg-[var(--navy)] lg:hidden">
             <nav className="flex flex-col px-5 py-3" aria-label="Mobile navigation">
               {PRIMARY_NAV.map((link) => (
-                <Link
+                <NavItem
                   key={`${link.href}-${link.text}`}
                   href={link.href}
+                  onNavigate={() => setOpen(false)}
+                  className={
+                    link.href === '/CustodyNote'
+                      ? 'flex min-h-[44px] items-center rounded-full bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white no-underline transition-colors hover:bg-emerald-700'
+                      : 'flex min-h-[44px] items-center rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 no-underline transition-colors hover:bg-[var(--navy-light)] hover:text-white'
+                  }
+                >
+                  {link.href === '/CustodyNote' ? (
+                    <>
+                      <span aria-hidden className="mr-2">
+                        📄
+                      </span>
+                      {link.text}
+                    </>
+                  ) : (
+                    link.text
+                  )}
+                </NavItem>
+              ))}
+              <div className="mt-2 grid gap-2 border-t border-[var(--navy-light)] pt-3">
+                <Link
+                  href={HEADER_HELP_HREF}
                   onClick={() => setOpen(false)}
                   className="flex min-h-[44px] items-center rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 no-underline transition-colors hover:bg-[var(--navy-light)] hover:text-white"
                 >
-                  {link.text}
+                  Help
                 </Link>
-              ))}
-              <div className="mt-2 border-t border-[var(--navy-light)] pt-3">
+                <Link
+                  href={HEADER_LOGIN_HREF}
+                  onClick={() => setOpen(false)}
+                  className="flex min-h-[44px] items-center justify-center rounded-lg bg-white px-3 py-2.5 text-sm font-semibold text-[var(--navy)] no-underline"
+                >
+                  Log In →
+                </Link>
                 <Link
                   href={HEADER_MOBILE_CTA_HREF}
                   onClick={() => setOpen(false)}

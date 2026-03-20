@@ -11,6 +11,8 @@ interface DirectorySearchProps {
   reps: Representative[];
   counties: County[];
   stations: PoliceStation[];
+  /** Where filter query params are synced (default `/directory`; use `/search` on the search page). */
+  urlBase?: string;
   defaultCounty?: string;
   defaultStation?: string;
   defaultAvailability?: string;
@@ -120,6 +122,7 @@ export function DirectorySearch({
   reps,
   counties,
   stations,
+  urlBase = '/directory',
   defaultCounty = '',
   defaultStation = '',
   defaultAvailability = '',
@@ -143,8 +146,9 @@ export function DirectorySearch({
     if (availability) params.set('availability', availability);
     if (accreditation) params.set('accreditation', accreditation);
     const qs = params.toString();
-    router.replace(qs ? `/directory?${qs}` : '/directory', { scroll: false });
-  }, [router, query, county, station, availability, accreditation]);
+    const path = qs ? `${urlBase}?${qs}` : urlBase;
+    router.replace(path, { scroll: false });
+  }, [router, urlBase, query, county, station, availability, accreditation]);
 
   useEffect(() => {
     const timer = setTimeout(syncUrl, 400);

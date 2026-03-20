@@ -5,19 +5,23 @@
  * Tools & Resources / Community + legal links + regulatory block).
  */
 
-/** Primary menu — exact labels & order from docs/live-site-map.json */
+/**
+ * Primary header menu — order + labels matched to policestationrepuk.com (Wix) top bar.
+ * Deeper links (Station Numbers, Forms, About) sit in footer / Resources, not duplicated here.
+ */
 export const PRIMARY_NAV = [
   { href: '/', text: 'Home' },
+  { href: '/Directory', text: 'Find Reps' },
+  { href: '/Register', text: 'Register' },
   { href: '/Blog', text: 'Blog' },
   { href: '/CustodyNote', text: 'Custody Note' },
-  { href: '/Directory', text: 'Find a Rep' },
-  { href: '/Register', text: 'Join the Directory (Free)' },
-  { href: '/StationsDirectory', text: 'Station Numbers' },
-  { href: '/FormsLibrary', text: 'Forms' },
   { href: '/Resources', text: 'Resources' },
-  { href: '/Contact', text: 'Contact Us' },
-  { href: '/About', text: 'About' },
+  { href: '/Contact', text: 'Contact' },
 ] as const;
+
+/** Right-rail actions on live Wix header */
+export const HEADER_HELP_HREF = '/FAQ';
+export const HEADER_LOGIN_HREF = '/Account';
 
 /** Share strip CTA — same wording as current live footer/header behaviour */
 export const HEADER_SHARE_LABEL = 'Share this directory with colleagues';
@@ -27,7 +31,7 @@ export const HEADER_SHARE_LABEL_COPIED = 'Link copied!';
 export const HEADER_MOBILE_CTA_HREF = '/Register';
 export const HEADER_MOBILE_CTA_TEXT = 'Join the Directory (Free)';
 
-export type FooterLink = { href: string; label: string };
+export type FooterLink = { href: string; label: string; external?: boolean };
 
 /** Footer column “Directories” — link labels from data/page-content.json (/) */
 export const FOOTER_DIRECTORIES: FooterLink[] = [
@@ -60,7 +64,7 @@ export const FOOTER_TOOLS: FooterLink[] = [
   { href: '/Premium', label: 'Training Guides & Resources' },
 ];
 
-/** Footer column “Community” — no separate Facebook link in source crawl */
+/** Footer column “Community” — order from homepage crawl (/) */
 export const FOOTER_COMMUNITY: FooterLink[] = [
   { href: '/WhatsApp', label: 'WhatsApp Group' },
   { href: '/Forum', label: 'Community Forum' },

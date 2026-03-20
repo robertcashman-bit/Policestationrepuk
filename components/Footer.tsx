@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { SITE_URL } from '@/lib/seo-layer/config';
 import {
   FOOTER_COLUMN_TITLES,
   FOOTER_COMMUNITY,
@@ -18,10 +17,8 @@ import {
   FOOTER_UTILITY_COOKIE_SETTINGS,
   FOOTER_UTILITY_RSS_HREF,
   FOOTER_UTILITY_RSS_LABEL,
-  FOOTER_UTILITY_SHARE,
   FOOTER_UTILITY_SITEMAP_HREF,
   FOOTER_UTILITY_SITEMAP_LABEL,
-  FOOTER_UTILITY_TOP,
   type FooterLink,
 } from '@/lib/site-navigation';
 
@@ -31,13 +28,24 @@ function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) 
       <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">{title}</h4>
       <ul className="mt-4 space-y-1.5">
         {links.map((link, i) => (
-          <li key={`${link.href}-${i}`}>
-            <Link
-              href={link.href}
-              className="inline-flex min-h-[32px] items-center text-sm text-slate-400 no-underline transition-colors hover:text-white"
-            >
-              {link.label}
-            </Link>
+          <li key={`${link.href}-${link.label}-${i}`}>
+            {link.external ? (
+              <a
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[32px] items-center text-sm text-slate-400 no-underline transition-colors hover:text-white"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                href={link.href}
+                className="inline-flex min-h-[32px] items-center text-sm text-slate-400 no-underline transition-colors hover:text-white"
+              >
+                {link.label}
+              </Link>
+            )}
           </li>
         ))}
       </ul>
@@ -48,26 +56,9 @@ function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) 
 export function Footer() {
   const year = new Date().getFullYear();
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleShare = async () => {
-    const url = typeof window !== 'undefined' ? window.location.href : SITE_URL;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'PoliceStationRepUK', url });
-      } catch {
-        /* user cancelled */
-      }
-    } else {
-      await navigator.clipboard.writeText(url);
-    }
-  };
-
   return (
     <footer className="mt-auto border-t border-[var(--navy-light)] bg-[var(--navy)]">
-      <div className="mx-auto max-w-[var(--container-max)] px-5 py-14 sm:px-6 md:px-8">
+      <div className="mx-auto max-w-[var(--container-max)] px-[var(--container-gutter)] py-12 sm:px-6 sm:py-14 lg:px-8">
         <div className="grid gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-5">
           <FooterColumn title={FOOTER_COLUMN_TITLES.directories} links={FOOTER_DIRECTORIES} />
           <FooterColumn
@@ -101,21 +92,7 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-[var(--navy-light)] pt-6">
-          <button
-            type="button"
-            onClick={handleShare}
-            className="text-xs font-medium text-slate-400 transition-colors hover:text-white"
-          >
-            {FOOTER_UTILITY_SHARE}
-          </button>
-          <button
-            type="button"
-            onClick={scrollToTop}
-            className="text-xs font-medium text-slate-400 transition-colors hover:text-white"
-          >
-            {FOOTER_UTILITY_TOP}
-          </button>
+        <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--navy-light)] pt-6">
           <Link
             href={FOOTER_UTILITY_SITEMAP_HREF}
             className="text-xs text-slate-400 no-underline hover:text-white"

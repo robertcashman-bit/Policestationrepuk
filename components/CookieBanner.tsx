@@ -20,8 +20,7 @@ export function CookieBanner() {
 
   return (
     <div
-      data-parity-mask
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border)] bg-white px-5 py-4 shadow-lg"
+      className="psr-cookie-bar fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border)] bg-white px-[var(--container-gutter)] py-4 shadow-lg sm:px-6 lg:px-8"
     >
       <div className="mx-auto flex max-w-[var(--container-max)] flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">

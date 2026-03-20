@@ -26,21 +26,21 @@ export function HomeQuickSearch({ stations = [], counties = [] }: QuickSearchPro
   };
 
   return (
-    <section className="bg-[var(--background)] py-14 sm:py-16" aria-label="Search directory call to action">
+    <section className="section-pad bg-[var(--background)]" aria-label="Search directory call to action">
       <div className="page-container !py-0">
         <div className="mx-auto max-w-3xl">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-[var(--navy)] sm:text-3xl">
+            <h2 className="text-h2 mt-0 text-[var(--navy)]">
               Out-of-hours police station cover for solicitors
             </h2>
-            <p className="mt-3 text-[var(--muted)]">
+            <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">
               Search our free directory by police station, county, or availability.
               Find qualified reps in seconds, not hours.
             </p>
           </div>
 
-          <div className="mt-8 rounded-xl border border-[var(--card-border)] bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-[var(--navy)]">Quick Rep Search</h3>
+          <div className="mt-8 card-surface">
+            <h3 className="text-h3 mt-0 text-[var(--navy)]">Quick Rep Search</h3>
             <p className="mt-1 text-sm text-[var(--muted)]">
               Find reps instantly by name, station, or county
             </p>
@@ -51,14 +51,14 @@ export function HomeQuickSearch({ stations = [], counties = [] }: QuickSearchPro
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by name..."
-                className="w-full rounded-lg border border-[var(--border)] px-4 py-3 text-sm outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
+                className="w-full rounded-[var(--radius)] border border-[var(--border)] px-4 py-2.5 text-sm outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
               />
               <div className="grid gap-3 sm:grid-cols-2">
                 <select
                   value={station}
                   onChange={(e) => setStation(e.target.value)}
                   aria-label="Filter by station"
-                  className="rounded-lg border border-[var(--border)] px-4 py-3 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
+                  className="rounded-[var(--radius)] border border-[var(--border)] px-4 py-2.5 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
                 >
                   <option value="">Filter by station</option>
                   {stations.map((s) => (
@@ -69,7 +69,7 @@ export function HomeQuickSearch({ stations = [], counties = [] }: QuickSearchPro
                   value={county}
                   onChange={(e) => setCounty(e.target.value)}
                   aria-label="Filter by county"
-                  className="rounded-lg border border-[var(--border)] px-4 py-3 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
+                  className="rounded-[var(--radius)] border border-[var(--border)] px-4 py-2.5 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
                 >
                   <option value="">Filter by county</option>
                   {counties.map((c) => (

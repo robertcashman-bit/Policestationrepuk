@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getMirrorPage, getMirrorPaths, hasMirrorData } from '@/lib/mirror-data';
 import { getLiveSiteMultiSegmentPaths } from '@/lib/live-site-paths';
+import { isUsableBlogMirror, resolveBlogArticle } from '@/lib/blog-article-resolve';
 
 const SITE_TITLE = 'PoliceStationRepUK';
 
@@ -53,14 +54,26 @@ export async function generateMetadata({ params }: PageProps) {
   const pathStr = '/' + slug.join('/');
   const mirror = getMirrorPage(pathStr);
   const pathNorm = slug.join('/');
-  const title =
+  const isBlog = slug[0]?.toLowerCase() === 'blog';
+  const blogKey = isBlog ? slug.slice(1).join('/') : '';
+
+  let title =
     mirror?.title?.replace(/\s*\|\s*.*$/, '').trim() ||
     multiPathToTitle(pathNorm);
-  const description =
-    mirror?.content?.slice(0, 160) ||
+  let description =
+    (mirror && isUsableBlogMirror(mirror) ? mirror.content?.slice(0, 160) : null) ||
     `${title} — ${SITE_TITLE}. Police station representatives directory.`;
+
+  if (isBlog && blogKey && (!mirror || !isUsableBlogMirror(mirror))) {
+    const fb = resolveBlogArticle(pathStr, blogKey);
+    if (fb.kind === 'fallback') {
+      title = fb.data.title;
+      description = `${fb.data.intro.slice(0, 155)}…`;
+    }
+  }
+
   return {
-    title: mirror?.title || `${title} | ${SITE_TITLE}`,
+    title: `${title} | ${SITE_TITLE}`,
     description,
     alternates: { canonical: pathStr },
   };
@@ -82,6 +95,29 @@ function Heading({ level, text }: { level: number; text: string }) {
   );
 }
 
+function sanitizeSiteLink(href: string): string | null {
+  if (!href || href.startsWith('mailto:') || href.startsWith('tel:')) return null;
+  if (href.startsWith('http') && !href.includes('policestationrepuk')) return null;
+  try {
+    if (href.startsWith('http')) {
+      const u = new URL(href);
+      return u.pathname + (u.search || '');
+    }
+  } catch {
+    return null;
+  }
+  return href.startsWith('/') ? href : `/${href}`;
+}
+
+const INTERNAL_NAV = [
+  { href: '/directory', text: 'Find a representative' },
+  { href: '/search', text: 'Search directory' },
+  { href: '/Resources', text: 'Resources' },
+  { href: '/Wiki', text: 'Rep Wiki' },
+  { href: '/LegalUpdates', text: 'Legal updates' },
+  { href: '/Contact', text: 'Contact' },
+];
+
 export default async function CatchAllSlugPage({ params }: PageProps) {
   const { slug } = await params;
   const pathStr = '/' + slug.join('/');
@@ -94,13 +130,85 @@ export default async function CatchAllSlugPage({ params }: PageProps) {
   const allowedPaths = Array.from(new Set([...mirrorPaths.map((p) => p.replace(/^\//, '')), ...liveMulti]));
   if (!allowedPaths.includes(pathNorm)) notFound();
 
+  const isBlog = slug[0]?.toLowerCase() === 'blog';
+  const blogKey = isBlog ? slug.slice(1).join('/') : '';
+
+  if (isBlog && blogKey) {
+    const resolved = resolveBlogArticle(pathStr, blogKey);
+
+    if (resolved.kind === 'fallback') {
+      const { data } = resolved;
+      return (
+      <div className="page-container">
+        <div className="mx-auto max-w-3xl">
+          <p className="mb-6 text-sm text-[var(--muted)]">
+            <Link href="/Blog" className="font-medium text-[var(--accent)] no-underline hover:underline">
+              ← Back to Blog
+            </Link>
+          </p>
+          <figure className="mb-8 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--card-border)] shadow-[var(--card-shadow)]">
+            <Image
+              src="/blog-feature.svg"
+              alt="PoliceStationRepUK article illustration"
+              width={1200}
+              height={630}
+              className="h-auto w-full"
+              priority
+            />
+          </figure>
+          <header className="mb-8">
+            <h1 className="text-h1 text-[var(--foreground)]">{data.title}</h1>
+            <p className="mt-3 text-sm text-[var(--muted)]">Professional guide · PoliceStationRepUK</p>
+          </header>
+          <article className="content-section">
+            <div className="mb-8 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 shadow-[var(--card-shadow)] sm:p-8">
+              <p className="leading-[1.8] text-[var(--muted)]">{data.intro}</p>
+            </div>
+            {data.sections.map((sec, idx) => (
+              <section
+                key={idx}
+                className="mb-6 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 shadow-[var(--card-shadow)] sm:p-8"
+              >
+                <h2 className="text-2xl font-bold text-[var(--navy)]">{sec.heading}</h2>
+                <div className="mt-4 space-y-4 leading-[1.8] text-[var(--muted)]">
+                  {sec.paragraphs.map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </article>
+          <nav className="mt-14 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 shadow-[var(--card-shadow)]" aria-label="Related on this site">
+            <p className="text-sm font-semibold uppercase tracking-wide text-[var(--muted)]">On this site</p>
+            <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+              {INTERNAL_NAV.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-sm font-medium text-[var(--foreground)] no-underline hover:text-[var(--accent)] hover:underline">
+                    {link.text}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </div>
+      );
+    }
+  }
+
   const page = mirror && !mirror.error ? mirror : null;
   const title = page?.headings?.[0]?.text ?? multiPathToTitle(pathNorm);
-  const links = page?.links ?? MAIN_LINKS.map((l) => ({ href: l.href, text: l.text }));
+  const rawLinks = page?.links ?? [];
+  const mapped = rawLinks
+    .map((l) => {
+      const h = sanitizeSiteLink(l.href);
+      return h ? { href: h, text: l.text || h } : null;
+    })
+    .filter(Boolean) as { href: string; text: string }[];
+  const links = mapped.length > 0 ? mapped : MAIN_LINKS.map((l) => ({ href: l.href, text: l.text }));
 
-  if (page && !('error' in page && page.error)) {
+  if (page && !('error' in page && page.error) && (!isBlog || isUsableBlogMirror(page))) {
     const h1 = page.headings?.find((h) => h.level === 1)?.text ?? title;
-    const isBlog = slug[0]?.toLowerCase() === 'blog';
     const subHeadings = page.headings?.filter((h) => h.level > 1) ?? [];
     const contentParagraphs = page.content
       .split(/\n{2,}/)
@@ -126,6 +234,18 @@ export default async function CatchAllSlugPage({ params }: PageProps) {
               <p className="mt-3 text-sm text-[var(--muted)]">Published on PoliceStationRepUK</p>
             )}
           </header>
+
+          {isBlog && (!('images' in page) || !Array.isArray(page.images) || page.images.length === 0) && (
+            <figure className="mb-8 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--card-border)] shadow-[var(--card-shadow)]">
+              <Image
+                src="/blog-feature.svg"
+                alt="PoliceStationRepUK article illustration"
+                width={1200}
+                height={630}
+                className="h-auto w-full"
+              />
+            </figure>
+          )}
 
           <article className="content-section">
             {subHeadings.length > 0 ? (

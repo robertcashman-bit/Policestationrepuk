@@ -15,19 +15,19 @@ export function HomeTestimonials() {
   ];
 
   return (
-    <section className="bg-[var(--background)] py-14 sm:py-16" aria-label="User testimonials">
+    <section className="section-pad bg-[var(--background)]" aria-label="User testimonials">
       <div className="page-container !py-0">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-[var(--navy)] sm:text-3xl">
+          <h2 className="text-h2 mt-0 text-[var(--navy)]">
             Trusted by Industry Leaders
           </h2>
         </div>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-3">
+        <div className="mt-8 grid gap-5 sm:grid-cols-3 sm:mt-10 sm:gap-6">
           {quotes.map((q, i) => (
             <div
               key={i}
-              className="rounded-xl border border-[var(--card-border)] bg-white p-6 shadow-sm"
+              className="card-surface"
             >
               <div className="mb-3 text-2xl text-[var(--gold)]">&ldquo;</div>
               <blockquote className="text-sm leading-relaxed text-[var(--muted)]">

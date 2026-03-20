@@ -4,6 +4,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { CookieBanner } from '@/components/CookieBanner';
 import { HelpChatButton } from '@/components/HelpChatButton';
+import { FloatingDirectoryActions } from '@/components/FloatingDirectoryActions';
 import './globals.css';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
@@ -24,7 +25,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: {
     default: 'Home | PoliceStationRepUK — Find Accredited Police Station Reps',
-    template: '%s | PoliceStationRepUK',
+    /** Pages set full titles (most already include the brand); avoid double “| PoliceStationRepUK”. */
+    template: '%s',
   },
   description:
     'Free directory of accredited police station representatives across England & Wales. Find reps by county, station, or name. 100% free for solicitors and reps. No fees ever.',
@@ -73,6 +75,7 @@ export default function RootLayout({
         <Header />
         <main id="main-content" className="site-shell-main flex-1 w-full min-w-0">{children}</main>
         <Footer />
+        <FloatingDirectoryActions />
         <HelpChatButton />
         <CookieBanner />
       </body>

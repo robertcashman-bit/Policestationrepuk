@@ -9,6 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import nextConfig from '../next.config';
 import { normalizeUrlPath, isCrawlNoise } from '../lib/parity-crawl-noise';
+import { LEGACY_EXACT_REDIRECTS } from '../lib/legacy-exact-redirects';
 
 type Class = 'MATCH' | 'MISSING' | 'REDIRECT_EXTERNAL' | 'SKIP';
 
@@ -326,6 +327,12 @@ async function main() {
       if (current.startsWith('http')) {
         external = current;
         break;
+      }
+
+      const legacyTarget = LEGACY_EXACT_REDIRECTS[current.toLowerCase()];
+      if (legacyTarget && legacyTarget !== current) {
+        current = normalizeUrlPath(legacyTarget);
+        continue;
       }
 
       let applied: string | null = null;

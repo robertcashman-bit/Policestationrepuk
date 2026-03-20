@@ -2,13 +2,13 @@ import Link from 'next/link';
 
 export function HomePhoneNumbers() {
   return (
-    <section className="bg-white py-14 sm:py-16" aria-label="Police station contacts">
+    <section className="section-pad bg-white" aria-label="Police station contacts">
       <div className="page-container !py-0">
         <div className="mx-auto max-w-3xl text-center">
-          <h3 className="text-xl font-bold text-[var(--navy)] sm:text-2xl">
+          <h3 className="text-h3 mt-0 text-[var(--navy)]">
             Need police station phone numbers?
           </h3>
-          <p className="mt-3 text-[var(--muted)]">
+          <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">
             Find official phone numbers, addresses and custody contact details across England &amp; Wales.
           </p>
 
@@ -21,7 +21,7 @@ export function HomePhoneNumbers() {
             </Link>
           </div>
 
-          <div className="mt-8 rounded-xl border border-[var(--card-border)] bg-[var(--background)] p-6">
+          <div className="mt-8 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--background)] p-[var(--card-padding)] shadow-[var(--card-shadow)]">
             <p className="text-sm font-semibold text-[var(--navy)]">Direct Contact</p>
             <div className="mt-3 flex flex-wrap justify-center gap-4">
               <a

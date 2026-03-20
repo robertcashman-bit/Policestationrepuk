@@ -72,7 +72,9 @@ export default async function RepPage({ params }: PageProps) {
             </span>
           </div>
           <h1 className="mt-3 text-h1 text-white">{rep.name}</h1>
-          <p className="mt-2 text-lg text-slate-300">{rep.county}</p>
+          <p className="mt-2 text-lg text-slate-300">
+            {rep.county?.trim() ? rep.county : 'Coverage: see stations listed below'}
+          </p>
         </div>
       </section>
 

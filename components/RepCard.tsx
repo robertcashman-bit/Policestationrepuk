@@ -22,7 +22,9 @@ export function RepCard({ rep }: { rep: Representative }) {
           {rep.name}
         </Link>
       </h3>
-      <p className="mt-1 text-sm text-[var(--muted)]">{rep.county}</p>
+      <p className="mt-1 text-sm text-[var(--muted)]">
+        {rep.county?.trim() ? rep.county : 'Coverage: see profile'}
+      </p>
       <div className="mt-3 flex flex-wrap gap-1">
         {stations.slice(0, 3).map((s) => (
           <span key={s} className="rounded-full bg-[var(--gold-pale)] px-2 py-0.5 text-xs font-medium text-[var(--navy)]">

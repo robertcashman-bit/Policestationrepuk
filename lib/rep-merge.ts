@@ -81,6 +81,13 @@ function pick<T>(primary: T, fallback: T): T {
   return isEmpty(primary) ? fallback : primary;
 }
 
+function pickDisplayName(primary: string, fallback: string): string {
+  const p = trimStr(primary);
+  const f = trimStr(fallback);
+  if (!p || p.toLowerCase() === 'unknown') return f || 'Unknown';
+  return p;
+}
+
 /** Guarantee Representative shape: no undefined arrays/strings that break .includes / .slice */
 export function finalizeRepresentative(rep: Representative): Representative {
   const slug =
@@ -170,7 +177,7 @@ function mergeWithFallback(primary: Representative, fb: Representative | undefin
   const m = { ...fb, slug: primary.slug };
   /** Prefer stable CRM id from fallback when present */
   m.id = fb.id || primary.id;
-  m.name = pick(primary.name, fb.name);
+  m.name = pickDisplayName(primary.name, fb.name);
   m.phone = pick(primary.phone, fb.phone);
   m.email = pick(primary.email, fb.email);
   m.county = pick(primary.county, fb.county);

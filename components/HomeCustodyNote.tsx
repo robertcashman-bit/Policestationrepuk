@@ -2,10 +2,10 @@ import Link from 'next/link';
 
 export function HomeCustodyNote() {
   return (
-    <section className="bg-gradient-to-br from-[#0f172a] to-[#1e293b] py-14 sm:py-16" aria-label="Custody Note promotion">
+    <section className="section-pad bg-gradient-to-br from-[#0f172a] to-[#1e293b]" aria-label="Custody Note promotion">
       <div className="page-container !py-0">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-2xl font-bold text-white sm:text-3xl">Custody Note</h2>
+          <h2 className="text-h2 mt-0 text-white">Custody Note</h2>
           <p className="mt-1 text-sm font-medium text-cyan-400">The custody note app for freelance reps</p>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-slate-300">
             Built for freelance police station representatives and criminal solicitors. Structured

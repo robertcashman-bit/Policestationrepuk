@@ -34,7 +34,7 @@ export function DirectoryCard({ rep }: DirectoryCardProps) {
     <article className="group flex flex-col rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white shadow-[var(--card-shadow)] transition-all duration-200 hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--gold)]/40">
       <div className="h-1 rounded-t-[var(--radius-lg)] bg-gradient-to-r from-[var(--navy)] to-[var(--navy-mid)]" />
 
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
+      <div className="flex flex-1 flex-col p-[var(--card-padding)]">
         {/* Badges */}
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${avail.color}`}>
@@ -68,7 +68,7 @@ export function DirectoryCard({ rep }: DirectoryCardProps) {
 
         {/* Counties */}
         <p className="mt-2 text-sm font-medium text-[var(--muted)]">
-          {rep.county}
+          {rep.county?.trim() ? rep.county : 'Coverage: see full profile'}
         </p>
 
         {/* Stations as pills */}

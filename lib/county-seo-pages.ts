@@ -1,4 +1,4 @@
-import { getAllReps, getAllStations } from '@/lib/data';
+import { getRepsByCounty, getStationsByCounty } from '@/lib/data';
 
 export interface CountySeoPage {
   slug: string;
@@ -179,17 +179,10 @@ export function getCountySeoPage(pageSlug: string): CountySeoPage | null {
 }
 
 export async function getCountySeoData(page: CountySeoPage) {
-  const allReps = await getAllReps();
-  const allStations = await getAllStations();
-
-  const reps = allReps.filter((r) =>
-    r.county.toLowerCase() === page.countyName.toLowerCase()
-  );
-
-  const stations = allStations.filter(
-    (s) => (s.county || '').toLowerCase() === page.countyName.toLowerCase()
-  );
-
+  const [reps, stations] = await Promise.all([
+    getRepsByCounty(page.countyName),
+    getStationsByCounty(page.countyName),
+  ]);
   return { reps, stations };
 }
 

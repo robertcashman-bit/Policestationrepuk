@@ -65,7 +65,7 @@ export function getMirrorNavLinks(): { href: string; text: string }[] {
   return [
     { href: '/About', text: 'About' },
     { href: '/Contact', text: 'Contact' },
-    { href: '/Directory', text: 'Directory' },
+    { href: '/directory', text: 'Directory' },
     { href: '/FindYourRep', text: 'Find Your Rep' },
     { href: '/Resources', text: 'Resources' },
     { href: '/Join', text: 'Join' },

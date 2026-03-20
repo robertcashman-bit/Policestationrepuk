@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { PoliceStation } from '@/lib/types';
+import { phoneToTelHref } from '@/lib/phone';
 
 export function StationCard({ station }: { station: PoliceStation }) {
   return (
@@ -24,7 +25,7 @@ export function StationCard({ station }: { station: PoliceStation }) {
       <div className="mt-3 flex flex-wrap items-center gap-3">
         {(station.custodyPhone || station.phone) && (
           <a
-            href={`tel:${(station.custodyPhone || station.phone || '').replace(/\s/g, '')}`}
+            href={phoneToTelHref(station.custodyPhone || station.phone || '')}
             className="text-sm font-semibold text-[var(--navy)] no-underline hover:text-[var(--gold-hover)]"
           >
             📞 {station.custodyPhone || station.phone}

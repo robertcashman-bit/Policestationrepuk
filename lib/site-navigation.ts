@@ -13,7 +13,7 @@ export const PRIMARY_NAV = [
   { href: '/', text: 'Home' },
   { href: '/Blog', text: 'Blog' },
   { href: '/CustodyNote', text: '🆕 Custody Note' },
-  { href: '/Directory', text: '🔍 Find a Rep' },
+  { href: '/directory', text: '🔍 Find a Rep' },
   { href: '/Register', text: 'Join the Directory (Free)' },
   { href: '/StationsDirectory', text: '📞 Station Numbers' },
   { href: '/FormsLibrary', text: '📄 Forms' },
@@ -39,7 +39,7 @@ export type FooterLink = { href: string; label: string; external?: boolean };
 
 /** Footer column “Directories” — link labels from data/page-content.json (/) */
 export const FOOTER_DIRECTORIES: FooterLink[] = [
-  { href: '/Directory', label: 'Find a Rep' },
+  { href: '/directory', label: 'Find a Rep' },
   { href: '/search', label: 'Search directory' },
   { href: '/StationsDirectory', label: 'Station Numbers' },
   { href: '/Forces', label: 'Police Forces' },

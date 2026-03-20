@@ -124,6 +124,12 @@ export default async function DirectoryCountyPage({ params }: PageProps) {
             )}
           </section>
 
+          <p className="mt-10 max-w-3xl text-sm leading-relaxed text-[var(--muted)]">
+            Listings are for professional reference. Police station representatives are accredited to attend under
+            solicitor instruction where required — they are not a substitute for instructing a solicitor firm when that
+            is necessary. Availability and coverage change; contact representatives directly to confirm.
+          </p>
+
           <div className="mt-10 flex flex-wrap gap-4">
             <Link href="/directory" className="font-medium text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
               ← Back to full directory

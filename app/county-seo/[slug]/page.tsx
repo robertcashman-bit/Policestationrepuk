@@ -6,6 +6,7 @@ import {
   getCountySeoData,
 } from '@/lib/county-seo-pages';
 import { buildMetadata } from '@/lib/seo';
+import { COUNTY_SEO_SLUG_TO_DIRECTORY_SLUG } from '@/lib/county-seo-directory-slugs';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -21,10 +22,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const page = COUNTY_SEO_PAGES.find((p) => p.slug === slug);
   if (!page) return {};
+  const dirSlug = COUNTY_SEO_SLUG_TO_DIRECTORY_SLUG[slug];
   return buildMetadata({
     title: page.metaTitle,
     description: page.metaDescription,
-    path: `/${page.pageSlug}`,
+    path: dirSlug ? `/directory/${dirSlug}` : `/${page.pageSlug}`,
   });
 }
 

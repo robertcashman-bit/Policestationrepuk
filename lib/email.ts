@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { phoneToTelHref } from '@/lib/phone';
 
 const ADMIN_EMAIL = 'robertcashman@defencelegalservices.co.uk';
 const FROM_EMAIL = 'PoliceStationRepUK <noreply@policestationrepuk.com>';
@@ -80,7 +81,7 @@ export async function sendRegistrationNotification(data: RegistrationSubmission)
         <table style="border-collapse:collapse;width:100%;max-width:600px;">
           <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Name</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.name)}</td></tr>
           <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Email</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><a href="mailto:${escapeHtml(data.email)}">${escapeHtml(data.email)}</a></td></tr>
-          ${data.phone ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Phone</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><a href="tel:${escapeHtml(data.phone)}">${escapeHtml(data.phone)}</a></td></tr>` : ''}
+          ${data.phone ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Phone</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><a href="${escapeHtml(phoneToTelHref(data.phone))}">${escapeHtml(data.phone)}</a></td></tr>` : ''}
           ${data.accreditation ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Accreditation</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.accreditation)}</td></tr>` : ''}
           ${data.counties ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Counties</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.counties)}</td></tr>` : ''}
           ${data.stations ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Stations</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.stations)}</td></tr>` : ''}

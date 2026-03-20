@@ -9,7 +9,7 @@ import { SITE_URL } from '@/lib/seo-layer/config';
 export const metadata: Metadata = {
   title: 'Search Police Station Representatives | PoliceStationRepUK',
   description:
-    'Filter the free PoliceStationRepUK directory by county, custody suite, name, availability, and accreditation. Same live listings as Find Reps — advanced filters for firms and solicitors.',
+    'Advanced search: filter the same live PoliceStationRepUK listings by county, custody suite, accreditation, availability, and free-text query. Use this page when you need extra filters; use Find a Rep for quick browsing.',
   alternates: { canonical: `${SITE_URL}/search` },
 };
 
@@ -41,7 +41,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
       <section className="hero-band hero-gradient-source">
         <div className="page-container !py-0">
           <p className="text-sm text-slate-300">
-            <Link href="/Directory" className="font-semibold text-white no-underline hover:underline">
+            <Link href="/directory" className="font-semibold text-white no-underline hover:underline">
               Full directory hub →
             </Link>
           </p>

@@ -18,7 +18,7 @@ export function HomeRegisterCta() {
             <Link href="/register" className="flex w-full min-h-[44px] items-center justify-center rounded-[var(--radius-lg)] bg-white px-6 py-3 text-sm font-bold text-emerald-700 shadow-md no-underline transition-colors hover:bg-emerald-50 sm:w-auto">
               Create My Free Profile
             </Link>
-            <Link href="/Directory" className="flex w-full min-h-[44px] items-center justify-center rounded-[var(--radius-lg)] border border-white/35 px-6 py-3 text-sm font-bold text-white no-underline transition-colors hover:border-white hover:bg-white/10 sm:w-auto">
+            <Link href="/directory" className="flex w-full min-h-[44px] items-center justify-center rounded-[var(--radius-lg)] border border-white/35 px-6 py-3 text-sm font-bold text-white no-underline transition-colors hover:border-white hover:bg-white/10 sm:w-auto">
               Search Directory
             </Link>
             <Link href="/StationsDirectory" className="flex w-full min-h-[44px] items-center justify-center rounded-[var(--radius-lg)] border border-white/35 px-6 py-3 text-sm font-bold text-white no-underline transition-colors hover:border-white hover:bg-white/10 sm:w-auto">

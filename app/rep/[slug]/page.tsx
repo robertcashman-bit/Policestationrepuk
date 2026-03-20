@@ -4,6 +4,7 @@ import { getRepBySlug } from '@/lib/data';
 import { buildMetadata, legalServiceSchema, breadcrumbSchema, personSchema } from '@/lib/seo';
 import { JsonLd } from '@/components/JsonLd';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { phoneToTelHref } from '@/lib/phone';
 
 export const dynamic = 'force-static';
 export const revalidate = false;
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: PageProps) {
   if (!rep) return {};
   return buildMetadata({
     title: `${rep.name} | Police Station Representative`,
-    description: `Accredited police station representative ${rep.name}. Covers ${rep.county}. ${rep.accreditation}. Available for duty solicitor cover.`,
+    description: `Accredited police station representative ${rep.name}. Covers ${rep.county}. ${rep.accreditation}. Contact direct for attendance and availability — operates under solicitor instruction where required.`,
     path: `/rep/${rep.slug}`,
   });
 }
@@ -84,20 +85,23 @@ export default async function RepPage({ params }: PageProps) {
             {/* Main content */}
             <div className="space-y-6">
               {/* About */}
-              <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
-                <h2 className="text-lg font-bold text-[var(--navy)]">About</h2>
-                <p className="mt-3 leading-relaxed text-[var(--muted)]">{rep.bio || rep.notes}</p>
-              </section>
+              {((rep.bio || rep.notes) ?? '').trim() ? (
+                <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
+                  <h2 className="text-lg font-bold text-[var(--navy)]">About</h2>
+                  <p className="mt-3 leading-relaxed text-[var(--muted)]">{rep.bio || rep.notes}</p>
+                </section>
+              ) : null}
 
-              {/* Stations covered */}
-              <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
-                <h2 className="text-lg font-bold text-[var(--navy)]">Police stations covered</h2>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {rep.stations.map((s) => (
-                    <span key={s} className="rounded-full bg-[var(--gold-pale)] px-3 py-1 text-sm font-medium text-[var(--navy)]">{s}</span>
-                  ))}
-                </div>
-              </section>
+              {rep.stations && rep.stations.length > 0 ? (
+                <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
+                  <h2 className="text-lg font-bold text-[var(--navy)]">Police stations covered</h2>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {rep.stations.map((s) => (
+                      <span key={s} className="rounded-full bg-[var(--gold-pale)] px-3 py-1 text-sm font-medium text-[var(--navy)]">{s}</span>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
 
               {/* Specialisms */}
               {rep.specialisms && rep.specialisms.length > 0 && (
@@ -127,7 +131,7 @@ export default async function RepPage({ params }: PageProps) {
                 <h2 className="text-lg font-bold text-[var(--navy)]">Contact</h2>
                 <div className="mt-4 space-y-3">
                   {rep.phone ? (
-                    <a href={`tel:${rep.phone.replace(/\s/g, '')}`} className="btn-gold w-full">
+                    <a href={phoneToTelHref(rep.phone)} className="btn-gold w-full">
                       📞 {rep.phone}
                     </a>
                   ) : null}

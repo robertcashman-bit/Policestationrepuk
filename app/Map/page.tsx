@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { phoneToTelHref } from '@/lib/phone';
 
 const StationMap = dynamic(
   () => import('@/components/StationMap').then((m) => m.StationMap),
@@ -167,7 +168,7 @@ export default function MapPage() {
                   {selectedStation.phone && (
                     <p className="mt-2">
                       <a
-                        href={`tel:${selectedStation.phone.replace(/\s/g, '')}`}
+                        href={phoneToTelHref(selectedStation.phone)}
                         className="text-sm font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]"
                       >
                         📞 {selectedStation.phone}

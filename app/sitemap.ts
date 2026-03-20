@@ -3,7 +3,6 @@ import {
   getAllCounties,
   getAllReps,
   getAllStations,
-  countySlugToPageSlug,
   getAllWikiArticles,
   getAllLegalUpdates,
 } from '@/lib/data';
@@ -12,6 +11,13 @@ import { getMirrorPaths, hasMirrorData } from '@/lib/mirror-data';
 import { SITEMAP_PATHS } from '@/lib/sitemap-paths';
 import { SITE_URL as BASE } from '@/lib/seo-layer/config';
 const now = new Date();
+
+/** Lowercase path segments that must not appear twice with different casing (SEO). */
+const CANONICAL_PATH_LOWER = new Map<string, string>([
+  ['directory', 'directory'],
+  ['register', 'register'],
+  ['blog', 'Blog'],
+]);
 
 const HIGH_PRIORITY_PAGES = [
   { path: '', priority: 1, freq: 'daily' as const },
@@ -94,8 +100,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } else {
     for (const p of SITEMAP_PATHS) {
       if (!HIGH_PRIORITY_SET.has(p)) {
+        const lower = p.toLowerCase();
+        const canonicalSeg = CANONICAL_PATH_LOWER.get(lower);
+        const pathSeg = canonicalSeg ?? p;
+        if (canonicalSeg && HIGH_PRIORITY_SET.has(canonicalSeg)) continue;
         entries.push({
-          url: `${BASE}/${p}`,
+          url: `${BASE}/${pathSeg}`,
           lastModified: now,
           changeFrequency: 'weekly',
           priority: 0.5,
@@ -111,11 +121,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getAllWikiArticles(),
     getAllLegalUpdates(),
   ]);
-  const countyUrls = counties.map((c) => ({
-    url: `${BASE}/${countySlugToPageSlug(c.slug)}`,
+  const directoryCountyUrls = counties.map((c) => ({
+    url: `${BASE}/directory/${c.slug}`,
     lastModified: now,
     changeFrequency: 'weekly' as const,
-    priority: 0.8,
+    priority: 0.85,
   }));
   const repUrls = reps.map((r) => ({
     url: `${BASE}/rep/${r.slug}`,
@@ -150,5 +160,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.55,
   }));
 
-  return [...entries, ...countyUrls, ...repUrls, ...stationUrls, ...wikiUrls, ...legalUpdateUrls, ...blogPostUrls];
+  const combined = [
+    ...entries,
+    ...directoryCountyUrls,
+    ...repUrls,
+    ...stationUrls,
+    ...wikiUrls,
+    ...legalUpdateUrls,
+    ...blogPostUrls,
+  ];
+  const seen = new Set<string>();
+  return combined.filter((e) => {
+    if (seen.has(e.url)) return false;
+    seen.add(e.url);
+    return true;
+  });
 }

@@ -4,7 +4,6 @@ import {
   getCountyBySlug,
   getRepsByCounty,
   getStationsByCounty,
-  countySlugToPageSlug,
 } from '@/lib/data';
 import { getCountyContent } from '@/lib/counties-content';
 import { buildMetadata, legalServiceSchema, breadcrumbSchema, placeSchema } from '@/lib/seo';
@@ -31,7 +30,7 @@ export async function generateMetadata({ params }: PageProps) {
   const county = await getCountyBySlug(countySlug);
   if (!county) return {};
   const content = getCountyContent(countySlug, county.name);
-  const path = `/${countySlugToPageSlug(countySlug)}`;
+  const path = `/directory/${countySlug}`;
   return buildMetadata({
     title: content.metaTitle,
     description: content.metaDescription,
@@ -50,7 +49,7 @@ export default async function CountyPage({ params }: PageProps) {
   ]);
   const content = getCountyContent(countySlug, county.name);
 
-  const canonicalPath = `/${countySlugToPageSlug(countySlug)}`;
+  const canonicalPath = `/directory/${countySlug}`;
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
     { label: 'Directory', href: '/directory' },

@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import type { Representative } from '@/lib/types';
+import { phoneToTelHref } from '@/lib/phone';
 
 export function RepCard({ rep }: { rep: Representative }) {
-  const phoneHref = rep.phone ? `tel:${rep.phone.replace(/\s/g, '')}` : null;
+  const phoneHref = rep.phone ? phoneToTelHref(rep.phone) : null;
   const acc = rep.accreditation || '';
   const avail = rep.availability || '';
   const stations = rep.stations || [];

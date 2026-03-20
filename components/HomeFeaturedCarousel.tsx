@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { Representative } from '@/lib/types';
+import { phoneToTelHref } from '@/lib/phone';
 
 export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Representative[] }) {
   const [current, setCurrent] = useState(0);
@@ -55,7 +56,7 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
             {showContact[current] && (
               <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
                 {rep.phone ? (
-                  <a href={`tel:${rep.phone.replace(/\s/g, '')}`} className="block font-medium text-white no-underline hover:text-[var(--gold)]">
+                  <a href={phoneToTelHref(rep.phone)} className="block font-medium text-white no-underline hover:text-[var(--gold)]">
                     📞 {rep.phone}
                   </a>
                 ) : null}
@@ -103,7 +104,7 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
           </div>
 
           <p className="mt-6 text-center">
-            <Link href="/Directory" className="text-sm font-semibold text-[var(--gold)] no-underline hover:text-[var(--gold-hover)]">
+            <Link href="/directory" className="text-sm font-semibold text-[var(--gold)] no-underline hover:text-[var(--gold-hover)]">
               View all representatives
             </Link>
           </p>

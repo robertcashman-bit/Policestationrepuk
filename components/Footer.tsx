@@ -76,7 +76,7 @@ export function Footer() {
             <h3 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_KENT_TITLE}</h3>
             <p className="mt-1 text-xs text-slate-400">{FOOTER_SPOTLIGHT_KENT_BODY}</p>
             <Link
-              href="/county-seo/kent"
+              href="/directory/kent"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
             >
               Kent reps hub →

@@ -1,36 +1,5 @@
 import type { NextConfig } from "next";
-import fs from "fs";
 import path from "path";
-
-/** Short URLs like /kent → /county/kent (same page component, live rep data). */
-function countyShortRewrites(): { source: string; destination: string }[] {
-  try {
-    const file = path.join(process.cwd(), "data", "counties.json");
-    const counties = JSON.parse(fs.readFileSync(file, "utf-8")) as { slug: string }[];
-    const reserved = new Set([
-      "api",
-      "directory",
-      "register",
-      "rep",
-      "county",
-      "police-station",
-      "county-seo",
-      "search",
-      "_next",
-      "blog",
-      "about",
-      "contact",
-      "faq",
-      "resources",
-      "stationsdirectory",
-    ]);
-    return counties
-      .filter((c) => c.slug && !reserved.has(c.slug))
-      .map((c) => ({ source: `/${c.slug}`, destination: `/county/${c.slug}` }));
-  } catch {
-    return [];
-  }
-}
 
 const nextConfig: NextConfig = {
   images: {
@@ -59,27 +28,22 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     return [
-      ...countyShortRewrites(),
-      {
-        source: "/police-station-representatives-:county",
-        destination: "/county/:county",
-      },
       { source: "/Directory", destination: "/directory" },
       { source: "/FindYourRep", destination: "/directory" },
       { source: "/Register", destination: "/register" },
-      { source: "/PoliceStationRepsKent", destination: "/county-seo/kent" },
-      { source: "/PoliceStationRepsLondon", destination: "/county-seo/london" },
-      { source: "/PoliceStationRepsEssex", destination: "/county-seo/essex" },
-      { source: "/PoliceStationRepsManchester", destination: "/county-seo/manchester" },
-      { source: "/PoliceStationRepsWestMidlands", destination: "/county-seo/west-midlands" },
-      { source: "/PoliceStationRepsWestYorkshire", destination: "/county-seo/west-yorkshire" },
-      { source: "/PoliceStationRepsSurrey", destination: "/county-seo/surrey" },
-      { source: "/PoliceStationRepsSussex", destination: "/county-seo/sussex" },
-      { source: "/PoliceStationRepsHampshire", destination: "/county-seo/hampshire" },
-      { source: "/PoliceStationRepsNorfolk", destination: "/county-seo/norfolk" },
-      { source: "/PoliceStationRepsSuffolk", destination: "/county-seo/suffolk" },
-      { source: "/PoliceStationRepsBerkshire", destination: "/county-seo/berkshire" },
-      { source: "/PoliceStationRepsHertfordshire", destination: "/county-seo/hertfordshire" },
+      { source: "/PoliceStationRepsKent", destination: "/directory/kent" },
+      { source: "/PoliceStationRepsLondon", destination: "/directory/london" },
+      { source: "/PoliceStationRepsEssex", destination: "/directory/essex" },
+      { source: "/PoliceStationRepsManchester", destination: "/directory/greater-manchester" },
+      { source: "/PoliceStationRepsWestMidlands", destination: "/directory/west-midlands" },
+      { source: "/PoliceStationRepsWestYorkshire", destination: "/directory/west-yorkshire" },
+      { source: "/PoliceStationRepsSurrey", destination: "/directory/surrey" },
+      { source: "/PoliceStationRepsSussex", destination: "/directory/sussex" },
+      { source: "/PoliceStationRepsHampshire", destination: "/directory/hampshire" },
+      { source: "/PoliceStationRepsNorfolk", destination: "/directory/norfolk" },
+      { source: "/PoliceStationRepsSuffolk", destination: "/directory/suffolk" },
+      { source: "/PoliceStationRepsBerkshire", destination: "/directory/berkshire" },
+      { source: "/PoliceStationRepsHertfordshire", destination: "/directory/hertfordshire" },
     ];
   },
 
@@ -112,13 +76,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/police-station-representatives-:county",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=86400, s-maxage=2592000, stale-while-revalidate=604800" },
-        ],
-      },
-      {
-        source: "/county/:county*",
+        source: "/directory/:path*",
         headers: [
           { key: "Cache-Control", value: "public, max-age=86400, s-maxage=2592000, stale-while-revalidate=604800" },
         ],
@@ -206,7 +164,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/reps",
-        destination: "/Directory",
+        destination: "/directory",
         permanent: true,
       },
       {

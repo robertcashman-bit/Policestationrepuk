@@ -5,6 +5,7 @@ import { getMirrorPage, getMirrorPaths, hasMirrorData } from '@/lib/mirror-data'
 import { getLiveSiteSingleSegmentPaths } from '@/lib/live-site-paths';
 import { pathToTitle } from '@/lib/sitemap-paths';
 import { getCountySlugSet } from '@/lib/county-slugs';
+import { buildMetadata } from '@/lib/seo';
 
 const SITE_TITLE = 'PoliceStationRepUK';
 
@@ -152,11 +153,11 @@ export async function generateMetadata({ params }: PageProps) {
   const description =
     mirror?.content?.slice(0, 160) ||
     `${title} — ${SITE_TITLE}. Police station representatives directory.`;
-  return {
+  return buildMetadata({
     title: mirror?.title || `${title} | ${SITE_TITLE}`,
     description,
-    alternates: { canonical: `/${slug}` },
-  };
+    path: `/${slug}`,
+  });
 }
 
 function Heading({ level, text }: { level: number; text: string }) {

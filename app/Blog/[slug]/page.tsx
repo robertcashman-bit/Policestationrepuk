@@ -188,7 +188,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
                 <h2 className="text-lg font-bold text-[var(--navy)]">Related on this site</h2>
                 <ul className="mt-3 list-inside list-disc space-y-2 text-sm text-[var(--navy)]">
                   <li>
-                    <Link href="/Directory" className="font-semibold text-[var(--gold-hover)] hover:underline">
+                    <Link href="/directory" className="font-semibold text-[var(--gold-hover)] hover:underline">
                       Find accredited reps — directory hub
                     </Link>
                   </li>
@@ -231,7 +231,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
             </p>
             <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
               <Link
-                href="/Directory"
+                href="/directory"
                 className="btn-gold inline-flex justify-center !px-4 !py-2.5 !text-sm !no-underline sm:inline-flex"
               >
                 Find reps — directory

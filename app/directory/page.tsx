@@ -7,7 +7,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
-  title: 'Free Rep Directory | Find Police Station Representatives UK — No Fees Ever',
+  title: 'Directory | PoliceStationRepUK — Find Accredited Police Station Reps',
   description:
     '100% free directory of accredited police station representatives for outsourced cover. Search by station, county, or availability. No subscription, no listing fees — completely free for criminal defence firms and solicitors.',
   alternates: { canonical: `${SITE_URL}/directory` },

@@ -58,7 +58,7 @@ export function HomeHero() {
           {/* Large CTA buttons */}
           <div className="mt-8 flex flex-col gap-2.5 sm:mt-9 sm:gap-3">
             <Link
-              href="/Directory"
+              href="/directory"
               className="flex min-h-[48px] w-full items-center justify-center rounded-[var(--radius-lg)] bg-white px-6 py-3.5 text-[0.9375rem] font-bold leading-tight text-[var(--navy)] shadow-[var(--card-shadow)] transition-colors hover:bg-slate-50 no-underline sm:min-h-[52px] sm:py-4 sm:text-[1rem]"
             >
               🔍 Find a Rep

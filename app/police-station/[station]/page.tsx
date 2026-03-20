@@ -5,6 +5,7 @@ import { buildMetadata, localBusinessSchema, breadcrumbSchema } from '@/lib/seo'
 import { JsonLd } from '@/components/JsonLd';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { RepCard } from '@/components/RepCard';
+import { phoneToTelHref } from '@/lib/phone';
 
 export const dynamic = 'force-static';
 export const revalidate = false;
@@ -123,7 +124,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
                     <div>
                       <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">{station.custodyPhone ? 'Custody Phone' : 'Phone'}</dt>
                       <dd className="mt-0.5">
-                        <a href={`tel:${(station.custodyPhone || station.phone || '').replace(/\s/g, '')}`} className="font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
+                        <a href={phoneToTelHref(station.custodyPhone || station.phone || '')} className="font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
                           📞 {station.custodyPhone || station.phone}
                         </a>
                       </dd>

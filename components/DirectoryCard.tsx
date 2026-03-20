@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { Representative } from '@/lib/types';
+import { phoneToTelHref } from '@/lib/phone';
 
 function getAvailabilityBadge(raw: string): { label: string; color: string } {
   const lower = raw.toLowerCase().trim();
@@ -28,7 +29,7 @@ export interface DirectoryCardProps {
 export function DirectoryCard({ rep }: DirectoryCardProps) {
   const [showContact, setShowContact] = useState(false);
   const avail = getAvailabilityBadge(rep.availability || '');
-  const phoneHref = rep.phone ? `tel:${rep.phone.replace(/\s/g, '')}` : null;
+  const phoneHref = rep.phone ? phoneToTelHref(rep.phone) : null;
 
   return (
     <article className="group flex flex-col rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white shadow-[var(--card-shadow)] transition-all duration-200 hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--gold)]/40">

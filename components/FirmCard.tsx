@@ -1,11 +1,12 @@
 import type { LawFirm } from '@/lib/types';
+import { phoneToTelHref } from '@/lib/phone';
 
 export interface FirmCardProps {
   firm: LawFirm;
 }
 
 export function FirmCard({ firm }: FirmCardProps) {
-  const phoneHref = firm.phone ? `tel:${firm.phone.replace(/\s/g, '')}` : null;
+  const phoneHref = firm.phone ? phoneToTelHref(firm.phone) : null;
   const websiteUrl =
     firm.website && !firm.website.startsWith('http')
       ? `https://${firm.website}`

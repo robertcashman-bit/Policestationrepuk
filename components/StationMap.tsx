@@ -22,8 +22,8 @@ interface StationMapProps {
   onSelectStation: (station: StationPin) => void;
 }
 
-const GOLD = '#c9a84c';
-const NAVY = '#0f1b2d';
+const GOLD = '#d4a843';
+const NAVY = '#2f6cab';
 const UK_CENTER: [number, number] = [52.5, -1.5];
 const UK_ZOOM = 6;
 

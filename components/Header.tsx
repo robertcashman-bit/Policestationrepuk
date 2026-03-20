@@ -67,9 +67,7 @@ export function Header() {
   };
 
   const desktopNavLinkClass =
-    'rounded-lg px-2.5 py-2 text-[12px] font-medium leading-snug !text-[var(--header-link)] no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--header-link-hover)] xl:px-3 xl:text-[13px]';
-  const custodyNavClass =
-    'ml-0.5 inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-[12px] font-semibold leading-snug text-white no-underline shadow-sm transition-colors hover:bg-emerald-700 xl:text-[13px]';
+    'rounded-lg px-1.5 py-2 text-[11px] font-medium leading-snug !text-[var(--header-link)] no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--header-link-hover)] xl:px-2.5 xl:text-[12px] 2xl:px-3 2xl:text-[13px] whitespace-nowrap';
 
   return (
     <>
@@ -112,25 +110,12 @@ export function Header() {
           </div>
 
           <nav
-            className="hidden flex-1 flex-wrap items-center justify-center gap-0.5 lg:flex"
+            className="hidden min-w-0 flex-1 flex-wrap items-center justify-center gap-0 lg:flex"
             aria-label="Main navigation"
           >
             {PRIMARY_NAV.map((link) => (
-              <NavItem
-                key={`${link.href}-${link.text}`}
-                href={link.href}
-                className={link.href === '/CustodyNote' ? custodyNavClass : desktopNavLinkClass}
-              >
-                {link.href === '/CustodyNote' ? (
-                  <>
-                    <span aria-hidden className="text-sm">
-                      📄
-                    </span>
-                    {link.text}
-                  </>
-                ) : (
-                  link.text
-                )}
+              <NavItem key={`${link.href}-${link.text}`} href={link.href} className={desktopNavLinkClass}>
+                {link.text}
               </NavItem>
             ))}
           </nav>
@@ -192,22 +177,9 @@ export function Header() {
                   key={`${link.href}-${link.text}`}
                   href={link.href}
                   onNavigate={() => setOpen(false)}
-                  className={
-                    link.href === '/CustodyNote'
-                      ? 'flex min-h-[44px] items-center rounded-full bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white no-underline transition-colors hover:bg-emerald-700'
-                      : 'flex min-h-[44px] items-center rounded-lg px-3 py-2.5 text-sm font-medium !text-[var(--header-link)] no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--header-link-hover)]'
-                  }
+                  className="flex min-h-[44px] items-center rounded-lg px-3 py-2.5 text-sm font-medium !text-[var(--header-link)] no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--header-link-hover)]"
                 >
-                  {link.href === '/CustodyNote' ? (
-                    <>
-                      <span aria-hidden className="mr-2">
-                        📄
-                      </span>
-                      {link.text}
-                    </>
-                  ) : (
-                    link.text
-                  )}
+                  {link.text}
                 </NavItem>
               ))}
               <div className="mt-2 grid gap-2 border-t border-[var(--navy-light)] pt-3">

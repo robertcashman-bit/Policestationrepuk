@@ -65,7 +65,7 @@ export function HomeHero() {
             </Link>
             <Link
               href="/Register"
-              className="flex min-h-[48px] w-full items-center justify-center rounded-[var(--radius-lg)] bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-3.5 text-[0.9375rem] font-bold leading-tight text-white shadow-[var(--card-shadow)] transition-colors hover:from-violet-700 hover:to-purple-700 no-underline sm:min-h-[52px] sm:py-4 sm:text-[1rem]"
+              className="flex min-h-[48px] w-full items-center justify-center rounded-[var(--radius-lg)] bg-[var(--gold)] px-6 py-3.5 text-[0.9375rem] font-bold leading-tight text-[var(--navy)] shadow-[var(--card-shadow)] transition-colors hover:bg-[var(--gold-hover)] no-underline sm:min-h-[52px] sm:py-4 sm:text-[1rem]"
             >
               Join the Directory (Free)
             </Link>

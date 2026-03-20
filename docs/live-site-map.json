@@ -15,6 +15,7 @@
       { "href": "/StationsDirectory", "text": "📞 Station Numbers" },
       { "href": "/FormsLibrary", "text": "📄 Forms" },
       { "href": "/Resources", "text": "🌐 Resources" },
+      { "href": "/search", "text": "🔎 Search", "note": "policestationrepuk.org only — advanced filters" },
       { "href": "/Contact", "text": "Contact Us" },
       { "href": "/About", "text": "About" }
     ]

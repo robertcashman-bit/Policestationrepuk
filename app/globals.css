@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  /* Lighter blue + gold brand palette (was deep navy) */
-  --navy: #2f6cab;
-  --navy-light: #3d7bc0;
-  --navy-mid: #5590cf;
-  --navy-surface: #6fa3da;
+  /* Dark blue chrome + gold — closer to policestationrepuk.com (Wix) than the lighter trial palette */
+  --navy: #132b47;
+  --navy-light: #1c3a5c;
+  --navy-mid: #254a70;
+  --navy-surface: #335e84;
   --gold: #d4a843;
   --gold-hover: #c49a2e;
   --gold-light: #f5edda;
   --gold-pale: #faf7f0;
 
-  --background: #f3f7fc;
-  --foreground: #1a4770;
-  --primary: #1a4770;
-  --primary-hover: #2a5f8f;
+  --background: #f5f7fa;
+  --foreground: #132b47;
+  --primary: #132b47;
+  --primary-hover: #1c3a5c;
   --accent: #d4a843;
   --accent-hover: #c49a2e;
   --accent-soft: rgba(212, 168, 67, 0.12);
-  --blue-accent: #3b82f6;
-  --blue-hover: #2563eb;
-  --muted: #4d6687;
+  --blue-accent: #2563eb;
+  --blue-hover: #1d4ed8;
+  --muted: #4a5e78;
   /* Default in-content links — brand gold (Wix-style accents); chrome uses --header-link* / --footer-link* */
   --link: #c49a2e;
   --link-hover: #a67c1a;
@@ -111,9 +111,9 @@ summary:focus-visible {
   border-radius: 4px;
 }
 
-/* Hero: lighter blue gradient (matches brand chrome) */
+/* Hero — saturated blues closer to live marketing band (not pixel-perfect) */
 .hero-gradient-source {
-  background-image: linear-gradient(to bottom right, #60a5fa, #3b82f6 38%, #2563eb 72%, #1d4ed8);
+  background-image: linear-gradient(to bottom right, #2563eb, #1d4ed8 35%, #1e40af 70%, #172554);
 }
 
 /* Inner pages: hero band uses same vertical rhythm tokens as marketing sections */

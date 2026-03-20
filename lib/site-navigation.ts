@@ -6,18 +6,21 @@
  */
 
 /**
- * Primary header menu — order + labels matched to policestationrepuk.com (Wix) top bar.
- * Deeper links (Station Numbers, Forms, About) sit in footer / Resources, not duplicated here.
+ * Primary header — order + labels from policestationrepuk.com (`docs/live-site-map.json` + homepage crawl).
+ * `/search` is an on-site extra (advanced filters); everything else mirrors the live Wix menu.
  */
 export const PRIMARY_NAV = [
   { href: '/', text: 'Home' },
-  { href: '/Directory', text: 'Find Reps' },
-  { href: '/search', text: 'Search' },
-  { href: '/Register', text: 'Register' },
   { href: '/Blog', text: 'Blog' },
-  { href: '/CustodyNote', text: 'Custody Note' },
-  { href: '/Resources', text: 'Resources' },
-  { href: '/Contact', text: 'Contact' },
+  { href: '/CustodyNote', text: '🆕 Custody Note' },
+  { href: '/Directory', text: '🔍 Find a Rep' },
+  { href: '/Register', text: 'Join the Directory (Free)' },
+  { href: '/StationsDirectory', text: '📞 Station Numbers' },
+  { href: '/FormsLibrary', text: '📄 Forms' },
+  { href: '/Resources', text: '🌐 Resources' },
+  { href: '/search', text: '🔎 Search' },
+  { href: '/Contact', text: 'Contact Us' },
+  { href: '/About', text: 'About' },
 ] as const;
 
 /** Right-rail actions on live Wix header */

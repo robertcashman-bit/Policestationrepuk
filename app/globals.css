@@ -1,20 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  /* Dark blue chrome + gold — closer to policestationrepuk.com (Wix) than the lighter trial palette */
-  --navy: #132b47;
-  --navy-light: #1c3a5c;
-  --navy-mid: #254a70;
-  --navy-surface: #335e84;
+  /* Brand blue = vibrant “hero” blue (replaces dark navy chrome) — header/footer/buttons/accents */
+  --navy: #2563eb;
+  --navy-light: #3b82f6;
+  --navy-mid: #60a5fa;
+  --navy-surface: #93c5fd;
   --gold: #d4a843;
   --gold-hover: #c49a2e;
   --gold-light: #f5edda;
   --gold-pale: #faf7f0;
 
+  /* Ink for long copy & gold buttons — stays dark for contrast */
+  --ink: #1e3a8a;
   --background: #f5f7fa;
-  --foreground: #132b47;
-  --primary: #132b47;
-  --primary-hover: #1c3a5c;
+  --foreground: #1e3a8a;
+  --primary: #1d4ed8;
+  --primary-hover: #2563eb;
   --accent: #d4a843;
   --accent-hover: #c49a2e;
   --accent-soft: rgba(212, 168, 67, 0.12);
@@ -58,6 +60,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-ink: var(--ink);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-accent: var(--accent);
@@ -91,7 +94,7 @@ body {
   z-index: 100;
   padding: 0.75rem 1.5rem;
   background: var(--gold);
-  color: var(--navy);
+  color: var(--ink);
   font-weight: 700;
   font-size: 0.875rem;
   border-radius: 0 0 var(--radius) 0;
@@ -111,9 +114,9 @@ summary:focus-visible {
   border-radius: 4px;
 }
 
-/* Hero — saturated blues closer to live marketing band (not pixel-perfect) */
+/* Hero — bright blue field (no midnight tail), matches live marketing strip */
 .hero-gradient-source {
-  background-image: linear-gradient(to bottom right, #2563eb, #1d4ed8 35%, #1e40af 70%, #172554);
+  background-image: linear-gradient(155deg, #7dd3fc 0%, #38bdf8 22%, #3b82f6 55%, #2563eb 88%, #1d4ed8 100%);
 }
 
 /* Inner pages: hero band uses same vertical rhythm tokens as marketing sections */
@@ -321,7 +324,7 @@ p {
   min-height: 44px;
   padding: 0.625rem 1.375rem;
   background: var(--gold);
-  color: var(--navy);
+  color: var(--ink);
   font-weight: 700;
   font-size: 0.875rem;
   line-height: 1.25;
@@ -334,7 +337,7 @@ p {
 }
 .btn-gold:hover {
   background: var(--gold-hover);
-  color: var(--navy);
+  color: var(--ink);
   text-decoration: none;
   box-shadow: 0 2px 6px rgba(15, 27, 45, 0.12);
 }
@@ -368,7 +371,7 @@ p {
   min-height: 44px;
   padding: 0.625rem 1.375rem;
   background: transparent;
-  color: var(--navy);
+  color: var(--ink);
   font-weight: 600;
   font-size: 0.875rem;
   line-height: 1.25;

@@ -29,7 +29,7 @@ export function HomeHero() {
 
           <h1 className="text-h1 text-white">
             The UK&apos;s Free Directory for{' '}
-            <span className="bg-gradient-to-r from-cyan-300 to-cyan-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-cyan-200 via-sky-300 to-cyan-300 bg-clip-text text-transparent">
               Police Station Cover
             </span>
           </h1>
@@ -65,7 +65,7 @@ export function HomeHero() {
             </Link>
             <Link
               href="/Register"
-              className="flex min-h-[48px] w-full items-center justify-center rounded-[var(--radius-lg)] bg-[var(--gold)] px-6 py-3.5 text-[0.9375rem] font-bold leading-tight text-[var(--navy)] shadow-[var(--card-shadow)] transition-colors hover:bg-[var(--gold-hover)] no-underline sm:min-h-[52px] sm:py-4 sm:text-[1rem]"
+              className="flex min-h-[48px] w-full items-center justify-center rounded-[var(--radius-lg)] bg-[var(--gold)] px-6 py-3.5 text-[0.9375rem] font-bold leading-tight text-[var(--ink)] shadow-[var(--card-shadow)] transition-colors hover:bg-[var(--gold-hover)] no-underline sm:min-h-[52px] sm:py-4 sm:text-[1rem]"
             >
               Join the Directory (Free)
             </Link>

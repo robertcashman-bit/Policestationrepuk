@@ -23,7 +23,7 @@ interface StationMapProps {
 }
 
 const GOLD = '#d4a843';
-const NAVY = '#132b47';
+const NAVY = '#2563eb';
 const UK_CENTER: [number, number] = [52.5, -1.5];
 const UK_ZOOM = 6;
 

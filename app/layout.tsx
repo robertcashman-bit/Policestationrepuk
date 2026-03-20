@@ -8,6 +8,9 @@ import { FloatingDirectoryActions } from '@/components/FloatingDirectoryActions'
 import './globals.css';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
+/** Set in Vercel / `.env` when verifying in Google Search Console (omit to skip meta tag). */
+const GOOGLE_SITE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
+
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
@@ -58,9 +61,9 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  other: {
-    'google-site-verification': '',
-  },
+  ...(GOOGLE_SITE_VERIFICATION
+    ? { other: { 'google-site-verification': GOOGLE_SITE_VERIFICATION } }
+    : {}),
 };
 
 export default function RootLayout({

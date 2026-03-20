@@ -24,9 +24,10 @@
   /* Default in-content links — brand gold (Wix-style accents); chrome uses --header-link* / --footer-link* */
   --link: #c49a2e;
   --link-hover: #a67c1a;
-  --header-link: #f1f5f9;
+  /* Chrome nav/footer: high contrast on navy (Wix-style light links) */
+  --header-link: #e2e8f0;
   --header-link-hover: #ffffff;
-  --footer-link: #cbd5e1;
+  --footer-link: #e2e8f0;
   --footer-link-hover: #ffffff;
   --breadcrumb-on-dark: #94a3b8;
   --breadcrumb-link-on-dark: #e2e8f0;

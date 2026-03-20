@@ -23,13 +23,29 @@ export async function generateStaticParams() {
 
 export const dynamicParams = true;
 
+function metaDescriptionForBlogPost(title: string, crawlContent: string, placeholder: boolean): string {
+  const fallback = `${title} — Practical guides on police station representation, interviews, and cautions. Free UK directory and resources on PoliceStationRepUK.`;
+  if (placeholder) return fallback;
+  const oneLine = crawlContent.replace(/\s+/g, ' ').trim();
+  if (!oneLine) return fallback;
+  const max = 155;
+  if (oneLine.length <= max) return oneLine;
+  const cut = oneLine.slice(0, max - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  const snippet = (lastSpace > 80 ? cut.slice(0, lastSpace) : cut).trimEnd();
+  return `${snippet}…`;
+}
+
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const post = getBlogPostBySlug(slug);
   if (!post) return {};
+  const crawl = loadBlogCrawlFile(slug);
+  const placeholder = isPlaceholderBlogRecord(crawl);
+  const rawContent = (crawl?.content ?? '').trim();
   return buildMetadata({
     title: `${post.title} | Blog`,
-    description: `${post.title} — guides and articles on police station interviews, cautions, and representation (PoliceStationRepUK).`,
+    description: metaDescriptionForBlogPost(post.title, rawContent, placeholder),
     path: `/Blog/${slug}`,
   });
 }
@@ -172,6 +188,16 @@ export default async function BlogArticlePage({ params }: PageProps) {
                 <h2 className="text-lg font-bold text-[var(--navy)]">Related on this site</h2>
                 <ul className="mt-3 list-inside list-disc space-y-2 text-sm text-[var(--navy)]">
                   <li>
+                    <Link href="/Directory" className="font-semibold text-[var(--gold-hover)] hover:underline">
+                      Find accredited reps — directory hub
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/search" className="font-semibold text-[var(--gold-hover)] hover:underline">
+                      Advanced search &amp; filters
+                    </Link>
+                  </li>
+                  <li>
                     <Link href="/InterviewUnderCaution" className="font-semibold text-[var(--gold-hover)] hover:underline">
                       Interview under caution
                     </Link>
@@ -197,6 +223,27 @@ export default async function BlogArticlePage({ params }: PageProps) {
           ) : (
             <ArticleBody headings={headings} content={content} />
           )}
+
+          <aside className="mt-10 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--gold-pale)] p-6 sm:p-8">
+            <h2 className="text-lg font-bold text-[var(--navy)]">Need police station cover?</h2>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+              Browse accredited representatives by area or narrow results with filters — free for firms and reps.
+            </p>
+            <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
+              <Link
+                href="/Directory"
+                className="btn-gold inline-flex justify-center !px-4 !py-2.5 !text-sm !no-underline sm:inline-flex"
+              >
+                Find reps — directory
+              </Link>
+              <Link
+                href="/search"
+                className="inline-flex justify-center rounded-lg border-2 border-[var(--navy)]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[var(--navy)] no-underline transition-colors hover:border-[var(--gold-hover)] hover:text-[var(--gold-hover)] sm:inline-flex"
+              >
+                Advanced search
+              </Link>
+            </div>
+          </aside>
 
           <p className="mt-10">
             <Link href="/Blog" className="font-medium text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">

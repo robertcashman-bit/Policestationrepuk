@@ -67,7 +67,7 @@ export function Header() {
   };
 
   const desktopNavLinkClass =
-    'rounded-lg px-2.5 py-2 text-[12px] font-medium leading-snug text-[var(--header-link)] no-underline transition-colors hover:bg-[var(--navy-light)] hover:text-[var(--header-link-hover)] xl:px-3 xl:text-[13px]';
+    'rounded-lg px-2.5 py-2 text-[12px] font-medium leading-snug !text-[var(--header-link)] no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--header-link-hover)] xl:px-3 xl:text-[13px]';
   const custodyNavClass =
     'ml-0.5 inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-[12px] font-semibold leading-snug text-white no-underline shadow-sm transition-colors hover:bg-emerald-700 xl:text-[13px]';
 
@@ -138,7 +138,7 @@ export function Header() {
           <div className="hidden shrink-0 items-center gap-3 lg:flex">
             <Link
               href={HEADER_HELP_HREF}
-              className="text-sm font-medium text-[var(--header-link)] no-underline transition-colors hover:text-[var(--header-link-hover)]"
+              className="text-sm font-medium !text-[var(--header-link)] no-underline transition-colors hover:!text-[var(--header-link-hover)]"
             >
               Help
             </Link>
@@ -195,7 +195,7 @@ export function Header() {
                   className={
                     link.href === '/CustodyNote'
                       ? 'flex min-h-[44px] items-center rounded-full bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white no-underline transition-colors hover:bg-emerald-700'
-                      : 'flex min-h-[44px] items-center rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--header-link)] no-underline transition-colors hover:bg-[var(--navy-light)] hover:text-[var(--header-link-hover)]'
+                      : 'flex min-h-[44px] items-center rounded-lg px-3 py-2.5 text-sm font-medium !text-[var(--header-link)] no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--header-link-hover)]'
                   }
                 >
                   {link.href === '/CustodyNote' ? (
@@ -214,7 +214,7 @@ export function Header() {
                 <Link
                   href={HEADER_HELP_HREF}
                   onClick={() => setOpen(false)}
-                  className="flex min-h-[44px] items-center rounded-lg px-3 py-2.5 text-sm font-medium text-[var(--header-link)] no-underline transition-colors hover:bg-[var(--navy-light)] hover:text-[var(--header-link-hover)]"
+                  className="flex min-h-[44px] items-center rounded-lg px-3 py-2.5 text-sm font-medium !text-[var(--header-link)] no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--header-link-hover)]"
                 >
                   Help
                 </Link>

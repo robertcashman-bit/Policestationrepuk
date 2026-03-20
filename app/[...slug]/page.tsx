@@ -152,6 +152,7 @@ export default async function CatchAllSlugPage({ params }: PageProps) {
               alt="PoliceStationRepUK article illustration"
               width={1200}
               height={630}
+              sizes="(max-width: 768px) 100vw, 48rem"
               className="h-auto w-full"
               priority
             />
@@ -237,13 +238,14 @@ export default async function CatchAllSlugPage({ params }: PageProps) {
 
           {isBlog && (!('images' in page) || !Array.isArray(page.images) || page.images.length === 0) && (
             <figure className="mb-8 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--card-border)] shadow-[var(--card-shadow)]">
-              <Image
-                src="/blog-feature.svg"
-                alt="PoliceStationRepUK article illustration"
-                width={1200}
-                height={630}
-                className="h-auto w-full"
-              />
+            <Image
+              src="/blog-feature.svg"
+              alt="PoliceStationRepUK article illustration"
+              width={1200}
+              height={630}
+              sizes="(max-width: 768px) 100vw, 48rem"
+              className="h-auto w-full"
+            />
             </figure>
           )}
 

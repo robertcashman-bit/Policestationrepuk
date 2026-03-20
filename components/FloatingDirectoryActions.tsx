@@ -27,7 +27,7 @@ export function FloatingDirectoryActions() {
     <nav
       data-parity-mask
       aria-label="Share and back to top"
-      className="pointer-events-none fixed bottom-24 left-3 z-30 flex flex-col gap-2 sm:bottom-28 sm:left-4"
+      className="pointer-events-none fixed bottom-28 left-3 z-30 flex flex-col gap-2 sm:bottom-32 sm:left-4"
     >
       <button
         type="button"

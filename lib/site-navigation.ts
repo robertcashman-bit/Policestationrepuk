@@ -12,6 +12,7 @@
 export const PRIMARY_NAV = [
   { href: '/', text: 'Home' },
   { href: '/Directory', text: 'Find Reps' },
+  { href: '/search', text: 'Search' },
   { href: '/Register', text: 'Register' },
   { href: '/Blog', text: 'Blog' },
   { href: '/CustodyNote', text: 'Custody Note' },
@@ -36,11 +37,11 @@ export type FooterLink = { href: string; label: string; external?: boolean };
 /** Footer column “Directories” — link labels from data/page-content.json (/) */
 export const FOOTER_DIRECTORIES: FooterLink[] = [
   { href: '/Directory', label: 'Find a Rep' },
+  { href: '/search', label: 'Search directory' },
   { href: '/StationsDirectory', label: 'Station Numbers' },
   { href: '/Forces', label: 'Police Forces' },
   { href: '/Firms', label: 'Law Firms' },
   { href: '/Map', label: 'Interactive Map' },
-  { href: '/GoFeatured', label: 'Become Featured' },
 ];
 
 /** Footer column “For Representatives” — order & labels from homepage crawl */
@@ -101,9 +102,9 @@ export const FOOTER_SPOTLIGHT_TRAINING_BODY =
 /** Regulatory block title */
 export const FOOTER_REGULATORY_TITLE = 'Regulatory Notice';
 
-/** Disclaimer body — exact wording from live site footer (policestationrepuk.com). */
+/** Disclaimer body — neutral branding for .org / .com deployments. */
 export const FOOTER_REGULATORY_BODY =
-  'PoliceStationRepUK.com is a professional directory and information platform. This website does not provide legal advice, does not offer regulated legal services, and is not authorised or regulated by the Solicitors Regulation Authority (SRA), the Bar Standards Board, or the Legal Aid Agency. All representatives listed are self-registered and independently responsible for their own accreditation, insurance, and regulatory compliance. Users should verify credentials independently before instructing any representative.';
+  'PoliceStationRepUK is a professional directory and information platform. This website does not provide legal advice, does not offer regulated legal services, and is not authorised or regulated by the Solicitors Regulation Authority (SRA), the Bar Standards Board, or the Legal Aid Agency. All representatives listed are self-registered and independently responsible for their own accreditation, insurance, and regulatory compliance. Users should verify credentials independently before instructing any representative.';
 
 /** Bottom utility row — hrefs as on source (Next redirects resolve to sitemap/blog) */
 export const FOOTER_UTILITY_SHARE = 'Share Directory';

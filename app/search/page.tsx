@@ -7,9 +7,9 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
-  title: 'Search police station representatives',
+  title: 'Search Police Station Representatives | PoliceStationRepUK',
   description:
-    'Search the free directory of accredited police station representatives by county, station, name, availability or accreditation.',
+    'Filter the free PoliceStationRepUK directory by county, custody suite, name, availability, and accreditation. Same live listings as Find Reps — advanced filters for firms and solicitors.',
   alternates: { canonical: `${SITE_URL}/search` },
 };
 
@@ -29,10 +29,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
     <>
       <section className="section-pad-compact border-b border-[var(--border)] bg-white">
         <div className="page-container !py-0">
-          <h1 className="text-h2 mt-0 text-[var(--navy)]">Search representatives</h1>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+          <h1 className="text-h1 mt-0 max-w-5xl text-[var(--navy)]">Search representatives</h1>
+          <p className="mt-3 max-w-4xl text-base leading-relaxed text-[var(--muted)] sm:text-[1.0625rem]">
             Filter live directory listings by county, custody suite, accreditation, availability, or free-text
-            search. All results are loaded from the Scraped rep pipeline (with reps.json fallback).
+            search — same network as Find Reps, with extra filters for firms and solicitors.
           </p>
           <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Search directory' }]} />
         </div>

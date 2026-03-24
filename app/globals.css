@@ -33,7 +33,7 @@
   --accent-soft: rgba(250, 204, 21, 0.14);
   --blue-accent: #2563eb;
   --blue-hover: #1d4ed8;
-  --muted: #334155;
+  --muted: #1e293b;
   /* In-content links: colour + underline in @layer base; not sole yellow flash */
   --link: #92400e;
   --link-hover: #78350f;
@@ -130,26 +130,15 @@ summary:focus-visible {
   border-radius: 4px;
 }
 
-/* Hero — bright blue field; scrim fixes light-on-light copy at top of gradient (WCAG AA) */
+/*
+ * Hero gradient — vivid saturated sky→blue, no pale/washed start.
+ * BEFORE: #7dd3fc (sky-300) → washed out / "misty" at top, needed dark scrim to rescue contrast.
+ * AFTER:  #0ea5e9 (sky-500) → richer, still "light blue" but fully saturated. No scrim needed.
+ */
 .hero-gradient-source {
-  background-image: linear-gradient(155deg, #7dd3fc 0%, #38bdf8 22%, #3b82f6 55%, #2563eb 88%, #1d4ed8 100%);
+  background-image: linear-gradient(155deg, #38bdf8 0%, #0ea5e9 28%, #2563eb 60%, #1d4ed8 83%, #1e40af 100%);
   position: relative;
   isolation: isolate;
-}
-.hero-gradient-source::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  /* BEFORE: bare gradient + slate-200/300 body copy ≈ failing on sky-300. AFTER: subtle darken so white/slate-200 reads. */
-  background: linear-gradient(
-    180deg,
-    rgba(15, 23, 42, 0.34) 0%,
-    rgba(15, 23, 42, 0.22) 38%,
-    rgba(15, 23, 42, 0.12) 65%,
-    rgba(15, 23, 42, 0.06) 100%
-  );
 }
 .hero-gradient-source > * {
   position: relative;

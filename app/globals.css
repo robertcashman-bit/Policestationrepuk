@@ -12,32 +12,46 @@
   --gold-light: #fef9c3;
   --gold-pale: #fefce8;
 
-  /* Ink for long copy & gold buttons — stays dark for contrast */
-  --ink: #1e3a8a;
+  /**
+   * Contrast pass (WCAG AA+): primary copy darker; links use amber-brown (not bright yellow on white);
+   * chrome links on #2563eb use near-white; muted secondary text darkened for ~4.5:1+ on #f5f7fa.
+   *
+   * BEFORE → AFTER (key tokens):
+   * --ink / --foreground #1e3a8a → #172554 (stronger body/headings on light grey)
+   * --muted #4a5e78 → #334155 (secondary copy no longer “misty”)
+   * --link #ca8a04 → #92400e (AA link on light bg); --link-hover #78350f
+   * --header-link #e2e8f0 → #f1f5f9 (clearer 12–13px nav on #2563eb)
+   * --breadcrumb-on-dark #94a3b8 → #cbd5e1 (breadcrumbs on navy/hero)
+   */
+  --ink: #172554;
   --background: #f5f7fa;
-  --foreground: #1e3a8a;
+  --foreground: #172554;
   --primary: #1d4ed8;
-  --primary-hover: #2563eb;
+  --primary-hover: #1e40af;
   --accent: #facc15;
   --accent-hover: #eab308;
   --accent-soft: rgba(250, 204, 21, 0.14);
   --blue-accent: #2563eb;
   --blue-hover: #1d4ed8;
-  --muted: #4a5e78;
-  /* Default in-content links — brand gold (Wix-style accents); chrome uses --header-link* / --footer-link* */
-  --link: #ca8a04;
-  --link-hover: #a16207;
-  /* Chrome nav/footer: high contrast on navy (Wix-style light links) */
-  --header-link: #e2e8f0;
+  --muted: #334155;
+  /* In-content links: colour + underline in @layer base; not sole yellow flash */
+  --link: #92400e;
+  --link-hover: #78350f;
+  --link-visited: #6b2f6d;
+  /* Chrome nav/footer on #2563eb — normal text ≥4.5:1 */
+  --header-link: #f1f5f9;
   --header-link-hover: #ffffff;
-  --footer-link: #e2e8f0;
+  --footer-link: #f1f5f9;
   --footer-link-hover: #ffffff;
-  --breadcrumb-on-dark: #94a3b8;
-  --breadcrumb-link-on-dark: #e2e8f0;
+  /* Navy / gradient heroes: breadcrumb + subheads */
+  --breadcrumb-on-dark: #cbd5e1;
+  --breadcrumb-link-on-dark: #f8fafc;
   --breadcrumb-active-on-dark: #ffffff;
-  --border: #d1d9e6;
+  /* Long legal / footer notes on navy (small text still readable) */
+  --legal-on-dark: #e2e8f0;
+  --border: #c0cad9;
   --card-bg: #ffffff;
-  --card-border: #e0e7ef;
+  --card-border: #d8dee9;
   --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.05);
   --card-shadow-hover: 0 6px 16px -4px rgb(0 0 0 / 0.1), 0 2px 6px -2px rgb(0 0 0 / 0.06);
   --radius: 0.5rem;
@@ -55,7 +69,8 @@
   --space-hero-stack: 1rem;
   --space-hero-stack-lg: 1.5rem;
   --card-padding: 1.5rem;
-  --focus-ring: 0 0 0 2px var(--background), 0 0 0 4px var(--gold);
+  /* Focus: navy + gold rings so keyboard users see both on light and dark surfaces */
+  --focus-ring: 0 0 0 2px var(--background), 0 0 0 4px var(--navy), 0 0 0 6px var(--gold);
 }
 
 @theme inline {
@@ -115,9 +130,51 @@ summary:focus-visible {
   border-radius: 4px;
 }
 
-/* Hero — bright blue field (no midnight tail), matches live marketing strip */
+/* Hero — bright blue field; scrim fixes light-on-light copy at top of gradient (WCAG AA) */
 .hero-gradient-source {
   background-image: linear-gradient(155deg, #7dd3fc 0%, #38bdf8 22%, #3b82f6 55%, #2563eb 88%, #1d4ed8 100%);
+  position: relative;
+  isolation: isolate;
+}
+.hero-gradient-source::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* BEFORE: bare gradient + slate-200/300 body copy ≈ failing on sky-300. AFTER: subtle darken so white/slate-200 reads. */
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.34) 0%,
+    rgba(15, 23, 42, 0.22) 38%,
+    rgba(15, 23, 42, 0.12) 65%,
+    rgba(15, 23, 42, 0.06) 100%
+  );
+}
+.hero-gradient-source > * {
+  position: relative;
+  z-index: 1;
+}
+
+/**
+ * Dark marketing surfaces: many pages use bg-[var(--navy)] + Tailwind text-slate-300/400/500.
+ * slate-500 (#64748b) on #2563eb ≈ 3.8:1 — fails small copy. Bump to tokenised legals.
+ */
+[class*='bg-[var(--navy)]'] .text-slate-400,
+[class*='bg-[var(--navy)]'] .text-slate-500,
+[class*='bg-gradient-to-br'][class*='from-[var(--navy)]'] .text-slate-300,
+[class*='bg-gradient-to-br'][class*='from-[var(--navy)]'] .text-slate-400,
+[class*='bg-gradient-to-br'][class*='from-[var(--navy)]'] .text-slate-500 {
+  color: var(--legal-on-dark) !important;
+}
+[class*='bg-[var(--navy)]'] .text-slate-300,
+[class*='bg-[var(--navy)]'] .text-slate-200 {
+  color: var(--breadcrumb-link-on-dark) !important;
+}
+
+footer .text-slate-400,
+footer .text-slate-500 {
+  color: var(--legal-on-dark) !important;
 }
 
 /* Inner pages: hero band uses same vertical rhythm tokens as marketing sections */

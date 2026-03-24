@@ -131,12 +131,14 @@ summary:focus-visible {
 }
 
 /*
- * Hero gradient — vivid saturated sky→blue, no pale/washed start.
- * BEFORE: #7dd3fc (sky-300) → washed out / "misty" at top, needed dark scrim to rescue contrast.
- * AFTER:  #0ea5e9 (sky-500) → richer, still "light blue" but fully saturated. No scrim needed.
+ * Hero — solid vivid sky blue.
+ * BEFORE: gradient from sky-300 (#38bdf8) → blue-800 = massive tonal range, top always looks washed.
+ * AFTER:  flat sky-500 (#0ea5e9) — one rich, saturated "light blue". Zero wash, zero mistiness.
+ * A hairline radial highlight gives subtle depth without creating a pale zone.
  */
 .hero-gradient-source {
-  background-image: linear-gradient(155deg, #38bdf8 0%, #0ea5e9 28%, #2563eb 60%, #1d4ed8 83%, #1e40af 100%);
+  background-color: #0ea5e9;
+  background-image: radial-gradient(ellipse 120% 80% at 60% 0%, #38bdf8 0%, transparent 65%);
   position: relative;
   isolation: isolate;
 }

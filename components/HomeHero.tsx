@@ -15,8 +15,6 @@ export function HomeHero() {
       className="hero-gradient-source relative overflow-hidden"
       style={{ paddingTop: 'var(--hero-pad-y)', paddingBottom: 'var(--hero-pad-y)' }}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_100%_100%,_rgba(2,_132,_199,_0.55)_0%,_transparent_60%)]" />
-
       <div className="page-container relative !py-0">
         <div className="mx-auto max-w-[var(--hero-max-inner)] text-center">
           {/* Trust badge — solid white/20 so it reads clearly on vivid blue */}

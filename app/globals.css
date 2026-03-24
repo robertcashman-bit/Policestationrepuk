@@ -145,24 +145,23 @@ summary:focus-visible {
 }
 
 /**
- * Dark marketing surfaces: many pages use bg-[var(--navy)] + Tailwind text-slate-300/400/500.
- * slate-500 (#64748b) on #2563eb ≈ 3.8:1 — fails small copy. Bump to tokenised legals.
+ * Navy surfaces: force ALL slate-* text to be white-ish so nothing washes out.
+ * Applies to any element with bg-[var(--navy)] and all descendants.
+ * slate-400 on #2563eb ≈ 3.1:1 (fails), slate-500 ≈ 2.3:1 (fails badly).
  */
+[class*='bg-[var(--navy)]'] .text-slate-200,
+[class*='bg-[var(--navy)]'] .text-slate-300,
 [class*='bg-[var(--navy)]'] .text-slate-400,
 [class*='bg-[var(--navy)]'] .text-slate-500,
-[class*='bg-gradient-to-br'][class*='from-[var(--navy)]'] .text-slate-300,
-[class*='bg-gradient-to-br'][class*='from-[var(--navy)]'] .text-slate-400,
-[class*='bg-gradient-to-br'][class*='from-[var(--navy)]'] .text-slate-500 {
-  color: var(--legal-on-dark) !important;
-}
-[class*='bg-[var(--navy)]'] .text-slate-300,
-[class*='bg-[var(--navy)]'] .text-slate-200 {
-  color: var(--breadcrumb-link-on-dark) !important;
+[class*='bg-[var(--navy)]'] .text-slate-600 {
+  color: #e2e8f0 !important;
 }
 
+footer .text-slate-300,
 footer .text-slate-400,
-footer .text-slate-500 {
-  color: var(--legal-on-dark) !important;
+footer .text-slate-500,
+footer .text-slate-600 {
+  color: #e2e8f0 !important;
 }
 
 /* Inner pages: hero band uses same vertical rhythm tokens as marketing sections */

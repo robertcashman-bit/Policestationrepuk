@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export function HomeCustodyNote() {
   return (
-    <section className="section-pad bg-gradient-to-br from-[var(--navy)] to-[var(--navy-mid)]" aria-label="Custody Note promotion">
+    <section className="section-pad bg-[var(--navy)]" aria-label="Custody Note promotion">
       <div className="page-container !py-0">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-h2 mt-0 text-white">Custody Note</h2>
@@ -13,12 +13,12 @@ export function HomeCustodyNote() {
             focus on the client, not the paperwork.
           </p>
 
-          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-5 py-2 text-sm font-semibold text-yellow-300">
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[var(--gold)] bg-[var(--gold)]/15 px-5 py-2 text-sm font-semibold text-[var(--gold)]">
             🎁 Exclusive for PSR UK members — 25% off your subscription
           </div>
 
-          <p className="mt-3 text-sm font-medium text-slate-400">
-            Use code <span className="rounded bg-white/10 px-2 py-0.5 font-mono font-bold text-white">A2MJY2NQ</span> at
+          <p className="mt-3 text-sm font-medium text-slate-200">
+            Use code <span className="rounded bg-white/20 px-2 py-0.5 font-mono font-bold text-white">A2MJY2NQ</span> at
             checkout on custodynote.com
           </p>
 
@@ -41,7 +41,7 @@ export function HomeCustodyNote() {
             </Link>
           </div>
 
-          <p className="mt-5 text-xs text-slate-500">
+          <p className="mt-5 text-xs text-slate-300">
             No credit card for trial · Windows 10+ · From £15.99/mo · Cancel any time
           </p>
         </div>

@@ -20,15 +20,15 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
   };
 
   return (
-    <section className="section-pad bg-gradient-to-br from-[var(--navy)] to-[var(--navy-mid)]" aria-label="Spotlight representatives">
+    <section className="section-pad bg-[var(--navy)]" aria-label="Spotlight representatives">
       <div className="page-container !py-0">
         <div className="text-center">
           <h2 className="text-h2 mt-0 text-white">Featured Premium Reps</h2>
-          <p className="mt-2 text-slate-400">Promoted listings with maximum visibility</p>
+          <p className="mt-2 text-slate-200">Promoted listings with maximum visibility</p>
         </div>
 
         <div className="mx-auto mt-8 max-w-2xl">
-          <div className="rounded-[var(--radius-lg)] border border-white/10 bg-white/5 p-6 backdrop-blur-sm sm:p-7">
+          <div className="rounded-[var(--radius-lg)] border border-white/30 bg-white/10 p-6 sm:p-7">
             <h3 className="text-xl font-bold text-white">{rep.name}</h3>
             {quote ? (
               <blockquote className="mt-4 border-l-4 border-[var(--gold)] pl-4 text-sm italic leading-relaxed text-slate-300">

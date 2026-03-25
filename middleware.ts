@@ -67,6 +67,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
+  const blogMatch = path.match(/^\/blog\/(.+)$/);
+  if (blogMatch && path !== `/Blog/${blogMatch[1]}`) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/Blog/${blogMatch[1]}`;
+    return NextResponse.redirect(url, 308);
+  }
+
   if (path.startsWith(PS_REP_PREFIX) && !path.slice(PS_REP_PREFIX.length).includes('/')) {
     const slug = path.slice(PS_REP_PREFIX.length).toLowerCase();
     if (COUNTY_SLUG_SET.has(slug)) {

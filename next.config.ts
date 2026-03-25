@@ -128,12 +128,8 @@ const nextConfig: NextConfig = {
         destination: "/Blog",
         permanent: true,
       },
-      // Lowercase blog article paths → canonical `app/Blog/[slug]` (Linux URLs are case-sensitive)
-      {
-        source: "/blog/:slug",
-        destination: "/Blog/:slug",
-        permanent: true,
-      },
+      // NOTE: /blog/:slug → /Blog/:slug case redirect moved to middleware.ts
+      // next.config redirects match case-insensitively on Vercel, creating a loop for /Blog/* URLs.
       // Duplicate blog slugs → canonical versions
       { source: "/Blog/what-is-a-duty-solicitor-4", destination: "/Blog/what-is-a-duty-solicitor", permanent: true },
       { source: "/Blog/whats-a-duty-solicitor", destination: "/Blog/what-is-a-duty-solicitor", permanent: true },

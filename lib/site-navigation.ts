@@ -112,9 +112,9 @@ export const FOOTER_REGULATORY_BODY =
 /** Bottom utility row — hrefs as on source (Next redirects resolve to sitemap/blog) */
 export const FOOTER_UTILITY_SHARE = 'Share Directory';
 export const FOOTER_UTILITY_TOP = 'Top';
-export const FOOTER_UTILITY_SITEMAP_HREF = '/functions/sitemap';
+export const FOOTER_UTILITY_SITEMAP_HREF = '/sitemap.xml';
 export const FOOTER_UTILITY_SITEMAP_LABEL = 'Sitemap';
-export const FOOTER_UTILITY_RSS_HREF = '/functions/rss';
+export const FOOTER_UTILITY_RSS_HREF = '/Blog';
 export const FOOTER_UTILITY_RSS_LABEL = 'RSS Feed';
 export const FOOTER_UTILITY_COOKIE_SETTINGS = 'Cookie Settings';
 

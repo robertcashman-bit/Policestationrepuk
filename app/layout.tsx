@@ -36,6 +36,7 @@ export const metadata: Metadata = {
   description:
     'Free directory of accredited police station representatives across England & Wales. Find reps by county, station, or name. 100% free for solicitors and reps. No fees ever.',
   metadataBase: new URL(SITE_URL),
+  manifest: '/manifest.json',
   alternates: { canonical: SITE_URL },
   openGraph: {
     siteName: 'PoliceStationRepUK',
@@ -45,12 +46,21 @@ export const metadata: Metadata = {
     description:
       'The UK\'s free directory connecting criminal defence firms with accredited police station representatives across England & Wales.',
     url: SITE_URL,
+    images: [
+      {
+        url: `${SITE_URL}/og-default.png`,
+        width: 1200,
+        height: 630,
+        alt: 'PoliceStationRepUK — The UK\'s Free Directory for Police Station Cover',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'PoliceStationRepUK — Free Police Station Rep Directory',
     description:
       'Find accredited police station reps across England & Wales. 100% free for solicitors and reps.',
+    images: [`${SITE_URL}/og-default.png`],
   },
   robots: {
     index: true,

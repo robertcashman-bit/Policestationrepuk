@@ -64,6 +64,17 @@ CREATE INDEX IF NOT EXISTS idx_representatives_availability ON representatives(a
 --   updated_at TIMESTAMPTZ DEFAULT now()
 -- );
 
+-- Form submissions (contact + registration)
+CREATE TABLE IF NOT EXISTS submissions (
+  id TEXT PRIMARY KEY,
+  type TEXT NOT NULL CHECK (type IN ('contact', 'registration')),
+  submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  payload JSONB NOT NULL DEFAULT '{}'::jsonb
+);
+
+CREATE INDEX IF NOT EXISTS idx_submissions_type ON submissions(type);
+CREATE INDEX IF NOT EXISTS idx_submissions_submitted_at ON submissions(submitted_at DESC);
+
 -- Enable RLS if required (optional; adjust policies per your security needs)
 -- ALTER TABLE counties ENABLE ROW LEVEL SECURITY;
 -- ALTER TABLE stations ENABLE ROW LEVEL SECURITY;

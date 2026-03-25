@@ -84,7 +84,7 @@ export default async function WikiArticlePage({ params }: PageProps) {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">{article.title}</h1>
-          <p className="mt-3 max-w-3xl text-lg text-slate-300">{article.excerpt}</p>
+          <p className="mt-3 max-w-3xl text-lg text-white">{article.excerpt}</p>
 
           {/* Meta pills */}
           <div className="mt-5 flex flex-wrap items-center gap-2">
@@ -98,15 +98,15 @@ export default async function WikiArticlePage({ params }: PageProps) {
               ✓ {factCheck.label}
             </span>
             {article.wordCount > 0 && (
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-slate-300">
+              <span className="rounded-full bg-[var(--navy-light)] px-3 py-1 text-xs font-medium text-white">
                 {article.wordCount.toLocaleString()} words
               </span>
             )}
-            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-slate-300">
+            <span className="rounded-full bg-[var(--navy-light)] px-3 py-1 text-xs font-medium text-white">
               {article.views.toLocaleString()} views
             </span>
             {article.lastImprovedDate && (
-              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-slate-300">
+              <span className="rounded-full bg-[var(--navy-light)] px-3 py-1 text-xs font-medium text-white">
                 Updated {formatDate(article.lastImprovedDate)}
               </span>
             )}

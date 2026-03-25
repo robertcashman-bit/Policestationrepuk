@@ -8,17 +8,17 @@ import { phoneToTelHref } from '@/lib/phone';
 function getAvailabilityBadge(raw: string): { label: string; color: string } {
   const lower = raw.toLowerCase().trim();
   if (/24\s*[\/\s]?\s*7|24\s*hour|all\s*hour|anytime|any\s*time|full\s*time|mon-sun\s*24/i.test(lower))
-    return { label: '24/7', color: 'bg-emerald-500/10 text-emerald-700 border-emerald-200' };
+    return { label: '24/7', color: 'bg-emerald-100 text-emerald-700 border-emerald-300' };
   if (/evening|night|after\s*(5|6|7|8)|out\s*of\s*hours|pm\s*onwards/i.test(lower))
-    return { label: 'Evenings / Nights', color: 'bg-indigo-500/10 text-indigo-700 border-indigo-200' };
+    return { label: 'Evenings / Nights', color: 'bg-indigo-100 text-indigo-700 border-indigo-300' };
   if (/weekend|sat.*sun/i.test(lower))
-    return { label: 'Weekends', color: 'bg-violet-500/10 text-violet-700 border-violet-200' };
+    return { label: 'Weekends', color: 'bg-violet-100 text-violet-700 border-violet-300' };
   if (/day(time|s)|morning|afternoon|mon.*fri|9.*5|8.*6/i.test(lower))
-    return { label: 'Daytime', color: 'bg-blue-500/10 text-blue-700 border-blue-200' };
+    return { label: 'Daytime', color: 'bg-blue-100 text-blue-700 border-blue-300' };
   if (/flexi|arrangement|please\s*call|usually|general/i.test(lower))
-    return { label: 'Flexible', color: 'bg-yellow-500/10 text-yellow-700 border-yellow-200' };
+    return { label: 'Flexible', color: 'bg-yellow-100 text-yellow-700 border-yellow-300' };
   if (!raw || lower === 'any' || lower === 'all' || lower === 'most')
-    return { label: 'Available', color: 'bg-emerald-500/10 text-emerald-700 border-emerald-200' };
+    return { label: 'Available', color: 'bg-emerald-100 text-emerald-700 border-emerald-300' };
   return { label: raw.length > 20 ? raw.slice(0, 18) + '…' : raw, color: 'bg-slate-100 text-slate-700 border-slate-200' };
 }
 
@@ -33,7 +33,7 @@ export function DirectoryCard({ rep }: DirectoryCardProps) {
 
   return (
     <article className="group flex flex-col rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white shadow-[var(--card-shadow)] transition-all duration-200 hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--gold)]/40">
-      <div className="h-1 rounded-t-[var(--radius-lg)] bg-gradient-to-r from-[var(--navy)] to-[var(--navy-mid)]" />
+      <div className="h-1 rounded-t-[var(--radius-lg)] bg-[var(--navy)]" />
 
       <div className="flex flex-1 flex-col p-[var(--card-padding)]">
         {/* Badges */}

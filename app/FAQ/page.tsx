@@ -85,11 +85,11 @@ export default function FAQPage() {
           />
           <header>
             <h1 className="text-h1 text-white">Frequently Asked Questions</h1>
-            <p className="mt-4 max-w-2xl text-lg leading-relaxed text-slate-300">
+            <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white">
               Find answers to the most common questions about police station representation,
               registration, and our directory.
             </p>
-            <p className="mt-3 text-sm text-slate-300">
+            <p className="mt-3 text-sm text-white">
               Directory Information: We verify registration details when reps join. Listings are not
               endorsements. For inaccuracies, contact us at{' '}
               <a

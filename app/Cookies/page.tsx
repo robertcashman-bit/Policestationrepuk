@@ -185,8 +185,8 @@ export default function CookiesPage() {
                       <span
                         className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
                           cookie.type === 'Essential'
-                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
-                            : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-blue-100 text-blue-800'
                         }`}
                       >
                         {cookie.type}

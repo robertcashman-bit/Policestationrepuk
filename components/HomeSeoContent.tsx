@@ -7,7 +7,7 @@ import Link from 'next/link';
 export function HomeSeoContent() {
   return (
     <section
-      className="border-t border-[var(--border)] bg-slate-50/80"
+      className="border-t border-[var(--border)] bg-slate-50"
       aria-labelledby="home-seo-heading"
     >
       <div className="page-container section-pad-compact">

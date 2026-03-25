@@ -14,18 +14,18 @@ export function FirmCard({ firm }: FirmCardProps) {
 
   return (
     <article className="group flex flex-col rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white shadow-[var(--card-shadow)] transition-all duration-200 hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--gold)]/40">
-      <div className="h-1 rounded-t-[var(--radius-lg)] bg-gradient-to-r from-[var(--navy)] to-[var(--navy-mid)]" />
+      <div className="h-1 rounded-t-[var(--radius-lg)] bg-[var(--navy)]" />
 
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         {/* Badges row */}
         <div className="mb-3 flex flex-wrap items-center gap-2">
           {firm.policeStationWork && (
-            <span className="rounded-full border border-emerald-200 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+            <span className="rounded-full border border-emerald-300 bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700">
               Police Station
             </span>
           )}
           {firm.dutySolicitorScheme && (
-            <span className="rounded-full border border-blue-200 bg-blue-500/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-700">
+            <span className="rounded-full border border-blue-300 bg-blue-100 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-700">
               Duty Solicitor
             </span>
           )}

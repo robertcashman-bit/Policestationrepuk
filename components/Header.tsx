@@ -67,7 +67,7 @@ export function Header() {
   };
 
   const desktopNavLinkClass =
-    'rounded-lg px-1.5 py-2 text-[11px] font-medium leading-snug !text-[var(--header-link)] no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--header-link-hover)] xl:px-2.5 xl:text-[12px] 2xl:px-3 2xl:text-[13px] whitespace-nowrap';
+    'rounded-lg px-2 py-2 text-xs font-bold leading-snug !text-white no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--gold)] xl:px-3 xl:text-[13px] 2xl:px-3.5 2xl:text-sm whitespace-nowrap';
 
   return (
     <>
@@ -129,7 +129,7 @@ export function Header() {
             </Link>
             <Link
               href={HEADER_LOGIN_HREF}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-sm font-semibold text-[var(--navy)] shadow-sm no-underline transition-colors hover:bg-slate-100"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--gold)] px-3.5 py-2 text-sm font-bold text-[var(--navy)] shadow-sm no-underline transition-colors hover:bg-[var(--gold-hover)]"
             >
               Log In
               <span aria-hidden className="text-base leading-none">

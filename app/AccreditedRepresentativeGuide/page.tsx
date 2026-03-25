@@ -31,7 +31,7 @@ export default function AccreditedRepresentativeGuidePage() {
 
           <section className="mt-10 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
             <h2 className="text-xl font-bold text-white">Need Help?</h2>
-            <p className="mt-3 text-slate-300">
+            <p className="mt-3 text-white">
               Find an accredited police station representative or get in touch.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">

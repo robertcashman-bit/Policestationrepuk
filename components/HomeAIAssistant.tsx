@@ -6,11 +6,11 @@ export function HomeAIAssistant() {
           <h2 className="text-h2 mt-0 text-white">
             Need Help? Ask Our AI Assistant
           </h2>
-          <p className="mt-3 text-slate-200">
+          <p className="mt-3 text-white">
             Get instant answers about registration, using the directory, legal forms, or finding representatives.
             Available 24/7.
           </p>
-          <p className="mt-4 text-xs text-slate-300">
+          <p className="mt-4 text-xs text-white">
             Powered by AI • Instant responses • Free to use
           </p>
         </div>

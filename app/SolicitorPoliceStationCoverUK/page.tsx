@@ -21,7 +21,7 @@ export default function SolicitorPoliceStationCoverUKPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">Police Station Cover for Solicitors</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">UKPolice Station Cover for SolicitorsFind reliable agent cover across England &amp; Wales</p>
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">UKPolice Station Cover for SolicitorsFind reliable agent cover across England &amp; Wales</p>
         </div>
       </section>
 
@@ -64,7 +64,7 @@ export default function SolicitorPoliceStationCoverUKPage() {
 
           <section className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
             <h2 className="text-xl font-bold text-white">Need Help?</h2>
-            <p className="mt-2 text-slate-300">
+            <p className="mt-2 text-white">
               Find an accredited police station representative or get in touch with our team.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">

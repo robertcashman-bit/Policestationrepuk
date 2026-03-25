@@ -21,7 +21,7 @@ export default function AdvertisingPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">Partner Advertising Opportunities</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">Looking to advertise your representative profile?This page is for third-party advertising partners (legal tech, training providers, etc.).Police station reps:Please visit our Become a Featured Rep page for profile upgrade options.Partner Advertising </p>
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">Looking to advertise your representative profile?This page is for third-party advertising partners (legal tech, training providers, etc.).Police station reps:Please visit our Become a Featured Rep page for profile upgrade options.Partner Advertising </p>
         </div>
       </section>
 
@@ -31,7 +31,7 @@ export default function AdvertisingPage() {
 
           <section className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
             <h2 className="text-xl font-bold text-white">Need Help?</h2>
-            <p className="mt-2 text-slate-300">
+            <p className="mt-2 text-white">
               Find an accredited police station representative or get in touch with our team.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">

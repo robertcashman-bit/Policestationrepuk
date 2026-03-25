@@ -21,7 +21,7 @@ export default function CrownCourtFeesPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">Crown Court Fees</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">Litigator and Advocacy Graduated Fee Scheme (AGFS) for Crown Court representationComplex Fee Scheme: Crown Court fees are calculated using graduated fee tables based on case class, pages of prosecution evidence (PPE), and trial length. This page prov</p>
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">Litigator and Advocacy Graduated Fee Scheme (AGFS) for Crown Court representationComplex Fee Scheme: Crown Court fees are calculated using graduated fee tables based on case class, pages of prosecution evidence (PPE), and trial length. This page prov</p>
         </div>
       </section>
 
@@ -74,7 +74,7 @@ export default function CrownCourtFeesPage() {
 
           <section className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
             <h2 className="text-xl font-bold text-white">Need Help?</h2>
-            <p className="mt-2 text-slate-300">
+            <p className="mt-2 text-white">
               Find an accredited police station representative or get in touch with our team.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">

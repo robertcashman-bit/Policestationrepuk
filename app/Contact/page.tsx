@@ -23,7 +23,7 @@ export default function ContactPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">Get in Touch</h1>
-          <p className="mt-3 max-w-2xl text-lg text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg text-white">
             Have questions or feedback? We&apos;d love to hear from you. We usually respond to email within 24 hours and SMS sooner.
           </p>
         </div>

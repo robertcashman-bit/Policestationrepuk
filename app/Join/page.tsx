@@ -21,7 +21,7 @@ export default function JoinPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">Join Our Professional Directory</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">Join Our Professional DirectoryA private, curated list of accredited freelance reps for instructing solicitors.Benefits of JoiningGet listed in a solicitor-only directory.Increase your instructions from criminal law firms.No public contact, only prof</p>
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">Join Our Professional DirectoryA private, curated list of accredited freelance reps for instructing solicitors.Benefits of JoiningGet listed in a solicitor-only directory.Increase your instructions from criminal law firms.No public contact, only prof</p>
         </div>
       </section>
 
@@ -31,7 +31,7 @@ export default function JoinPage() {
 
           <section className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
             <h2 className="text-xl font-bold text-white">Need Help?</h2>
-            <p className="mt-2 text-slate-300">
+            <p className="mt-2 text-white">
               Find an accredited police station representative or get in touch with our team.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">

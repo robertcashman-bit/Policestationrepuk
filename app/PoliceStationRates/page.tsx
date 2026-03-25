@@ -31,11 +31,11 @@ export default function PoliceStationRatesPage() {
           <h1 className="mt-3 text-h1 text-white">
             Police Station Legal Aid Rates 2025/26
           </h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
             The definitive guide to current police station legal aid rates, the harmonised fee
             structure, and escape fee calculations under the 2025 amendments.
           </p>
-          <p className="mt-2 text-xs text-slate-300">Updated: December 7, 2025</p>
+          <p className="mt-2 text-xs text-white">Updated: December 7, 2025</p>
         </div>
       </section>
 
@@ -47,9 +47,9 @@ export default function PoliceStationRatesPage() {
             key={fig.label}
             className="rounded-[var(--radius-lg)] border border-slate-600/50 bg-[var(--navy)] p-6 text-center"
           >
-            <p className="text-sm font-medium text-slate-300">{fig.label}</p>
+            <p className="text-sm font-medium text-white">{fig.label}</p>
             <p className="mt-1 text-3xl font-bold text-white">{fig.value}</p>
-            <p className="mt-1 text-xs text-slate-300">{fig.note}</p>
+            <p className="mt-1 text-xs text-white">{fig.note}</p>
           </div>
         ))}
       </div>

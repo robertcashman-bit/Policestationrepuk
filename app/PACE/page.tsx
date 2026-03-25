@@ -148,7 +148,7 @@ export default function PACEPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">PACE Codes Reference</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
             Quick reference guide to the Police and Criminal Evidence Act 1984 and the Codes of
             Practice — essential knowledge for every police station representative.
           </p>

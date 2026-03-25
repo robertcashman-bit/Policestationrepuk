@@ -12,7 +12,7 @@ const StationMap = dynamic(
 
 function MapSkeleton() {
   return (
-    <div className="flex min-h-[500px] items-center justify-center rounded-[var(--radius-lg)] bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="flex min-h-[500px] items-center justify-center rounded-[var(--radius-lg)] bg-slate-100">
       <p className="text-sm font-medium text-[var(--muted)]">Loading map...</p>
     </div>
   );
@@ -78,13 +78,13 @@ export default function MapPage() {
     <>
       <section className="bg-[var(--navy)] py-10 sm:py-12">
         <div className="page-container !py-0">
-          <nav className="mb-3 text-sm text-slate-400">
+          <nav className="mb-3 text-sm text-white">
             <Link href="/" className="text-[var(--gold)] no-underline hover:text-[var(--gold-hover)]">Home</Link>
             <span className="mx-2">&rsaquo;</span>
             <span className="text-white">Station Map</span>
           </nav>
           <h1 className="text-h1 text-white">Interactive Station Map</h1>
-          <p className="mt-3 max-w-2xl text-lg text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg text-white">
             Browse {stations.length > 0 ? stations.length : ''} police stations across England &amp; Wales.
             Click a pin to see details and find covering representatives.
           </p>

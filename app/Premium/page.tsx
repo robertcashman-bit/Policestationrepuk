@@ -123,7 +123,7 @@ export default function PremiumPage() {
             FREE WHILST TESTING
           </div>
           <h1 className="text-h1 text-white">Training Guides &amp; Resources</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
             Browse all {TOTAL_ARTICLES}+ training articles and guides — completely free.
             Professional development, PACE essentials, billing strategies, and more for police
             station representatives.

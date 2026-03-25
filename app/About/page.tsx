@@ -78,7 +78,7 @@ export default function AboutPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">About PoliceStationRepUK</h1>
-          <p className="mt-3 max-w-2xl text-lg text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg text-white">
             Connecting the UK legal community since 2016 — building bridges between criminal defence
             firms and accredited representatives.
           </p>
@@ -178,7 +178,7 @@ export default function AboutPage() {
       {/* CTA */}
       <section className="mb-14 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
         <h2 className="text-h2 text-white">Join Our Growing Community</h2>
-        <p className="mt-3 text-slate-300">
+        <p className="mt-3 text-white">
           Be part of the UK&apos;s most trusted network of legal professionals. Register today and
           start connecting with colleagues across England &amp; Wales.
         </p>

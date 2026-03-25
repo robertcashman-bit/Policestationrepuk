@@ -78,14 +78,14 @@ export default async function LegalUpdateArticlePage({ params }: PageProps) {
             >
               {article.category}
             </span>
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-[var(--muted)]">
               By {article.author}
             </span>
-            <span className="text-sm text-slate-400">
+            <span className="text-sm text-[var(--muted)]">
               {formatDate(article.publishedDate)}
             </span>
             {article.views > 0 && (
-              <span className="text-sm text-slate-400">
+              <span className="text-sm text-[var(--muted)]">
                 {article.views.toLocaleString()} views
               </span>
             )}

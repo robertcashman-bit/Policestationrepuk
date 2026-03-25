@@ -127,7 +127,7 @@ export default function TermsPage() {
           <h2 className="text-h2 mb-4 text-[var(--navy)]">
             Verification &amp; Accuracy Notice
           </h2>
-          <div className="rounded-[var(--radius-lg)] border border-yellow-200 bg-yellow-50/50 p-6 dark:border-yellow-900/30 dark:bg-yellow-950/20">
+          <div className="rounded-[var(--radius-lg)] border border-yellow-200 bg-yellow-50 p-6">
             <p className="mb-3 text-sm font-semibold text-[var(--navy)]">
               Important &mdash; Please Read:
             </p>

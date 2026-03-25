@@ -40,7 +40,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
       <section className="hero-band hero-gradient-source">
         <div className="page-container !py-0">
-          <p className="text-sm text-slate-300">
+          <p className="text-sm text-white">
             <Link href="/directory" className="font-semibold text-white no-underline hover:underline">
               Full directory hub →
             </Link>

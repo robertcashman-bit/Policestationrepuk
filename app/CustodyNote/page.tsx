@@ -146,13 +146,13 @@ export default function CustodyNotePage() {
             ]}
           />
           <div className="mb-4 mt-3 flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center rounded-full border border-slate-400/50 bg-white/10 px-3 py-1 text-xs font-medium text-slate-200">
+            <span className="inline-flex items-center rounded-full border border-white bg-[var(--navy-light)] px-3 py-1 text-xs font-medium text-white">
               Available Now
             </span>
-            <span className="inline-flex items-center rounded-full border border-slate-400/50 bg-white/10 px-3 py-1 text-xs font-medium text-slate-200">
+            <span className="inline-flex items-center rounded-full border border-white bg-[var(--navy-light)] px-3 py-1 text-xs font-medium text-white">
               Desktop App
             </span>
-            <span className="inline-flex items-center rounded-full bg-green-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wide text-green-300">
+            <span className="inline-flex items-center rounded-full bg-green-600 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
               30-Day Free Trial
             </span>
           </div>
@@ -161,25 +161,25 @@ export default function CustodyNotePage() {
             The custody note app for freelance reps
           </h1>
 
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
             Built for freelance police station representatives and criminal solicitors who need a
             reliable, structured way to record attendances, telephone advice and billing — all in one
             offline-capable desktop app.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-400/50 bg-white/10 px-3 py-1.5 text-xs font-medium text-slate-200">
-              <span className="text-green-400">✓</span> Supports LAA codes
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white bg-[var(--navy-light)] px-3 py-1.5 text-xs font-medium text-white">
+              <span className="text-green-300">✓</span> Supports LAA codes
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-400/50 bg-white/10 px-3 py-1.5 text-xs font-medium text-slate-200">
-              <span className="text-green-400">✓</span> Works offline
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white bg-[var(--navy-light)] px-3 py-1.5 text-xs font-medium text-white">
+              <span className="text-green-300">✓</span> Works offline
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-400/50 bg-white/10 px-3 py-1.5 text-xs font-medium text-slate-200">
-              <span className="text-green-400">✓</span> Encrypted backup
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white bg-[var(--navy-light)] px-3 py-1.5 text-xs font-medium text-white">
+              <span className="text-green-300">✓</span> Encrypted backup
             </span>
           </div>
 
-          <div className="mt-8 rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/40 bg-[var(--gold)]/10 p-5">
+          <div className="mt-8 rounded-[var(--radius-lg)] border-2 border-[var(--gold)] bg-[var(--navy-light)] p-5">
             <p className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">
               Exclusive Discount
             </p>

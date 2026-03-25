@@ -51,7 +51,7 @@ export default function ComplaintsPage() {
               <span className="text-emerald-600">&#x2022;</span>Customer service or support
             </li>
           </ul>
-          <div className="rounded-[var(--radius-lg)] border border-yellow-200 bg-yellow-50/50 p-5 dark:border-yellow-900/30 dark:bg-yellow-950/20">
+          <div className="rounded-[var(--radius-lg)] border border-yellow-200 bg-yellow-50 p-5">
             <p className="text-sm font-semibold text-[var(--navy)]">Important:</p>
             <p className="mt-1 text-sm text-[var(--muted)]">
               This procedure does not cover complaints about the conduct or service quality of
@@ -167,7 +167,7 @@ export default function ComplaintsPage() {
             </div>
           </div>
 
-          <div className="mt-6 rounded-[var(--radius-lg)] border border-yellow-200 bg-yellow-50/50 p-5 dark:border-yellow-900/30 dark:bg-yellow-950/20">
+          <div className="mt-6 rounded-[var(--radius-lg)] border border-yellow-200 bg-yellow-50 p-5">
             <p className="text-sm text-[var(--muted)]">
               <span className="font-semibold text-[var(--navy)]">Urgent complaints:</span> If
               your complaint concerns data protection or inaccurate information that could cause

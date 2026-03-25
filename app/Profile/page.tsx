@@ -22,7 +22,7 @@ export default function ProfilePage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">My Profile</h1>
-          <p className="mt-3 max-w-2xl text-lg text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg text-white">
             Manage your free listing, upgrade visibility, or create a profile if you are new to the directory.
           </p>
         </div>

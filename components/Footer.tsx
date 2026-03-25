@@ -74,7 +74,7 @@ export function Footer() {
         <div className="mt-10 grid gap-8 border-t border-[var(--navy-light)] pt-8 sm:grid-cols-2">
           <div>
             <h3 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_KENT_TITLE}</h3>
-            <p className="mt-1 text-xs text-slate-400">{FOOTER_SPOTLIGHT_KENT_BODY}</p>
+            <p className="mt-1 text-xs text-white">{FOOTER_SPOTLIGHT_KENT_BODY}</p>
             <Link
               href="/directory/kent"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
@@ -84,7 +84,7 @@ export function Footer() {
           </div>
           <div>
             <h3 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_TRAINING_TITLE}</h3>
-            <p className="mt-1 text-xs text-slate-400">{FOOTER_SPOTLIGHT_TRAINING_BODY}</p>
+            <p className="mt-1 text-xs text-white">{FOOTER_SPOTLIGHT_TRAINING_BODY}</p>
             <Link
               href="/Premium"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
@@ -98,8 +98,8 @@ export function Footer() {
           <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">
             {FOOTER_REGULATORY_TITLE}
           </h3>
-          <p className="mt-3 max-w-4xl text-xs leading-relaxed text-slate-500">{FOOTER_REGULATORY_BODY}</p>
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 max-w-4xl text-xs leading-relaxed text-white">{FOOTER_REGULATORY_BODY}</p>
+          <p className="mt-3 text-xs text-white">
             &copy; {year} PoliceStationRepUK. All rights reserved.
           </p>
         </div>

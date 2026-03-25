@@ -21,7 +21,7 @@ export default function MediaKitPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">Media Kit</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">Audience insights, advertising formats and partnership opportunitiesOur Audience2,000+Active Users/Month10,000+Page Views/Month4.2 minAvg. Session DurationPrimary Audience: Police station representatives, duty solicitors, criminal defence solicitorsG</p>
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">Audience insights, advertising formats and partnership opportunitiesOur Audience2,000+Active Users/Month10,000+Page Views/Month4.2 minAvg. Session DurationPrimary Audience: Police station representatives, duty solicitors, criminal defence solicitorsG</p>
         </div>
       </section>
 
@@ -35,7 +35,7 @@ export default function MediaKitPage() {
 
           <section className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
             <h2 className="text-xl font-bold text-white">Need Help?</h2>
-            <p className="mt-2 text-slate-300">
+            <p className="mt-2 text-white">
               Find an accredited police station representative or get in touch with our team.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">

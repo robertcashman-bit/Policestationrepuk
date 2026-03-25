@@ -35,11 +35,11 @@ export default async function StationsDirectoryPage() {
               { label: 'Station Directory', href: '/StationsDirectory' },
             ]}
           />
-          <div className="mb-3 mt-3 inline-flex items-center gap-2 rounded-full border border-slate-400/50 bg-white/10 px-3 py-1 text-xs font-medium text-slate-200">
+          <div className="mb-3 mt-3 inline-flex items-center gap-2 rounded-full border border-white bg-[var(--navy-light)] px-3 py-1 text-xs font-medium text-white">
             <span>✓</span> Community Verified
           </div>
           <h1 className="text-h1 text-white">Police Stations &amp; Forces Directory</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
             Contact details and representative coverage for police stations across England &amp;
             Wales. {stations.length > 0 ? `${stations.length} stations listed.` : ''}
           </p>

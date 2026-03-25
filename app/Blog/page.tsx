@@ -32,12 +32,12 @@ export default function BlogPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">Legal Insights &amp; Advice</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
             Guides, articles and insights for police station representatives, criminal defence
             solicitors and anyone needing to understand their rights at a police station.
           </p>
           {posts.length > 0 && (
-            <p className="mt-3 text-sm text-slate-300">{posts.length} articles available</p>
+            <p className="mt-3 text-sm text-white">{posts.length} articles available</p>
           )}
         </div>
       </section>

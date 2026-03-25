@@ -49,7 +49,7 @@ export default async function LegalUpdatesPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">Legal Updates &amp; News</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
             Stay up to date with the latest legal developments, PACE amendments, practice tips, and
             billing guidance relevant to police station representatives and criminal solicitors.
           </p>
@@ -90,7 +90,7 @@ export default async function LegalUpdatesPage() {
       {/* Premium CTA */}
       <section className="mb-14 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
         <h2 className="text-h2 text-white">Want Full Training Resources?</h2>
-        <p className="mt-3 text-slate-300">
+        <p className="mt-3 text-white">
           Access in-depth training materials, practice guides, and detailed case studies with our
           Premium resources — designed specifically for police station representatives.
         </p>

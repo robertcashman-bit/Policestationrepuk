@@ -82,7 +82,7 @@ export default async function DirectoryCountyPage({ params }: PageProps) {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">{content.h1}</h1>
-          <p className="mt-3 max-w-2xl text-lg text-slate-300">{content.intro}</p>
+          <p className="mt-3 max-w-2xl text-lg text-white">{content.intro}</p>
           <div className="mt-6 flex flex-wrap gap-6 text-sm">
             <span className="flex items-center gap-2 text-white">
               <span className="text-2xl font-extrabold text-[var(--gold)]">{reps.length}</span>

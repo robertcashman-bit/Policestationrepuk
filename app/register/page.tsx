@@ -25,7 +25,7 @@ export default function RegisterPage() {
           <h1 className="mt-3 text-h1 text-white">
             Register as a Police Station Representative
           </h1>
-          <p className="mt-3 max-w-2xl text-lg text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg text-white">
             Join our free directory. Connect with criminal defence firms and solicitors seeking cover across England and Wales.
           </p>
         </div>

@@ -73,7 +73,7 @@ export default async function WikiPage() {
           <Breadcrumbs light items={[{ label: 'Home', href: '/' }, { label: 'Knowledge Base' }]} />
           <div className="mt-3 flex items-center gap-3">
             <h1 className="text-h1 text-white">Rep Knowledge Base</h1>
-            <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300">
+            <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">
               FREE
             </span>
           </div>

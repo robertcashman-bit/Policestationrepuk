@@ -22,7 +22,7 @@ export default function DSCCRegistrationGuidePage() {
             ]}
           />
           <h1 className="mt-4 text-h1 text-white">DSCC Registration Guide</h1>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-slate-300">
+          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white">
             Everything you need to know about the Defence Solicitor Call Centre - how it works, how duty calls are allocated, and what representatives need to know.
           </p>
         </div>
@@ -34,7 +34,7 @@ export default function DSCCRegistrationGuidePage() {
 
           <section className="mt-10 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
             <h2 className="text-xl font-bold text-white">Need Help?</h2>
-            <p className="mt-3 text-slate-300">
+            <p className="mt-3 text-white">
               Find an accredited police station representative or get in touch.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">

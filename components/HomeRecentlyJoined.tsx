@@ -38,11 +38,11 @@ export function HomeRecentlyJoined({ reps }: { reps: Representative[] }) {
         <div className="relative mt-8 -mx-5 overflow-hidden px-5 sm:-mx-6 sm:px-6">
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-[var(--background)] to-transparent sm:w-16"
+            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-[var(--background)] sm:w-16"
           />
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-[var(--background)] to-transparent sm:w-16"
+            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-[var(--background)] sm:w-16"
           />
           <div className={useMarquee ? 'home-recent-marquee-track py-1' : 'flex flex-wrap justify-center gap-3 py-1'}>
             {useMarquee ? (

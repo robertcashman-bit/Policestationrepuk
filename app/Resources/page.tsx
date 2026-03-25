@@ -214,7 +214,7 @@ export default function ResourcesPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">Essential Legal Resources</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
             Curated resources for police station representatives and criminal defence solicitors
             across England &amp; Wales — legislation, legal aid guidance, career tools, and more.
           </p>

@@ -43,7 +43,7 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
         </div>
       </section>
 
-      <div className="border-b border-slate-200/90 bg-slate-100">
+      <div className="border-b border-slate-200 bg-slate-100">
         <div className="page-container !py-2.5 sm:!py-3">
           <Breadcrumbs
             className="!mb-0"
@@ -57,7 +57,7 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
           <h2 className="mt-0 text-h1 text-white md:mt-0">
             Police Station Representatives Directory
           </h2>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-300 sm:mt-4 sm:text-[1.0625rem]">
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-white sm:mt-4 sm:text-[1.0625rem]">
             Find accredited police station representatives across England &amp; Wales
           </p>
 
@@ -65,19 +65,19 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
           <div className="mt-5 flex flex-wrap justify-center gap-2.5 sm:mt-6 sm:justify-start sm:gap-3">
             <Link
               href="/Map"
-              className="btn-outline !border-white/20 !text-white !text-sm hover:!border-white hover:!bg-white/10"
+              className="btn-outline !border-white !text-white !text-sm hover:!bg-white hover:!text-[var(--navy)]"
             >
               📍 Map View
             </Link>
             <Link
               href="/Forces"
-              className="btn-outline !border-white/20 !text-white !text-sm hover:!border-white hover:!bg-white/10"
+              className="btn-outline !border-white !text-white !text-sm hover:!bg-white hover:!text-[var(--navy)]"
             >
               🛡️ Browse by Force
             </Link>
             <Link
               href="/StationsDirectory"
-              className="btn-outline !border-white/20 !text-white !text-sm hover:!border-white hover:!bg-white/10"
+              className="btn-outline !border-white !text-white !text-sm hover:!bg-white hover:!text-[var(--navy)]"
             >
               📊 Stations Directory
             </Link>
@@ -124,7 +124,7 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
             <p className="text-sm font-bold text-white">
               Custody Note — The app for freelance reps
             </p>
-            <p className="mt-1 text-xs text-slate-200">
+            <p className="mt-1 text-xs text-white">
               30-day free trial · From £15.99/mo · Use code A2MJY2NQ for 25% off
             </p>
           </Link>

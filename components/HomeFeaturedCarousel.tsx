@@ -24,14 +24,14 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
       <div className="page-container !py-0">
         <div className="text-center">
           <h2 className="text-h2 mt-0 text-white">Featured Premium Reps</h2>
-          <p className="mt-2 text-slate-200">Promoted listings with maximum visibility</p>
+          <p className="mt-2 text-white">Promoted listings with maximum visibility</p>
         </div>
 
         <div className="mx-auto mt-8 max-w-2xl">
-          <div className="rounded-[var(--radius-lg)] border border-white/30 bg-white/10 p-6 sm:p-7">
+          <div className="rounded-[var(--radius-lg)] border-2 border-white bg-[var(--navy-light)] p-6 sm:p-7">
             <h3 className="text-xl font-bold text-white">{rep.name}</h3>
             {quote ? (
-              <blockquote className="mt-4 border-l-4 border-[var(--gold)] pl-4 text-sm italic leading-relaxed text-slate-300">
+              <blockquote className="mt-4 border-l-4 border-[var(--gold)] pl-4 text-sm italic leading-relaxed text-white">
                 &ldquo;{quote}&rdquo;
               </blockquote>
             ) : null}
@@ -54,7 +54,7 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
             </div>
 
             {showContact[current] && (
-              <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-4 text-sm text-slate-300">
+              <div className="mt-4 rounded-lg border border-white bg-[var(--navy)] p-4 text-sm text-white">
                 {rep.phone ? (
                   <a href={phoneToTelHref(rep.phone)} className="block font-medium text-white no-underline hover:text-[var(--gold)]">
                     📞 {rep.phone}
@@ -79,7 +79,7 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
           <div className="mt-6 flex items-center justify-center gap-4">
             <button
               onClick={() => setCurrent((c) => (c - 1 + featuredReps.length) % featuredReps.length)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white transition-colors hover:bg-white/10"
+              className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white text-white transition-colors hover:bg-white hover:text-[var(--navy)]"
               aria-label="Previous spotlight rep"
             >
               ←
@@ -89,14 +89,14 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
                 <button
                   key={i}
                   onClick={() => setCurrent(i)}
-                  className={`h-2.5 w-2.5 rounded-full transition-all ${i === current ? 'bg-[var(--gold)] w-6' : 'bg-white/30 hover:bg-white/50'}`}
+                  className={`h-2.5 w-2.5 rounded-full transition-all ${i === current ? 'bg-[var(--gold)] w-6' : 'bg-white hover:bg-[var(--gold-light)]'}`}
                   aria-label={`Go to slide ${i + 1}`}
                 />
               ))}
             </div>
             <button
               onClick={() => setCurrent((c) => (c + 1) % featuredReps.length)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white transition-colors hover:bg-white/10"
+              className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white text-white transition-colors hover:bg-white hover:text-[var(--navy)]"
               aria-label="Next spotlight rep"
             >
               →

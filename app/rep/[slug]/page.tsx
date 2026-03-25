@@ -64,7 +64,7 @@ export default async function RepPage({ params }: PageProps) {
           <Breadcrumbs light items={[{ label: 'Home', href: '/' }, { label: 'Directory', href: '/directory' }, { label: rep.name }]} />
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <span className={`rounded-full border px-3 py-1 text-xs font-bold ${avail.color}`}>{avail.label}</span>
-            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white">
+            <span className="rounded-full bg-[var(--navy-light)] px-3 py-1 text-xs font-semibold text-white">
               {(rep.accreditation || '').includes('Duty')
                 ? 'Duty Solicitor Accredited'
                 : (rep.accreditation || '').includes('Probationary')
@@ -73,7 +73,7 @@ export default async function RepPage({ params }: PageProps) {
             </span>
           </div>
           <h1 className="mt-3 text-h1 text-white">{rep.name}</h1>
-          <p className="mt-2 text-lg text-slate-300">
+          <p className="mt-2 text-lg text-white">
             {rep.county?.trim() ? rep.county : 'Coverage: see stations listed below'}
           </p>
         </div>

@@ -32,7 +32,7 @@ export default function DataProtectionPage() {
           />
           <header className="mb-10">
             <h1 className="text-h1 text-white">Data Protection Policy</h1>
-            <p className="mt-2 text-sm text-slate-300">Last updated: 08/03/2026</p>
+            <p className="mt-2 text-sm text-white">Last updated: 08/03/2026</p>
           </header>
         </div>
       </section>

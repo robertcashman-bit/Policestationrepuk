@@ -59,7 +59,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
           <div className="mt-2 flex items-center gap-3">
             <h1 className="text-h1 text-white">{station.name} Police Station</h1>
             {(station.isCustodyStation || station.custodySuite) && (
-              <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-300">
+              <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">
                 Custody Suite
               </span>
             )}
@@ -147,7 +147,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
 
               <section className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-6 text-center">
                 <h3 className="font-bold text-white">Cover this station?</h3>
-                <p className="mt-2 text-sm text-slate-300">
+                <p className="mt-2 text-sm text-white">
                   Register free and be listed for {station.name}.
                 </p>
                 <Link href="/register" className="btn-gold mt-3 w-full !text-sm">

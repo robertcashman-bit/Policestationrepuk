@@ -1,63 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand blue = vibrant “hero” blue (replaces dark navy chrome) — header/footer/buttons/accents */
-  --navy: #2563eb;
-  --navy-light: #3b82f6;
-  --navy-mid: #60a5fa;
-  --navy-surface: #93c5fd;
-  /* Brand yellow (was gold) — CTAs, accents, trust chips */
+  /* Brand navy — deep, saturated, authoritative blue */
+  --navy: #1e3a8a;
+  --navy-light: #1d4ed8;
+  --navy-mid: #2563eb;
+  --navy-surface: #3b82f6;
+  /* Brand gold — bright, solid yellow for CTAs and accents */
   --gold: #facc15;
   --gold-hover: #eab308;
   --gold-light: #fef9c3;
   --gold-pale: #fefce8;
 
-  /**
-   * Contrast pass (WCAG AA+): primary copy darker; links use amber-brown (not bright yellow on white);
-   * chrome links on #2563eb use near-white; muted secondary text darkened for ~4.5:1+ on #f5f7fa.
-   *
-   * BEFORE → AFTER (key tokens):
-   * --ink / --foreground #1e3a8a → #172554 (stronger body/headings on light grey)
-   * --muted #4a5e78 → #334155 (secondary copy no longer “misty”)
-   * --link #ca8a04 → #92400e (AA link on light bg); --link-hover #78350f
-   * --header-link #e2e8f0 → #f1f5f9 (clearer 12–13px nav on #2563eb)
-   * --breadcrumb-on-dark #94a3b8 → #cbd5e1 (breadcrumbs on navy/hero)
-   */
-  --ink: #172554;
-  --background: #f5f7fa;
-  --foreground: #172554;
-  --primary: #1d4ed8;
-  --primary-hover: #1e40af;
+  --ink: #0f172a;
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --primary: #1e3a8a;
+  --primary-hover: #172554;
   --accent: #facc15;
   --accent-hover: #eab308;
-  --accent-soft: rgba(250, 204, 21, 0.14);
-  --blue-accent: #2563eb;
-  --blue-hover: #1d4ed8;
-  --muted: #1e293b;
-  /* In-content links: colour + underline in @layer base; not sole yellow flash */
-  --link: #92400e;
-  --link-hover: #78350f;
+  --accent-soft: #fef9c3;
+  --blue-accent: #1e3a8a;
+  --blue-hover: #172554;
+  --muted: #334155;
+  --link: #1e3a8a;
+  --link-hover: #172554;
   --link-visited: #6b2f6d;
-  /* Chrome nav/footer on #2563eb — normal text ≥4.5:1 */
-  --header-link: #f1f5f9;
-  --header-link-hover: #ffffff;
-  --footer-link: #f1f5f9;
-  --footer-link-hover: #ffffff;
-  /* Navy / gradient heroes: breadcrumb + subheads */
-  --breadcrumb-on-dark: #cbd5e1;
-  --breadcrumb-link-on-dark: #f8fafc;
-  --breadcrumb-active-on-dark: #ffffff;
-  /* Long legal / footer notes on navy (small text still readable) */
-  --legal-on-dark: #e2e8f0;
-  --border: #c0cad9;
+  --header-link: #ffffff;
+  --header-link-hover: #facc15;
+  --footer-link: #ffffff;
+  --footer-link-hover: #facc15;
+  --breadcrumb-on-dark: #ffffff;
+  --breadcrumb-link-on-dark: #ffffff;
+  --breadcrumb-active-on-dark: #facc15;
+  --legal-on-dark: #ffffff;
+  --border: #94a3b8;
   --card-bg: #ffffff;
-  --card-border: #d8dee9;
-  --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.05);
-  --card-shadow-hover: 0 6px 16px -4px rgb(0 0 0 / 0.1), 0 2px 6px -2px rgb(0 0 0 / 0.06);
+  --card-border: #cbd5e1;
+  --card-shadow: 0 2px 4px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --card-shadow-hover: 0 8px 20px -4px rgb(0 0 0 / 0.15), 0 4px 8px -2px rgb(0 0 0 / 0.08);
   --radius: 0.5rem;
   --radius-lg: 0.5rem;
   --section-gap: 1.75rem;
-  /* ~980px — typical Wix content width on policestationrepuk.com */
   --container-max: 61.25rem;
   --container-gutter: 1.25rem;
   --section-pad-y: 3rem;
@@ -69,7 +53,6 @@
   --space-hero-stack: 1rem;
   --space-hero-stack-lg: 1.5rem;
   --card-padding: 1.5rem;
-  /* Focus: navy + gold rings so keyboard users see both on light and dark surfaces */
   --focus-ring: 0 0 0 2px var(--background), 0 0 0 4px var(--navy), 0 0 0 6px var(--gold);
 }
 
@@ -98,9 +81,10 @@ body {
   color: var(--foreground);
   line-height: 1.625;
   font-size: 1rem;
+  font-weight: 400;
   letter-spacing: -0.011em;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
 }
 
 .skip-link {
@@ -130,10 +114,7 @@ summary:focus-visible {
   border-radius: 4px;
 }
 
-/*
- * Hero — identical solid blue as header + footer (var(--navy) = #2563eb).
- * No gradient, no wash, no mistiness. One colour throughout.
- */
+/* Hero — solid deep navy. */
 .hero-gradient-source {
   background: var(--navy);
   position: relative;
@@ -144,27 +125,22 @@ summary:focus-visible {
   z-index: 1;
 }
 
-/**
- * Navy surfaces: force ALL slate-* text to be white-ish so nothing washes out.
- * Applies to any element with bg-[var(--navy)] and all descendants.
- * slate-400 on #2563eb ≈ 3.1:1 (fails), slate-500 ≈ 2.3:1 (fails badly).
- */
+/* Force all text on navy surfaces to be white */
 [class*='bg-[var(--navy)]'] .text-slate-200,
 [class*='bg-[var(--navy)]'] .text-slate-300,
 [class*='bg-[var(--navy)]'] .text-slate-400,
 [class*='bg-[var(--navy)]'] .text-slate-500,
 [class*='bg-[var(--navy)]'] .text-slate-600 {
-  color: #e2e8f0 !important;
+  color: #ffffff !important;
 }
 
 footer .text-slate-300,
 footer .text-slate-400,
 footer .text-slate-500,
 footer .text-slate-600 {
-  color: #e2e8f0 !important;
+  color: #ffffff !important;
 }
 
-/* Inner pages: hero band uses same vertical rhythm tokens as marketing sections */
 .hero-band {
   padding-top: var(--section-pad-compact-y-sm);
   padding-bottom: var(--section-pad-compact-y-sm);
@@ -176,7 +152,6 @@ footer .text-slate-600 {
   }
 }
 
-/* Homepage “recently joined” horizontal feed (live-style ticker) */
 @keyframes home-recent-marquee {
   0% {
     transform: translateX(0);
@@ -203,14 +178,12 @@ footer .text-slate-600 {
   animation-play-state: paused;
 }
 
-/* Shared shell under global header/footer */
 .site-shell-main {
   flex: 1;
   width: 100%;
   min-width: 0;
 }
 
-/* Main content vertical rhythm (sections stack consistently under the global header) */
 .site-shell-main > * {
   width: 100%;
   min-width: 0;
@@ -243,7 +216,6 @@ footer .text-slate-600 {
   }
 }
 
-/* Homepage / marketing vertical rhythm (shared — matches typical source section density) */
 .section-pad {
   padding-top: var(--section-pad-y);
   padding-bottom: var(--section-pad-y);
@@ -266,7 +238,6 @@ footer .text-slate-600 {
   }
 }
 
-/* Shared card shell (geometry parity — radius, shadow, internal padding) */
 .card-surface {
   border-radius: var(--radius-lg);
   border: 1px solid var(--card-border);
@@ -291,14 +262,14 @@ h2, .text-h2 {
 }
 h3, .text-h3 {
   font-size: clamp(1.0625rem, 2vw, 1.1875rem);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.32;
   margin-top: 1.25rem;
   margin-bottom: 0.4rem;
 }
 h4, .text-h4 {
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-top: 1.25rem;
   margin-bottom: 0.375rem;
 }
@@ -310,7 +281,6 @@ p {
 
 .prose-sm { line-height: 1.65; }
 
-/* Content section spacing for guide / article pages */
 .content-section {
   margin-bottom: 2rem;
 }
@@ -343,25 +313,18 @@ p {
   line-height: 1.65;
 }
 
-/**
- * Base link styles MUST live in @layer base so Tailwind utilities (e.g. text-slate-300 on header <a>)
- * are not overridden by unlayered rules — which previously forced --primary (navy) on all links and
- * made nav/footer links invisible on the navy bar.
- */
 @layer base {
   a {
     color: var(--link);
     text-decoration: underline;
-    text-decoration-color: color-mix(in srgb, var(--link) 35%, transparent);
     text-underline-offset: 0.18em;
   }
   a:hover {
     color: var(--link-hover);
-    text-decoration-color: color-mix(in srgb, var(--link-hover) 55%, transparent);
   }
 }
 
-/* Button styles — proportions aligned to typical source CTAs */
+/* Button styles */
 .btn-gold {
   display: inline-flex;
   align-items: center;
@@ -417,25 +380,21 @@ p {
   padding: 0.625rem 1.375rem;
   background: transparent;
   color: var(--ink);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
   line-height: 1.25;
   border-radius: var(--radius);
   text-decoration: none;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 .btn-outline:hover {
-  border-color: var(--gold);
-  color: var(--gold-hover);
+  border-color: var(--navy);
+  color: var(--navy);
   text-decoration: none;
 }
 
-/*
- * Touch targets: only primary controls — applying min-size to all links breaks
- * inline prose and card layouts on mobile.
- */
 @media (pointer: coarse) {
   .btn-gold,
   .btn-navy,
@@ -479,7 +438,7 @@ p {
 }
 .wiki-prose h3 {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-top: 2rem;
   margin-bottom: 0.75rem;
   color: var(--navy);
@@ -487,7 +446,7 @@ p {
 }
 .wiki-prose h4 {
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-top: 1.75rem;
   margin-bottom: 0.5rem;
   color: var(--navy);
@@ -499,11 +458,12 @@ p {
 }
 
 .wiki-prose a {
-  color: var(--gold-hover);
+  color: var(--navy);
   text-decoration: underline;
   text-underline-offset: 2px;
+  font-weight: 600;
 }
-.wiki-prose a:hover { color: var(--gold); }
+.wiki-prose a:hover { color: var(--navy-light); }
 
 .wiki-prose strong { font-weight: 700; color: var(--navy); }
 
@@ -535,7 +495,7 @@ p {
   margin-top: 2rem;
   margin-bottom: 2rem;
   border: none;
-  border-top: 1px solid var(--border);
+  border-top: 2px solid var(--border);
 }
 
 .wiki-prose table {
@@ -551,7 +511,7 @@ p {
 .wiki-prose th {
   padding: 0.6rem 0.75rem;
   text-align: left;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 .wiki-prose td {
@@ -573,7 +533,7 @@ p {
   margin-bottom: 1.25rem;
   padding: 1rem 1.25rem;
   background: var(--navy);
-  color: #e2e8f0;
+  color: #ffffff;
   border-radius: var(--radius);
   overflow-x: auto;
   font-size: 0.875rem;
@@ -591,8 +551,8 @@ p {
 }
 .wiki-prose sup a {
   text-decoration: none;
-  color: var(--gold-hover);
-  font-weight: 600;
+  color: var(--navy);
+  font-weight: 700;
 }
 
 .wiki-prose img {

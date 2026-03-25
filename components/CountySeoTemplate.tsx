@@ -26,7 +26,7 @@ export function CountySeoTemplate({ page, reps, stations }: CountySeoTemplatePro
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">{page.h1}</h1>
-          <p className="mt-3 max-w-2xl text-lg text-slate-300">{page.intro}</p>
+          <p className="mt-3 max-w-2xl text-lg text-white">{page.intro}</p>
           <div className="mt-6 flex flex-wrap gap-6 text-sm">
             <span className="flex items-center gap-2 text-white">
               <span className="text-2xl font-extrabold text-[var(--gold)]">{reps.length}+</span>
@@ -202,7 +202,7 @@ export function CountySeoTemplate({ page, reps, stations }: CountySeoTemplatePro
           <h2 className="text-xl font-bold text-white">
             Are You a Police Station Representative in {page.countyName}?
           </h2>
-          <p className="mt-2 text-slate-300">
+          <p className="mt-2 text-white">
             Join our free directory and connect with criminal defence solicitors looking for cover
             in {page.countyName}.
           </p>

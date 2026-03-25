@@ -71,26 +71,8 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400",
+            value: "public, max-age=0, must-revalidate",
           },
-        ],
-      },
-      {
-        source: "/directory/:path*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=86400, s-maxage=2592000, stale-while-revalidate=604800" },
-        ],
-      },
-      {
-        source: "/rep/:slug*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=86400, s-maxage=2592000, stale-while-revalidate=604800" },
-        ],
-      },
-      {
-        source: "/police-station/:slug*",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=86400, s-maxage=2592000, stale-while-revalidate=604800" },
         ],
       },
     ];

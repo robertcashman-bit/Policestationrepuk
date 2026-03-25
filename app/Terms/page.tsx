@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Terms & Conditions',
+  title: 'Terms & Conditions — PoliceStationRepUK Directory Usage',
   description:
     'Terms and conditions for using the PoliceStationRepUK directory. Covers directory status, user responsibilities, limitation of liability, and featured listings.',
   path: '/Terms',

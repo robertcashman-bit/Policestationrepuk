@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Kentpolicestationreps | PoliceStationRepUK',
-  description: 'Kentpolicestationreps — PoliceStationRepUK',
+  title: 'Kent Police Station Representatives — Find Reps in Kent',
+  description: 'Browse accredited police station representatives covering Kent. Experienced reps available 24/7 for duty solicitor cover at all Kent custody suites. Free directory — no fees.',
   path: '/KentPoliceStationReps',
 });
 

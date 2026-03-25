@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'GravesendPoliceStationReps | PoliceStationRepUK',
-  description: 'GravesendPoliceStationReps — PoliceStationRepUK',
+  title: 'Gravesend Police Station Representatives | Cover & Reps',
+  description: 'Find accredited police station representatives covering Gravesend custody suite. Duty solicitor cover and criminal defence rep attendance available at short notice across North Kent.',
   path: '/GravesendPoliceStationReps',
 });
 

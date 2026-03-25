@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'KentCustodySuites | PoliceStationRepUK',
-  description: 'KentCustodySuites — PoliceStationRepUK',
+  title: 'Kent Custody Suites — Police Station Locations & Cover',
+  description: 'Full list of Kent Police custody suites including Maidstone, Canterbury, Medway, and Folkestone. Find accredited police station representatives who cover each Kent custody location.',
   path: '/KentCustodySuites',
 });
 

@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
+import { JsonLd } from '@/components/JsonLd';
+import { breadcrumbSchema } from '@/lib/seo';
 import {
   getAllBlogPosts,
   getBlogPostBySlug,
@@ -145,8 +147,15 @@ export default async function BlogArticlePage({ params }: PageProps) {
   const headings = crawl?.headings?.length ? crawl.headings : [{ level: 1, text: h1 }];
   const content = (crawl?.content || '').trim();
 
+  const bc = breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Blog', url: '/Blog' },
+    { name: post.title, url: `/Blog/${slug}` },
+  ]);
+
   return (
     <>
+      <JsonLd data={bc} />
       <section className="bg-[var(--navy)] py-10 sm:py-14">
         <div className="page-container !py-0">
           <Breadcrumbs
@@ -171,8 +180,8 @@ export default async function BlogArticlePage({ params }: PageProps) {
               <div className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)] sm:p-8">
                 <p className="leading-relaxed text-[var(--muted)]">
                   This article is listed in the PoliceStationRepUK blog index. The in-app crawl did not capture the full
-                  article body (legacy host routing). You can read the complete post on the original directory site, or
-                  use our free guides below while we migrate long-form content.
+                  article body yet. You can read the long-form version on the legacy mirror (typically .com) while
+                  content is consolidated on policestationrepuk.org, or use our free guides below on this site.
                 </p>
                 <a
                   href={liveUrl}
@@ -180,7 +189,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
                   rel="noopener noreferrer"
                   className="btn-gold mt-6 inline-flex !no-underline"
                 >
-                  Read full article on original site →
+                  Read full article on legacy mirror →
                 </a>
               </div>
 

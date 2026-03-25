@@ -7,9 +7,9 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
-  title: 'Directory | PoliceStationRepUK — Find Accredited Police Station Reps',
+  title: 'Police Station Rep Directory — Search by County & Station',
   description:
-    '100% free directory of accredited police station representatives for outsourced cover. Search by station, county, or availability. No subscription, no listing fees — completely free for criminal defence firms and solicitors.',
+    'Free directory of accredited police station representatives across England and Wales. Search by station, county, or availability. No fees for solicitors or reps — completely free.',
   alternates: { canonical: `${SITE_URL}/directory` },
 };
 
@@ -34,7 +34,7 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
       <section className="border-b border-[var(--border)] bg-white">
         <div className="page-container !py-8 sm:!py-9">
           <h1 className="mt-0 max-w-5xl text-h1 text-[var(--navy)]">
-            Directory | PoliceStationRepUK — Find Accredited Police Station Reps
+            Police Station Rep Directory — Find Accredited Reps
           </h1>
           <p className="mt-3 max-w-4xl text-base leading-relaxed text-[var(--muted)] sm:text-[1.0625rem]">
             Directory on PoliceStationRepUK. Free network for criminal defence firms and solicitors to

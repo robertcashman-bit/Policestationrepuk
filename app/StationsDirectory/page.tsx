@@ -4,7 +4,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'UK Police Station Contact Directory',
+  title: 'UK Police Station Directory — Custody Suites & Contacts',
   description:
     'Browse and search the UK police station directory. Find contact details, addresses and accredited representatives covering each station across England & Wales.',
   path: '/StationsDirectory',

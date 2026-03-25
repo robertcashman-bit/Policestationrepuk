@@ -6,7 +6,47 @@ import { COUNTY_SEO_SLUG_TO_DIRECTORY_SLUG } from '@/lib/county-seo-directory-sl
 
 const PS_REP_PREFIX = '/police-station-representatives-';
 
+/** Normalize non-canonical hosts to https://policestationrepuk.org (301). */
+function canonicalHostRedirect(request: NextRequest): NextResponse | null {
+  const rawHost = request.headers.get('host') ?? '';
+  const host = rawHost.split(':')[0]?.toLowerCase() ?? '';
+  if (!host || host === 'localhost' || host.endsWith('.localhost')) return null;
+
+  const apex = 'policestationrepuk.org';
+
+  if (host === 'www.policestationrepuk.org') {
+    const url = request.nextUrl.clone();
+    url.hostname = apex;
+    url.protocol = 'https:';
+    return NextResponse.redirect(url, 301);
+  }
+
+  if (host === 'policestationrepuk.com' || host === 'www.policestationrepuk.com') {
+    const url = request.nextUrl.clone();
+    url.hostname = apex;
+    url.protocol = 'https:';
+    return NextResponse.redirect(url, 301);
+  }
+
+  /**
+   * Optional: send a *known* production Vercel hostname to the canonical domain.
+   * Set e.g. CANONICAL_REDIRECT_FROM_VERCEL_HOST=my-app.vercel.app — avoids breaking preview deployments.
+   */
+  const vercelAlias = process.env.CANONICAL_REDIRECT_FROM_VERCEL_HOST?.trim().toLowerCase();
+  if (vercelAlias && host === vercelAlias) {
+    const url = request.nextUrl.clone();
+    url.hostname = apex;
+    url.protocol = 'https:';
+    return NextResponse.redirect(url, 301);
+  }
+
+  return null;
+}
+
 export function middleware(request: NextRequest) {
+  const hostRedirect = canonicalHostRedirect(request);
+  if (hostRedirect) return hostRedirect;
+
   const path = request.nextUrl.pathname;
 
   if (path.startsWith('/_next') || path.startsWith('/api') || path.includes('.')) {

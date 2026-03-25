@@ -4,8 +4,8 @@ import { CrawlContent } from '@/components/CrawlContent';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Prepareforcit | PoliceStationRepUK',
-  description: 'Everything you need to know about the Critical Incidents Test and how to prepare effectively for this crucial PSRAS examination.',
+  title: 'Prepare for the CIT Exam — Critical Incidents Test Guide',
+  description: 'Everything you need to know about the Critical Incidents Test (CIT) for police station representatives. Exam format, preparation tips, common scenarios, and how to pass first time through PSRAS.',
   path: '/PrepareForCIT',
 });
 

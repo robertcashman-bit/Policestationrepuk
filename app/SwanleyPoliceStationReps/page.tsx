@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'SwanleyPoliceStationReps | PoliceStationRepUK',
-  description: 'SwanleyPoliceStationReps — PoliceStationRepUK',
+  title: 'Swanley Police Station Representatives | North Kent Reps',
+  description: 'Find accredited police station representatives covering Swanley and North Kent. Reliable rep attendance for duty solicitor cover and private client instructions at Swanley police station.',
   path: '/SwanleyPoliceStationReps',
 });
 

@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Cookies Policy',
+  title: 'Cookies Policy — PoliceStationRepUK Cookie Preferences',
   description:
     'How PoliceStationRepUK uses cookies and similar technologies. Learn about essential, analytics, and third-party cookies and how to manage your preferences.',
   path: '/Cookies',

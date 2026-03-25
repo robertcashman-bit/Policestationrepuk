@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Accessibility Statement',
+  title: 'Accessibility Statement — PoliceStationRepUK WCAG 2.2 AA',
   description:
     'Our commitment to web accessibility. Learn about the measures we implement to meet WCAG 2.2 Level AA, supported assistive technologies, and how to report barriers.',
   path: '/Accessibility',

@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Media Kit & Press | PoliceStationRepUK',
-  description: 'Audience insights, advertising formats and partnership opportunitiesOur Audience2,000+Active Users/Month10,000+Page Views/Month4.2 minAvg. Session Duration',
+  title: 'Media Kit & Advertising — PoliceStationRepUK Partners',
+  description: 'Advertise on PoliceStationRepUK. Audience insights, monthly traffic stats, sponsorship formats, and partnership opportunities for legal-sector brands targeting criminal defence professionals.',
   path: '/MediaKit',
 });
 

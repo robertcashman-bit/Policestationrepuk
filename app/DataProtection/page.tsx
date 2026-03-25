@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Data Protection Policy',
+  title: 'Data Protection Policy — PoliceStationRepUK Privacy',
   description:
     'Technical and organizational measures Defence Legal Services Ltd implements to protect personal data processed through PoliceStationRepUK.',
   path: '/DataProtection',

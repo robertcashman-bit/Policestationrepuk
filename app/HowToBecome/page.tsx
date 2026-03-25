@@ -4,7 +4,7 @@ import { CrawlContent } from '@/components/CrawlContent';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'How to Become a Police Station Representative | Complete PSRAS Guide',
+  title: 'How to Become a Police Station Rep — PSRAS Accreditation',
   description:
     'A comprehensive, step-by-step roadmap to becoming a police station representative in England & Wales. Covers PSRAS accreditation, SRA requirements, the written exam, portfolio, and CIT.',
   path: '/HowToBecome',

@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Policestationreppay | PoliceStationRepUK',
+  title: 'Police Station Rep Pay Rates — Legal Aid Fees Explained',
   description: 'Complete guide to Legal Aid fee rates for police station representatives in England and Wales. Rates updated 22nd December 2025 per SI 2025/1251.',
   path: '/PoliceStationRepPay',
 });

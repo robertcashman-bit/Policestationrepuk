@@ -4,9 +4,9 @@ import { buildMetadata } from '@/lib/seo';
 import { getAllLawFirms } from '@/lib/data';
 
 export const metadata = buildMetadata({
-  title: 'Criminal Defence Law Firms Directory',
+  title: 'Criminal Defence Firms Directory — Rep Reviews & Ratings',
   description:
-    'Browse criminal defence firms with verified rep reviews — find firms that pay on time and treat reps well.',
+    'Browse criminal defence law firms with verified representative reviews and ratings. Find firms that pay on time, treat reps fairly, and provide consistent police station cover instructions.',
   path: '/Firms',
 });
 

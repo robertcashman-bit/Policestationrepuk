@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: "About PoliceStationRepUK | The UK's Free Directory for Police Station Cover",
+  title: "About PoliceStationRepUK — Free Rep Directory Since 2016",
   description:
     "PoliceStationRepUK connects criminal defence firms with accredited police station representatives across England & Wales. Free to join and search — 100% independent directory since 2016.",
   path: '/About',

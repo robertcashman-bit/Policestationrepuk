@@ -4,8 +4,8 @@ import { CrawlContent } from '@/components/CrawlContent';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Criminallawcareerguide | PoliceStationRepUK',
-  description: 'A comprehensive guide to becoming a criminal solicitor or fee-earner — covering the SQE, apprenticeships, CILEX pathways, and practical steps to launch you',
+  title: 'Criminal Law Career Guide — Routes into Criminal Defence',
+  description: 'Comprehensive guide to becoming a criminal solicitor or fee-earner. Covers SQE, apprenticeships, CILEX pathways, and practical steps to launch your career in criminal defence law in England and Wales.',
   path: '/CriminalLawCareerGuide',
 });
 

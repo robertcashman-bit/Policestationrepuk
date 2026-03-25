@@ -222,6 +222,37 @@ const nextConfig: NextConfig = {
       // Kent station legacy pages
       { source: "/kent-police-stations", destination: "/KentCustodySuites", permanent: true },
       { source: "/kent-police-station-reps", destination: "/KentPoliceStationReps", permanent: true },
+      // SEO landing slugs → canonical county directory URLs (thin-alias avoidance; content lives on /directory/{slug})
+      {
+        source: "/kent-police-station-representatives",
+        destination: "/directory/kent",
+        permanent: true,
+      },
+      {
+        source: "/london-police-station-representatives",
+        destination: "/directory/london",
+        permanent: true,
+      },
+      {
+        source: "/manchester-police-station-representatives",
+        destination: "/directory/greater-manchester",
+        permanent: true,
+      },
+      {
+        source: "/birmingham-police-station-representatives",
+        destination: "/directory/west-midlands",
+        permanent: true,
+      },
+      {
+        source: "/liverpool-police-station-representatives",
+        destination: "/directory/merseyside",
+        permanent: true,
+      },
+      {
+        source: "/leeds-police-station-representatives",
+        destination: "/directory/west-yorkshire",
+        permanent: true,
+      },
       { source: "/maidstone-police-station", destination: "/MaidstonePoliceStationReps", permanent: true },
       { source: "/gravesend-police-station", destination: "/GravesendPoliceStationReps", permanent: true },
       { source: "/medway-police-station", destination: "/MedwayPoliceStationReps", permanent: true },

@@ -4,7 +4,7 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Crown Court Legal Aid Fee Rates | PoliceStationRepUK',
-  description: 'Litigator and Advocacy Graduated Fee Scheme (AGFS) for Crown Court representationComplex Fee Scheme: Crown Court fees are calculated using graduated fee ta',
+  description: 'Crown Court Legal Aid fee rates including the Advocacy Graduated Fee Scheme (AGFS) and litigator graduated fees. Current rates, categories, and calculation guidance for criminal defence practitioners.',
   path: '/CrownCourtFees',
 });
 

@@ -4,7 +4,7 @@ import { buildMetadata } from '@/lib/seo';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const metadata = buildMetadata({
-  title: 'Privacy Policy',
+  title: 'Privacy Policy — How PoliceStationRepUK Protects Your Data',
   description:
     'How PoliceStationRepUK collects, stores, and protects your personal data. Read about your data rights under UK GDPR and how to request corrections or removal.',
   path: '/Privacy',

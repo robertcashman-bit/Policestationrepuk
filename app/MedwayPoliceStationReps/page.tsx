@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'MedwayPoliceStationReps | PoliceStationRepUK',
-  description: 'MedwayPoliceStationReps — PoliceStationRepUK',
+  title: 'Medway Police Station Representatives | Gillingham Cover',
+  description: 'Find accredited police station representatives covering Medway (Gillingham) custody suite. Reliable duty solicitor cover and criminal defence attendance for the Medway towns area.',
   path: '/MedwayPoliceStationReps',
 });
 

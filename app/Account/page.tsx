@@ -4,9 +4,9 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { AccountLoginForm } from './AccountLoginForm';
 
 export const metadata = buildMetadata({
-  title: 'Account — PoliceStationRepUK',
+  title: 'Account — Manage Your PoliceStationRepUK Profile',
   description:
-    'Sign in or manage your PoliceStationRepUK directory presence. New representatives can register for a free listing.',
+    'Sign in or manage your PoliceStationRepUK directory profile. Update availability, contact details, and coverage areas. New representatives can register for a free listing in minutes.',
   path: '/Account',
 });
 

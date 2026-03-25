@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Join | PoliceStationRepUK',
-  description: 'Join Our Professional DirectoryA private, curated list of accredited freelance reps for instructing solicitors.Benefits of JoiningGet listed in a solicitor',
+  title: 'Join the PoliceStationRepUK Directory — Free for Reps',
+  description: 'Join the UK\u2019s free police station representative directory. Get your profile seen by criminal defence solicitors, receive cover requests, and grow your freelance rep practice at zero cost.',
   path: '/Join',
 });
 

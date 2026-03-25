@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'GDPR Policy',
+  title: 'GDPR Policy — UK GDPR Compliance | PoliceStationRepUK',
   description:
     'How PoliceStationRepUK complies with UK GDPR. Learn about the seven data protection principles, lawful bases for processing, and your data subject rights.',
   path: '/GDPR',

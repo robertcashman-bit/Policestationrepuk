@@ -17,11 +17,15 @@ export interface BlogCrawlRecord {
 
 const CRAWL_DIR = path.join(process.cwd(), 'content', 'crawl');
 
-/** Canonical blog URLs on the original Wix site (full article text when crawl is placeholder-only). */
-const LIVE_BLOG_ORIGIN = 'https://www.policestationrepuk.com';
+/**
+ * When crawl JSON is placeholder-only, link to a host that still has the long-form post.
+ * Default: legacy .com mirror. Override with NEXT_PUBLIC_LEGACY_BLOG_MIRROR_ORIGIN when fully migrated.
+ */
+const LEGACY_BLOG_MIRROR_ORIGIN =
+  process.env.NEXT_PUBLIC_LEGACY_BLOG_MIRROR_ORIGIN?.replace(/\/$/, '').trim() || 'https://www.policestationrepuk.com';
 
 export function getLiveBlogArticleUrl(slug: string): string {
-  return `${LIVE_BLOG_ORIGIN}/blog/${encodeURI(slug)}`;
+  return `${LEGACY_BLOG_MIRROR_ORIGIN}/blog/${encodeURI(slug)}`;
 }
 
 let _cache: BlogPost[] | null = null;

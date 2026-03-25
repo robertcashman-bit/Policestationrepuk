@@ -94,6 +94,162 @@ const countyContentMap: Record<string, CountyContent> = {
       },
     ],
   },
+  'greater-manchester': {
+    metaTitle: 'Police Station Representatives Manchester | 24/7 GMP Cover',
+    metaDescription:
+      'Find accredited police station representatives covering Greater Manchester. Reps available for duty solicitor cover at all GMP custody suites including Longsight, Pendleton, and Cheadle Heath.',
+    h1: 'Police Station Representatives in Greater Manchester',
+    intro:
+      'Greater Manchester Police (GMP) is one of the largest forces in England, policing a population of nearly three million across ten metropolitan boroughs. Custody suites at Longsight, Pendleton, Cheadle Heath, and others process thousands of detentions annually. Criminal solicitors in Manchester need experienced representatives who know GMP procedures and can attend any suite at short notice.',
+    sections: [
+      {
+        heading: 'GMP Custody Suites and Demand',
+        body: 'GMP operates custody suites across the metropolitan area. Key facilities include Longsight (South Manchester), Pendleton (Salford), Cheadle Heath (Stockport), and North Manchester. Each handles high volumes of overnight and weekend detentions, creating constant demand for reliable representative attendance. Solicitors on the DSCC rota frequently need out-of-hours cover, and firms with private-client workloads also require daytime attendance for serious crime interviews, drug matters, and fraud investigations.',
+      },
+      {
+        heading: 'What Representatives Provide in Manchester',
+        body: 'A police station representative attends the custody suite on behalf of the instructing solicitor. In Greater Manchester, this means reviewing GMP disclosure, consulting privately with the detained person, attending all police interviews, challenging procedural failures, and making representations on bail or further detention. After each attendance the representative supplies a detailed note to the firm covering all advice given, disclosure reviewed, and interview outcomes — enabling the solicitor to manage the case seamlessly from that point.',
+      },
+      {
+        heading: 'Finding the Right Manchester Rep',
+        body: 'Use our directory to filter representatives by coverage area, availability, accreditation, and specialism. Many Manchester-based reps cover the full GMP area, while others focus on specific boroughs. Check each profile for response times, language skills, and experience with serious offences such as firearms, organised crime, and sexual allegations — all of which are common across GMP custody suites.',
+      },
+    ],
+  },
+  'lancashire': {
+    metaTitle: 'Police Station Representatives Lancashire | Duty Solicitor Cover',
+    metaDescription:
+      'Find accredited police station representatives in Lancashire. Professional reps covering custody suites at Preston, Blackpool, Burnley, Lancaster, and across Lancashire Constabulary.',
+    h1: 'Police Station Representatives in Lancashire',
+    intro:
+      'Lancashire Constabulary covers a large and varied region from the urban centres of Preston, Blackpool, and Burnley to the rural north around Lancaster. Criminal solicitors across the county need police station representatives who can attend promptly and deliver quality advice across the full range of criminal matters dealt with in Lancashire custody suites.',
+    sections: [
+      {
+        heading: 'Lancashire Custody Suites',
+        body: 'Lancashire Constabulary operates custody suites at Preston, Blackpool, Burnley, Lancaster, and Skelmersdale. These suites handle a substantial volume of detentions covering everything from volume crime and domestic incidents to serious drug supply and violent offences. Representatives who know the county can move efficiently between suites and are familiar with the working practices of Lancashire investigating officers.',
+      },
+      {
+        heading: 'The Role of a Rep in Lancashire',
+        body: 'When instructed by a solicitor, a police station representative attends the relevant Lancashire custody suite, obtains disclosure, advises the client privately, and attends all police interviews. They cover the full range of offences from summary public order matters to serious indictable crime. Their attendance note forms the basis for the solicitor to manage bail, charge, or further investigation from that point.',
+      },
+      {
+        heading: 'Choosing a Lancashire Representative',
+        body: 'Our directory allows you to filter by station coverage, availability (including overnight and weekend), and accreditation level. Whether you need regular panel cover for your DSCC obligations or ad-hoc private client attendance, the directory makes it easy to find a professional representative across Lancashire.',
+      },
+    ],
+  },
+  'surrey': {
+    metaTitle: 'Police Station Representatives Surrey | Custody Suite Cover',
+    metaDescription:
+      'Find accredited police station representatives in Surrey. Experienced reps covering Guildford, Staines, and Salfords custody suites with 24/7 availability for solicitors.',
+    h1: 'Police Station Representatives in Surrey',
+    intro:
+      'Surrey Police covers a largely suburban and rural area south of London with significant custody demand at Guildford, Staines, and Salfords. Many Surrey solicitors also handle Metropolitan Police call-outs from the London border. Our directory connects you with accredited representatives who cover all Surrey custody suites.',
+    sections: [
+      {
+        heading: 'Surrey Custody Suites',
+        body: 'Surrey Police operates key custody suites at Guildford, Staines, and Salfords (Redhill). These suites handle a wide range of criminal cases from domestic violence and drink-driving to drug supply and serious fraud. Surrey\'s proximity to London means some firms receive DSCC allocations across both forces, making flexible representatives who cover both areas particularly valuable.',
+      },
+      {
+        heading: 'Finding a Surrey Representative',
+        body: 'Use the directory to search for representatives covering Surrey. Filter by station, availability, and accreditation. Many Surrey reps also cover Sussex and Hampshire, giving you flexibility when call-outs come from neighbouring force areas. All listed representatives hold current Law Society accreditation.',
+      },
+    ],
+  },
+  'sussex': {
+    metaTitle: 'Police Station Representatives Sussex | Brighton & East/West Cover',
+    metaDescription:
+      'Find accredited police station representatives in Sussex. Reps covering Brighton, Worthing, Eastbourne, Hastings, and all Sussex Police custody suites across East and West Sussex.',
+    h1: 'Police Station Representatives in Sussex',
+    intro:
+      'Sussex Police covers East and West Sussex, serving a population of over 1.7 million. Major custody suites operate in Brighton, Worthing, Eastbourne, and Hastings. Criminal solicitors across Sussex depend on accredited police station representatives for duty solicitor cover and private client attendance at these busy custody facilities.',
+    sections: [
+      {
+        heading: 'Sussex Police Custody Suites',
+        body: 'Sussex Police operates custody suites at Brighton, Worthing, Eastbourne, Hastings, Chichester, and Crawley. Brighton in particular handles a high volume of night-time and weekend detentions due to the city\'s vibrant nightlife. Representatives who know the Sussex suites can attend quickly and navigate the force\'s custody procedures effectively.',
+      },
+      {
+        heading: 'Rep Cover Across East and West Sussex',
+        body: 'Many Sussex representatives cover both divisions, offering solicitors a single point of contact for the entire force area. Whether your client is detained in central Brighton or at a smaller suite in Hastings, our directory helps you find experienced cover quickly. Filter by station, availability, and specialism to match the right representative to each instruction.',
+      },
+    ],
+  },
+  'hampshire': {
+    metaTitle: 'Police Station Representatives Hampshire | Southampton & Ports',
+    metaDescription:
+      'Find accredited police station representatives in Hampshire. Duty solicitor cover at Southampton, Portsmouth, Basingstoke, and all Hampshire Constabulary custody suites.',
+    h1: 'Police Station Representatives in Hampshire',
+    intro:
+      'Hampshire Constabulary serves a large county with significant urban centres at Southampton, Portsmouth, and Basingstoke. Custody demand is driven by port activity, military bases, and major road networks that generate high volumes of criminal work. Our directory lists experienced representatives covering all Hampshire custody suites.',
+    sections: [
+      {
+        heading: 'Hampshire Custody Suites',
+        body: 'Hampshire Constabulary operates custody suites at Southampton Central, Portsmouth (Northern Police Investigation Centre), Basingstoke, and other locations. Southampton and Portsmouth in particular generate substantial volumes of overnight and weekend custody work driven by the city centres, ports, and surrounding areas.',
+      },
+      {
+        heading: 'Finding Hampshire Cover',
+        body: 'Search the directory for representatives covering Hampshire. Many Hampshire reps also cover Isle of Wight and parts of Dorset or Surrey, giving you flexibility for cross-border call-outs. Filter by availability, including dedicated night and weekend cover, to ensure you can meet DSCC obligations around the clock.',
+      },
+    ],
+  },
+  'west-midlands': {
+    metaTitle: 'Police Station Representatives West Midlands | Birmingham Cover',
+    metaDescription:
+      'Find accredited police station representatives in the West Midlands. Professional reps for duty solicitor cover at all WMP custody suites including Birmingham, Coventry, and Wolverhampton.',
+    h1: 'Police Station Representatives in the West Midlands',
+    intro:
+      'West Midlands Police (WMP) is the second-largest force in England, serving over 2.9 million people across Birmingham, Coventry, Wolverhampton, Solihull, Dudley, Sandwell, and Walsall. Criminal defence firms in the West Midlands need reliable police station representatives who understand the scale and pace of WMP custody operations.',
+    sections: [
+      {
+        heading: 'WMP Custody Suites and Demand',
+        body: 'West Midlands Police operates custody suites across its constituent boroughs. Key facilities include Perry Barr (Birmingham), Coventry Central, Wolverhampton, and Oldbury. Birmingham alone generates one of the highest custody throughputs in England, with serious crime including knife offences, organised crime, and drug supply accounting for a significant proportion of detentions. Representatives who work across WMP need to handle high-pressure custody environments and a wide range of offence types.',
+      },
+      {
+        heading: 'What Reps Provide in the West Midlands',
+        body: 'Police station representatives attend WMP custody suites on behalf of instructing solicitors. They review disclosure, advise detained persons, attend police interviews, and report back to the firm. In the West Midlands, representatives frequently deal with multi-suspect investigations, gang-related matters, and complex fraud — making experience and sound judgment critical qualities when selecting cover.',
+      },
+      {
+        heading: 'Searching the Directory for WMP Cover',
+        body: 'Use our directory to find representatives covering the West Midlands. Filter by specific custody suite, availability (including 24/7 and weekend-only), and accreditation level. Many West Midlands representatives also cover Warwickshire and Staffordshire, providing cross-border flexibility for firms with multi-force DSCC obligations.',
+      },
+    ],
+  },
+  'merseyside': {
+    metaTitle: 'Police Station Representatives Merseyside | Liverpool Cover',
+    metaDescription:
+      'Find accredited police station representatives in Merseyside. Experienced reps for duty solicitor cover at all Merseyside Police custody suites including Liverpool, Wirral, and St Helens.',
+    h1: 'Police Station Representatives in Merseyside',
+    intro:
+      'Merseyside Police serves Liverpool, Wirral, Sefton, Knowsley, and St Helens. As one of England\'s busiest metropolitan forces, Merseyside generates substantial demand for custody representation. Criminal solicitors across the region need experienced police station representatives who can attend promptly and handle the full range of offences dealt with in Merseyside custody suites.',
+    sections: [
+      {
+        heading: 'Merseyside Custody Demand',
+        body: 'Merseyside Police operates custody suites across the metropolitan area with Liverpool\'s facilities handling the largest volumes. Drug supply, organised crime, violent offences, and firearms matters all feature prominently in Merseyside custody work. Representatives who cover the area need to be experienced with serious and complex matters as well as high-volume summary crime.',
+      },
+      {
+        heading: 'Finding Merseyside Cover',
+        body: 'Search our directory for representatives covering Merseyside. Filter by station, availability, and experience level. Many Merseyside reps also cover Lancashire and Cheshire, making them valuable for firms that receive cross-border DSCC allocations. All listed representatives hold current Law Society accreditation.',
+      },
+    ],
+  },
+  'west-yorkshire': {
+    metaTitle: 'Police Station Representatives West Yorkshire | Leeds & Bradford',
+    metaDescription:
+      'Find accredited police station representatives in West Yorkshire. Professional reps for duty solicitor cover at Leeds, Bradford, Wakefield, Huddersfield, and all WYP custody suites.',
+    h1: 'Police Station Representatives in West Yorkshire',
+    intro:
+      'West Yorkshire Police (WYP) is one of England\'s largest forces, covering Leeds, Bradford, Wakefield, Huddersfield, and Halifax. The force processes a high volume of custody detentions across multiple suites, creating constant demand for reliable representative attendance. Our directory connects criminal defence firms with experienced, accredited reps covering the full WYP area.',
+    sections: [
+      {
+        heading: 'West Yorkshire Custody Suites',
+        body: 'WYP operates custody suites at Elland Road (Leeds), Trafalgar House (Bradford), Wakefield, Huddersfield (Kirklees), and Halifax (Calderdale). Leeds and Bradford in particular handle high custody volumes across all offence types. Representatives who cover West Yorkshire need to be familiar with WYP custody procedures and able to attend suites across the county\'s wide geography.',
+      },
+      {
+        heading: 'Choosing a West Yorkshire Rep',
+        body: 'Use the directory to filter representatives by WYP station coverage, availability, and specialism. Whether you need regular panel cover for overnight DSCC shifts or ad-hoc attendance for private instructions, the directory makes it straightforward to find qualified cover across West Yorkshire. Many listed reps also cover North Yorkshire and South Yorkshire for firms with multi-force obligations.',
+      },
+    ],
+  },
 };
 
 export function getCountyContent(slug: string, countyName: string): CountyContent {

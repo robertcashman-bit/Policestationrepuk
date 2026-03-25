@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { ContactForm } from './ContactForm';
 
 export const metadata = buildMetadata({
-  title: 'Contact PoliceStationRepUK',
+  title: 'Contact PoliceStationRepUK — Directory Support & Enquiries',
   description:
     'Contact the PoliceStationRepUK team about the rep directory, registration, or general enquiries for criminal defence and police station representation.',
   path: '/Contact',

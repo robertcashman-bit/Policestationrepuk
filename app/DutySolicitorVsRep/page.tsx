@@ -4,8 +4,8 @@ import { CrawlContent } from '@/components/CrawlContent';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Dutysolicitorvsrep | PoliceStationRepUK',
-  description: 'Understanding the key differences between duty solicitors and accredited representatives - qualifications, roles, and how they work together in criminal de',
+  title: 'Duty Solicitor vs Police Station Rep — Key Differences',
+  description: 'Understand the key differences between duty solicitors and accredited police station representatives. Qualifications, roles, and how they work together in criminal defence custody work.',
   path: '/DutySolicitorVsRep',
 });
 

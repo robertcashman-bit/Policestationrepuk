@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'RegionalDemandHeatmap | PoliceStationRepUK',
-  description: 'Analyzing regional demand...',
+  title: 'Regional Demand Heatmap — Police Station Rep Coverage',
+  description: 'Visual heatmap of police station representative demand across England and Wales. See which regions have the most solicitor cover requests and where rep capacity is needed most.',
   path: '/RegionalDemandHeatmap',
 });
 

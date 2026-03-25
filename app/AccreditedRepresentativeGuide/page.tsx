@@ -4,8 +4,8 @@ import { CrawlContent } from '@/components/CrawlContent';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'AccreditedRepresentativeGuide | PoliceStationRepUK',
-  description: 'AccreditedRepresentativeGuide — PoliceStationRepUK',
+  title: 'Accredited Representative Guide | How to Get Accredited',
+  description: 'Step-by-step guide to becoming an accredited police station representative in England and Wales. Covers PSRAS requirements, portfolio evidence, and how to register on the Law Society scheme.',
   path: '/AccreditedRepresentativeGuide',
 });
 

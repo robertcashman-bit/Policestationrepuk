@@ -4,9 +4,9 @@ import { buildMetadata } from '@/lib/seo';
 import { getAllLegalUpdates } from '@/lib/data';
 
 export const metadata = buildMetadata({
-  title: 'Legal Updates & News for Police Station Reps',
+  title: 'Legal Updates & PACE News for Police Station Reps UK',
   description:
-    'Latest legal updates, PACE changes, practice tips, and billing guidance for police station representatives and criminal solicitors.',
+    'Latest legal updates, PACE code changes, practice directions, and billing guidance for police station representatives and criminal defence solicitors. Updated regularly with case law and regulatory news.',
   path: '/LegalUpdates',
 });
 

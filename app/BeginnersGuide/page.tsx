@@ -4,7 +4,7 @@ import { CrawlContent } from '@/components/CrawlContent';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Beginnersguide | PoliceStationRepUK',
+  title: 'Beginner\u2019s Guide to Police Station Representation UK',
   description: 'A complete introduction to police station representation in England and Wales. Perfect for those new to criminal defence or considering a career as a rep.',
   path: '/BeginnersGuide',
 });

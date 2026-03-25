@@ -29,6 +29,23 @@ export function webSiteSchema() {
   };
 }
 
+/** Site-wide LegalService (directory platform), distinct from per-rep `legalServiceSchema`. */
+export function platformLegalServiceSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LegalService',
+    name: SITE_NAME,
+    url: SITE_URL,
+    areaServed: {
+      '@type': 'AdministrativeArea',
+      name: 'England and Wales',
+    },
+    serviceType: 'Police Station Representation',
+    description: DEFAULT_DESCRIPTION,
+    provider: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  };
+}
+
 export function legalServiceSchema(rep: {
   name: string;
   slug: string;
@@ -111,6 +128,7 @@ export function personSchema(rep: {
   accreditation: string;
   counties: string[];
 }) {
+  const areas = rep.counties.filter(Boolean);
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
@@ -118,6 +136,15 @@ export function personSchema(rep: {
     url: `${SITE_URL}/rep/${rep.slug}`,
     telephone: rep.phone,
     jobTitle: 'Police Station Representative',
-    description: `${rep.accreditation}. Covers ${rep.counties.join(', ')}.`,
+    description: `${rep.accreditation}. Covers ${areas.join(', ') || 'England and Wales'}.`,
+    ...(areas.length > 0
+      ? {
+          areaServed: areas.map((name) => ({
+            '@type': 'AdministrativeArea',
+            name,
+            addressCountry: 'GB',
+          })),
+        }
+      : {}),
   };
 }

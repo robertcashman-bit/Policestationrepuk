@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'MaidstonePoliceStationReps | PoliceStationRepUK',
-  description: 'MaidstonePoliceStationReps — PoliceStationRepUK',
+  title: 'Maidstone Police Station Representatives | 24/7 Cover',
+  description: 'Find accredited police station representatives for Maidstone custody suite. Experienced reps available for duty solicitor cover, private client instructions, and overnight attendance.',
   path: '/MaidstonePoliceStationReps',
 });
 

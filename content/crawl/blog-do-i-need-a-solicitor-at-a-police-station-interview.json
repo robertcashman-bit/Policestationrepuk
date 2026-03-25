@@ -1,18 +1,21 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/do-i-need-a-solicitor-at-a-police-station-interview",
-  "path": "/blog/do-i-need-a-solicitor-at-a-police-station-interview",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/do-i-need-a-solicitor-at-a-police-station-interview",
+  "path": "/Blog/do-i-need-a-solicitor-at-a-police-station-interview",
+  "title": "Do I Need a Solicitor at a Police Station Interview? | PoliceStationRepUK",
   "headings": [
-    {
-      "level": 1,
-      "text": "404"
-    },
-    {
-      "level": 2,
-      "text": "Page Not Found"
-    }
+    { "level": 1, "text": "Do I Need a Solicitor at a Police Station Interview?" },
+    { "level": 2, "text": "Your Right to Free Legal Advice" },
+    { "level": 2, "text": "What Happens If You Say No to a Solicitor" },
+    { "level": 2, "text": "What a Solicitor or Representative Does at the Station" },
+    { "level": 2, "text": "Voluntary Interviews — Do I Still Need Legal Advice?" },
+    { "level": 2, "text": "When Legal Representation Matters Most" },
+    { "level": 2, "text": "How to Get a Solicitor at the Police Station" }
   ],
-  "content": "404Page Not FoundThe page \"blog/do-i-need-a-solicitor-at-a-police-station-interview\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:46:16.455Z"
+  "content": "If the police have asked you to attend an interview or you have been arrested and taken to a custody suite, you may be wondering whether you actually need a solicitor. The short answer is yes — you should always have legal representation at the police station, and it is completely free.\n\nYour Right to Free Legal Advice\n\nUnder the Police and Criminal Evidence Act 1984 (PACE), every person detained at a police station has the right to consult a solicitor privately and free of charge. This right applies whether you have been arrested or are attending voluntarily. The legal advice is funded by Legal Aid and there is no means test — it does not matter what you earn or how much you have in savings. It is free for everyone, every time.\n\nThe custody sergeant must inform you of this right when you arrive at the police station. You can request a specific solicitor by name, or the Defence Solicitor Call Centre (DSCC) will arrange a duty solicitor or accredited representative to attend on your behalf.\n\nWhat Happens If You Say No to a Solicitor\n\nSome people decline legal representation because they believe they have nothing to hide, or because they want to get the interview over with quickly. This is almost always a mistake. Police interviews are conducted under caution, which means anything you say can be used as evidence in court. Without legal advice you may inadvertently say something that damages your case, fail to mention something that could help your defence, agree to admissions you do not fully understand, or miss procedural errors that a solicitor would challenge.\n\nEven if you are innocent, the way you answer questions in interview can have significant consequences. A solicitor or police station representative ensures that your rights are protected and that you give the best account of yourself.\n\nWhat a Solicitor or Representative Does at the Station\n\nA solicitor or accredited police station representative will review the evidence the police have disclosed before your interview. They will explain the caution, advise you on your options (including the right to silence), discuss interview strategy with you privately, sit with you during the interview and intervene if questions are unfair or oppressive, and make representations on bail and detention. Their role is to ensure that the police follow the correct procedures under PACE and that you are not disadvantaged by the process.\n\nVoluntary Interviews — Do I Still Need Legal Advice?\n\nAbsolutely. A voluntary interview (sometimes called a PACE interview or interview under caution) is just as serious as an interview following arrest. You are still under caution, and the same evidential rules apply. The only difference is that you have not been arrested — but you could be arrested during or after the interview depending on how it goes. Having a solicitor or representative present is just as important in a voluntary interview as it is after an arrest.\n\nWhen Legal Representation Matters Most\n\nWhile you should always take legal advice, it is particularly critical in the following situations: serious offences such as violence, sexual allegations, drug supply, or fraud; cases involving multiple suspects or co-defendants; matters where the police indicate they have CCTV, phone evidence, or forensic material; any interview where you are considering making no comment; and any situation where you do not fully understand the allegation. In these circumstances, the quality of legal advice at the police station can determine the outcome of the entire case.\n\nHow to Get a Solicitor at the Police Station\n\nIf you have been arrested, tell the custody sergeant you want a solicitor. If you know a solicitor by name, ask for them specifically. If not, the DSCC will arrange a duty solicitor. If you are attending a voluntary interview, contact a criminal solicitor in advance and arrange for them or their representative to attend with you. You can also use the PoliceStationRepUK directory to find accredited representatives in your area who can attend at short notice.",
+  "links": [
+    { "href": "/directory", "text": "Find a representative" },
+    { "href": "/InterviewUnderCaution", "text": "Interview under caution guide" },
+    { "href": "/PACE", "text": "Your PACE rights" }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

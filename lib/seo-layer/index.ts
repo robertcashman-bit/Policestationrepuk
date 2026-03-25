@@ -9,6 +9,7 @@ export type { MetadataInput } from './metadata';
 export {
   organizationSchema,
   webSiteSchema,
+  platformLegalServiceSchema,
   legalServiceSchema,
   localBusinessSchema,
   breadcrumbSchema,

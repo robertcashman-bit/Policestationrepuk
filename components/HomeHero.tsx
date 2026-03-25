@@ -58,18 +58,21 @@ export function HomeHero() {
               href="/directory"
               className="flex min-h-[48px] w-full items-center justify-center rounded-[var(--radius-lg)] bg-white px-6 py-3.5 text-[0.9375rem] font-bold leading-tight text-[var(--navy)] shadow-[var(--card-shadow)] transition-colors hover:bg-slate-50 no-underline sm:min-h-[52px] sm:py-4 sm:text-[1rem]"
             >
-              🔍 Find a Rep
+              Find Police Station Cover Now (24/7)
             </Link>
             <Link
-              href="/Register"
+              href="/search"
               className="flex min-h-[48px] w-full items-center justify-center rounded-[var(--radius-lg)] bg-[var(--gold)] px-6 py-3.5 text-[0.9375rem] font-bold leading-tight text-[var(--ink)] shadow-[var(--card-shadow)] transition-colors hover:bg-[var(--gold-hover)] no-underline sm:min-h-[52px] sm:py-4 sm:text-[1rem]"
             >
-              Join the Directory (Free)
+              Get Immediate Rep Cover
             </Link>
           </div>
 
           <p className="mt-3.5 text-sm leading-snug text-white sm:mt-4">
-            ✓ No subscriptions, no hidden costs — create your free profile in minutes
+            ✓ No subscriptions for searches — reps can{' '}
+            <Link href="/Register" className="font-semibold text-[var(--gold)] underline-offset-2 hover:underline">
+              join the directory free
+            </Link>
           </p>
 
           {/* In-hero quick links */}

@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'About the Founder | PoliceStationRepUK',
-  description: 'Duty Solicitor | Higher Rights Advocate | Founder of PoliceStationRepUKDuty SolicitorQualified Duty Solicitor on the national rotaHigher Rights of Audience',
+  title: 'About the Founder — Robert Cashman | PoliceStationRepUK',
+  description: 'Meet Robert Cashman — duty solicitor, higher rights advocate, and founder of PoliceStationRepUK. Learn about the vision behind the UK\u2019s free police station representative directory.',
   path: '/AboutFounder',
 });
 

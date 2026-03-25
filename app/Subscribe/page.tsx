@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Training Resources | PoliceStationRepUK',
-  description: 'HomeTraining ResourcesTraining Guides & ResourcesAll training guides, Rep Wiki, and resources — completely free for all usersFree for EveryoneComplete "Get',
+  title: 'Free Training Resources for Police Station Reps UK',
+  description: 'Access free training guides, the Rep Knowledge Base, PACE references, and career development resources for police station representatives. Updated regularly — no subscription required.',
   path: '/Subscribe',
 });
 

@@ -4,7 +4,7 @@ import { CrawlContent } from '@/components/CrawlContent';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Whatdoesrepdo | PoliceStationRepUK',
+  title: 'What Does a Police Station Representative Do? — Guide',
   description: 'A comprehensive guide to the role, responsibilities, and daily work of accredited police station representatives in England and Wales.',
   path: '/WhatDoesRepDo',
 });

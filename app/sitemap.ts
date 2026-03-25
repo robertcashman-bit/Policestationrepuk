@@ -9,6 +9,7 @@ import {
 import { getAllBlogPosts } from '@/lib/blog-data';
 import { getMirrorPaths, hasMirrorData } from '@/lib/mirror-data';
 import { SITEMAP_PATHS } from '@/lib/sitemap-paths';
+import { COUNTY_SEO_PAGES } from '@/lib/county-seo-pages';
 import { SITE_URL as BASE } from '@/lib/seo-layer/config';
 const now = new Date();
 
@@ -44,6 +45,7 @@ const HIGH_PRIORITY_PAGES = [
   { path: 'PoliceStationCover', priority: 0.65, freq: 'monthly' as const },
   { path: 'PoliceStationRepJobsUK', priority: 0.65, freq: 'weekly' as const },
   { path: 'LegalUpdates', priority: 0.75, freq: 'weekly' as const },
+  { path: 'EmergencyCover', priority: 0.85, freq: 'weekly' as const },
   { path: 'Forum', priority: 0.5, freq: 'monthly' as const },
   { path: 'Wiki', priority: 0.8, freq: 'weekly' as const },
   { path: 'AboutFounder', priority: 0.6, freq: 'monthly' as const },
@@ -160,6 +162,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.55,
   }));
 
+  const countySeoUrls = COUNTY_SEO_PAGES.map((p) => ({
+    url: `${BASE}/county-seo/${p.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
+
+  const extraPages: MetadataRoute.Sitemap = [
+    { url: `${BASE}/directory/counties`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+  ];
+
   const combined = [
     ...entries,
     ...directoryCountyUrls,
@@ -168,6 +181,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...wikiUrls,
     ...legalUpdateUrls,
     ...blogPostUrls,
+    ...countySeoUrls,
+    ...extraPages,
   ];
   const seen = new Set<string>();
   return combined.filter((e) => {

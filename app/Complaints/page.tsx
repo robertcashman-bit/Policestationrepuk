@@ -3,7 +3,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Complaints Procedure',
+  title: 'Complaints Procedure — PoliceStationRepUK Directory',
   description:
     'How to make a complaint about the PoliceStationRepUK directory service. Learn about our response process, timelines, and how we handle different complaint types.',
   path: '/Complaints',

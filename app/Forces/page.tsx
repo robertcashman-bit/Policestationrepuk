@@ -3,9 +3,9 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'UK Police Forces Directory',
+  title: 'UK Police Forces Directory — Stations by Force Area',
   description:
-    'Browse police stations organized by police force across England & Wales.',
+    'Browse UK police forces and their custody suites organised by region. Find station contact details, addresses, and accredited representatives covering each force area across England and Wales.',
   path: '/Forces',
 });
 

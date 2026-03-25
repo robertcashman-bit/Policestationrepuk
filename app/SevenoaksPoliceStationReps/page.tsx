@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'SevenoaksPoliceStationReps | PoliceStationRepUK',
-  description: 'SevenoaksPoliceStationReps — PoliceStationRepUK',
+  title: 'Sevenoaks Police Station Representatives | Find Cover',
+  description: 'Find accredited police station representatives covering Sevenoaks and West Kent. Professional duty solicitor cover and criminal defence attendance at Sevenoaks custody suite.',
   path: '/SevenoaksPoliceStationReps',
 });
 

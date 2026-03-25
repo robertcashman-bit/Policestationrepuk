@@ -1,18 +1,21 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/what-is-a-duty-solicitor",
-  "path": "/blog/what-is-a-duty-solicitor",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/what-is-a-duty-solicitor",
+  "path": "/Blog/what-is-a-duty-solicitor",
+  "title": "What Is a Duty Solicitor? Explained for the UK | PoliceStationRepUK",
   "headings": [
-    {
-      "level": 1,
-      "text": "404"
-    },
-    {
-      "level": 2,
-      "text": "Page Not Found"
-    }
+    { "level": 1, "text": "What Is a Duty Solicitor? Explained for the UK" },
+    { "level": 2, "text": "The Duty Solicitor Scheme" },
+    { "level": 2, "text": "How Duty Solicitor Call-Outs Work" },
+    { "level": 2, "text": "What the Duty Solicitor Does at the Police Station" },
+    { "level": 2, "text": "Duty Solicitor vs Own Solicitor" },
+    { "level": 2, "text": "Can a Representative Attend Instead?" },
+    { "level": 2, "text": "The Magistrates' Court Duty Solicitor" }
   ],
-  "content": "404Page Not FoundThe page \"blog/what-is-a-duty-solicitor\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:49:05.207Z"
+  "content": "If you have been arrested and taken to a police station, the custody sergeant will tell you that you can speak to the duty solicitor. But what is a duty solicitor, how does the scheme work, and what can you expect?\n\nThe Duty Solicitor Scheme\n\nThe duty solicitor scheme is a publicly funded service that ensures anyone detained at a police station can receive free legal advice, regardless of their financial circumstances. The scheme is administered by the Legal Aid Agency (LAA) and operates through the Defence Solicitor Call Centre (DSCC). Solicitors who participate in the scheme are placed on a rota for their local area and must be available to attend police stations when called. The duty solicitor is independent of the police and works solely in the interests of the detained person.\n\nHow Duty Solicitor Call-Outs Work\n\nWhen a detained person requests the duty solicitor, the custody suite contacts the DSCC. The DSCC then allocates the case to the solicitor next on the rota for that police station area. The solicitor (or their accredited representative) must respond promptly. For most matters, the solicitor or representative will attend the police station in person. For minor offences, initial advice may be given by telephone (known as CDS Direct), but for anything more serious, a face-to-face attendance is required. The duty solicitor scheme operates 24 hours a day, 7 days a week, 365 days a year.\n\nWhat the Duty Solicitor Does at the Police Station\n\nThe duty solicitor provides the same standard of service as any criminal solicitor instructed privately. They will review the custody record to check that detention has been authorised correctly, obtain disclosure from the investigating officer covering the evidence and the nature of the allegation, have a private consultation with the detained person to explain the situation and discuss options, advise on interview strategy including whether to answer questions or exercise the right to silence, attend all police interviews and intervene if necessary, and make representations on bail or further detention after the interview. The advice is confidential and independent. The duty solicitor has no relationship with the police and acts only in the best interests of the client.\n\nDuty Solicitor vs Own Solicitor\n\nIf you already have a solicitor who handles criminal cases, you can request them specifically instead of the duty solicitor. Your own solicitor (or their representative) will then attend instead. There is no difference in the quality of Legal Aid funding — both are free. The advantage of using your own solicitor is continuity: they will already know your history and circumstances, which can be valuable if you have previous matters or ongoing cases. However, if you do not have a solicitor, the duty solicitor scheme ensures you are never without representation.\n\nCan a Representative Attend Instead?\n\nYes. Solicitors — whether on duty or privately instructed — frequently send an accredited police station representative to attend on their behalf. This is standard practice throughout England and Wales. The representative provides the same advice and attendance as the solicitor would, operating under the solicitor's supervision. Many duty solicitor call-outs, particularly at night and weekends, are covered by representatives. They hold Law Society accreditation and are trained to handle the full range of criminal matters at the police station.\n\nThe Magistrates' Court Duty Solicitor\n\nThe duty solicitor scheme also extends to the magistrates' court. If you appear at court without legal representation, the court duty solicitor can advise and represent you on the day. This is a separate rota from the police station scheme but operates on the same principle — free legal advice funded by Legal Aid, available to anyone who needs it.",
+  "links": [
+    { "href": "/directory", "text": "Find a representative" },
+    { "href": "/DutySolicitorVsRep", "text": "Duty solicitor vs rep" },
+    { "href": "/DSCCRegistrationGuide", "text": "DSCC registration guide" }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

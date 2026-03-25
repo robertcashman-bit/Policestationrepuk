@@ -7,6 +7,7 @@ export {
   buildMetadata,
   organizationSchema,
   webSiteSchema,
+  platformLegalServiceSchema,
   legalServiceSchema,
   localBusinessSchema,
   breadcrumbSchema,

@@ -13,12 +13,13 @@ import { HomeQuickSearch } from '@/components/HomeQuickSearch';
 import { HomePhoneNumbers } from '@/components/HomePhoneNumbers';
 import { HomeAIAssistant } from '@/components/HomeAIAssistant';
 import { HomeKentSpotlight } from '@/components/HomeKentSpotlight';
+import { HomeSeoContent } from '@/components/HomeSeoContent';
 import { getAllReps, getAllStations, getAllCounties } from '@/lib/data';
 import { organizationSchema, webSiteSchema } from '@/lib/seo';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
-  title: 'Home | PoliceStationRepUK — Find Accredited Police Station Reps',
+  title: 'PoliceStationRepUK — Free Police Station Rep Directory',
   description:
     "The UK's free directory for police station cover. Find accredited police station representatives by county, station, or name. 100% free for solicitors and reps. No fees ever.",
   alternates: { canonical: SITE_URL },
@@ -68,6 +69,8 @@ export default async function HomePage() {
       </section>
 
       <HomeKentSpotlight />
+
+      <HomeSeoContent />
 
       <HomeCustodyNote />
 

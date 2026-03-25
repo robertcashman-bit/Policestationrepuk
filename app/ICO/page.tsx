@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Ico | PoliceStationRepUK',
-  description: 'Last updated: 08/03/2026',
+  title: 'ICO Registration & Data Controller Statement',
+  description: 'ICO registration details for Defence Legal Services Ltd trading as PoliceStationRepUK. Data controller information, registration reference, and how personal data is managed under UK GDPR.',
   path: '/ICO',
 });
 

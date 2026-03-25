@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { JsonLd } from '@/components/JsonLd';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, breadcrumbSchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Frequently Asked Questions',
+  title: 'FAQ — Police Station Representation Questions Answered',
   description:
     'Common questions about police station representation, how to register as a rep, our free directory, and more — answered by PoliceStationRepUK.',
   path: '/FAQ',
@@ -73,6 +73,7 @@ export default function FAQPage() {
   return (
     <>
       <JsonLd data={faqSchema()} />
+      <JsonLd data={breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'FAQ', url: '/FAQ' }])} />
       <section className="bg-[var(--navy)] py-10 sm:py-14">
         <div className="page-container">
           <Breadcrumbs

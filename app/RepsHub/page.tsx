@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'RepsHub | PoliceStationRepUK',
-  description: 'RepsHub — PoliceStationRepUK',
+  title: 'Reps Hub — Tools & Resources for Police Station Reps',
+  description: 'Central hub for accredited police station representatives. Access training guides, fee calculators, legal updates, the rep knowledge base, and career development resources — all free.',
   path: '/RepsHub',
 });
 

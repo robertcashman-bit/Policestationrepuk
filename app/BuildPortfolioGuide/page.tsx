@@ -4,8 +4,8 @@ import { CrawlContent } from '@/components/CrawlContent';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Buildportfolioguide | PoliceStationRepUK',
-  description: 'A step-by-step guide to completing your PSRAS portfolio and preparing for the Critical Incidents Test.',
+  title: 'Build Your PSRAS Portfolio — Step-by-Step Rep Guide',
+  description: 'Step-by-step guide to completing your PSRAS accreditation portfolio and preparing for the Critical Incidents Test. Evidence requirements, supervisor sign-off, and tips from experienced reps.',
   path: '/BuildPortfolioGuide',
 });
 

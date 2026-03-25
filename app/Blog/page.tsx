@@ -1,20 +1,27 @@
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { buildMetadata } from '@/lib/seo';
+import { JsonLd } from '@/components/JsonLd';
+import { buildMetadata, breadcrumbSchema } from '@/lib/seo';
 import { getAllBlogPosts } from '@/lib/blog-data';
 
 export const metadata = buildMetadata({
-  title: 'Blog | Legal Insights & Advice',
+  title: 'Blog — Police Station Rep Guides & Legal Insights UK',
   description:
-    'Legal insights, advice and guides for police station representatives, solicitors and criminal defence professionals across England & Wales.',
+    'Practical guides on police station interviews, cautions, PACE rights, and criminal defence in England and Wales. Written for solicitors and accredited police station representatives.',
   path: '/Blog',
 });
 
 export default function BlogPage() {
   const posts = getAllBlogPosts();
 
+  const bc = breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Blog', url: '/Blog' },
+  ]);
+
   return (
     <>
+      <JsonLd data={bc} />
       <section className="bg-[var(--navy)] py-10 sm:py-14">
         <div className="page-container !py-0">
           <Breadcrumbs

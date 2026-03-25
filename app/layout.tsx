@@ -5,8 +5,10 @@ import { Footer } from '@/components/Footer';
 import { CookieBanner } from '@/components/CookieBanner';
 import { HelpChatButton } from '@/components/HelpChatButton';
 import { FloatingDirectoryActions } from '@/components/FloatingDirectoryActions';
+import { JsonLd } from '@/components/JsonLd';
 import './globals.css';
 import { SITE_URL } from '@/lib/seo-layer/config';
+import { platformLegalServiceSchema } from '@/lib/seo';
 
 /** Set in Vercel / `.env` when verifying in Google Search Console (omit to skip meta tag). */
 const GOOGLE_SITE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim();
@@ -27,7 +29,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'Home | PoliceStationRepUK — Find Accredited Police Station Reps',
+    default: 'PoliceStationRepUK — Free Police Station Rep Directory',
     /** Pages set full titles (most already include the brand); avoid double “| PoliceStationRepUK”. */
     template: '%s',
   },
@@ -72,6 +74,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="flex min-h-screen flex-col bg-[var(--background)] font-sans text-[var(--foreground)] antialiased">
+        <JsonLd data={platformLegalServiceSchema()} />
         <a href="#main-content" className="skip-link">
           Skip to content
         </a>

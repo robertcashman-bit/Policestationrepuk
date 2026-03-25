@@ -15,9 +15,11 @@ export function RegisterForm() {
     availability: 'full-time',
     message: '',
   });
+  const [hp, setHp] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (hp) return;
     setStatus('sending');
     try {
       const res = await fetch('/api/register', {
@@ -25,6 +27,7 @@ export function RegisterForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          _hp: hp,
           counties: formData.counties ? formData.counties.split(/[\s,]+/).filter(Boolean) : [],
           stations: formData.stations ? formData.stations.split(/[\s,]+/).filter(Boolean) : [],
         }),
@@ -61,6 +64,10 @@ export function RegisterForm() {
       )}
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+        <div aria-hidden="true" className="absolute -left-[9999px] -top-[9999px]">
+          <label htmlFor="reg-website">Website</label>
+          <input id="reg-website" name="website" type="text" tabIndex={-1} autoComplete="off" value={hp} onChange={(e) => setHp(e.target.value)} />
+        </div>
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-[var(--foreground)]">
             Full name *
@@ -174,7 +181,7 @@ export function RegisterForm() {
         <button
           type="submit"
           disabled={status === 'sending'}
-          className="min-h-[44px] rounded-lg bg-[var(--accent)] px-6 py-3 font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-70"
+          className="min-h-[44px] rounded-lg bg-[var(--accent)] px-6 py-3 font-bold text-[var(--navy)] shadow-sm hover:bg-[var(--accent-hover)] disabled:opacity-70"
         >
           {status === 'sending' ? 'Submitting…' : 'Submit registration'}
         </button>

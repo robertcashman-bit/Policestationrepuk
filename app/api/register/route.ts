@@ -5,7 +5,11 @@ import { saveSubmission } from '@/lib/submissions';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, phone, accreditation, counties, stations, availability, message } = body;
+    const { name, email, phone, accreditation, counties, stations, availability, message, _hp } = body;
+
+    if (_hp) {
+      return NextResponse.json({ ok: true, id: 'noop' });
+    }
 
     if (!name || !email) {
       return NextResponse.json(

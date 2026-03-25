@@ -6,15 +6,17 @@ import Link from 'next/link';
 export function ContactForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [hp, setHp] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (hp) return;
     setStatus('sending');
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, _hp: hp }),
       });
       if (res.ok) {
         setStatus('success');
@@ -39,6 +41,10 @@ export function ContactForm() {
       )}
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+        <div aria-hidden="true" className="absolute -left-[9999px] -top-[9999px]">
+          <label htmlFor="contact-website">Website</label>
+          <input id="contact-website" name="website" type="text" tabIndex={-1} autoComplete="off" value={hp} onChange={(e) => setHp(e.target.value)} />
+        </div>
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-[var(--foreground)]">
             Name
@@ -97,7 +103,7 @@ export function ContactForm() {
           type="submit"
           disabled={status === 'sending'}
           aria-disabled={status === 'sending'}
-          className="min-h-[44px] rounded-lg bg-[var(--accent)] px-6 py-3 font-medium text-white transition-colors hover:bg-[var(--accent-hover)] disabled:cursor-not-allowed disabled:opacity-70"
+          className="min-h-[44px] rounded-lg bg-[var(--accent)] px-6 py-3 font-bold text-[var(--navy)] shadow-sm transition-colors hover:bg-[var(--accent-hover)] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {status === 'sending' ? 'Sending…' : 'Send message'}
         </button>

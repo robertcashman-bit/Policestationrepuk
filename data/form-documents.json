@@ -1,46 +1,22 @@
 [
   {
-    "id": "68b1fcef798ed8941d3bcb88",
+    "id": "crm1-govuk",
     "title": "CRM1: Application for Advice and Assistance",
-    "description": "Application for criminal legal aid advice and assistance. Used for initial client instruction.",
-    "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126502/CRM1.pdf",
-    "category": "Legal Aid Application",
-    "isFeatured": true
-  },
-  {
-    "id": "68b1f0ea331aeeee3820389c",
-    "title": "CRM1: Application for Advice and Assistance",
-    "description": "Application for criminal legal aid advice and assistance. Used for initial client instruction.",
+    "description": "Application for criminal legal aid advice and assistance. Used for initial client instruction at the police station.",
     "fileUrl": "https://www.gov.uk/government/publications/crm1-criminal-legal-aid-application-for-advice-and-assistance",
     "category": "Legal Aid Application",
     "isFeatured": true
   },
   {
-    "id": "68b1fcef798ed8941d3bcb8a",
-    "title": "CRM14: Application for Legal Aid in Criminal Proceedings",
-    "description": "Application for legal aid for representation in criminal proceedings in the Crown Court.",
-    "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126508/CRM14.pdf",
+    "id": "crm1-pdf",
+    "title": "CRM1: Application for Advice and Assistance (PDF)",
+    "description": "Downloadable PDF version of the CRM1 form for advice and assistance applications.",
+    "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126502/CRM1.pdf",
     "category": "Legal Aid Application",
-    "isFeatured": true
+    "isFeatured": false
   },
   {
-    "id": "68b1f0ea331aeeee3820389e",
-    "title": "CRM14: eForm for Legal Aid in Criminal Proceedings",
-    "description": "Electronic form for applying for legal aid for representation in criminal proceedings.",
-    "fileUrl": "https://www.gov.uk/guidance/submit-a-legal-aid-application-for-criminal-proceedings",
-    "category": "Legal Aid Application",
-    "isFeatured": true
-  },
-  {
-    "id": "68b1fcef798ed8941d3bcb89",
-    "title": "CRM2: Application for Advocacy Assistance",
-    "description": "Application for advocacy assistance in the magistrates' court and for specified tribunal proceedings.",
-    "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126503/CRM2.pdf",
-    "category": "Legal Aid Application",
-    "isFeatured": true
-  },
-  {
-    "id": "68b1f0ea331aeeee3820389d",
+    "id": "crm2-govuk",
     "title": "CRM2: Application for Advocacy Assistance",
     "description": "Application for advocacy assistance in the magistrates' court and for specified tribunal proceedings.",
     "fileUrl": "https://www.gov.uk/government/publications/crm2-application-for-advocacy-assistance",
@@ -48,71 +24,31 @@
     "isFeatured": true
   },
   {
-    "id": "68b05be9322091f336f45b0a",
-    "title": "Crim14 Screen v18 - Financial Eligibility Form",
-    "description": "The means test form (v18) to determine financial eligibility for criminal legal aid.",
-    "fileUrl": "/forms/crim14_v18.pdf",
+    "id": "crm2-pdf",
+    "title": "CRM2: Application for Advocacy Assistance (PDF)",
+    "description": "Downloadable PDF version of the CRM2 advocacy assistance application form.",
+    "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126503/CRM2.pdf",
     "category": "Legal Aid Application",
     "isFeatured": false
   },
   {
-    "id": "68b05be9322091f336f45b08",
-    "title": "CRM 1 - Application for Criminal Legal Aid",
-    "description": "Form for applying for criminal legal aid for clients.",
-    "fileUrl": "/forms/crm1.pdf",
-    "category": "Other",
+    "id": "crm14-govuk",
+    "title": "CRM14: eForm for Legal Aid in Criminal Proceedings",
+    "description": "Electronic form for applying for legal aid for representation in criminal proceedings.",
+    "fileUrl": "https://www.gov.uk/guidance/submit-a-legal-aid-application-for-criminal-proceedings",
+    "category": "Legal Aid Application",
+    "isFeatured": true
+  },
+  {
+    "id": "crm14-pdf",
+    "title": "CRM14: Application for Legal Aid in Criminal Proceedings (PDF)",
+    "description": "Downloadable PDF of the CRM14 application for legal aid representation in the Crown Court.",
+    "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126508/CRM14.pdf",
+    "category": "Legal Aid Application",
     "isFeatured": false
   },
   {
-    "id": "68b05be9322091f336f45b09",
-    "title": "CRM 2 - Application for Review of Refusal/Withdrawal of Legal Aid",
-    "description": "Used to request a review of a decision to refuse or withdraw legal aid.",
-    "fileUrl": "/forms/crm2.pdf",
-    "category": "Other",
-    "isFeatured": false
-  },
-  {
-    "id": "68b1f0ea331aeeee3820389f",
-    "title": "CRM4: Claim for Costs in the Crown Court",
-    "description": "Claim for costs in the Crown Court under a representation order.",
-    "fileUrl": "https://www.gov.uk/government/publications/crm4-claim-for-costs-in-the-crown-court-representation-order",
-    "category": "Billing & Payments",
-    "isFeatured": false
-  },
-  {
-    "id": "68b1fcef798ed8941d3bcb8b",
-    "title": "CRM4: Crown Court Litigator Graduated Fee Claim",
-    "description": "Claim for costs in the Crown Court under a representation order (graduated fee scheme).",
-    "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126504/CRM4.pdf",
-    "category": "Billing & Payments",
-    "isFeatured": false
-  },
-  {
-    "id": "68b1f0ea331aeeee382038a0",
-    "title": "CRM5: Claim for Costs in the Magistrates' Court",
-    "description": "Claim for costs in the magistrates' court under a representation order.",
-    "fileUrl": "https://www.gov.uk/government/publications/crm5-claim-for-costs-in-the-magistrates-court",
-    "category": "Billing & Payments",
-    "isFeatured": false
-  },
-  {
-    "id": "68b1fcef798ed8941d3bcb8c",
-    "title": "CRM5: Magistrates' Court Payment Claim",
-    "description": "Claim for costs in the magistrates' court under a representation order.",
-    "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126505/CRM5.pdf",
-    "category": "Billing & Payments",
-    "isFeatured": false
-  },
-  {
-    "id": "68b1fcef798ed8941d3bcb8d",
-    "title": "CRM7: Crown Court Advocate Graduated Fee Claim",
-    "description": "Claim for advocate costs in the Crown Court under the graduated fee scheme.",
-    "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126506/CRM7.pdf",
-    "category": "Billing & Payments",
-    "isFeatured": false
-  },
-  {
-    "id": "68b1fcef798ed8941d3bcb8e",
+    "id": "means-test-a",
     "title": "Means Test Form A",
     "description": "Financial eligibility assessment form for legal aid applicants.",
     "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126509/Means_Test_Form_A.pdf",
@@ -120,11 +56,75 @@
     "isFeatured": false
   },
   {
-    "id": "68b1f0ea331aeeee382038a1",
-    "title": "Police Station Proforma",
-    "description": "A general template for recording key information during police station attendance.",
+    "id": "crim14-screen",
+    "title": "CRM14 Financial Eligibility (Means Test) Form",
+    "description": "The means test form to determine financial eligibility for criminal legal aid. Complete online via the GOV.UK portal.",
+    "fileUrl": "https://www.gov.uk/guidance/submit-a-legal-aid-application-for-criminal-proceedings",
+    "category": "Legal Aid Application",
+    "isFeatured": false
+  },
+  {
+    "id": "crm4-govuk",
+    "title": "CRM4: Claim for Costs in the Crown Court",
+    "description": "Claim for costs in the Crown Court under a representation order.",
+    "fileUrl": "https://www.gov.uk/government/publications/crm4-claim-for-costs-in-the-crown-court-representation-order",
+    "category": "Billing & Payments",
+    "isFeatured": true
+  },
+  {
+    "id": "crm4-pdf",
+    "title": "CRM4: Crown Court Litigator Graduated Fee Claim (PDF)",
+    "description": "Downloadable PDF for claiming graduated fees in the Crown Court under a representation order.",
+    "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126504/CRM4.pdf",
+    "category": "Billing & Payments",
+    "isFeatured": false
+  },
+  {
+    "id": "crm5-govuk",
+    "title": "CRM5: Claim for Costs in the Magistrates' Court",
+    "description": "Claim for costs in the magistrates' court under a representation order.",
+    "fileUrl": "https://www.gov.uk/government/publications/crm5-claim-for-costs-in-the-magistrates-court",
+    "category": "Billing & Payments",
+    "isFeatured": true
+  },
+  {
+    "id": "crm5-pdf",
+    "title": "CRM5: Magistrates' Court Payment Claim (PDF)",
+    "description": "Downloadable PDF for claiming costs in the magistrates' court.",
+    "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126505/CRM5.pdf",
+    "category": "Billing & Payments",
+    "isFeatured": false
+  },
+  {
+    "id": "crm7-pdf",
+    "title": "CRM7: Crown Court Advocate Graduated Fee Claim",
+    "description": "Claim for advocate costs in the Crown Court under the graduated fee scheme.",
+    "fileUrl": "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/1126506/CRM7.pdf",
+    "category": "Billing & Payments",
+    "isFeatured": false
+  },
+  {
+    "id": "all-crm-forms",
+    "title": "All Criminal Legal Aid Forms (GOV.UK Collection)",
+    "description": "Complete collection of all criminal legal aid forms published by the Legal Aid Agency on GOV.UK.",
+    "fileUrl": "https://www.gov.uk/government/collections/criminal-legal-aid-forms",
+    "category": "Legal Aid Application",
+    "isFeatured": true
+  },
+  {
+    "id": "ps-proforma",
+    "title": "Police Station Proforma (Law Society)",
+    "description": "Template for recording key information during police station attendance. Published by the Law Society.",
     "fileUrl": "https://www.lawsociety.org.uk/topics/criminal-justice/police-station-proforma",
     "category": "Client & Case Management",
+    "isFeatured": true
+  },
+  {
+    "id": "laa-portal",
+    "title": "LAA Online Portal — Submit Claims & Applications",
+    "description": "Access the Legal Aid Agency online portal for submitting claims, billing, and applications electronically.",
+    "fileUrl": "https://www.gov.uk/government/organisations/legal-aid-agency",
+    "category": "Billing & Payments",
     "isFeatured": false
   }
 ]

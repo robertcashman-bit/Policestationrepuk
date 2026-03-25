@@ -182,11 +182,7 @@ const nextConfig: NextConfig = {
         destination: "/Blog",
         permanent: true,
       },
-      {
-        source: "/google03385fbe80cfcd6b.html",
-        destination: "/google03385fbe80cfcd6b",
-        permanent: false,
-      },
+      // Google verification file now served from public/google03385fbe80cfcd6b.html
       // Lowercase / wrong-case → canonical routes: `middleware.ts` + `lib/legacy-exact-redirects.ts`
       // (next.config redirects use case-insensitive matching on Windows → 308 loops on /Blog, etc.)
       // Legacy content pages → best match
@@ -412,7 +408,7 @@ const nextConfig: NextConfig = {
       { source: "/guided-assistant", destination: "/FAQ", permanent: true },
       { source: "/offences-we-deal-with", destination: "/About", permanent: true },
       { source: "/what-is-a-duty-solicitor", destination: "/DutySolicitorVsRep", permanent: true },
-      { source: "/google03385fbe80cfcd6b", destination: "/", permanent: false },
+      // google03385fbe80cfcd6b verification handled by public/ static file
     ];
   },
 };

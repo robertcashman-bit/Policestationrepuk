@@ -1,0 +1,50 @@
+# PoliceStationRepUK
+
+> The UK's free directory of accredited police station representatives. Connecting criminal defence firms and solicitors with freelance reps across England & Wales.
+
+## What this site is
+
+PoliceStationRepUK is a free, independent directory platform that lists accredited police station representatives (also known as police station agents) available for criminal defence firms and duty solicitors across England and Wales. The service is 100% free for both representatives and firms. No fees, commissions, or subscriptions are charged for standard listings.
+
+## Key pages
+
+- Homepage: https://policestationrepuk.org
+- Directory (search reps by county): https://policestationrepuk.org/directory
+- Advanced Search: https://policestationrepuk.org/search
+- Register as a Rep: https://policestationrepuk.org/register
+- FAQ: https://policestationrepuk.org/FAQ
+- Blog: https://policestationrepuk.org/Blog
+- Wiki / Knowledge Base: https://policestationrepuk.org/Wiki
+- About: https://policestationrepuk.org/About
+- Contact: https://policestationrepuk.org/Contact
+- Emergency Cover: https://policestationrepuk.org/EmergencyCover
+- PACE Rights Guide: https://policestationrepuk.org/PACE
+- Interview Under Caution: https://policestationrepuk.org/InterviewUnderCaution
+- What Does a Rep Do: https://policestationrepuk.org/WhatDoesRepDo
+- Duty Solicitor vs Rep: https://policestationrepuk.org/DutySolicitorVsRep
+- Police Station Rates: https://policestationrepuk.org/PoliceStationRates
+- Stations Directory: https://policestationrepuk.org/StationsDirectory
+- Map: https://policestationrepuk.org/Map
+- Sitemap: https://policestationrepuk.org/sitemap.xml
+
+## Entity definition
+
+- Type: LegalService / Directory Platform
+- Name: PoliceStationRepUK
+- Area served: England and Wales, United Kingdom
+- Service type: Police Station Representation Directory
+- Operator: Defence Legal Services
+
+## Contact
+
+- Website: https://policestationrepuk.org/Contact
+- WhatsApp: Available via the site
+- Email: Available via the contact form
+
+## Important notes
+
+- This is a directory platform, not a law firm
+- Representatives listed are independent professionals
+- The platform does not provide legal advice directly
+- All listed representatives must hold full accreditation (probationary representatives are not eligible for freelance listing)
+- Information is provided for general guidance — users should seek professional legal advice for their specific circumstances

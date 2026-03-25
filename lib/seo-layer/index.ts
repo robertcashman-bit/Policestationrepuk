@@ -15,4 +15,5 @@ export {
   breadcrumbSchema,
   placeSchema,
   personSchema,
+  blogPostingSchema,
 } from './schemas';

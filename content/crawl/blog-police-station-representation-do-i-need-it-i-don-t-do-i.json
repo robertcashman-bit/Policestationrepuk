@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/police-station-representation-do-i-need-it-i-don-t-do-i",
-  "path": "/blog/police-station-representation-do-i-need-it-i-don-t-do-i",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/police-station-representation-do-i-need-it-i-don-t-do-i",
+  "path": "/Blog/police-station-representation-do-i-need-it-i-don-t-do-i",
+  "title": "Do I Really Need Police Station Representation? | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Do I Really Need Police Station Representation?"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Why People Decline a Solicitor"
+    },
+    {
+      "level": 2,
+      "text": "The Risks of Going Without"
+    },
+    {
+      "level": 2,
+      "text": "Real Consequences"
+    },
+    {
+      "level": 2,
+      "text": "What Representation Costs You"
+    },
+    {
+      "level": 2,
+      "text": "When Representation Matters Most"
+    },
+    {
+      "level": 2,
+      "text": "The Simple Answer"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/police-station-representation-do-i-need-it-i-don-t-do-i\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:49:53.227Z"
+  "content": "A surprising number of people who are arrested or invited to a police interview decline the offer of a solicitor. They think they can handle it themselves, or they want to get it over with quickly. Here is why that is almost always a mistake.\n\nWhy People Decline a Solicitor\n\nThe most common reasons people give for declining legal advice are that they have nothing to hide, they want to get out of the police station quickly, they think having a solicitor makes them look guilty, they do not know the solicitor and do not trust a stranger, or they believe the matter is too minor to warrant legal advice.\n\nEach of these reasons reflects a misunderstanding of the process and the risks involved.\n\nThe Risks of Going Without\n\nWithout a solicitor, you face the police interview without any understanding of the evidence against you. The police are not required to show you their hand. A solicitor obtains pre-interview disclosure — a summary of the case — which allows them to advise you properly. Without this, you are flying blind.\n\nYou may not understand the caution or its implications. The caution is not just a formality. The adverse inference provisions under the Criminal Justice and Public Order Act 1994 mean that failing to mention facts during interview can be held against you at trial. A solicitor ensures you understand these risks.\n\nYou may make admissions you did not intend to make. Police interviewers are trained professionals. They use structured interview techniques designed to obtain evidence. Without legal advice, you may say things that damage your case without realising it.\n\nReal Consequences\n\nConsider these scenarios. A person interviewed without a solicitor for common assault admits to pushing the complainant but says it was in self-defence. The prosecution uses the admission to prove the actus reus and argues that the force was not reasonable. A person interviewed without a solicitor for theft denies the offence but gives an account that contradicts CCTV evidence they have not seen. Their credibility is destroyed at trial. A person accepts a formal caution without legal advice, not realising it will appear on DBS checks and prevent them working in their chosen profession.\n\nThese are not hypothetical examples. They happen every day at police stations across England and Wales.\n\nWhat Representation Costs You\n\nNothing. Legal advice at the police station is completely free under the Legal Aid scheme. There is no means test. It does not matter what you earn or what the offence is. There is no financial reason to decline a solicitor.\n\nWhen Representation Matters Most\n\nWhile you should always take legal advice, it is particularly critical in serious offences, cases where you are considering making no comment, cases involving multiple suspects, matters where the police indicate they have substantial evidence, any situation where you do not fully understand the allegation, and cases involving domestic violence, sexual allegations, or drugs.\n\nThe Simple Answer\n\nYes, you need police station representation. It is free, it is your right, and it can make the difference between a fair outcome and a life-changing mistake.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/search",
+      "text": "Search the directory"
+    },
+    {
+      "href": "/register",
+      "text": "Join as a representative"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

@@ -69,7 +69,7 @@ export function HomeHero() {
 
           <p className="mt-3.5 text-base font-semibold leading-snug text-white sm:mt-4">
             ✓ No subscriptions for searches — reps can{' '}
-            <Link href="/Register" className="font-semibold text-[var(--gold)] underline-offset-2 hover:underline">
+            <Link href="/register" className="font-semibold text-[var(--gold)] underline-offset-2 hover:underline">
               join the directory free
             </Link>
           </p>

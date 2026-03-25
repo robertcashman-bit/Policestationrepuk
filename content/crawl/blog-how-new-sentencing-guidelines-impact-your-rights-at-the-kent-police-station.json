@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/how-new-sentencing-guidelines-impact-your-rights-at-the-kent-police-station",
-  "path": "/blog/how-new-sentencing-guidelines-impact-your-rights-at-the-kent-police-station",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/how-new-sentencing-guidelines-impact-your-rights-at-the-kent-police-station",
+  "path": "/Blog/how-new-sentencing-guidelines-impact-your-rights-at-the-kent-police-station",
+  "title": "How Sentencing Guidelines Impact Your Rights at the Police Station | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "How Sentencing Guidelines Impact Your Rights at the Police Station"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "What Are Sentencing Guidelines?"
+    },
+    {
+      "level": 2,
+      "text": "How Guidelines Influence Police Station Decisions"
+    },
+    {
+      "level": 2,
+      "text": "Interview Strategy and Sentencing Risk"
+    },
+    {
+      "level": 2,
+      "text": "Charge Decisions"
+    },
+    {
+      "level": 2,
+      "text": "Early Guilty Plea Discount"
+    },
+    {
+      "level": 2,
+      "text": "Practical Implications"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/how-new-sentencing-guidelines-impact-your-rights-at-the-kent-police-station\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:47:15.773Z"
+  "content": "Sentencing guidelines issued by the Sentencing Council play an important role in the criminal justice system, and their influence extends beyond the courtroom to the police station stage. Understanding how guidelines affect decisions at every stage of the process is valuable for suspects and legal representatives alike.\n\nWhat Are Sentencing Guidelines?\n\nSentencing guidelines are published by the Sentencing Council for England and Wales. They provide a structured framework for judges and magistrates to follow when determining sentences for criminal offences. Guidelines set out the range of sentences available, factors that increase or decrease seriousness, and the starting point for each category of offence.\n\nGuidelines exist for most common offences including assault, theft, fraud, drug offences, sexual offences, and public order matters. Courts are required to follow the guidelines unless it would be contrary to the interests of justice to do so.\n\nHow Guidelines Influence Police Station Decisions\n\nAlthough sentencing guidelines formally apply at the sentencing stage, they have a significant indirect influence at the police station. The seriousness of the offence, as reflected in the sentencing guideline, affects whether the police or CPS decide to prosecute or offer an out-of-court disposal. It influences the level of bail conditions imposed. It affects the urgency and resources allocated to the investigation. And it shapes the interview strategy adopted by the legal representative.\n\nInterview Strategy and Sentencing Risk\n\nA representative advising a suspect at the police station should always have the relevant sentencing guideline in mind. If the offence carries a potential custodial sentence, the interview strategy must reflect the seriousness of the situation. Admissions that elevate the offence into a higher category under the guidelines can have a dramatic effect on the sentence if convicted.\n\nFor example, in an assault case, admitting to the use of a weapon could move the offence from category 2 to category 1, significantly increasing the starting point for sentence. A representative who understands the guidelines will advise the client to be careful about details that could affect categorisation.\n\nCharge Decisions\n\nThe CPS considers sentencing guidelines when making charging decisions. If the evidence supports a more serious charge that carries a higher sentencing range, the CPS may authorise that charge rather than a lesser alternative. Understanding the guidelines helps representatives anticipate the likely charge and prepare accordingly.\n\nEarly Guilty Plea Discount\n\nThe Sentencing Council guideline on reduction in sentence for guilty pleas provides a discount of up to one third for pleas entered at the first stage of proceedings. This is relevant at the police station because the decision about whether to make admissions in interview can be linked to the prospect of an early guilty plea and the associated sentencing discount.\n\nPractical Implications\n\nRepresentatives should familiarise themselves with the sentencing guidelines for common offence types. This knowledge informs advice at the police station and helps clients understand the potential consequences of different interview approaches.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki knowledge base"
+    },
+    {
+      "href": "/Resources",
+      "text": "Resources hub"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

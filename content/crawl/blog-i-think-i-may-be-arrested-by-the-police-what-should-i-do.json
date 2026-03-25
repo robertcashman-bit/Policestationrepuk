@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/i-think-i-may-be-arrested-by-the-police-what-should-i-do",
-  "path": "/blog/i-think-i-may-be-arrested-by-the-police-what-should-i-do",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/i-think-i-may-be-arrested-by-the-police-what-should-i-do",
+  "path": "/Blog/i-think-i-may-be-arrested-by-the-police-what-should-i-do",
+  "title": "I Think I May Be Arrested — What Should I Do? | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "I Think I May Be Arrested — What Should I Do?"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Signs That an Arrest May Be Coming"
+    },
+    {
+      "level": 2,
+      "text": "Preparing in Advance"
+    },
+    {
+      "level": 2,
+      "text": "Contacting a Solicitor"
+    },
+    {
+      "level": 2,
+      "text": "What to Say and What Not to Say"
+    },
+    {
+      "level": 2,
+      "text": "Voluntary Surrender"
+    },
+    {
+      "level": 2,
+      "text": "Your Rights on Arrest"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/i-think-i-may-be-arrested-by-the-police-what-should-i-do\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:48:49.181Z"
+  "content": "If you have reason to believe the police may arrest you — perhaps because of a complaint, an investigation, or contact from officers — taking early action can significantly improve your position.\n\nSigns That an Arrest May Be Coming\n\nThere are several indicators that an arrest may be imminent. The police have contacted you by phone, letter, or visit asking about a specific incident. A complainant has told you they have reported you to the police. You have been asked to attend a voluntary interview and suspect it may lead to arrest. You have seen police officers making enquiries in your area or with people you know. A warrant has been mentioned in court proceedings.\n\nPreparing in Advance\n\nIf you anticipate an arrest, take practical steps to prepare. Identify a criminal defence solicitor and provide them with your contact details and a brief summary of the situation. Ensure someone you trust knows how to contact your solicitor on your behalf. Make arrangements for dependents, work commitments, and medication. Gather any documents or evidence that may be relevant and give copies to your solicitor.\n\nContacting a Solicitor\n\nContacting a solicitor before you are arrested is one of the most valuable things you can do. A solicitor can liaise with the police on your behalf, potentially arranging a voluntary interview or voluntary surrender rather than an unannounced arrest. They can prepare for the interview in advance, gather relevant information, and ensure that your rights are protected from the outset.\n\nWhat to Say and What Not to Say\n\nIf the police contact you before arrest, be polite and cooperative but do not answer questions about the allegation. Confirm your name and address, note the officer's name and contact details, and say that you will contact your solicitor. Do not try to explain yourself or provide your account informally — save this for the formal interview with legal advice.\n\nVoluntary Surrender\n\nIf an arrest is anticipated, your solicitor may arrange a voluntary surrender. This means you attend the police station at an agreed time with your solicitor already present. Voluntary surrender demonstrates cooperation and avoids the disruption of an unannounced arrest at your home or workplace.\n\nYour Rights on Arrest\n\nIf you are arrested, the police must tell you that you are under arrest, the reason for the arrest, and that you are entitled to legal advice. You should exercise your right to a solicitor immediately. You have the right to have someone informed of your arrest and the right to consult the PACE Codes of Practice.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/search",
+      "text": "Search the directory"
+    },
+    {
+      "href": "/FAQ",
+      "text": "Help and FAQ"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

@@ -178,16 +178,22 @@ export function markdownToHtml(md: string): string {
 }
 
 function inlineFormat(text: string): string {
-  // Inline code
-  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Inline code — escape content to prevent XSS
+  text = text.replace(/`([^`]+)`/g, (_m, code: string) => `<code>${escapeHtml(code)}</code>`);
   // Bold + italic
   text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
   // Bold
   text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   // Italic
   text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
-  // Links
-  text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  // Links — only allow http/https URLs to prevent javascript: XSS
+  text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_m, label: string, href: string) => {
+    const trimmed = href.trim();
+    if (/^https?:\/\//i.test(trimmed) || trimmed.startsWith('/') || trimmed.startsWith('#')) {
+      return `<a href="${escapeHtml(trimmed)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+    }
+    return label;
+  });
   // Footnote references [^1]
   text = text.replace(/\[\^(\d+)\]/g, '<sup><a href="#fn-$1" id="fnref-$1">$1</a></sup>');
   return text;

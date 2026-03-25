@@ -1,18 +1,47 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/theft-fraud-financial-police-station",
-  "path": "/blog/theft-fraud-financial-police-station",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/theft-fraud-financial-police-station",
+  "path": "/Blog/theft-fraud-financial-police-station",
+  "title": "Theft, Fraud and Financial Offences at the Police Station | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Theft, Fraud and Financial Offences at the Police Station"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Types of Theft and Fraud Offences"
+    },
+    {
+      "level": 2,
+      "text": "Evidence in Fraud Cases"
+    },
+    {
+      "level": 2,
+      "text": "Disclosure Challenges"
+    },
+    {
+      "level": 2,
+      "text": "Interview Strategy"
+    },
+    {
+      "level": 2,
+      "text": "Prepared Statements in Fraud Cases"
+    },
+    {
+      "level": 2,
+      "text": "Sentencing and Charging"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/theft-fraud-financial-police-station\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:45:53.026Z"
+  "content": "Theft and fraud offences encompass a vast range of criminal conduct, from shoplifting a low-value item to multi-million-pound corporate fraud. The approach at the police station depends on the complexity of the case, the volume of evidence, and the seriousness of the allegation.\n\nTypes of Theft and Fraud Offences\n\nThe main theft offences are defined in the Theft Act 1968. Theft (section 1) is the dishonest appropriation of property belonging to another with the intention of permanently depriving the owner of it. Robbery (section 8) is theft involving force or the threat of force. Burglary (section 9) involves entering a building as a trespasser with intent to steal. Handling stolen goods (section 22) involves receiving or dealing with goods known or believed to be stolen. Fraud offences are primarily covered by the Fraud Act 2006, which creates three main offences: fraud by false representation (section 2), fraud by failing to disclose information (section 3), and fraud by abuse of position (section 4).\n\nEvidence in Fraud Cases\n\nFraud investigations often involve large volumes of documentary evidence, including bank statements, invoices, contracts, emails, accounting records, and digital communications. The police may have obtained this evidence through search warrants, production orders, or cooperation from financial institutions. Phone and computer analysis may also form part of the evidence.\n\nIn complex fraud cases, the investigation may take months or years before a suspect is interviewed. The police may instruct forensic accountants to analyse financial records and produce reports quantifying the alleged loss.\n\nDisclosure Challenges\n\nPre-interview disclosure in fraud cases presents particular challenges. The volume of evidence may be enormous and the police may only disclose a brief summary of the allegation. Your solicitor will need to assess whether the disclosure is sufficient to allow you to give a meaningful account, and may request additional disclosure before the interview proceeds.\n\nIn some cases, your solicitor may advise that the interview should not proceed until further disclosure has been provided. This is a matter of professional judgment and depends on the circumstances.\n\nInterview Strategy\n\nThe interview strategy in fraud cases depends on the complexity of the evidence and the strength of the prosecution case. In straightforward theft cases, such as shoplifting caught on CCTV, admitting the offence may be appropriate if the evidence is overwhelming. In complex fraud cases, a prepared statement is often the most appropriate approach. This allows you to set out your position on key issues without the risk of being drawn into detailed questioning on matters where the full evidence has not been disclosed.\n\nPrepared Statements in Fraud Cases\n\nA prepared statement is a written document that is read out at the beginning of the interview. It sets out the suspect's account of the key facts and is followed by a no comment response to questions. Prepared statements are particularly useful in fraud cases because they allow you to address the core allegation without being caught out by detailed questions on evidence you have not seen. They also protect against adverse inferences because you have put your defence on record.\n\nSentencing and Charging\n\nSentencing for theft and fraud offences varies enormously depending on the value of the loss, the level of planning, the breach of trust, the vulnerability of victims, and the duration of the offending. Shoplifting of goods under two hundred pounds is a summary offence. At the other end of the scale, large-scale fraud can carry sentences of ten years or more.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/Resources",
+      "text": "Resources hub"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/types-of-offences-police-station-stage",
-  "path": "/blog/types-of-offences-police-station-stage",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/types-of-offences-police-station-stage",
+  "path": "/Blog/types-of-offences-police-station-stage",
+  "title": "Types of Criminal Offences Handled at the Police Station | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Types of Criminal Offences Handled at the Police Station"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Classification of Offences"
+    },
+    {
+      "level": 2,
+      "text": "Summary Offences"
+    },
+    {
+      "level": 2,
+      "text": "Either-Way Offences"
+    },
+    {
+      "level": 2,
+      "text": "Indictable-Only Offences"
+    },
+    {
+      "level": 2,
+      "text": "How Classification Affects the Police Station Process"
+    },
+    {
+      "level": 2,
+      "text": "Getting the Right Advice"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/types-of-offences-police-station-stage\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:45:57.909Z"
+  "content": "Criminal offences in England and Wales are classified into three categories that determine which court has jurisdiction and how seriously the matter is treated from the outset. Understanding this classification is important because it affects the police station process, the charging decision, and the potential consequences.\n\nClassification of Offences\n\nAll criminal offences fall into one of three categories. Summary offences are the least serious and can only be tried in the magistrates' court. Either-way offences can be tried in either the magistrates' court or the Crown Court. Indictable-only offences are the most serious and must be tried in the Crown Court.\n\nThe classification is set by statute and determines the maximum sentence, the court of trial, and the procedures that apply at each stage of the criminal justice process.\n\nSummary Offences\n\nSummary offences include common assault (section 39 Criminal Justice Act 1988), criminal damage where the value is under five thousand pounds, most motoring offences including drink driving and careless driving, minor public order offences under sections 4A and 5 of the Public Order Act 1986, and many regulatory offences. The maximum sentence for most summary offences is six months' imprisonment, although this varies by offence. Summary offences must be charged within six months of the date of the offence (the statute of limitations), unless a specific exception applies.\n\nEither-Way Offences\n\nEither-way offences include theft, assault occasioning actual bodily harm (section 47 OAPA 1861), criminal damage where the value exceeds five thousand pounds, drug possession, fraud, burglary, and handling stolen goods. These offences can be tried in the magistrates' court or the Crown Court. The decision about venue (allocation) is made at a preliminary hearing, taking into account the seriousness of the case, the sentencing powers needed, and the defendant's right to elect Crown Court trial.\n\nEither-way offences carry higher maximum sentences than summary offences — typically five years or more in the Crown Court.\n\nIndictable-Only Offences\n\nIndictable-only offences are the most serious criminal offences and include murder, manslaughter, rape, robbery, wounding with intent (section 18 OAPA 1861), large-scale drug supply, and firearms offences. These offences must be tried in the Crown Court before a judge and jury. Sentences can range from lengthy custodial terms to life imprisonment.\n\nHow Classification Affects the Police Station Process\n\nThe classification of the offence affects several aspects of the police station process. For summary offences, the custody sergeant may authorise the charge directly. For either-way and indictable-only offences, the charging decision is usually referred to the CPS. The seriousness of the offence influences bail decisions — suspects facing indictable-only offences are more likely to face restrictive bail conditions or remand in custody. The classification also affects the urgency and thoroughness of the investigation, the level of disclosure provided, and the interview strategy.\n\nGetting the Right Advice\n\nWhatever the classification of the offence, you should always obtain legal advice at the police station. The consequences of even summary offences can be significant — a criminal record, driving disqualification, or loss of employment. For either-way and indictable-only offences, the stakes are even higher. A solicitor or accredited representative will advise you on the seriousness of the allegation, the best approach to the interview, and the likely next steps.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki knowledge base"
+    },
+    {
+      "href": "/PACE",
+      "text": "PACE codes and custody rights"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

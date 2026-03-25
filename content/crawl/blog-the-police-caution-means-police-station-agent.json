@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/the-police-caution-means-police-station-agent",
-  "path": "/blog/the-police-caution-means-police-station-agent",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/the-police-caution-means-police-station-agent",
+  "path": "/Blog/the-police-caution-means-police-station-agent",
+  "title": "What the Police Caution Means — A Guide for Representatives | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "What the Police Caution Means — A Guide for Representatives"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Breaking Down the Caution"
+    },
+    {
+      "level": 2,
+      "text": "Part One: The Right to Silence"
+    },
+    {
+      "level": 2,
+      "text": "Part Two: Adverse Inferences"
+    },
+    {
+      "level": 2,
+      "text": "Part Three: Evidence"
+    },
+    {
+      "level": 2,
+      "text": "Explaining the Caution to Clients"
+    },
+    {
+      "level": 2,
+      "text": "Practical Advice for Representatives"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/the-police-caution-means-police-station-agent\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:49:20.830Z"
+  "content": "The police caution is recited so frequently that it can become routine. But for police station representatives, understanding every word of the caution and its practical implications is fundamental to advising clients effectively.\n\nBreaking Down the Caution\n\nThe caution has three parts, each with distinct legal significance. The full wording is: \"You do not have to say anything. But it may harm your defence if you do not mention when questioned something which you later rely on in court. Anything you do say may be given in evidence.\"\n\nPart One: The Right to Silence\n\n\"You do not have to say anything.\" This confirms the suspect's right to silence — a fundamental principle of English law. No person can be compelled to answer questions or incriminate themselves. This right is protected by Article 6 of the European Convention on Human Rights (the right to a fair trial) and is enshrined in domestic law through PACE and the common law.\n\nAs a representative, you must ensure the client understands that this is a genuine right, not merely a formality. They cannot be punished solely for exercising their right to silence. However, as the second part of the caution makes clear, silence may not be cost-free.\n\nPart Two: Adverse Inferences\n\n\"But it may harm your defence if you do not mention when questioned something which you later rely on in court.\" This refers to sections 34, 36, and 37 of the Criminal Justice and Public Order Act 1994. Under section 34, if a suspect fails to mention a fact during interview that they later rely on at trial, the court may draw an adverse inference — essentially treating the late disclosure of the fact as evidence that it was fabricated after the interview.\n\nFor representatives, this creates a difficult balancing act. On one hand, silence protects the client from making damaging admissions. On the other hand, silence may create grounds for adverse inferences if the client later wants to advance a defence that was not mentioned in interview. This is why the decision between answering questions, giving a prepared statement, or making no comment must be made carefully, in light of the disclosure, the evidence, and the specific circumstances.\n\nPart Three: Evidence\n\n\"Anything you do say may be given in evidence.\" This is straightforward but often underappreciated. Every word spoken in a police interview is recorded and can be played to a jury. Admissions, denials, explanations, and even tone of voice may be scrutinised. This is why preparation is essential and why clients should not speak freely without understanding the consequences.\n\nExplaining the Caution to Clients\n\nMany clients do not fully understand the caution when it is read to them. As a representative, part of your role during the private consultation is to explain each part in plain language. Ensure the client understands that they do not have to answer questions, that silence may have consequences, and that anything they say is recorded and can be used at trial.\n\nPractical Advice for Representatives\n\nAlways consider the caution in light of the disclosure. If disclosure is sufficient and the client has a clear account, answering questions may be appropriate. If disclosure is inadequate, a prepared statement may be preferable. If the case is complex and the full evidence has not been revealed, a no comment interview with a detailed attendance note may be the safest option.",
+  "links": [
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki knowledge base"
+    },
+    {
+      "href": "/FormsLibrary",
+      "text": "Forms library"
+    },
+    {
+      "href": "/HowToBecomePoliceStationRep",
+      "text": "How to become a rep"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

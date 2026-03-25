@@ -1,18 +1,47 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/have-to-attend-a-police-station-part-2",
-  "path": "/blog/have-to-attend-a-police-station-part-2",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/have-to-attend-a-police-station-part-2",
+  "path": "/Blog/have-to-attend-a-police-station-part-2",
+  "title": "Attending a Police Station — Part 2: The Interview and Beyond | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Attending a Police Station — Part 2: The Interview and Beyond"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Preparing for the Interview"
+    },
+    {
+      "level": 2,
+      "text": "During the Interview"
+    },
+    {
+      "level": 2,
+      "text": "Interview Techniques the Police Use"
+    },
+    {
+      "level": 2,
+      "text": "After the Interview — What Happens Next"
+    },
+    {
+      "level": 2,
+      "text": "Your Options After Interview"
+    },
+    {
+      "level": 2,
+      "text": "Key Takeaways"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/have-to-attend-a-police-station-part-2\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:48:54.722Z"
+  "content": "This is the second part of our guide to attending a police station. Part 1 covered your rights and what to expect on arrival. This part focuses on the interview itself and what happens afterwards.\n\nPreparing for the Interview\n\nYour solicitor or representative will use the consultation to prepare you for the interview. They will explain the allegation based on the disclosure received, discuss the evidence, explore your account, and agree an interview strategy. The strategy may involve answering all questions, giving a prepared statement, or exercising your right to silence.\n\nThe choice depends on the strength of the evidence, the nature of the allegation, the adequacy of disclosure, and the potential consequences of each approach. Your solicitor will advise, but the final decision is always yours.\n\nDuring the Interview\n\nThe interview is a formal process. It is recorded, conducted under caution, and follows a structured format. The investigating officer will ask open questions initially, then may move to more specific or challenging questions. Your solicitor will be present throughout and will intervene if necessary.\n\nStay calm and focused. Listen carefully to each question. If you are answering questions, give clear and concise answers. If you are making no comment, do so consistently. If you are unsure about a question, ask for clarification or request a break to consult your solicitor.\n\nInterview Techniques the Police Use\n\nPolice interviewers in England and Wales are trained in the PEACE model of interviewing. This stands for Planning and Preparation, Engage and Explain, Account, Closure, and Evaluate. The model emphasises open questioning, active listening, and systematic exploration of the suspect's account. Officers may present evidence during the interview to test your response.\n\nAfter the Interview — What Happens Next\n\nAfter the interview concludes, the investigating officer will consider the next steps. These may include consulting with a supervisor, referring the case to the CPS for a charging decision, requesting further investigations, or making an immediate decision. Your solicitor will make representations about the appropriate outcome.\n\nYour Options After Interview\n\nFollowing the interview, you may be charged and bailed to court, released on bail pending further enquiries, released under investigation, given no further action, offered an out-of-court disposal, or further detained for additional interviews. Your solicitor will advise you on what to expect and what each outcome means.\n\nKey Takeaways\n\nThe police station interview is a critical moment in any criminal case. Preparation is essential. Legal representation is free and invaluable. The approach taken in interview can determine the outcome of the entire case.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/InterviewUnderCaution",
+      "text": "Interview under caution"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

@@ -72,7 +72,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en-GB" className={inter.variable}>
       <body className="flex min-h-screen flex-col bg-[var(--background)] font-sans text-[var(--foreground)] antialiased">
         <JsonLd data={platformLegalServiceSchema()} />
         <a href="#main-content" className="skip-link">

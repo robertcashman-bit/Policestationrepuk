@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/police-station-interview-rights-kent-legal-representation",
-  "path": "/blog/police-station-interview-rights-kent-legal-representation",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/police-station-interview-rights-kent-legal-representation",
+  "path": "/Blog/police-station-interview-rights-kent-legal-representation",
+  "title": "Police Station Interview Rights and Legal Representation in Kent | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Police Station Interview Rights and Legal Representation in Kent"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Your Rights in Kent Custody Suites"
+    },
+    {
+      "level": 2,
+      "text": "Free Legal Advice in Kent"
+    },
+    {
+      "level": 2,
+      "text": "Kent Custody Suite Locations"
+    },
+    {
+      "level": 2,
+      "text": "24/7 Representative Coverage"
+    },
+    {
+      "level": 2,
+      "text": "What to Expect at a Kent Police Station"
+    },
+    {
+      "level": 2,
+      "text": "Finding Representation"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/police-station-interview-rights-kent-legal-representation\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:50:45.703Z"
+  "content": "If you are facing a police station interview in Kent, understanding your rights and how to access legal representation is essential. This guide covers your rights under PACE, how to get a solicitor or representative, and what to expect at Kent custody suites.\n\nYour Rights in Kent Custody Suites\n\nYour rights at a Kent police station are the same as at any police station in England and Wales. Under PACE Code C, you have the right to free and independent legal advice, the right to have someone informed of your detention, the right to consult the Codes of Practice, adequate conditions of detention including food, drink, and rest, and medical attention if needed. These rights are non-negotiable and the custody sergeant is responsible for ensuring they are respected.\n\nFree Legal Advice in Kent\n\nLegal advice at the police station is completely free under the Legal Aid scheme. There is no means test and it applies to all offences. You can request a specific solicitor or the DSCC will arrange the duty solicitor. In Kent, there is a strong network of criminal defence firms and accredited representatives who provide police station coverage.\n\nKent Custody Suite Locations\n\nKent Police operates several custody suites across the county. The main facilities handle detainees from across different areas of Kent. Your solicitor or representative will be familiar with these locations and their procedures.\n\n24/7 Representative Coverage\n\nCriminal defence firms and independent police station representatives in Kent provide round-the-clock coverage. Whether you are detained at midday or midnight, representation is available. The duty solicitor scheme ensures 24/7 coverage, and many independent representatives also offer out-of-hours availability.\n\nWhat to Expect at a Kent Police Station\n\nWhen you arrive at a Kent custody suite, you will be processed by the custody sergeant. Your rights will be explained and you will be offered the opportunity to consult a solicitor. If you accept, the solicitor or representative will attend, obtain disclosure, consult with you privately, and attend your interview. The process may take several hours depending on the complexity of the case.\n\nFinding Representation\n\nIf you need a solicitor or police station representative in Kent, use the PoliceStationRepUK directory to find professionals covering your area. You can filter by county, station, and availability. For emergency cover, many representatives are available at short notice.",
+  "links": [
+    {
+      "href": "/directory/kent",
+      "text": "Kent representatives"
+    },
+    {
+      "href": "/KentPoliceStationReps",
+      "text": "Kent reps hub"
+    },
+    {
+      "href": "/PACE",
+      "text": "PACE codes"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

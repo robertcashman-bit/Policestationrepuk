@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/what-to-expect-during-a-police-station-interview-in-kent-your-rights-and-legal-representation",
-  "path": "/blog/what-to-expect-during-a-police-station-interview-in-kent-your-rights-and-legal-representation",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/what-to-expect-during-a-police-station-interview-in-kent-your-rights-and-legal-representation",
+  "path": "/Blog/what-to-expect-during-a-police-station-interview-in-kent-your-rights-and-legal-representation",
+  "title": "What to Expect During a Police Station Interview in Kent | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "What to Expect During a Police Station Interview in Kent"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Before the Interview"
+    },
+    {
+      "level": 2,
+      "text": "The Interview Process"
+    },
+    {
+      "level": 2,
+      "text": "Your Rights During Interview"
+    },
+    {
+      "level": 2,
+      "text": "After the Interview"
+    },
+    {
+      "level": 2,
+      "text": "Kent-Specific Information"
+    },
+    {
+      "level": 2,
+      "text": "Getting Help"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/what-to-expect-during-a-police-station-interview-in-kent-your-rights-and-legal-representation\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:47:09.200Z"
+  "content": "If you are due to be interviewed at a police station in Kent, knowing what to expect can reduce anxiety and help you prepare. This guide walks through the process step by step.\n\nBefore the Interview\n\nBefore the interview begins, you have the right to consult a solicitor or accredited representative. They will obtain pre-interview disclosure from the investigating officer, which is a summary of the allegation and the evidence. You will then have a private consultation with your representative to discuss the case, the evidence, and the best approach to the interview.\n\nThis preparation phase is critical. It is during the consultation that your representative assesses the strength of the evidence and advises you on whether to answer questions, give a prepared statement, or exercise your right to silence.\n\nThe Interview Process\n\nThe interview will take place in a dedicated interview room and will be recorded on audio or video. The officer will turn on the recording device, identify everyone present, administer the caution, and remind you of your right to legal advice. Your representative will confirm they have had the opportunity to advise you.\n\nThe officer will then ask questions about the alleged offence. These may cover your movements, your relationship with the complainant, your account of events, and your response to specific evidence. Your representative will be present throughout and will intervene if questions are unfair, oppressive, or procedurally improper.\n\nYour Rights During Interview\n\nDuring the interview, you have the right to consult your solicitor or representative at any time. You can request a break to speak privately with them. Your representative can intervene to clarify questions, object to improper questioning, and advise you. You have the right to remain silent, although adverse inferences may be drawn as explained in the caution.\n\nAfter the Interview\n\nAfter the interview, the investigating officer will decide on the next steps. You may be charged, bailed, released under investigation, or told that no further action will be taken. Your representative will make representations about the appropriate outcome and advise you on what to expect.\n\nKent-Specific Information\n\nKent has several custody suites where interviews are conducted. The facilities and procedures are standard across Kent Police, but your representative's local knowledge can be an advantage in navigating the process efficiently.\n\nGetting Help\n\nIf you need a solicitor or representative for a police station interview in Kent, use the PoliceStationRepUK directory. Representatives covering Kent are available 24/7 and can attend at short notice.",
+  "links": [
+    {
+      "href": "/directory/kent",
+      "text": "Find Kent reps"
+    },
+    {
+      "href": "/InterviewUnderCaution",
+      "text": "Interview under caution"
+    },
+    {
+      "href": "/PACE",
+      "text": "Your PACE rights"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/what-is-common-assault-in-english-law",
-  "path": "/blog/what-is-common-assault-in-english-law",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/what-is-common-assault-in-english-law",
+  "path": "/Blog/what-is-common-assault-in-english-law",
+  "title": "What Is Common Assault in English Law? | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "What Is Common Assault in English Law?"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Legal Definition of Common Assault"
+    },
+    {
+      "level": 2,
+      "text": "The Difference Between Assault and Battery"
+    },
+    {
+      "level": 2,
+      "text": "The Elements of the Offence"
+    },
+    {
+      "level": 2,
+      "text": "Defences to Common Assault"
+    },
+    {
+      "level": 2,
+      "text": "Sentencing Guidelines"
+    },
+    {
+      "level": 2,
+      "text": "Common Assault at the Police Station"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/what-is-common-assault-in-english-law\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:48:28.708Z"
+  "content": "Common assault is one of the most frequently charged criminal offences in England and Wales. Despite its name, being charged with common assault can have serious consequences including a criminal record, community orders, and even imprisonment.\n\nLegal Definition of Common Assault\n\nCommon assault is defined by section 39 of the Criminal Justice Act 1988 and the common law. It encompasses two forms of conduct: assault (causing another person to apprehend immediate unlawful violence) and battery (the actual application of unlawful force to another person). Both are summary offences triable only in the magistrates' court, carrying a maximum sentence of six months' imprisonment.\n\nThe Difference Between Assault and Battery\n\nAlthough the terms are often used interchangeably, assault and battery are technically distinct. An assault occurs when the defendant intentionally or recklessly causes the victim to apprehend immediate unlawful personal violence. No physical contact is required — raising a fist, making a threatening gesture, or moving towards someone aggressively may constitute assault. Battery occurs when the defendant intentionally or recklessly applies unlawful force to another person. This can range from a push or a slap to a punch. Any unlawful touching can constitute battery.\n\nThe Elements of the Offence\n\nTo secure a conviction for common assault, the prosecution must prove that the defendant committed an act which caused the victim to apprehend immediate unlawful violence or which applied unlawful force to the victim, the defendant acted intentionally or recklessly, and the force was unlawful (not justified by any defence).\n\nDefences to Common Assault\n\nSeveral defences may be available depending on the circumstances. Self-defence is the most common. Under section 76 of the Criminal Justice and Immigration Act 2008, a person may use reasonable force to defend themselves, another person, or to prevent crime. The force used must be reasonable in the circumstances as the defendant believed them to be. Consent may also be a defence where the touching is lawful, for example in contact sports. Accidental contact, where the defendant did not act intentionally or recklessly, is another potential defence.\n\nSentencing Guidelines\n\nThe Sentencing Council guidelines for common assault categorise the offence into three levels of seriousness. Category 1, the most serious, involves greater harm and higher culpability and carries a starting point of a high-level community order with a range up to 26 weeks' custody. Category 2 is an intermediate level. Category 3, the least serious, involves lesser harm and lower culpability with a starting point of a fine.\n\nAggravating factors include the offence being committed while under the influence of alcohol or drugs, against a public servant, in a domestic context, or involving a vulnerable victim. Mitigating factors include provocation, no previous convictions, remorse, and good character.\n\nCommon Assault at the Police Station\n\nIf you are arrested or invited to attend a voluntary interview for common assault, you should always obtain legal representation. A solicitor or accredited police station representative will review the evidence, assess any defences available, advise on the best interview strategy, and ensure your rights are protected. Common assault cases often involve conflicting accounts, and the way you handle the police interview can significantly affect the outcome.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/InterviewUnderCaution",
+      "text": "Interview under caution guide"
+    },
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki knowledge base"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

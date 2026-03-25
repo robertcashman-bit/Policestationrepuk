@@ -1,18 +1,47 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/drug-allegations-police-station-interviews",
-  "path": "/blog/drug-allegations-police-station-interviews",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/drug-allegations-police-station-interviews",
+  "path": "/Blog/drug-allegations-police-station-interviews",
+  "title": "Drug Allegations and Police Station Interviews | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Drug Allegations and Police Station Interviews"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Types of Drug Offences"
+    },
+    {
+      "level": 2,
+      "text": "Evidence in Drug Cases"
+    },
+    {
+      "level": 2,
+      "text": "Disclosure and Interview Preparation"
+    },
+    {
+      "level": 2,
+      "text": "Interview Strategy for Drug Cases"
+    },
+    {
+      "level": 2,
+      "text": "Sentencing Risk and Charging Decisions"
+    },
+    {
+      "level": 2,
+      "text": "Practical Advice"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/drug-allegations-police-station-interviews\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:45:32.791Z"
+  "content": "Drug offences range from simple possession for personal use to large-scale supply and importation. The approach at the police station depends on the nature of the allegation, the evidence, and the classification of the drug involved.\n\nTypes of Drug Offences\n\nThe Misuse of Drugs Act 1971 creates three main categories of drug offence. Possession (section 5) is the least serious and means having a controlled drug in your possession. Possession with intent to supply (section 5(3)) is more serious and means possessing drugs with the intention of supplying them to others. Production and supply (sections 4 and 4(1)) cover manufacturing, cultivating, and distributing controlled drugs. The seriousness of the offence depends on the class of drug (A, B, or C), the quantity, and any evidence of commercial supply.\n\nEvidence in Drug Cases\n\nDrug cases typically involve physical evidence such as the drugs themselves, packaging, weighing scales, deal bags, cash, and mobile phones. The police will seize these items and send the drugs for forensic analysis to confirm the substance and quantity. Phone evidence is increasingly important — call data, text messages, and social media communications may be analysed to establish links between suspects and patterns of supply. Financial evidence, including bank records and cash seizures, may also be used to support supply allegations.\n\nDisclosure and Interview Preparation\n\nIn drug cases, the pre-interview disclosure may be limited. The police may tell you that drugs were found at a particular location, that you were present, and that the drugs have been sent for analysis. They may not disclose phone evidence or financial evidence at the interview stage. Your solicitor will probe for as much disclosure as possible and advise you on the significance of what has been revealed.\n\nInterview Strategy for Drug Cases\n\nThe interview strategy depends heavily on the nature of the allegation. For simple possession, admitting the offence may be appropriate if the evidence is overwhelming and the quantity is consistent with personal use. For possession with intent to supply, the interview strategy is more complex. The police will typically ask about ownership of the drugs, the purpose of any packaging or scales, the source of any cash found, and phone contacts and messages.\n\nA prepared statement setting out your position — for example, that the drugs were for personal use and not for supply — may be appropriate in some cases. In others, a no comment interview may be advisable, particularly where the full evidence has not been disclosed.\n\nSentencing Risk and Charging Decisions\n\nThe sentencing risk in drug cases varies enormously. Simple possession of a Class B drug may result in a caution or fine. Supply of Class A drugs can carry sentences of 14 years to life imprisonment. The charging decision will be made by the CPS in most drug cases, particularly those involving supply allegations.\n\nPractical Advice\n\nIf you are arrested or invited for interview in connection with a drug allegation, obtain legal representation immediately. Do not make admissions to officers informally. Do not attempt to dispose of evidence. Cooperate with the custody process but exercise your right to silence until you have received legal advice. A solicitor or accredited representative will assess the evidence, advise on the best approach, and protect your rights throughout.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki knowledge base"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

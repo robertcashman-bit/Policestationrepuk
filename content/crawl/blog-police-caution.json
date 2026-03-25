@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/police-caution",
-  "path": "/blog/police-caution",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/police-caution",
+  "path": "/Blog/police-caution",
+  "title": "Understanding the Police Caution in England and Wales | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Understanding the Police Caution in England and Wales"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "What Is the Police Caution?"
+    },
+    {
+      "level": 2,
+      "text": "When Is the Caution Given?"
+    },
+    {
+      "level": 2,
+      "text": "The Right to Silence and Adverse Inferences"
+    },
+    {
+      "level": 2,
+      "text": "What Are Adverse Inferences?"
+    },
+    {
+      "level": 2,
+      "text": "Practical Implications for Suspects"
+    },
+    {
+      "level": 2,
+      "text": "The Role of Legal Advice"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/police-caution\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:50:08.185Z"
+  "content": "The police caution is one of the most important legal safeguards in the criminal justice system of England and Wales. It is the warning given to suspects before they are interviewed by police, and understanding what it means is essential for anyone who may face questioning.\n\nWhat Is the Police Caution?\n\nThe police caution is a formal warning required under the Police and Criminal Evidence Act 1984 (PACE) and its associated Codes of Practice. The standard wording is: \"You do not have to say anything. But it may harm your defence if you do not mention when questioned something which you later rely on in court. Anything you do say may be given in evidence.\"\n\nEach part of this caution carries significant legal weight. The first part confirms your right to silence — you are under no obligation to answer questions. The second part warns that if you fail to mention something during interview that you later rely on in court, a judge or jury may draw adverse inferences from that silence. The third part confirms that anything you do say can be used as evidence, whether it helps or harms your case.\n\nWhen Is the Caution Given?\n\nThe caution must be given in several circumstances. It is required when a person is arrested, before any interview or questioning about an offence, when a person is charged with an offence, and at the start of a voluntary interview under caution. The caution must also be repeated if there is a break in questioning and the interview resumes. If an officer fails to caution a suspect before questioning, any evidence obtained may be challenged and excluded at trial under section 78 of PACE.\n\nThe Right to Silence and Adverse Inferences\n\nThe right to silence has a long history in English law. It means that no person can be compelled to answer questions or incriminate themselves. However, since the Criminal Justice and Public Order Act 1994, this right has been qualified. Sections 34, 36, and 37 of that Act allow courts to draw adverse inferences in certain circumstances.\n\nWhat Are Adverse Inferences?\n\nUnder section 34, if a suspect fails to mention a fact during interview that they later rely on in their defence at trial, the court may draw an inference that the fact was fabricated after the interview. Under section 36, if a suspect fails to account for objects, substances, or marks found on them, an adverse inference may be drawn. Under section 37, if a suspect fails to account for their presence at a particular place, an inference may similarly be drawn.\n\nThese provisions do not remove the right to silence, but they do mean that silence can carry a cost. The decision whether to answer questions, give a prepared statement, or make no comment is one of the most important strategic decisions at the police station.\n\nPractical Implications for Suspects\n\nFor a person detained at a police station, the caution sets the framework for everything that follows. If you answer questions, your answers become evidence. If you remain silent, your silence may be used against you later. If you give a partial account, the gaps may be highlighted. This is why the quality of legal advice before interview is so critical.\n\nA solicitor or accredited police station representative will assess the disclosure provided by police, discuss the strength of the evidence, and advise on the most appropriate interview strategy. In some cases, answering questions fully is the right approach. In others, a prepared statement or no comment interview may be more appropriate. The decision depends entirely on the circumstances of the case.\n\nThe Role of Legal Advice\n\nEvery person detained at a police station has the right to free and independent legal advice under PACE. This right exists precisely because of the complexity and consequences of the caution. A qualified solicitor or police station representative will explain the caution in plain language, assess the evidence, advise on the best approach, and protect the suspect's rights throughout the interview process. Declining legal advice before a police interview is almost always a mistake, regardless of the circumstances.",
+  "links": [
+    {
+      "href": "/InterviewUnderCaution",
+      "text": "Interview under caution guide"
+    },
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/PACE",
+      "text": "PACE codes and custody rights"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

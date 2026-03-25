@@ -46,8 +46,9 @@ export async function GET(request: Request) {
       reps: reps as Representative[],
     });
   } catch (err) {
+    console.error('[scraped-reps] Failed to load representatives:', err);
     return NextResponse.json(
-      { error: 'Failed to load representatives', details: (err as Error).message },
+      { error: 'Failed to load representatives' },
       { status: 500 },
     );
   }

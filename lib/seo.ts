@@ -13,5 +13,6 @@ export {
   breadcrumbSchema,
   placeSchema,
   personSchema,
+  blogPostingSchema,
 } from './seo-layer';
 export type { MetadataInput } from './seo-layer';

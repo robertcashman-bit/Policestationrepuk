@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/the-unseen-errors-navigating-common-pitfalls-in-police-station-interviews",
-  "path": "/blog/the-unseen-errors-navigating-common-pitfalls-in-police-station-interviews",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/the-unseen-errors-navigating-common-pitfalls-in-police-station-interviews",
+  "path": "/Blog/the-unseen-errors-navigating-common-pitfalls-in-police-station-interviews",
+  "title": "Common Pitfalls in Police Station Interviews and How to Avoid Them | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Common Pitfalls in Police Station Interviews and How to Avoid Them"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Giving Too Much Detail"
+    },
+    {
+      "level": 2,
+      "text": "Inconsistent Accounts"
+    },
+    {
+      "level": 2,
+      "text": "Misunderstanding the Caution"
+    },
+    {
+      "level": 2,
+      "text": "Failing to Prepare"
+    },
+    {
+      "level": 2,
+      "text": "The Mixed Account Problem"
+    },
+    {
+      "level": 2,
+      "text": "How to Avoid These Pitfalls"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/the-unseen-errors-navigating-common-pitfalls-in-police-station-interviews\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:47:46.941Z"
+  "content": "Police station interviews are high-pressure situations where mistakes can have lasting consequences. Even well-intentioned suspects can undermine their own cases by falling into common traps. Here are the most frequent pitfalls and how to avoid them.\n\nGiving Too Much Detail\n\nOne of the most common mistakes is providing excessive detail in answer to questions. When a suspect talks at length, they create more material for the police to scrutinise and more opportunities for inconsistencies. Every detail given can be checked against other evidence — CCTV, phone records, witness accounts, forensic material. If any detail does not match, the suspect's credibility is damaged.\n\nThe remedy is preparation. A solicitor or representative will help the client identify the key points to make and avoid unnecessary elaboration.\n\nInconsistent Accounts\n\nInconsistency between what is said in interview and what is later said in court, or between different parts of the same interview, is one of the prosecution's most powerful weapons. Inconsistencies may arise from nervousness, confusion, poor memory, or lack of preparation. Whatever the cause, the prosecution will present them as evidence of dishonesty.\n\nA representative can reduce this risk by conducting a thorough private consultation before the interview, identifying potential areas of inconsistency, and advising the client on how to present a clear and consistent account.\n\nMisunderstanding the Caution\n\nMany suspects do not truly understand the caution when it is read to them. They hear the words but do not appreciate the legal implications, particularly the adverse inference provisions. This can lead to ill-considered decisions about whether to answer questions, give a prepared statement, or make no comment.\n\nThe representative should always explain the caution in plain language during the consultation and ensure the client understands the consequences of each approach.\n\nFailing to Prepare\n\nSuspects who decline legal advice or who do not use the consultation time effectively are poorly prepared for interview. They may not know what evidence the police have, what questions to expect, or how to respond to challenging points. This puts them at a significant disadvantage.\n\nEven a brief consultation with a solicitor can make a substantial difference. The consultation allows the client to understand the allegation, hear the disclosure, discuss the evidence, and agree an interview strategy.\n\nThe Mixed Account Problem\n\nA mixed account occurs when a suspect answers some questions but declines to answer others. This can be more damaging than a consistent no comment interview because it suggests the suspect is being selective — answering where it helps and refusing where it does not. A mixed account can be used by the prosecution to argue consciousness of guilt on the unanswered points.\n\nThe best approach is consistency. Either answer all questions, give a prepared statement followed by no comment, or make no comment throughout. Switching between approaches within a single interview should generally be avoided.\n\nHow to Avoid These Pitfalls\n\nThe single most effective way to avoid these pitfalls is to have legal representation at the police station. A solicitor or accredited representative will prepare you for the interview, advise on the best strategy, and intervene during the interview to protect your position. Do not attend a police interview without legal advice.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/InterviewUnderCaution",
+      "text": "Interview under caution"
+    },
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

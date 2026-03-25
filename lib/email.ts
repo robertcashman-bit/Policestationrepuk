@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 import { phoneToTelHref } from '@/lib/phone';
 
 const ADMIN_EMAIL = 'robertcashman@defencelegalservices.co.uk';
-const FROM_EMAIL = 'PoliceStationRepUK <noreply@policestationrepuk.com>';
+const FROM_EMAIL = 'PoliceStationRepUK <noreply@policestationrepuk.org>';
 
 let resend: Resend | null = null;
 

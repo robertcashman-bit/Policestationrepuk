@@ -73,7 +73,7 @@ export function HomeSeoContent() {
           <h3 className="mt-8 text-xl font-bold text-[var(--navy)]">Are you a representative?</h3>
           <p className="mt-3 text-base leading-relaxed text-[var(--muted)]">
             If you hold current accreditation and want visibility to defence firms, you can{' '}
-            <Link href="/Register" className="font-semibold text-[var(--gold-hover)] hover:underline">
+            <Link href="/register" className="font-semibold text-[var(--gold-hover)] hover:underline">
               create a free profile
             </Link>
             . There is no charge to join or be listed — the aim is to keep valid, accredited capacity visible to the

@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/voluntary-interview-at-swanley-police-station",
-  "path": "/blog/voluntary-interview-at-swanley-police-station",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/voluntary-interview-at-swanley-police-station",
+  "path": "/Blog/voluntary-interview-at-swanley-police-station",
+  "title": "Voluntary Interview at Swanley Police Station — What to Expect | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Voluntary Interview at Swanley Police Station — What to Expect"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "What Is a Voluntary Interview?"
+    },
+    {
+      "level": 2,
+      "text": "Attending at Swanley"
+    },
+    {
+      "level": 2,
+      "text": "Your Rights"
+    },
+    {
+      "level": 2,
+      "text": "Preparation"
+    },
+    {
+      "level": 2,
+      "text": "The Interview Process"
+    },
+    {
+      "level": 2,
+      "text": "After the Interview"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/voluntary-interview-at-swanley-police-station\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:48:44.064Z"
+  "content": "If you have been invited to attend a voluntary interview at Swanley Police Station, this guide explains what to expect and how to prepare.\n\nWhat Is a Voluntary Interview?\n\nA voluntary interview is a formal police interview conducted under caution where you have not been arrested. You attend by arrangement and are free to leave at any time. However, the interview is recorded, conducted under caution, and carries the same evidential weight as an interview following arrest.\n\nAttending at Swanley\n\nWhen you arrive at Swanley Police Station for your voluntary interview, you will be met by the investigating officer or a member of staff. You will be taken to an interview room. If your solicitor or representative is attending, they should arrive before or at the same time as you.\n\nYour Rights\n\nDuring a voluntary interview at Swanley, you have the right to free legal advice from a solicitor or accredited representative. You have the right to remain silent, subject to the adverse inference provisions. You are free to leave at any time, although the police may arrest you if you do so. You have the right to breaks for rest and refreshment.\n\nPreparation\n\nBefore attending your voluntary interview, arrange legal representation. Contact a criminal solicitor or use the PoliceStationRepUK directory to find a representative who can attend with you at Swanley. Your solicitor will contact the investigating officer to obtain disclosure and will meet you before the interview for a private consultation.\n\nDo not attend without legal advice. The fact that the interview is voluntary does not reduce its seriousness.\n\nThe Interview Process\n\nThe interview at Swanley follows the same format as at any police station. The recording device is activated, everyone is identified, the caution is given, and questions are asked about the alleged offence. Your solicitor or representative will be present throughout.\n\nAfter the Interview\n\nAfter the interview, you will be free to leave. The police will continue their investigation and you will be informed of the outcome in due course. Your solicitor can chase for updates and advise you on next steps.",
+  "links": [
+    {
+      "href": "/directory/kent",
+      "text": "Kent representatives"
+    },
+    {
+      "href": "/SwanleyPoliceStationReps",
+      "text": "Swanley reps"
+    },
+    {
+      "href": "/InterviewUnderCaution",
+      "text": "Interview under caution guide"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/police-station-disclosure-by-police-station-agent",
-  "path": "/blog/police-station-disclosure-by-police-station-agent",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/police-station-disclosure-by-police-station-agent",
+  "path": "/Blog/police-station-disclosure-by-police-station-agent",
+  "title": "Police Station Disclosure — What Representatives Need to Know | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Police Station Disclosure — What Representatives Need to Know"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "What Is Pre-Interview Disclosure?"
+    },
+    {
+      "level": 2,
+      "text": "The Legal Basis for Disclosure"
+    },
+    {
+      "level": 2,
+      "text": "What Should Be Disclosed?"
+    },
+    {
+      "level": 2,
+      "text": "Challenging Inadequate Disclosure"
+    },
+    {
+      "level": 2,
+      "text": "The Practical Approach"
+    },
+    {
+      "level": 2,
+      "text": "Recording Disclosure"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/police-station-disclosure-by-police-station-agent\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:49:14.682Z"
+  "content": "Pre-interview disclosure is one of the most important aspects of police station practice. The quality and extent of disclosure can determine the interview strategy and ultimately the outcome of the case. Understanding the law and best practice around disclosure is essential for every police station representative.\n\nWhat Is Pre-Interview Disclosure?\n\nPre-interview disclosure is the information the police provide to the suspect's legal representative before a police station interview takes place. It is a summary of the evidence and the nature of the allegation that allows the solicitor or representative to advise the suspect on how to respond to questions.\n\nDisclosure at the police station is fundamentally different from disclosure in court proceedings. There is no statutory duty on the police to provide pre-interview disclosure at the police station, and the extent of what is disclosed is largely at the discretion of the investigating officer. However, case law and professional guidance have established important principles.\n\nThe Legal Basis for Disclosure\n\nThe leading case on pre-interview disclosure is R v Imran and Hussain [1997], in which the Court of Appeal confirmed that while there is no absolute duty to disclose evidence before interview, the adequacy of disclosure is relevant to the fairness of the interview and the admissibility of any adverse inferences drawn from silence.\n\nPACE Code C, paragraph 11.1A, states that before an interview, the interviewer should inform the suspect's solicitor of sufficient information about the offence to enable them to provide the suspect with relevant legal advice. This does not require full disclosure, but it requires enough information to make the interview process fair.\n\nWhat Should Be Disclosed?\n\nAt a minimum, the police should disclose the nature of the offence under investigation, a summary of the circumstances of the alleged offence, the basis on which the suspect is implicated, and any significant evidence against the suspect. In practice, the level of disclosure varies enormously. Some officers provide detailed written summaries; others provide only a brief verbal account.\n\nChallenging Inadequate Disclosure\n\nIf the disclosure provided is insufficient, the representative should make oral representations to the investigating officer requesting additional information. If the officer refuses, the representative should record the request and refusal in writing and advise the suspect that the lack of disclosure may affect the interview strategy. In some cases, insufficient disclosure may justify a no comment interview or a prepared statement, and may also provide grounds to resist adverse inferences at trial.\n\nThe Practical Approach\n\nExperienced representatives develop a systematic approach to disclosure. Ask specific questions: what is the offence, when did it occur, where, who is the complainant, what evidence links the suspect, are there witnesses, is there CCTV, phone evidence, or forensic evidence? Record the answers carefully. Assess what is missing and what further questions to ask.\n\nRecording Disclosure\n\nAlways make a contemporaneous written record of the disclosure provided. This record should include the date, time, and location, the name and rank of the disclosing officer, exactly what information was provided, any questions asked and the responses given, and any requests for further disclosure and whether they were granted or refused. This record may be crucial at trial if the defence argues that disclosure was insufficient to allow a meaningful interview.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki knowledge base"
+    },
+    {
+      "href": "/FormsLibrary",
+      "text": "Forms library"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

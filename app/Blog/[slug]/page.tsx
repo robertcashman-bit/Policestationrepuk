@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { buildMetadata } from '@/lib/seo';
+import { buildMetadata, blogPostingSchema } from '@/lib/seo';
 import { JsonLd } from '@/components/JsonLd';
 import { breadcrumbSchema } from '@/lib/seo';
 import {
@@ -45,10 +45,14 @@ export async function generateMetadata({ params }: PageProps) {
   const crawl = loadBlogCrawlFile(slug);
   const placeholder = isPlaceholderBlogRecord(crawl);
   const rawContent = (crawl?.content ?? '').trim();
+  const crawledAt = crawl?.crawledAt;
   return buildMetadata({
     title: `${post.title} | Blog`,
     description: metaDescriptionForBlogPost(post.title, rawContent, placeholder),
     path: `/Blog/${slug}`,
+    noIndex: placeholder,
+    ogType: placeholder ? 'website' : 'article',
+    ...(crawledAt && !placeholder ? { publishedTime: crawledAt, modifiedTime: crawledAt } : {}),
   });
 }
 
@@ -153,9 +157,21 @@ export default async function BlogArticlePage({ params }: PageProps) {
     { name: post.title, url: `/Blog/${slug}` },
   ]);
 
+  const description = metaDescriptionForBlogPost(h1, content, placeholder);
+  const articleSchema = !placeholder
+    ? blogPostingSchema({
+        title: h1,
+        slug,
+        description,
+        datePublished: crawl?.crawledAt,
+        dateModified: crawl?.crawledAt,
+      })
+    : null;
+
   return (
     <>
       <JsonLd data={bc} />
+      {articleSchema && <JsonLd data={articleSchema} />}
       <section className="bg-[var(--navy)] py-10 sm:py-14">
         <div className="page-container !py-0">
           <Breadcrumbs

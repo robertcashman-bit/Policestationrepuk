@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/police-station-rep-disclosure-1",
-  "path": "/blog/police-station-rep-disclosure-1",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/police-station-rep-disclosure-1",
+  "path": "/Blog/police-station-rep-disclosure-1",
+  "title": "Pre-Interview Disclosure at the Police Station — A Practical Guide | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Pre-Interview Disclosure at the Police Station — A Practical Guide"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "What Is Pre-Interview Disclosure?"
+    },
+    {
+      "level": 2,
+      "text": "The Legal Framework"
+    },
+    {
+      "level": 2,
+      "text": "What to Expect"
+    },
+    {
+      "level": 2,
+      "text": "Challenging Poor Disclosure"
+    },
+    {
+      "level": 2,
+      "text": "Recording What You Receive"
+    },
+    {
+      "level": 2,
+      "text": "Using Disclosure to Plan Strategy"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/police-station-rep-disclosure-1\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:51:49.521Z"
+  "content": "Pre-interview disclosure is a critical part of the police station process. The quality and extent of the information provided by the police before interview directly affects the advice given to the suspect and the interview strategy adopted.\n\nWhat Is Pre-Interview Disclosure?\n\nPre-interview disclosure is the information the investigating officer provides to the suspect's legal representative before a police station interview. It usually takes the form of a verbal or written summary of the allegation, the evidence, and the basis for suspicion. It is not the same as the formal disclosure regime that applies in criminal proceedings — it is more limited in scope and is largely at the officer's discretion.\n\nThe Legal Framework\n\nThere is no statutory duty on the police to provide pre-interview disclosure at the police station. However, PACE Code C paragraph 11.1A states that the interviewer should inform the suspect's solicitor of sufficient information to enable relevant legal advice to be given. Case law, particularly R v Imran and Hussain [1997], has established that the adequacy of disclosure is relevant to the fairness of the interview and the admissibility of adverse inferences.\n\nIf disclosure is so inadequate that the representative cannot advise the client properly, this may provide grounds for a no comment interview and may undermine any attempt by the prosecution to rely on adverse inferences from silence.\n\nWhat to Expect\n\nThe extent of disclosure varies widely between forces, officers, and case types. In straightforward cases, the officer may provide a detailed written summary. In complex or sensitive cases, disclosure may be limited to a bare outline. You should expect to receive the nature of the offence under investigation, the date and location of the alleged offence, a summary of the complainant's account, the basis for suspecting the detained person, and any significant evidence such as CCTV, forensic results, or witness identification.\n\nChallenging Poor Disclosure\n\nIf the disclosure is insufficient, raise this with the investigating officer. Ask specific questions about the evidence, the complainant's account, and the basis for suspicion. Record every request and every response. If the officer refuses to provide adequate information, note this in your attendance record and consider how it affects the interview strategy.\n\nRecording What You Receive\n\nAlways make a detailed contemporaneous note of the disclosure. Record who provided it, when, what was said, and what was refused. This record is essential if adverse inferences are later challenged at trial on the basis of inadequate disclosure.\n\nUsing Disclosure to Plan Strategy\n\nDisclosure is the foundation of interview strategy. With full disclosure, you can advise the client to answer questions, provide an account, or address specific points. With limited disclosure, the risks of answering questions increase because you cannot assess what evidence the police have. In such cases, a prepared statement or no comment interview may be more appropriate.",
+  "links": [
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki knowledge base"
+    },
+    {
+      "href": "/FormsLibrary",
+      "text": "Forms library"
+    },
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

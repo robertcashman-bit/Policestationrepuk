@@ -22,6 +22,14 @@ export async function POST(request: Request) {
       );
     }
 
+    const totalLen = JSON.stringify(body).length;
+    if (totalLen > 20000 || name.length > 200 || email.length > 320) {
+      return NextResponse.json(
+        { error: 'Field exceeds maximum length' },
+        { status: 400 }
+      );
+    }
+
     const [submissionId] = await Promise.all([
       saveSubmission('registration', {
         name,

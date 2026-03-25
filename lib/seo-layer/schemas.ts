@@ -120,6 +120,44 @@ export function placeSchema(countyName: string, path: string) {
   };
 }
 
+/** BlogPosting schema for individual blog articles */
+export function blogPostingSchema(post: {
+  title: string;
+  slug: string;
+  description: string;
+  datePublished?: string;
+  dateModified?: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    url: `${SITE_URL}/Blog/${post.slug}`,
+    description: post.description,
+    ...(post.datePublished ? { datePublished: post.datePublished } : {}),
+    ...(post.dateModified ? { dateModified: post.dateModified } : {}),
+    author: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+      url: SITE_URL,
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${SITE_URL}/Blog/${post.slug}`,
+    },
+    isPartOf: {
+      '@type': 'Blog',
+      name: `${SITE_NAME} Blog`,
+      url: `${SITE_URL}/Blog`,
+    },
+  };
+}
+
 /** Person schema for representative profile pages */
 export function personSchema(rep: {
   name: string;

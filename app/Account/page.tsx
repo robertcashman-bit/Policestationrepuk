@@ -45,7 +45,7 @@ export default function AccountPage() {
             <p className="mt-2 text-sm text-[var(--muted)]">
               Create a free accredited rep profile so firms and solicitors can find you.
             </p>
-            <Link href="/Register" className="btn-gold mt-4 inline-block !text-sm">
+            <Link href="/register" className="btn-gold mt-4 inline-block !text-sm">
               Register free
             </Link>
           </div>

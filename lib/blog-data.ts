@@ -13,6 +13,7 @@ export interface BlogCrawlRecord {
   headings?: { level: number; text: string }[];
   content?: string;
   links?: { href: string; text: string }[];
+  crawledAt?: string;
 }
 
 const CRAWL_DIR = path.join(process.cwd(), 'content', 'crawl');

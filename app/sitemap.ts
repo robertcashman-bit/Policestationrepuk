@@ -80,6 +80,20 @@ const HIGH_PRIORITY_PAGES = [
 const HIGH_PRIORITY_SET = new Set(HIGH_PRIORITY_PAGES.map((p) => p.path));
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  try {
+    return await buildSitemap();
+  } catch (err) {
+    console.error('[sitemap] generation failed, returning static fallback:', err);
+    return HIGH_PRIORITY_PAGES.map((p) => ({
+      url: p.path ? `${BASE}/${p.path}` : BASE,
+      lastModified: now,
+      changeFrequency: p.freq,
+      priority: p.priority,
+    }));
+  }
+}
+
+async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = HIGH_PRIORITY_PAGES.map((p) => ({
     url: p.path ? `${BASE}/${p.path}` : BASE,
     lastModified: now,
@@ -162,12 +176,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.55,
   }));
 
-  const countySeoUrls = COUNTY_SEO_PAGES.map((p) => ({
-    url: `${BASE}/county-seo/${p.slug}`,
-    lastModified: now,
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }));
+  // county-seo slugs are 308-redirected to /directory/{slug} by middleware — omit from sitemap
+  // as the canonical /directory/ URLs are already included above.
+  void COUNTY_SEO_PAGES;
 
   const extraPages: MetadataRoute.Sitemap = [
     { url: `${BASE}/directory/counties`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
@@ -181,7 +192,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...wikiUrls,
     ...legalUpdateUrls,
     ...blogPostUrls,
-    ...countySeoUrls,
     ...extraPages,
   ];
   const seen = new Set<string>();

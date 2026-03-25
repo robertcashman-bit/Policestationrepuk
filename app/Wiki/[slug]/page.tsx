@@ -54,7 +54,11 @@ function renderMarkdown(content: string): string {
     gfm: true,
     breaks: false,
   });
-  return marked.parse(content) as string;
+  const raw = marked.parse(content) as string;
+  return raw
+    .replace(/<script[\s>]/gi, '&lt;script ')
+    .replace(/<\/script>/gi, '&lt;/script&gt;')
+    .replace(/on\w+\s*=/gi, '');
 }
 
 export default async function WikiArticlePage({ params }: PageProps) {

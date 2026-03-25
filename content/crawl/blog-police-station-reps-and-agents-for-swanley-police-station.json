@@ -1,18 +1,47 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/police-station-reps-and-agents-for-swanley-police-station",
-  "path": "/blog/police-station-reps-and-agents-for-swanley-police-station",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/police-station-reps-and-agents-for-swanley-police-station",
+  "path": "/Blog/police-station-reps-and-agents-for-swanley-police-station",
+  "title": "Police Station Representatives for Swanley Police Station | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Police Station Representatives for Swanley Police Station"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "About Swanley Police Station"
+    },
+    {
+      "level": 2,
+      "text": "Representative Coverage"
+    },
+    {
+      "level": 2,
+      "text": "How to Get a Rep for Swanley"
+    },
+    {
+      "level": 2,
+      "text": "24/7 Availability"
+    },
+    {
+      "level": 2,
+      "text": "Related Kent Coverage"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/police-station-reps-and-agents-for-swanley-police-station\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:50:03.240Z"
+  "content": "Swanley Police Station serves the Swanley area of Kent and surrounding communities. Accredited police station representatives provide coverage at Swanley for criminal defence firms and individuals who need legal representation.\n\nAbout Swanley Police Station\n\nSwanley Police Station is part of the Kent Police network. It handles detainees from the Swanley area and surrounding parts of north-west Kent. Like all custody suites, the station operates under PACE and the Codes of Practice, and detainees have the right to free legal advice.\n\nRepresentative Coverage\n\nAccredited police station representatives cover Swanley Police Station as part of their Kent-wide coverage. Representatives based in the area can attend at short notice, providing the same standard of service as at any other custody suite. They will obtain disclosure, conduct a private consultation, attend the interview, and make representations on the outcome.\n\nHow to Get a Rep for Swanley\n\nIf you have been detained at Swanley Police Station, tell the custody sergeant you want a solicitor. You can request a specific firm or the DSCC will arrange the duty solicitor. If you are a firm looking for cover at Swanley, use the PoliceStationRepUK directory to find representatives who cover the station.\n\n24/7 Availability\n\nRepresentatives covering Swanley offer 24/7 availability, including weekends and bank holidays. Whether the call comes during office hours or in the early hours of the morning, cover is available.\n\nRelated Kent Coverage\n\nRepresentatives who cover Swanley typically also cover other Kent stations, providing comprehensive county-wide coverage. This means firms can use a single representative or panel for instructions across multiple Kent custody suites.",
+  "links": [
+    {
+      "href": "/directory/kent",
+      "text": "Kent representatives"
+    },
+    {
+      "href": "/SwanleyPoliceStationReps",
+      "text": "Swanley reps page"
+    },
+    {
+      "href": "/KentPoliceStationReps",
+      "text": "All Kent reps"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

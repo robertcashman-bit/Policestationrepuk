@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/what-does-a-criminal-solicitor-do-part-one-police-station-representation-the-initial-job",
-  "path": "/blog/what-does-a-criminal-solicitor-do-part-one-police-station-representation-the-initial-job",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/what-does-a-criminal-solicitor-do-part-one-police-station-representation-the-initial-job",
+  "path": "/Blog/what-does-a-criminal-solicitor-do-part-one-police-station-representation-the-initial-job",
+  "title": "What Does a Criminal Solicitor Do? Part 1 — Police Station Work | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "What Does a Criminal Solicitor Do? Part 1 — Police Station Work"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "The First Call"
+    },
+    {
+      "level": 2,
+      "text": "Arriving at the Police Station"
+    },
+    {
+      "level": 2,
+      "text": "Obtaining Disclosure"
+    },
+    {
+      "level": 2,
+      "text": "The Private Consultation"
+    },
+    {
+      "level": 2,
+      "text": "The Interview"
+    },
+    {
+      "level": 2,
+      "text": "After the Interview"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/what-does-a-criminal-solicitor-do-part-one-police-station-representation-the-initial-job\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:48:23.303Z"
+  "content": "Criminal defence work begins at the police station. For many solicitors, the police station is where they first encounter a case, and the work done at this stage can determine everything that follows.\n\nThe First Call\n\nCriminal solicitors receive instructions in various ways. Duty solicitor calls come through the Defence Solicitor Call Centre (DSCC), which operates 24/7 to allocate work to solicitors on the local duty rota. Own client calls come from individuals who have been arrested and requested a specific solicitor or firm. Direct instructions come from firms who already act for the client.\n\nWhen the call comes in, the solicitor or their office takes the basic details: the custody suite, the suspect's name, the offence, and the time of arrest. The clock is already ticking — PACE sets strict time limits on detention and the client may have been waiting.\n\nArriving at the Police Station\n\nOn arrival, the solicitor identifies themselves to the custody sergeant, checks the custody record, and asks to speak to the investigating officer for disclosure. The solicitor must be allowed access to the client and must not be obstructed in providing advice. These are rights protected by PACE and the Codes of Practice.\n\nObtaining Disclosure\n\nThe solicitor's first task is to obtain pre-interview disclosure from the investigating officer. This is a summary of the evidence and the nature of the allegation. The quality of disclosure varies — some officers provide detailed written summaries, others give a bare verbal outline. The solicitor will assess what has been disclosed, identify gaps, and ask for further information where necessary.\n\nThe Private Consultation\n\nBefore the interview, the solicitor has a private consultation with the client. This is a confidential conversation in which the solicitor explains the allegation, discusses the evidence, explores the client's account, and advises on the best interview strategy. The consultation is the foundation of the entire police station attendance and must be conducted thoroughly.\n\nThe Interview\n\nDuring the interview, the solicitor sits alongside the client. Their role is to ensure the interview is conducted fairly, intervene if questions are oppressive or improper, advise the client if necessary, and monitor compliance with PACE. The solicitor does not answer questions on the client's behalf but can interrupt to clarify, object, or request a break.\n\nAfter the Interview\n\nFollowing the interview, the solicitor makes representations to the investigating officer or custody sergeant about the appropriate outcome. This may include representations on charge, bail, or release. The solicitor prepares a detailed attendance note recording the disclosure, the consultation, the interview, and the outcome. This note becomes part of the case file and is essential for any future proceedings.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/HowToBecomePoliceStationRep",
+      "text": "How to become a rep"
+    },
+    {
+      "href": "/Wiki",
+      "text": "Rep Wiki"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

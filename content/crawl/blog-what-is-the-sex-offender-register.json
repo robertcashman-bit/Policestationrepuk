@@ -1,18 +1,47 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/what-is-the-sex-offender-register",
-  "path": "/blog/what-is-the-sex-offender-register",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/what-is-the-sex-offender-register",
+  "path": "/Blog/what-is-the-sex-offender-register",
+  "title": "What Is the Sex Offender Register in the UK? | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "What Is the Sex Offender Register in the UK?"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "What Is the Sex Offender Register?"
+    },
+    {
+      "level": 2,
+      "text": "Who Is Placed on the Register?"
+    },
+    {
+      "level": 2,
+      "text": "Notification Requirements"
+    },
+    {
+      "level": 2,
+      "text": "Duration of Registration"
+    },
+    {
+      "level": 2,
+      "text": "Travel Restrictions"
+    },
+    {
+      "level": 2,
+      "text": "Review and Removal"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/what-is-the-sex-offender-register\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:47:58.024Z"
+  "content": "The Sex Offender Register is the common name for the notification requirements imposed on individuals convicted or cautioned for sexual offences in England and Wales under Part 2 of the Sexual Offences Act 2003.\n\nWhat Is the Sex Offender Register?\n\nThe Sex Offender Register is not a single physical register. It is a system of notification requirements that requires convicted or cautioned sex offenders to provide their personal details to the police and keep them updated. The information is managed by the police through the Violent and Sex Offender Register (ViSOR), a national database shared between police, probation, and prison services.\n\nThe purpose of the register is public protection. By requiring offenders to notify the police of their details and movements, law enforcement agencies can monitor risk and take action where necessary.\n\nWho Is Placed on the Register?\n\nYou will be subject to notification requirements if you are convicted of a qualifying sexual offence listed in Schedule 3 of the Sexual Offences Act 2003, you receive a caution for a qualifying sexual offence, or you are found not guilty by reason of insanity or found to be under a disability in relation to a qualifying sexual offence. Qualifying offences include rape, sexual assault, sexual activity with a child, causing or inciting a child to engage in sexual activity, possession of indecent images of children, and various other sexual offences.\n\nNotification Requirements\n\nThe notification requirements are set out in sections 83 to 86 of the Sexual Offences Act 2003. Within three days of conviction, caution, or release from custody, you must notify the police of your name and any aliases, date of birth, national insurance number, home address, and any address where you regularly stay.\n\nYou must also notify the police within three days of any change of name, change of address, or intention to stay at any address for seven days or more in any twelve-month period. If you intend to travel outside the United Kingdom, you must give advance notification to the police.\n\nDuration of Registration\n\nThe duration of the notification requirements depends on the sentence imposed. A custodial sentence of 30 months or more results in indefinite notification. A custodial sentence of six months to 30 months results in ten years of notification. A custodial sentence of less than six months results in seven years of notification. A caution results in two years of notification. A conditional discharge results in the period of the discharge.\n\nFor offenders aged under 18 at the time of conviction, the periods are halved.\n\nTravel Restrictions\n\nOffenders subject to notification requirements must give the police at least seven days' notice before travelling outside the United Kingdom. The notification must include the date of departure, the country or countries to be visited, the intended date of return, and travel arrangements. Failure to comply is a criminal offence carrying a maximum of five years' imprisonment.\n\nReview and Removal\n\nSince the Supreme Court decision in R (F) v Secretary of State for the Home Department [2010], offenders subject to indefinite notification have the right to apply for a review of their notification requirements after a fixed period (15 years for adults, 8 years for juveniles). The review is conducted by the police, who must consider whether the offender continues to pose a risk sufficient to justify continued registration.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/PACE",
+      "text": "PACE codes and custody rights"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

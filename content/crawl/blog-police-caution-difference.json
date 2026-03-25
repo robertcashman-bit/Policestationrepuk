@@ -1,18 +1,47 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/police-caution-difference",
-  "path": "/blog/police-caution-difference",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/police-caution-difference",
+  "path": "/Blog/police-caution-difference",
+  "title": "The Difference Between a Police Caution and Being Cautioned | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "The Difference Between a Police Caution and Being Cautioned"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Two Different Meanings of Caution"
+    },
+    {
+      "level": 2,
+      "text": "The Interview Caution"
+    },
+    {
+      "level": 2,
+      "text": "A Formal Police Caution (Out of Court Disposal)"
+    },
+    {
+      "level": 2,
+      "text": "Requirements for a Formal Caution"
+    },
+    {
+      "level": 2,
+      "text": "DBS and Employment Implications"
+    },
+    {
+      "level": 2,
+      "text": "Making the Right Decision"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/police-caution-difference\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:49:44.083Z"
+  "content": "The word caution has two quite different meanings in the criminal justice system. Confusing the two can lead to misunderstandings with serious consequences. This article explains the difference.\n\nTwo Different Meanings of Caution\n\nIn everyday use at the police station, the word caution refers to two entirely different things. The interview caution is the warning given before questioning: \"You do not have to say anything. But it may harm your defence if you do not mention when questioned something which you later rely on in court. Anything you do say may be given in evidence.\" A formal police caution is an out-of-court disposal — a recorded admission of guilt that forms part of your criminal record and appears on DBS checks.\n\nThe Interview Caution\n\nThe interview caution is a procedural safeguard required by PACE. It is given to every suspect before interview to inform them of their rights and the consequences of their answers. Being cautioned in this sense is a neutral event — it does not mean you have been found guilty of anything. It simply means the police are about to ask you questions about a suspected offence.\n\nA Formal Police Caution (Out of Court Disposal)\n\nA formal police caution is entirely different. It is a disposal — an alternative to prosecution — that requires you to admit the offence. If you accept a formal caution, it is recorded on the Police National Computer and constitutes a criminal record. It will appear on standard and enhanced DBS checks (subject to filtering rules) and may affect employment, travel, and professional qualifications.\n\nFormal cautions are used for less serious offences where the evidence supports a prosecution but the public interest favours a caution rather than court proceedings. They are typically offered by a police officer of at least inspector rank and must be administered in the correct manner.\n\nRequirements for a Formal Caution\n\nFor a formal caution to be properly administered, there must be sufficient evidence to prosecute, the offender must admit the offence clearly and unequivocally, the offender must consent to the caution after being informed of its implications, and the offence must be suitable for a caution (guidance from the Ministry of Justice and CPS applies).\n\nIf you do not admit the offence, a formal caution cannot be administered. If you are unsure whether to accept a caution, you should take legal advice. A solicitor or representative can assess whether the evidence justifies a prosecution and whether a caution is in your best interests.\n\nDBS and Employment Implications\n\nA formal caution will appear on standard and enhanced DBS checks for a period determined by the filtering rules. For adults, a caution for a non-specified offence will be filtered (removed from DBS certificates) after six years. For specified offences (mainly sexual and violent offences), the caution will never be filtered and will always appear. This can have significant consequences for people working or seeking to work in regulated sectors such as education, healthcare, and social care.\n\nMaking the Right Decision\n\nBefore accepting a formal caution, always take legal advice. A solicitor will assess whether the evidence is sufficient, whether a caution is appropriate, and what the long-term consequences will be. Accepting a caution without understanding its implications can have lasting effects on your career and personal life.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/FAQ",
+      "text": "Help and FAQ"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

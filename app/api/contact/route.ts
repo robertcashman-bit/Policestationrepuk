@@ -22,6 +22,13 @@ export async function POST(request: Request) {
       );
     }
 
+    if (name.length > 200 || email.length > 320 || message.length > 10000 || (subject && subject.length > 500)) {
+      return NextResponse.json(
+        { error: 'Field exceeds maximum length' },
+        { status: 400 }
+      );
+    }
+
     const [submissionId] = await Promise.all([
       saveSubmission('contact', { name, email, subject, message }),
       sendContactNotification({ name, email, subject, message }),

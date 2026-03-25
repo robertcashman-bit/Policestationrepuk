@@ -1,18 +1,47 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/sexual-allegations-police-station-stage",
-  "path": "/blog/sexual-allegations-police-station-stage",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/sexual-allegations-police-station-stage",
+  "path": "/Blog/sexual-allegations-police-station-stage",
+  "title": "Sexual Allegations at the Police Station | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Sexual Allegations at the Police Station"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "How Sexual Offence Cases Are Handled"
+    },
+    {
+      "level": 2,
+      "text": "The Investigation Process"
+    },
+    {
+      "level": 2,
+      "text": "Disclosure in Sexual Cases"
+    },
+    {
+      "level": 2,
+      "text": "Bail and Conditions"
+    },
+    {
+      "level": 2,
+      "text": "Interview Strategy"
+    },
+    {
+      "level": 2,
+      "text": "The Sex Offenders Register"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/sexual-allegations-police-station-stage\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:45:47.336Z"
+  "content": "Sexual allegations are among the most serious matters handled at the police station. The consequences of a conviction for a sexual offence are severe, including lengthy custodial sentences, placement on the Sex Offenders Register, and permanent impact on employment and reputation. The police station stage is critical.\n\nHow Sexual Offence Cases Are Handled\n\nAll police forces have specialist sexual offence investigation teams (often called SOIT or RASSO units). When a sexual allegation is reported, the police will take an initial account from the complainant, often by way of an Achieving Best Evidence (ABE) video interview. The suspect will typically be arrested, sometimes weeks or months after the alleged offence, once the ABE interview has been completed and initial enquiries made.\n\nThe Investigation Process\n\nSexual offence investigations are typically lengthy and detailed. The police will obtain the complainant's ABE interview, request phone records and digital devices from both complainant and suspect, review CCTV where available, contact any witnesses, and obtain medical evidence where relevant. Forensic evidence such as DNA may also be obtained. The investigation may take several months before the suspect is interviewed.\n\nDisclosure in Sexual Cases\n\nPre-interview disclosure in sexual cases is often limited. The police may provide only a brief summary of the allegation — the date, location, and nature of the alleged offence. They are unlikely to disclose the full ABE interview, phone evidence, or third-party material at the police station stage. This makes the interview particularly challenging for the representative.\n\nYour solicitor will request as much disclosure as possible and will advise you on the significance of what has and has not been revealed. In sexual cases, the decision about whether to answer questions, provide a prepared statement, or make no comment is particularly consequential.\n\nBail and Conditions\n\nIn sexual cases, bail conditions are almost always imposed. These typically include a condition not to contact the complainant, a condition not to have unsupervised contact with children (in cases involving allegations against minors), a curfew, and sometimes a requirement to surrender your passport. If the police oppose bail, you may be remanded in custody pending a court hearing.\n\nInterview Strategy\n\nInterview strategy in sexual cases requires careful consideration. The defence may involve consent, fabrication, or mistaken identity. The approach depends on the specific facts, the evidence disclosed, and the likely impact on any future trial. In many sexual cases, a prepared statement is used to put a defence on record while limiting the risk of making damaging admissions in response to probing questions.\n\nThe decision to answer questions, provide a prepared statement, or make no comment should be made only after thorough consultation with your solicitor. Sexual cases are among the most complex matters at the police station and the stakes are extremely high.\n\nThe Sex Offenders Register\n\nIf you are convicted of or cautioned for a qualifying sexual offence, you will be placed on the Sex Offenders Register (formally known as the notification requirements under Part 2 of the Sexual Offences Act 2003). The duration depends on the sentence imposed and ranges from two years to indefinite notification. This has significant consequences for travel, employment, and daily life.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/PACE",
+      "text": "PACE codes and custody rights"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

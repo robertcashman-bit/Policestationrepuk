@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/complete-guide-to-legal-representation-at-kent-police-stations",
-  "path": "/blog/complete-guide-to-legal-representation-at-kent-police-stations",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/complete-guide-to-legal-representation-at-kent-police-stations",
+  "path": "/Blog/complete-guide-to-legal-representation-at-kent-police-stations",
+  "title": "Complete Guide to Legal Representation at Kent Police Stations | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Complete Guide to Legal Representation at Kent Police Stations"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Overview of Kent Police Station Coverage"
+    },
+    {
+      "level": 2,
+      "text": "The Role of Legal Representatives"
+    },
+    {
+      "level": 2,
+      "text": "Choosing Your Representation"
+    },
+    {
+      "level": 2,
+      "text": "What Happens at the Station"
+    },
+    {
+      "level": 2,
+      "text": "Specific Kent Considerations"
+    },
+    {
+      "level": 2,
+      "text": "Finding a Representative"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/complete-guide-to-legal-representation-at-kent-police-stations\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:47:04.139Z"
+  "content": "Kent is a large and busy county with several custody suites handling a high volume of detainees. This guide covers everything you need to know about legal representation at Kent police stations, whether you are a suspect, a solicitor looking for cover, or a representative seeking work in the area.\n\nOverview of Kent Police Station Coverage\n\nKent Police is one of the larger territorial forces in England, covering a population of approximately 1.8 million people. The force operates multiple custody suites and handles a significant volume of arrests. Criminal defence firms in Kent maintain duty solicitor rotas and instruct accredited representatives to ensure comprehensive coverage.\n\nThe Role of Legal Representatives\n\nAt Kent police stations, legal representation is provided by qualified solicitors and accredited police station representatives. Representatives attend on behalf of instructing firms to advise detainees, review disclosure, conduct private consultations, attend interviews, and make representations on bail and charge. They are accredited through the Police Station Representatives Accreditation Scheme (PSRAS) and work under the supervision of the instructing solicitor.\n\nChoosing Your Representation\n\nIf you are detained at a Kent custody suite, you have the right to choose your own solicitor. If you have a preferred firm, ask the custody sergeant to contact them directly. If you do not have a solicitor, the DSCC will arrange the duty solicitor — this is a fully qualified solicitor or accredited representative from the local duty rota.\n\nYou can also find representatives using the PoliceStationRepUK directory, which lists professionals covering Kent by station and availability.\n\nWhat Happens at the Station\n\nWhen your representative arrives at the custody suite, they will review the custody record, obtain pre-interview disclosure from the investigating officer, have a private consultation with you, advise on the interview strategy, attend the interview, and make representations on bail or charge.\n\nThe entire process may take several hours depending on the complexity of the case, the availability of the investigating officer, and whether forensic or technical evidence needs to be considered.\n\nSpecific Kent Considerations\n\nKent's proximity to London and the Channel ports means the county sees a wide range of criminal activity, from local offences to cross-border matters and county lines operations. Representatives working in Kent benefit from experience with these diverse case types.\n\nKent also has a strong network of criminal defence firms with deep experience in police station work. The county's duty solicitor rota is well-established and ensures consistent coverage.\n\nFinding a Representative\n\nIf you need a police station representative in Kent, use the PoliceStationRepUK directory. Filter by county, station, or availability to find professionals who can attend at short notice. For emergency cover, many representatives offer 24/7 availability.",
+  "links": [
+    {
+      "href": "/directory/kent",
+      "text": "Kent representatives directory"
+    },
+    {
+      "href": "/KentPoliceStationReps",
+      "text": "Kent reps hub"
+    },
+    {
+      "href": "/directory",
+      "text": "Full directory"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

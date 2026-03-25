@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/being-interviewed-by-the-police-why-you-need-a-criminal-solicitor-in-the-police-station",
-  "path": "/blog/being-interviewed-by-the-police-why-you-need-a-criminal-solicitor-in-the-police-station",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/being-interviewed-by-the-police-why-you-need-a-criminal-solicitor-in-the-police-station",
+  "path": "/Blog/being-interviewed-by-the-police-why-you-need-a-criminal-solicitor-in-the-police-station",
+  "title": "Being Interviewed by the Police — Why You Need a Solicitor | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Being Interviewed by the Police — Why You Need a Solicitor"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "The Police Interview Process"
+    },
+    {
+      "level": 2,
+      "text": "Why Legal Advice Is Essential"
+    },
+    {
+      "level": 2,
+      "text": "What Can Go Wrong Without a Solicitor"
+    },
+    {
+      "level": 2,
+      "text": "Free Legal Representation"
+    },
+    {
+      "level": 2,
+      "text": "How to Arrange a Solicitor"
+    },
+    {
+      "level": 2,
+      "text": "Do Not Delay"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/being-interviewed-by-the-police-why-you-need-a-criminal-solicitor-in-the-police-station\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:50:33.604Z"
+  "content": "If the police want to interview you, whether following arrest or by voluntary attendance, having a solicitor present is not optional — it is essential. Here is why.\n\nThe Police Interview Process\n\nA police interview is a formal, recorded process conducted under caution. The purpose is to gather evidence. The police will ask you questions about the alleged offence and your answers will be recorded and may be used as evidence in court. The interview follows a structured format and is conducted by trained officers who use established techniques to obtain information.\n\nWhy Legal Advice Is Essential\n\nThe police interview is not a conversation — it is an evidence-gathering exercise. Without legal advice, you may not appreciate the significance of the questions being asked. You may not understand the evidence the police already have. You may not recognise the difference between questions designed to help you and questions designed to secure admissions. You may not understand the implications of the caution, particularly the adverse inference provisions. A solicitor or accredited representative provides a professional assessment of the evidence, advises on the best interview strategy, and ensures the process is fair.\n\nWhat Can Go Wrong Without a Solicitor\n\nWithout legal advice, suspects frequently make avoidable mistakes. They make admissions they did not intend to make. They provide accounts that are inconsistent with later evidence. They fail to mention facts that could support their defence, creating grounds for adverse inferences. They accept cautions or out-of-court disposals without understanding the long-term consequences. They waive rights they did not know they had.\n\nThese mistakes can be difficult or impossible to undo. Once something is said in a recorded interview, it becomes part of the evidence and cannot be unsaid.\n\nFree Legal Representation\n\nLegal advice at the police station is completely free. It is funded by Legal Aid and available to everyone. There is no means test, no income threshold, and no cost regardless of the offence. Declining free legal advice is like refusing a free safety net when walking a tightrope.\n\nHow to Arrange a Solicitor\n\nIf you are at the police station, tell the custody sergeant or investigating officer that you want a solicitor. If attending a voluntary interview, contact a solicitor before you go. The DSCC will arrange a duty solicitor if you do not have one. You can also use the PoliceStationRepUK directory to find representatives in your area.\n\nDo Not Delay\n\nThe sooner you request legal advice, the sooner your solicitor can start working on your case. Do not answer questions, make admissions, or discuss the case with anyone before you have spoken to a solicitor.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/InterviewUnderCaution",
+      "text": "Interview under caution"
+    },
+    {
+      "href": "/search",
+      "text": "Search for a rep"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

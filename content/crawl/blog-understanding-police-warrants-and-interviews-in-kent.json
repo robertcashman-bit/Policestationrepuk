@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/understanding-police-warrants-and-interviews-in-kent",
-  "path": "/blog/understanding-police-warrants-and-interviews-in-kent",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/understanding-police-warrants-and-interviews-in-kent",
+  "path": "/Blog/understanding-police-warrants-and-interviews-in-kent",
+  "title": "Understanding Police Warrants and Interviews in Kent | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Understanding Police Warrants and Interviews in Kent"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Types of Police Warrants"
+    },
+    {
+      "level": 2,
+      "text": "Arrest Warrants"
+    },
+    {
+      "level": 2,
+      "text": "Search Warrants"
+    },
+    {
+      "level": 2,
+      "text": "Surrender and Voluntary Attendance"
+    },
+    {
+      "level": 2,
+      "text": "Interviews After Warrant Execution"
+    },
+    {
+      "level": 2,
+      "text": "Getting Legal Help in Kent"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/understanding-police-warrants-and-interviews-in-kent\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:47:25.484Z"
+  "content": "If the police have a warrant relating to you in Kent, understanding what type of warrant it is and what to expect is essential. Different warrants carry different powers and consequences.\n\nTypes of Police Warrants\n\nThere are several types of warrant that the police may execute. The most common are arrest warrants (issued by a court authorising the police to arrest a named person), search warrants (authorising the police to enter and search premises), and warrants of further detention (authorising continued detention beyond the normal PACE time limits).\n\nArrest Warrants\n\nAn arrest warrant is issued by a magistrates' court when a person has failed to appear in court when required, there are grounds to believe a person has committed an offence and arrest is necessary, or a person has breached bail conditions or a court order. If a warrant has been issued for your arrest, the police can execute it at any time — including at your home, workplace, or any other location. The police do not need to give advance notice.\n\nSearch Warrants\n\nUnder section 8 of PACE, the police can apply to a magistrates' court for a warrant to enter and search premises. The warrant must specify the premises to be searched and the material sought. The police must have reasonable grounds to believe that an indictable offence has been committed, that material likely to be of substantial value to the investigation is on the premises, and that it would not be practicable to obtain the material without a warrant.\n\nWhen executing a search warrant in Kent, officers must identify themselves, show you the warrant, explain what they are looking for, and conduct the search in accordance with PACE Code B.\n\nSurrender and Voluntary Attendance\n\nIf you become aware that a warrant has been issued for your arrest in Kent, the best course of action is usually to contact a solicitor and arrange a voluntary surrender. This means attending the police station at an agreed time with your solicitor. Voluntary surrender demonstrates cooperation and avoids the disruption of arrest at home or work. Your solicitor can also make representations about the warrant before you attend.\n\nInterviews After Warrant Execution\n\nIf you are arrested on a warrant, you may be interviewed at the police station about the underlying offence. Your rights in interview are the same as for any arrest — you are entitled to free legal advice, you will be cautioned, and the interview will be recorded. Your solicitor will obtain disclosure, conduct a private consultation, and advise on the interview strategy.\n\nGetting Legal Help in Kent\n\nIf a warrant has been issued in Kent, contact a criminal defence solicitor immediately. The PoliceStationRepUK directory lists representatives and firms covering Kent who can advise on warrants, arrange voluntary surrender, and attend the police station on your behalf.",
+  "links": [
+    {
+      "href": "/directory/kent",
+      "text": "Kent representatives"
+    },
+    {
+      "href": "/KentPoliceStationReps",
+      "text": "Kent police station reps"
+    },
+    {
+      "href": "/StationsDirectory",
+      "text": "Station numbers"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

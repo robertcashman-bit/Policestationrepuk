@@ -54,7 +54,7 @@ export default function ProfilePage() {
             <p className="mt-2 text-sm text-[var(--muted)]">
               Create your free accredited rep listing in a few minutes — no subscription fees.
             </p>
-            <Link href="/Register" className="btn-gold mt-4 inline-block !text-sm">
+            <Link href="/register" className="btn-gold mt-4 inline-block !text-sm">
               Join the directory (free)
             </Link>
           </div>

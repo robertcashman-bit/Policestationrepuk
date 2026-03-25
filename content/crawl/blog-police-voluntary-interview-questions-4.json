@@ -1,18 +1,51 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/police-voluntary-interview-questions-4",
-  "path": "/blog/police-voluntary-interview-questions-4",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/police-voluntary-interview-questions-4",
+  "path": "/Blog/police-voluntary-interview-questions-4",
+  "title": "Common Questions About Voluntary Police Interviews | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Common Questions About Voluntary Police Interviews"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "Can I Bring a Solicitor?"
+    },
+    {
+      "level": 2,
+      "text": "Will I Be Arrested?"
+    },
+    {
+      "level": 2,
+      "text": "Can I Leave at Any Time?"
+    },
+    {
+      "level": 2,
+      "text": "Do I Have to Answer Questions?"
+    },
+    {
+      "level": 2,
+      "text": "What Happens Afterwards?"
+    },
+    {
+      "level": 2,
+      "text": "Should I Be Worried?"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/police-voluntary-interview-questions-4\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:50:50.623Z"
+  "content": "Voluntary police interviews raise many questions for people who have never experienced the process. Here are answers to the most frequently asked questions.\n\nCan I Bring a Solicitor?\n\nYes, absolutely. You have the right to free legal advice before and during a voluntary interview. The solicitor or accredited police station representative will attend the police station, obtain disclosure from the investigating officer, advise you privately before the interview, and sit with you throughout. This service is funded by Legal Aid and costs you nothing.\n\nWill I Be Arrested?\n\nNot necessarily. A voluntary interview means you attend by arrangement and are not under arrest. However, the police can arrest you during or after the interview if they consider it necessary — for example, if new evidence emerges, if you make admissions that justify arrest, or if you attempt to leave and the police believe arrest is necessary.\n\nCan I Leave at Any Time?\n\nYes. Because you are attending voluntarily, you are free to leave at any time. However, leaving may trigger an arrest if the police believe it is necessary. Your solicitor will advise on whether leaving is appropriate in the circumstances.\n\nDo I Have to Answer Questions?\n\nNo. You have the right to remain silent. The caution explains this: you do not have to say anything. However, the caution also warns that if you fail to mention something during the interview that you later rely on in court, adverse inferences may be drawn. Your solicitor will advise on whether to answer questions, give a prepared statement, or make no comment.\n\nWhat Happens Afterwards?\n\nAfter the interview, you will usually be told that the matter is under investigation and you will be contacted in due course. You may be released under investigation (no conditions) or placed on bail (with conditions). The police or CPS will then make a decision about whether to charge you, caution you, or take no further action. This process can take weeks or months.\n\nShould I Be Worried?\n\nA voluntary interview is a serious legal process. The fact that it is called voluntary does not reduce its significance. Anything you say can be used in evidence, and the outcome can range from no further action to criminal prosecution. However, with proper legal advice, you can approach the interview with confidence and ensure your rights are protected.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/FAQ",
+      "text": "Help and FAQ"
+    },
+    {
+      "href": "/InterviewUnderCaution",
+      "text": "Interview under caution guide"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

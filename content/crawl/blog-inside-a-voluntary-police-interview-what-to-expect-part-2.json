@@ -1,18 +1,47 @@
 {
-  "url": "https://www.policestationrepuk.com/blog/inside-a-voluntary-police-interview-what-to-expect-part-2",
-  "path": "/blog/inside-a-voluntary-police-interview-what-to-expect-part-2",
-  "title": "blog | PSR Connect",
+  "url": "https://policestationrepuk.org/Blog/inside-a-voluntary-police-interview-what-to-expect-part-2",
+  "path": "/Blog/inside-a-voluntary-police-interview-what-to-expect-part-2",
+  "title": "Inside a Voluntary Police Interview — What to Expect (Part 2) | PoliceStationRepUK",
   "headings": [
     {
       "level": 1,
-      "text": "404"
+      "text": "Inside a Voluntary Police Interview — What to Expect (Part 2)"
     },
     {
       "level": 2,
-      "text": "Page Not Found"
+      "text": "The Interview Room"
+    },
+    {
+      "level": 2,
+      "text": "The Recording Process"
+    },
+    {
+      "level": 2,
+      "text": "Answering Questions"
+    },
+    {
+      "level": 2,
+      "text": "When to Exercise Your Right to Silence"
+    },
+    {
+      "level": 2,
+      "text": "Breaks and Consultations"
+    },
+    {
+      "level": 2,
+      "text": "Leaving the Interview"
     }
   ],
-  "content": "404Page Not FoundThe page \"blog/inside-a-voluntary-police-interview-what-to-expect-part-2\" could not be found in this application.Go Home",
-  "links": [],
-  "crawledAt": "2026-03-08T21:48:39.005Z"
+  "content": "This is the second part of our guide to voluntary police interviews, focusing on what happens inside the interview room and the practical details you need to know.\n\nThe Interview Room\n\nVoluntary interviews take place in a dedicated interview room at the police station. The room will contain recording equipment, a table, chairs for the interviewer, the interviewee, and the solicitor or representative. The environment is designed to be neutral but can feel intimidating if you are unfamiliar with the process.\n\nThe Recording Process\n\nThe interview is recorded on audio or video equipment. At the start, the officer will activate the recording, announce the date, time, and location, identify everyone present, and administer the caution. At the end, the officer will summarise the interview and turn off the recording. You may be offered the opportunity to listen to the recording or receive a copy.\n\nAnswering Questions\n\nIf you are answering questions, listen carefully to each one and give clear, concise answers. Do not volunteer information that has not been asked for. Do not speculate or guess. If you do not know the answer, say so. Your solicitor may intervene to clarify questions or request breaks.\n\nWhen to Exercise Your Right to Silence\n\nThe decision to exercise your right to silence (make no comment) should be made in consultation with your solicitor. A no comment interview may be appropriate where disclosure has been inadequate, the allegation is serious and the full evidence is unknown, answering questions could create more risk than benefit, or a prepared statement has been given covering the key points.\n\nYour solicitor will advise on whether adverse inferences are a realistic risk and how to manage that risk through a prepared statement or other means.\n\nBreaks and Consultations\n\nYou are entitled to breaks during the interview for rest, refreshment, and consultation with your solicitor. If the interview changes direction or new evidence is introduced, your solicitor may request a break to discuss the implications with you. Do not hesitate to ask for a break if you need one.\n\nLeaving the Interview\n\nBecause you are attending voluntarily, you are free to leave at any time. However, if you leave mid-interview, the police may arrest you to continue the questioning. Your solicitor will advise on whether leaving is appropriate in the circumstances.",
+  "links": [
+    {
+      "href": "/directory",
+      "text": "Find a representative"
+    },
+    {
+      "href": "/InterviewUnderCaution",
+      "text": "Interview under caution guide"
+    }
+  ],
+  "crawledAt": "2026-03-25T00:00:00.000Z"
 }

@@ -6,7 +6,7 @@ export function HomeCustodyNote() {
       <div className="page-container !py-0">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-h2 mt-0 text-white">Custody Note</h2>
-          <p className="mt-1 text-sm font-medium text-cyan-400">The custody note app for freelance reps</p>
+          <p className="mt-1 text-sm font-medium text-cyan-100">The custody note app for freelance reps</p>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white">
             Built for freelance police station representatives and criminal solicitors. Structured
             notes with LAA code support, time recording, firm billing, and PDF export — so you can

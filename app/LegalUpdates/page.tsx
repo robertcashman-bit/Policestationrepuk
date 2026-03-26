@@ -87,19 +87,16 @@ export default async function LegalUpdatesPage() {
         </div>
       </section>
 
-      {/* Premium CTA */}
       <section className="mb-14 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
-        <h2 className="text-h2 text-white">Want Full Training Resources?</h2>
+        <h2 className="text-h2 text-white">Free training &amp; knowledge base</h2>
         <p className="mt-3 text-white">
-          Access in-depth training materials, practice guides, and detailed case studies with our
-          Premium resources — designed specifically for police station representatives.
+          Browse the Rep Knowledge Base for practice guides, interview techniques, PACE essentials,
+          legal aid billing, and professional development — written for police station
+          representatives.
         </p>
         <div className="mt-6">
-          <Link
-            href="/Premium"
-            className="btn-gold inline-block no-underline"
-          >
-            Explore Premium Resources
+          <Link href="/Wiki" className="btn-gold inline-block no-underline">
+            Open Rep Knowledge Base
           </Link>
         </div>
       </section>

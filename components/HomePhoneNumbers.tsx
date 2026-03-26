@@ -20,24 +20,6 @@ export function HomePhoneNumbers() {
               Browse by Force
             </Link>
           </div>
-
-          <div className="mt-8 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--background)] p-[var(--card-padding)] shadow-[var(--card-shadow)]">
-            <p className="text-sm font-semibold text-[var(--navy)]">Direct Contact</p>
-            <div className="mt-3 flex flex-wrap justify-center gap-4">
-              <a
-                href="tel:01732247427"
-                className="inline-flex items-center gap-2 text-sm font-medium text-[var(--navy)] no-underline hover:text-[var(--gold-hover)]"
-              >
-                📞 (01732) 247427
-              </a>
-              <a
-                href="sms:07535494446"
-                className="inline-flex items-center gap-2 text-sm font-medium text-[var(--navy)] no-underline hover:text-[var(--gold-hover)]"
-              >
-                💬 Send SMS to 07535 494446
-              </a>
-            </div>
-          </div>
         </div>
       </div>
     </section>

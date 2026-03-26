@@ -26,20 +26,24 @@ export function CookieBanner() {
         <div className="flex items-center gap-3">
           <span className="text-sm font-bold text-[var(--navy)]">Cookies</span>
           <span className="text-sm text-[var(--muted)]">Essential + analytics.</span>
-          <Link href="/Cookies" className="text-sm font-medium text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
+          <Link
+            href="/Cookies"
+            className="inline-flex min-h-[44px] items-center text-sm font-semibold text-[var(--navy)] underline decoration-[var(--navy)]/30 underline-offset-2 hover:decoration-[var(--navy)]"
+          >
             Details
           </Link>
         </div>
         <div className="flex gap-3">
           <Link
             href="/Cookies"
-            className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--navy)] no-underline transition-colors hover:border-[var(--gold)]"
+            className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--navy)] no-underline transition-colors hover:border-[var(--gold)]"
           >
             Manage
           </Link>
           <button
+            type="button"
             onClick={accept}
-            className="rounded-lg bg-[var(--navy)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--navy-light)]"
+            className="min-h-[44px] rounded-lg bg-[var(--navy)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--navy-light)]"
           >
             Accept
           </button>

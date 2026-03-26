@@ -16,4 +16,6 @@ export {
   placeSchema,
   personSchema,
   blogPostingSchema,
+  faqPageSchema,
+  directoryServiceLocalBusinessSchema,
 } from './schemas';

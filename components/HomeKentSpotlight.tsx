@@ -1,26 +1,37 @@
+import {
+  CONTACT_PHONE_TEL,
+  CONTACT_PHONE_DISPLAY,
+  CONTACT_SMS_TEL,
+  CONTACT_SMS_DISPLAY,
+  CONTACT_WHATSAPP_HREF,
+} from '@/lib/contact-constants';
+
 export function HomeKentSpotlight() {
   return (
-    <section className="section-pad bg-[var(--gold-pale)]">
+    <section className="section-pad bg-[var(--gold-pale)]" aria-labelledby="kent-agency-heading">
       <div className="page-container !py-0">
         <div className="mx-auto max-w-3xl text-center">
-          <h3 className="text-h3 mt-0 text-[var(--navy)]">
-            Need a Police Station Rep in Kent?
-          </h3>
-          <p className="mt-2 text-sm font-medium text-[var(--muted)]">
-            Duty Solicitor • 24/7 Immediate Coverage • All Kent stations
+          <h2 id="kent-agency-heading" className="text-h3 mt-0 text-[var(--navy)]">
+            Kent police station rep agency
+          </h2>
+          <p className="mt-2 text-sm font-medium text-[var(--navy)]/85">
+            Duty solicitor cover • 24/7 • All Kent stations — use the number and WhatsApp below only for this Kent agency
+            service.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <a
-              href="tel:01732247427"
-              className="btn-gold !text-sm"
-            >
-              📞 (01732) 247427
+            <a href={CONTACT_PHONE_TEL} className="btn-gold !text-sm">
+              📞 {CONTACT_PHONE_DISPLAY}
             </a>
             <a
-              href="sms:07535494446"
+              href={CONTACT_WHATSAPP_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn-outline !text-sm"
             >
-              💬 Send SMS to 07535 494446
+              WhatsApp
+            </a>
+            <a href={CONTACT_SMS_TEL} className="btn-outline !text-sm">
+              💬 SMS {CONTACT_SMS_DISPLAY}
             </a>
           </div>
         </div>

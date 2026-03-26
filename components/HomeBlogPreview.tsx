@@ -10,7 +10,7 @@ export async function HomeBlogPreview() {
         <div className="page-container !py-0 text-center">
           <h2 className="text-h2 mt-0 text-[var(--navy)]">Latest Legal Insights</h2>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            <Link href="/Blog" className="font-semibold text-[var(--gold-hover)] no-underline hover:underline">
+            <Link href="/Blog" className="font-semibold text-[var(--navy)] underline decoration-[var(--navy)]/30 underline-offset-2 hover:decoration-[var(--navy)]">
               Browse the blog →
             </Link>
           </p>
@@ -34,25 +34,19 @@ export async function HomeBlogPreview() {
               href={`/Blog/${article.slug}`}
               className="group card-surface no-underline transition-shadow hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--gold)]/40"
             >
-              <h3 className="mt-0 text-lg font-bold leading-snug text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
+              <h3 className="mt-0 text-lg font-bold leading-snug text-[var(--navy)] group-hover:text-[var(--navy-light)]">
                 {article.title}
               </h3>
               <div className="mt-4 flex justify-end">
-                <span className="text-sm font-semibold text-[var(--gold-hover)]">Read →</span>
+                <span className="text-sm font-semibold text-[var(--navy)]">Read article →</span>
               </div>
             </Link>
           ))}
         </div>
 
-        <div className="mt-8 flex flex-col items-center gap-3">
-          <Link
-            href="/Blog"
-            className="text-sm font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]"
-          >
-            Browse blog articles
-          </Link>
+        <div className="mt-8 flex justify-center">
           <Link href="/Blog" className="btn-gold !text-sm">
-            Browse All Articles
+            Browse all articles
           </Link>
         </div>
       </div>

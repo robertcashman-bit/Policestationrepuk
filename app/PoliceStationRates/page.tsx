@@ -216,11 +216,11 @@ export default function PoliceStationRatesPage() {
             <p className="mt-1 text-sm text-[var(--muted)]">Maximise your earning potential</p>
           </Link>
           <Link
-            href="/Premium"
+            href="/Wiki"
             className="block rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 no-underline shadow-[var(--card-shadow)] transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
           >
-            <p className="font-medium text-[var(--navy)]">Premium Resources</p>
-            <p className="mt-1 text-sm text-[var(--muted)]">Training &amp; practice materials</p>
+            <p className="font-medium text-[var(--navy)]">Rep Knowledge Base</p>
+            <p className="mt-1 text-sm text-[var(--muted)]">Training &amp; practice articles</p>
           </Link>
         </div>
       </section>

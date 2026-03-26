@@ -2,6 +2,12 @@
   "name": "policestationrepuk",
   "version": "1.0.0",
   "private": true,
+  "browserslist": [
+    "chrome >= 93",
+    "edge >= 93",
+    "firefox >= 92",
+    "safari >= 15.4"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -21,7 +27,12 @@
     "pipeline": "node scripts/scraper.js && node scripts/server.js",
     "parity": "npx tsx scripts/parity-verify.ts",
     "visual-parity": "npx playwright install chromium && npx tsx scripts/visual-parity.ts",
-    "parity:full": "npx tsx scripts/final-parity-suite.ts"
+    "parity:full": "npx tsx scripts/final-parity-suite.ts",
+    "audit:links": "node scripts/audit/internal-link-audit.mjs",
+    "audit:validate": "node scripts/audit-validate.mjs",
+    "audit:validate:fix": "node scripts/audit-validate.mjs --fix",
+    "validate:articles": "npx tsx scripts/validate-articles.ts",
+    "validate:articles:fix": "npx tsx scripts/validate-articles.ts --fix"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.22",

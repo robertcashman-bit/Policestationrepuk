@@ -32,14 +32,14 @@ export function FloatingDirectoryActions() {
       <button
         type="button"
         onClick={handleShare}
-        className="pointer-events-auto rounded-lg border border-[var(--navy-light)] bg-white px-3 py-2 text-left text-xs font-semibold text-[var(--navy)] shadow-md transition-colors hover:bg-[var(--gold-pale)]"
+        className="pointer-events-auto min-h-[44px] min-w-[44px] rounded-lg border border-[var(--navy-light)] bg-white px-3 py-2 text-left text-xs font-semibold leading-snug text-[var(--navy)] shadow-md transition-colors hover:bg-[var(--gold-pale)]"
       >
         {FOOTER_UTILITY_SHARE}
       </button>
       <button
         type="button"
         onClick={scrollToTop}
-        className="pointer-events-auto rounded-lg border border-[var(--navy-light)] bg-[var(--navy)] px-3 py-2 text-left text-xs font-semibold text-white shadow-md transition-colors hover:bg-[var(--navy-light)]"
+        className="pointer-events-auto min-h-[44px] min-w-[44px] rounded-lg border border-[var(--navy-light)] bg-[var(--navy)] px-3 py-2 text-left text-xs font-semibold leading-snug text-white shadow-md transition-colors hover:bg-[var(--navy-light)]"
       >
         {FOOTER_UTILITY_TOP}
       </button>

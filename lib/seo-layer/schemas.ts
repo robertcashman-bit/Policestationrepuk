@@ -120,6 +120,52 @@ export function placeSchema(countyName: string, path: string) {
   };
 }
 
+/** FAQPage JSON-LD for homepage, pillar pages, etc. */
+export function faqPageSchema(items: { q: string; a: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.a,
+      },
+    })),
+  };
+}
+
+/** LocalBusiness-style footprint for the directory operator (UK-wide service area). */
+export function directoryServiceLocalBusinessSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    '@id': `${SITE_URL}/#localbusiness`,
+    name: SITE_NAME,
+    description: DEFAULT_DESCRIPTION,
+    url: SITE_URL,
+    telephone: '+44-1732-247427',
+    image: `${SITE_URL}/og-default.png`,
+    priceRange: 'Free directory',
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'GB',
+    },
+    areaServed: [
+      { '@type': 'Country', name: 'United Kingdom' },
+      { '@type': 'AdministrativeArea', name: 'England' },
+      { '@type': 'AdministrativeArea', name: 'Wales' },
+    ],
+    openingHoursSpecification: {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+      opens: '00:00',
+      closes: '23:59',
+    },
+  };
+}
+
 /** BlogPosting schema for individual blog articles */
 export function blogPostingSchema(post: {
   title: string;

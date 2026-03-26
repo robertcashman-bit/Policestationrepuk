@@ -25,6 +25,13 @@ PoliceStationRepUK is a free, independent directory platform that lists accredit
 - Police Station Rates: https://policestationrepuk.org/PoliceStationRates
 - Stations Directory: https://policestationrepuk.org/StationsDirectory
 - Map: https://policestationrepuk.org/Map
+- Police station representative (guide): https://policestationrepuk.org/police-station-representative
+- Criminal solicitor — police station cover: https://policestationrepuk.org/criminal-solicitor-police-station
+- Free legal advice at police station: https://policestationrepuk.org/free-legal-advice-police-station
+- Police station rights UK: https://policestationrepuk.org/police-station-rights-uk
+- Police station rep — Kent: https://policestationrepuk.org/police-station-rep-kent
+- Police station rep — London: https://policestationrepuk.org/police-station-rep-london
+- Police station rep — Essex: https://policestationrepuk.org/police-station-rep-essex
 - Sitemap: https://policestationrepuk.org/sitemap.xml
 
 ## Entity definition

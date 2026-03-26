@@ -88,6 +88,11 @@ export interface SearchFilters {
   query?: string;
 }
 
+export interface ArticleSource {
+  title: string;
+  url: string;
+}
+
 export interface WikiArticle {
   id: string;
   title: string;
@@ -103,6 +108,11 @@ export interface WikiArticle {
   factCheckStatus: string;
   publishedDate: string;
   lastImprovedDate: string | null;
+  sources?: ArticleSource[];
+  relatedArticles?: string[];
+  sections?: string[];
+  summary?: string;
+  verified?: boolean;
 }
 
 export interface LawFirm {

@@ -24,7 +24,7 @@ export function HomeSeoContent() {
 
           <h3 className="mt-8 text-xl font-bold text-[var(--navy)]">What this directory does</h3>
           <p className="mt-3 text-base leading-relaxed text-[var(--muted)]">
-            <Link href="/directory" className="font-semibold text-[var(--gold-hover)] hover:underline">
+            <Link href="/directory" className="font-semibold text-[var(--navy)] underline decoration-[var(--navy)]/30 underline-offset-2 hover:decoration-[var(--navy)]">
               PoliceStationRepUK
             </Link>{' '}
             lists accredited representatives and related profile details so you can filter by area, custody suite,
@@ -40,7 +40,7 @@ export function HomeSeoContent() {
             Yorkshire, Wales, and beyond. Whether you need overnight cover, weekend rota support, or a regular panel for
             a custody suite you attend often, you can browse representatives by region and station. For granular filters,
             use{' '}
-            <Link href="/search" className="font-semibold text-[var(--gold-hover)] hover:underline">
+            <Link href="/search" className="font-semibold text-[var(--navy)] underline decoration-[var(--navy)]/30 underline-offset-2 hover:decoration-[var(--navy)]">
               advanced search
             </Link>{' '}
             alongside the main directory hub.
@@ -63,7 +63,7 @@ export function HomeSeoContent() {
             solicitor. When you choose someone from this directory, use profiles to check accreditation statements,
             areas covered, and availability — then complete your own firm compliance steps as you would for any
             outsource arrangement. Our{' '}
-            <Link href="/Resources" className="font-semibold text-[var(--gold-hover)] hover:underline">
+            <Link href="/Resources" className="font-semibold text-[var(--navy)] underline decoration-[var(--navy)]/30 underline-offset-2 hover:decoration-[var(--navy)]">
               resources hub
             </Link>{' '}
             and blog include introductory material on interviews, cautions, and custody rights for teams onboarding new
@@ -73,7 +73,7 @@ export function HomeSeoContent() {
           <h3 className="mt-8 text-xl font-bold text-[var(--navy)]">Are you a representative?</h3>
           <p className="mt-3 text-base leading-relaxed text-[var(--muted)]">
             If you hold current accreditation and want visibility to defence firms, you can{' '}
-            <Link href="/register" className="font-semibold text-[var(--gold-hover)] hover:underline">
+            <Link href="/register" className="font-semibold text-[var(--navy)] underline decoration-[var(--navy)]/30 underline-offset-2 hover:decoration-[var(--navy)]">
               create a free profile
             </Link>
             . There is no charge to join or be listed — the aim is to keep valid, accredited capacity visible to the
@@ -85,13 +85,13 @@ export function HomeSeoContent() {
               href="/directory"
               className="inline-flex min-h-[48px] items-center justify-center rounded-[var(--radius-lg)] bg-[var(--navy)] px-6 py-3 text-center text-sm font-bold text-white shadow-[var(--card-shadow)] transition-colors hover:bg-[var(--navy)]/90 no-underline sm:text-base"
             >
-              Find Police Station Cover Now (24/7)
+              Browse directory by county
             </Link>
             <Link
               href="/search"
               className="inline-flex min-h-[48px] items-center justify-center rounded-[var(--radius-lg)] border-2 border-[var(--navy)] bg-white px-6 py-3 text-center text-sm font-bold text-[var(--navy)] transition-colors hover:bg-slate-50 no-underline sm:text-base"
             >
-              Get Immediate Rep Cover
+              Open advanced rep search
             </Link>
           </div>
         </div>

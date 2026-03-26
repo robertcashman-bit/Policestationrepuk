@@ -60,12 +60,18 @@ export const FOOTER_FOR_REPRESENTATIVES: FooterLink[] = [
 
 /** Footer column “Tools & Resources” */
 export const FOOTER_TOOLS: FooterLink[] = [
+  { href: '/police-station-representative', label: 'Police station representative' },
+  { href: '/criminal-solicitor-police-station', label: 'Criminal solicitor — police station' },
+  { href: '/police-station-rights-uk', label: 'Police station rights UK' },
+  { href: '/free-legal-advice-police-station', label: 'Free legal advice (police station)' },
+  { href: '/police-station-rep-kent', label: 'Police station rep — Kent' },
+  { href: '/police-station-rep-london', label: 'Police station rep — London' },
+  { href: '/police-station-rep-essex', label: 'Police station rep — Essex' },
   { href: '/FormsLibrary', label: 'Forms' },
   { href: '/PoliceStationRates', label: 'Station Rates (2025/26)' },
   { href: '/PACE', label: 'PACE Codes' },
-  { href: '/Wiki', label: 'Rep Wiki' },
+  { href: '/Wiki', label: 'Rep Wiki & training guides' },
   { href: '/LegalUpdates', label: 'Legal Updates' },
-  { href: '/Premium', label: 'Training Guides & Resources' },
 ];
 
 /** Footer column “Community” — order from homepage crawl (/) */

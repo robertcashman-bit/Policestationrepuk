@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { DirectoryCard } from '@/components/DirectoryCard';
 import type { Representative, County, PoliceStation } from '@/lib/types';
 import { repMatchesCountyName } from '@/lib/county-matching';
+import { searchReps, type ScoredRep } from '@/lib/rep-search';
 
 interface DirectorySearchProps {
   reps: Representative[];
@@ -56,6 +57,7 @@ const ACCREDITATION_OPTIONS = [
 ];
 
 const SORT_OPTIONS = [
+  { value: 'relevance', label: 'Relevance' },
   { value: 'name', label: 'Name (A-Z)' },
   { value: 'experience', label: 'Experience' },
   { value: 'stations', label: 'Most stations' },
@@ -138,9 +140,19 @@ export function DirectorySearch({
   const [sort, setSort] = useState('name');
   const [page, setPage] = useState(1);
 
+  useEffect(() => {
+    setQuery(defaultQuery);
+    setCounty(defaultCounty);
+    setStation(defaultStation);
+    setAvailability(defaultAvailability);
+    setAccreditation(defaultAccreditation);
+    setPage(1);
+  }, [defaultQuery, defaultCounty, defaultStation, defaultAvailability, defaultAccreditation]);
+
   const syncUrl = useCallback(() => {
     const params = new URLSearchParams();
-    if (query) params.set('q', query);
+    const qTrim = query.trim();
+    if (qTrim) params.set('q', qTrim);
     if (county) params.set('county', county);
     if (station) params.set('station', station);
     if (availability) params.set('availability', availability);
@@ -155,27 +167,25 @@ export function DirectorySearch({
     return () => clearTimeout(timer);
   }, [syncUrl]);
 
-  const filtered = useMemo(() => {
-    let result = [...reps];
+  const hasTextQuery = query.trim().length > 0;
 
-    if (query) {
-      const q = query.toLowerCase();
-      result = result.filter(
-        (r) =>
-          (r.name || '').toLowerCase().includes(q) ||
-          (r.county || '').toLowerCase().includes(q) ||
-          (r.stations || []).some((s) => s.toLowerCase().includes(q)) ||
-          r.specialisms?.some((s) => s.toLowerCase().includes(q))
-      );
-    }
+  useEffect(() => {
+    if (hasTextQuery && sort !== 'relevance') setSort('relevance');
+    else if (!hasTextQuery && sort === 'relevance') setSort('name');
+  }, [hasTextQuery]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const filtered = useMemo(() => {
+    let result: ScoredRep[] = searchReps(query, reps, stations, counties);
 
     if (county) {
       result = result.filter((r) => repMatchesCountyName(r.county, county));
     }
 
-    if (station) {
+    const stationTrim = station.trim();
+    if (stationTrim) {
+      const st = stationTrim.toLowerCase();
       result = result.filter((r) =>
-        (r.stations || []).some((s) => s.toLowerCase().includes(station.toLowerCase()))
+        (r.stations || []).some((s) => s.toLowerCase().includes(st)),
       );
     }
 
@@ -185,14 +195,15 @@ export function DirectorySearch({
 
     if (accreditation) {
       result = result.filter((r) =>
-        (r.accreditation || '').toLowerCase().includes(accreditation.toLowerCase())
+        (r.accreditation || '').toLowerCase().includes(accreditation.toLowerCase()),
       );
     }
 
     const featured = result.filter((r) => r.featured);
     const nonFeatured = result.filter((r) => !r.featured);
 
-    const sortFn = (a: Representative, b: Representative) => {
+    const sortFn = (a: ScoredRep, b: ScoredRep) => {
+      if (sort === 'relevance') return b._score - a._score;
       if (sort === 'experience') return (b.yearsExperience ?? 0) - (a.yearsExperience ?? 0);
       if (sort === 'stations') return (b.stations || []).length - (a.stations || []).length;
       return (a.name || '').localeCompare(b.name || '');
@@ -202,7 +213,7 @@ export function DirectorySearch({
     nonFeatured.sort(sortFn);
 
     return [...featured, ...nonFeatured];
-  }, [reps, query, county, station, availability, accreditation, sort]);
+  }, [reps, stations, counties, query, county, station, availability, accreditation, sort]);
 
   const featuredReps = filtered.filter((r) => r.featured);
   const nonFeaturedReps = filtered.filter((r) => !r.featured);
@@ -219,7 +230,8 @@ export function DirectorySearch({
     setPage(1);
   }
 
-  const hasActiveFilters = query || county || station || availability || accreditation;
+  const hasActiveFilters =
+    query.trim() || county || station || availability || accreditation;
 
   const countyStations = county
     ? stations.filter((s) => forceMatchesCounty(s.forceName || '', county))

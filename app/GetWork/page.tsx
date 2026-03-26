@@ -99,7 +99,7 @@ const RESOURCE_LINKS = [
   { href: '/directory', label: 'Reps Directory', desc: 'Get listed so firms can find you instantly' },
   { href: '/WhatsApp', label: 'WhatsApp Group', desc: 'Real-time job notifications from firms' },
   { href: '/FormsLibrary', label: 'Forms Library', desc: 'CRM1, CRM2 & attendance note templates' },
-  { href: '/Premium', label: 'Premium Resources', desc: 'Training materials and practice guides' },
+  { href: '/Wiki', label: 'Rep Knowledge Base', desc: 'Training materials and practice guides' },
 ];
 
 export default function GetWorkPage() {

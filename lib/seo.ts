@@ -14,5 +14,7 @@ export {
   placeSchema,
   personSchema,
   blogPostingSchema,
+  faqPageSchema,
+  directoryServiceLocalBusinessSchema,
 } from './seo-layer';
 export type { MetadataInput } from './seo-layer';

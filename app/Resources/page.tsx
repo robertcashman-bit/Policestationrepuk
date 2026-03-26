@@ -179,25 +179,40 @@ type ResourceItem = {
   external?: boolean;
 };
 
+const cardClass =
+  'group flex flex-col rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-4 no-underline shadow-[var(--card-shadow)] transition-all hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]';
+
 function ResourceCard({ item }: { item: ResourceItem }) {
   const href = item.external === false ? item.href! : item.url!;
   const isExternal = item.external !== false;
 
-  return (
-    <a
-      href={href}
-      target={isExternal ? '_blank' : undefined}
-      rel={isExternal ? 'noopener noreferrer' : undefined}
-      className="group flex flex-col rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-4 no-underline shadow-[var(--card-shadow)] transition-all hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
-    >
+  const inner = (
+    <>
       <p className="font-medium text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
         {item.title}
-        {isExternal && (
-          <span className="ml-1 text-xs text-[var(--muted)]">↗</span>
-        )}
+        {isExternal && <span className="ml-1 text-xs text-[var(--muted)]">↗</span>}
       </p>
       <p className="mt-1 flex-1 text-sm leading-relaxed text-[var(--muted)]">{item.desc}</p>
-    </a>
+    </>
+  );
+
+  if (isExternal) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cardClass}
+      >
+        {inner}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={cardClass}>
+      {inner}
+    </Link>
   );
 }
 

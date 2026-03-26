@@ -55,12 +55,13 @@ export default function MapPage() {
     setSelectedStation(station);
   }, []);
 
-  const filtered = searchQuery
+  const q = searchQuery.trim().toLowerCase();
+  const filtered = q
     ? stations.filter(
         (s) =>
-          s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          s.county.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          s.address.toLowerCase().includes(searchQuery.toLowerCase()),
+          s.name.toLowerCase().includes(q) ||
+          s.county.toLowerCase().includes(q) ||
+          s.address.toLowerCase().includes(q),
       )
     : stations;
 

@@ -25,7 +25,7 @@ import {
 function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
   return (
     <div>
-      <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">{title}</h4>
+      <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">{title}</h3>
       <ul className="mt-4 space-y-1.5">
         {links.map((link, i) => (
           <li key={`${link.href}-${link.label}-${i}`}>
@@ -34,14 +34,14 @@ function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) 
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[32px] items-center text-sm !text-[var(--footer-link)] no-underline transition-colors hover:!text-[var(--footer-link-hover)]"
+                className="inline-flex min-h-[44px] items-center py-1 text-sm !text-[var(--footer-link)] no-underline transition-colors hover:!text-[var(--footer-link-hover)]"
               >
                 {link.label}
               </a>
             ) : (
               <Link
                 href={link.href}
-                className="inline-flex min-h-[32px] items-center text-sm !text-[var(--footer-link)] no-underline transition-colors hover:!text-[var(--footer-link-hover)]"
+                className="inline-flex min-h-[44px] items-center py-1 text-sm !text-[var(--footer-link)] no-underline transition-colors hover:!text-[var(--footer-link-hover)]"
               >
                 {link.label}
               </Link>
@@ -59,6 +59,7 @@ export function Footer() {
   return (
     <footer className="mt-auto border-t border-[var(--navy-light)] bg-[var(--navy)]">
       <div className="mx-auto max-w-[var(--container-max)] px-[var(--container-gutter)] py-12 sm:px-6 sm:py-14 lg:px-8">
+        <h2 className="sr-only">Site footer and links</h2>
         <div className="grid gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-5">
           <FooterColumn title={FOOTER_COLUMN_TITLES.directories} links={FOOTER_DIRECTORIES} />
           <FooterColumn
@@ -73,7 +74,7 @@ export function Footer() {
         {/* Mid-footer spotlight — same section titles/copy hierarchy as homepage */}
         <div className="mt-10 grid gap-8 border-t border-[var(--navy-light)] pt-8 sm:grid-cols-2">
           <div>
-            <h3 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_KENT_TITLE}</h3>
+            <h4 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_KENT_TITLE}</h4>
             <p className="mt-1 text-xs text-white">{FOOTER_SPOTLIGHT_KENT_BODY}</p>
             <Link
               href="/directory/kent"
@@ -83,10 +84,10 @@ export function Footer() {
             </Link>
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_TRAINING_TITLE}</h3>
+            <h4 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_TRAINING_TITLE}</h4>
             <p className="mt-1 text-xs text-white">{FOOTER_SPOTLIGHT_TRAINING_BODY}</p>
             <Link
-              href="/Premium"
+              href="/Wiki"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
             >
               Training &amp; resources →
@@ -95,31 +96,31 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t border-[var(--navy-light)] pt-8">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">
+          <h4 className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">
             {FOOTER_REGULATORY_TITLE}
-          </h3>
+          </h4>
           <p className="mt-3 max-w-4xl text-xs leading-relaxed text-white">{FOOTER_REGULATORY_BODY}</p>
           <p className="mt-3 text-xs text-white">
             &copy; {year} PoliceStationRepUK. All rights reserved.
           </p>
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--navy-light)] pt-6">
+        <div className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-2 border-t border-[var(--navy-light)] pt-6 sm:gap-x-4">
           <Link
             href={FOOTER_UTILITY_SITEMAP_HREF}
-            className="text-xs !text-[var(--footer-link)] no-underline hover:!text-[var(--footer-link-hover)]"
+            className="inline-flex min-h-[44px] items-center px-2 text-xs !text-[var(--footer-link)] no-underline hover:!text-[var(--footer-link-hover)]"
           >
             {FOOTER_UTILITY_SITEMAP_LABEL}
           </Link>
           <Link
             href={FOOTER_UTILITY_RSS_HREF}
-            className="text-xs !text-[var(--footer-link)] no-underline hover:!text-[var(--footer-link-hover)]"
+            className="inline-flex min-h-[44px] items-center px-2 text-xs !text-[var(--footer-link)] no-underline hover:!text-[var(--footer-link-hover)]"
           >
             {FOOTER_UTILITY_RSS_LABEL}
           </Link>
           <button
             type="button"
-            className="text-xs font-medium !text-[var(--footer-link)] transition-colors hover:!text-[var(--footer-link-hover)]"
+            className="inline-flex min-h-[44px] items-center px-2 text-xs font-medium !text-[var(--footer-link)] transition-colors hover:!text-[var(--footer-link-hover)]"
             onClick={() => {
               localStorage.removeItem('cookies-accepted');
               window.location.reload();

@@ -13,19 +13,25 @@ import { HomeQuickSearch } from '@/components/HomeQuickSearch';
 import { HomePhoneNumbers } from '@/components/HomePhoneNumbers';
 import { HomeAIAssistant } from '@/components/HomeAIAssistant';
 import { HomeKentSpotlight } from '@/components/HomeKentSpotlight';
-import { HomeSeoContent } from '@/components/HomeSeoContent';
+import { HomeSeoConversionHub } from '@/components/HomeSeoConversionHub';
+import { HomeHomepageFaq } from '@/components/HomeHomepageFaq';
 import { getAllReps, getAllStations, getAllCounties } from '@/lib/data';
-import { organizationSchema, webSiteSchema } from '@/lib/seo';
+import {
+  organizationSchema,
+  webSiteSchema,
+  faqPageSchema,
+  directoryServiceLocalBusinessSchema,
+} from '@/lib/seo';
+import { HOMEPAGE_FAQS } from '@/lib/homepage-faqs';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
-  title: 'PoliceStationRepUK — Free Police Station Rep Directory',
+  title: 'Police Station Representation UK | Free Rep Directory for Criminal Solicitors',
   description:
-    "The UK's free directory for police station cover. Find accredited police station representatives by county, station, or name. 100% free for solicitors and reps. No fees ever.",
+    'Police station representation across the UK: free directory of accredited police station reps for criminal solicitor firms. Find cover in England & Wales by county, station, or name.',
   alternates: { canonical: SITE_URL },
 };
 
-/** Matches homepage / Wix crawl marketing strip (rounded figures — not live DB totals). */
 const UK_FORCES_COUNT = 42;
 const MARKETING_REPS_DISPLAY = 300;
 const MARKETING_STATIONS_DISPLAY = 500;
@@ -38,14 +44,18 @@ export default async function HomePage() {
     <>
       <JsonLd data={organizationSchema()} />
       <JsonLd data={webSiteSchema() as Record<string, unknown>} />
+      <JsonLd data={faqPageSchema(HOMEPAGE_FAQS)} />
+      <JsonLd data={directoryServiceLocalBusinessSchema() as Record<string, unknown>} />
 
       <HomeHero />
 
       <section className="section-pad-compact border-b border-[var(--border)] bg-white" aria-label="Site statistics">
         <div className="page-container !py-0">
           <div className="text-center">
-            <h2 className="text-h2 mt-0 text-[var(--navy)]">Trusted Nationwide Coverage</h2>
-            <p className="mt-1.5 text-sm leading-normal text-[var(--muted)]">Real-time access to the UK&apos;s largest network</p>
+            <h2 className="text-h2 mt-0 text-[var(--navy)]">Trusted nationwide coverage</h2>
+            <p className="mt-1.5 text-sm leading-normal text-[var(--muted)]">
+              Real-time access to accredited representatives across England &amp; Wales
+            </p>
           </div>
           <div className="mt-5 grid grid-cols-3 gap-4 text-center sm:mt-6 sm:gap-6">
             <div>
@@ -68,9 +78,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <HomeKentSpotlight />
+      <HomeSeoConversionHub />
 
-      <HomeSeoContent />
+      <HomeKentSpotlight />
 
       <HomeCustodyNote />
 
@@ -92,6 +102,8 @@ export default async function HomePage() {
         stations={stations.map((s) => s.name)}
         counties={counties.map((c) => c.name)}
       />
+
+      <HomeHomepageFaq />
 
       <HomePhoneNumbers />
 

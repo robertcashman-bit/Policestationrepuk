@@ -123,6 +123,13 @@ const DEDICATED_ROUTES = new Set([
   'TonbridgePoliceStationReps', 'tonbridgepolicestationreps',
   'WhatDoesRepDo', 'whatdoesrepdo',
   'police-station-representatives-directory-england-wales',
+  'police-station-representative',
+  'criminal-solicitor-police-station',
+  'free-legal-advice-police-station',
+  'police-station-rights-uk',
+  'police-station-rep-kent',
+  'police-station-rep-london',
+  'police-station-rep-essex',
 ]);
 
 /** Pre-render paths that have mirror content; rest served on demand. */

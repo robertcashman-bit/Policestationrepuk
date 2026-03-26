@@ -29,8 +29,9 @@ export function FirmDirectory({ firms }: FirmDirectoryProps) {
   const filtered = useMemo(() => {
     let result = [...firms];
 
-    if (query) {
-      const q = query.toLowerCase();
+    const qRaw = query.trim();
+    if (qRaw) {
+      const q = qRaw.toLowerCase();
       result = result.filter(
         (f) =>
           f.name.toLowerCase().includes(q) ||
@@ -55,7 +56,7 @@ export function FirmDirectory({ firms }: FirmDirectoryProps) {
 
   const paged = filtered.slice(0, page * PAGE_SIZE);
   const hasMore = paged.length < filtered.length;
-  const hasActiveFilters = query || county;
+  const hasActiveFilters = query.trim() || county;
 
   function resetFilters() {
     setQuery('');

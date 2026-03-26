@@ -46,7 +46,7 @@ export function HomeTrainingResources() {
         </div>
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href="/Premium" className="btn-gold !text-sm">
+          <Link href="/Wiki" className="btn-gold !text-sm">
             Browse Resources →
           </Link>
         </div>
@@ -61,7 +61,7 @@ export function HomeTrainingResources() {
                 href={g.href}
                 className="group card-surface no-underline transition-shadow hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--gold)]/40"
               >
-                <h4 className="text-base font-bold text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
+                <h4 className="text-base font-bold text-[var(--navy)] group-hover:text-[var(--navy-light)]">
                   {g.title}
                 </h4>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{g.body}</p>

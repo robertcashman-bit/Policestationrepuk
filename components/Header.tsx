@@ -67,7 +67,7 @@ export function Header() {
   };
 
   const desktopNavLinkClass =
-    'rounded-lg px-2 py-2 text-xs font-bold leading-snug !text-white no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--gold)] xl:px-3 xl:text-[13px] 2xl:px-3.5 2xl:text-sm whitespace-nowrap';
+    'inline-flex min-h-[44px] items-center rounded-lg px-2 py-2 text-xs font-bold leading-snug !text-white no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--gold)] xl:px-3 xl:text-[13px] 2xl:px-3.5 2xl:text-sm whitespace-nowrap';
 
   return (
     <>
@@ -123,13 +123,13 @@ export function Header() {
           <div className="hidden shrink-0 items-center gap-3 lg:flex">
             <Link
               href={HEADER_HELP_HREF}
-              className="text-sm font-medium !text-[var(--header-link)] no-underline transition-colors hover:!text-[var(--header-link-hover)]"
+              className="inline-flex min-h-[44px] items-center px-2 text-sm font-medium !text-[var(--header-link)] no-underline transition-colors hover:!text-[var(--header-link-hover)]"
             >
               Help
             </Link>
             <Link
               href={HEADER_LOGIN_HREF}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--gold)] px-3.5 py-2 text-sm font-bold text-[var(--navy)] shadow-sm no-underline transition-colors hover:bg-[var(--gold-hover)]"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-[var(--gold)] px-3.5 py-2 text-sm font-bold text-[var(--navy)] shadow-sm no-underline transition-colors hover:bg-[var(--gold-hover)]"
             >
               Log In
               <span aria-hidden className="text-base leading-none">
@@ -145,7 +145,7 @@ export function Header() {
             <button
               type="button"
               onClick={handleShare}
-              className="flex items-center gap-2 text-sm font-medium text-[var(--navy)] transition-colors hover:text-[var(--gold-hover)]"
+              className="flex min-h-[44px] items-center gap-2 rounded-lg px-2 text-sm font-medium text-[var(--navy)] transition-colors hover:bg-slate-100 hover:text-[var(--navy)]"
               aria-label={HEADER_SHARE_LABEL}
             >
               <svg

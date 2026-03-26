@@ -1,0 +1,381 @@
+{
+  "generatedAt": "2026-03-25T23:05:06.032Z",
+  "routes": [
+    {
+      "path": "/",
+      "type": "static"
+    },
+    {
+      "path": "/About",
+      "type": "static"
+    },
+    {
+      "path": "/AboutFounder",
+      "type": "static"
+    },
+    {
+      "path": "/Accessibility",
+      "type": "static"
+    },
+    {
+      "path": "/Account",
+      "type": "static"
+    },
+    {
+      "path": "/AccreditedRepresentativeGuide",
+      "type": "static"
+    },
+    {
+      "path": "/Advertisers",
+      "type": "static"
+    },
+    {
+      "path": "/Advertising",
+      "type": "static"
+    },
+    {
+      "path": "/BeginnersGuide",
+      "type": "static"
+    },
+    {
+      "path": "/Blog",
+      "type": "static"
+    },
+    {
+      "path": "/Blog/[slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/BuildPortfolioGuide",
+      "type": "static"
+    },
+    {
+      "path": "/Complaints",
+      "type": "static"
+    },
+    {
+      "path": "/Contact",
+      "type": "static"
+    },
+    {
+      "path": "/Cookies",
+      "type": "static"
+    },
+    {
+      "path": "/CriminalLawCareerGuide",
+      "type": "static"
+    },
+    {
+      "path": "/CrownCourtFees",
+      "type": "static"
+    },
+    {
+      "path": "/CustodyNote",
+      "type": "static"
+    },
+    {
+      "path": "/DSCCRegistrationGuide",
+      "type": "static"
+    },
+    {
+      "path": "/DataProtection",
+      "type": "static"
+    },
+    {
+      "path": "/DutySolicitorVsRep",
+      "type": "static"
+    },
+    {
+      "path": "/EmergencyCover",
+      "type": "static"
+    },
+    {
+      "path": "/EscapeFeeCalculator",
+      "type": "static"
+    },
+    {
+      "path": "/FAQ",
+      "type": "static"
+    },
+    {
+      "path": "/Firms",
+      "type": "static"
+    },
+    {
+      "path": "/FirmsWhatsAppGroup",
+      "type": "static"
+    },
+    {
+      "path": "/Forces",
+      "type": "static"
+    },
+    {
+      "path": "/FormsLibrary",
+      "type": "static"
+    },
+    {
+      "path": "/Forum",
+      "type": "static"
+    },
+    {
+      "path": "/GDPR",
+      "type": "static"
+    },
+    {
+      "path": "/GetWork",
+      "type": "static"
+    },
+    {
+      "path": "/GettingStarted",
+      "type": "static"
+    },
+    {
+      "path": "/GoFeatured",
+      "type": "static"
+    },
+    {
+      "path": "/GravesendPoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/HowToBecome",
+      "type": "static"
+    },
+    {
+      "path": "/HowToBecomePoliceStationRep",
+      "type": "static"
+    },
+    {
+      "path": "/ICO",
+      "type": "static"
+    },
+    {
+      "path": "/InterviewUnderCaution",
+      "type": "static"
+    },
+    {
+      "path": "/Join",
+      "type": "static"
+    },
+    {
+      "path": "/KentAgentCover",
+      "type": "static"
+    },
+    {
+      "path": "/KentCustodySuites",
+      "type": "static"
+    },
+    {
+      "path": "/KentPoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/LegalUpdates",
+      "type": "static"
+    },
+    {
+      "path": "/LegalUpdates/[slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/MagistratesCourtFees",
+      "type": "static"
+    },
+    {
+      "path": "/MaidstonePoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/Map",
+      "type": "static"
+    },
+    {
+      "path": "/MediaKit",
+      "type": "static"
+    },
+    {
+      "path": "/MedwayPoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/PACE",
+      "type": "static"
+    },
+    {
+      "path": "/PoliceDisclosureGuide",
+      "type": "static"
+    },
+    {
+      "path": "/PoliceStationCover",
+      "type": "static"
+    },
+    {
+      "path": "/PoliceStationRates",
+      "type": "static"
+    },
+    {
+      "path": "/PoliceStationRepJobsUK",
+      "type": "static"
+    },
+    {
+      "path": "/PoliceStationRepPay",
+      "type": "static"
+    },
+    {
+      "path": "/PoliceStationRepsByCounty",
+      "type": "static"
+    },
+    {
+      "path": "/Premium",
+      "type": "static"
+    },
+    {
+      "path": "/PrepareForCIT",
+      "type": "static"
+    },
+    {
+      "path": "/Privacy",
+      "type": "static"
+    },
+    {
+      "path": "/Profile",
+      "type": "static"
+    },
+    {
+      "path": "/RegionalDemandHeatmap",
+      "type": "static"
+    },
+    {
+      "path": "/RepFAQMaster",
+      "type": "static"
+    },
+    {
+      "path": "/RepsHub",
+      "type": "static"
+    },
+    {
+      "path": "/Resources",
+      "type": "static"
+    },
+    {
+      "path": "/SevenoaksPoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/SolicitorPoliceStationCoverUK",
+      "type": "static"
+    },
+    {
+      "path": "/StationsDirectory",
+      "type": "static"
+    },
+    {
+      "path": "/Subscribe",
+      "type": "static"
+    },
+    {
+      "path": "/SwanleyPoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/Terms",
+      "type": "static"
+    },
+    {
+      "path": "/TonbridgePoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/WhatDoesRepDo",
+      "type": "static"
+    },
+    {
+      "path": "/WhatsApp",
+      "type": "static"
+    },
+    {
+      "path": "/Wiki",
+      "type": "static"
+    },
+    {
+      "path": "/Wiki/[slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/[...slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/[slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/county-seo/[slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/county/[county]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/criminal-solicitor-police-station",
+      "type": "static"
+    },
+    {
+      "path": "/directory",
+      "type": "static"
+    },
+    {
+      "path": "/directory/[county]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/directory/counties",
+      "type": "static"
+    },
+    {
+      "path": "/free-legal-advice-police-station",
+      "type": "static"
+    },
+    {
+      "path": "/police-station-rep-essex",
+      "type": "static"
+    },
+    {
+      "path": "/police-station-rep-kent",
+      "type": "static"
+    },
+    {
+      "path": "/police-station-rep-london",
+      "type": "static"
+    },
+    {
+      "path": "/police-station-representative",
+      "type": "static"
+    },
+    {
+      "path": "/police-station-representatives-directory-england-wales",
+      "type": "static"
+    },
+    {
+      "path": "/police-station-rights-uk",
+      "type": "static"
+    },
+    {
+      "path": "/police-station/[station]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/register",
+      "type": "static"
+    },
+    {
+      "path": "/rep/[slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/search",
+      "type": "static"
+    }
+  ]
+}

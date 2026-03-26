@@ -1,0 +1,50 @@
+{
+  "generatedAt": "2026-03-26T07:07:30.994Z",
+  "status": "PASS",
+  "coveragePercent": 100,
+  "totalSourceReps": 177,
+  "totalDbReps": 177,
+  "totalStations": 894,
+  "totalCounties": 32,
+  "missingCount": 0,
+  "extraCount": 0,
+  "mismatchCount": 0,
+  "duplicateCount": 1,
+  "hallucinationCount": 1,
+  "criticalHallucinationCount": 0,
+  "registrationTest": "SKIP",
+  "searchTest": "PASS",
+  "fixesApplied": [],
+  "details": {
+    "missing": [],
+    "extra": [],
+    "mismatches": [],
+    "duplicates": [
+      {
+        "key": "deborah stevend ~ deborah stevens",
+        "type": "fuzzy-name",
+        "count": 2,
+        "reps": [
+          {
+            "slug": "deborah-stevend",
+            "name": "Deborah Stevend"
+          },
+          {
+            "slug": "deborah-stevens",
+            "name": "Deborah Stevens"
+          }
+        ]
+      }
+    ],
+    "hallucinations": [
+      {
+        "slug": "james-howard",
+        "name": "James Howard",
+        "county": "Essex",
+        "issues": [
+          "invalid_phone: (07656) 3905626"
+        ]
+      }
+    ]
+  }
+}

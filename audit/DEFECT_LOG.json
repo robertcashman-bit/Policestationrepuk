@@ -1,0 +1,553 @@
+{
+  "generatedAt": "2026-03-25T23:05:06.032Z",
+  "framework": "Next.js 15 App Router",
+  "staticRouteCount": 94,
+  "internalHrefOccurrences": 262,
+  "defects": [],
+  "crawlMap": [
+    "/",
+    "/About",
+    "/AboutFounder",
+    "/Accessibility",
+    "/Account",
+    "/AccreditedRepresentativeGuide",
+    "/Advertisers",
+    "/Advertising",
+    "/BeginnersGuide",
+    "/Blog",
+    "/Blog/[slug]",
+    "/BuildPortfolioGuide",
+    "/Complaints",
+    "/Contact",
+    "/Cookies",
+    "/CriminalLawCareerGuide",
+    "/CrownCourtFees",
+    "/CustodyNote",
+    "/DSCCRegistrationGuide",
+    "/DataProtection",
+    "/DutySolicitorVsRep",
+    "/EmergencyCover",
+    "/EscapeFeeCalculator",
+    "/FAQ",
+    "/Firms",
+    "/FirmsWhatsAppGroup",
+    "/Forces",
+    "/FormsLibrary",
+    "/Forum",
+    "/GDPR",
+    "/GetWork",
+    "/GettingStarted",
+    "/GoFeatured",
+    "/GravesendPoliceStationReps",
+    "/HowToBecome",
+    "/HowToBecomePoliceStationRep",
+    "/ICO",
+    "/InterviewUnderCaution",
+    "/Join",
+    "/KentAgentCover",
+    "/KentCustodySuites",
+    "/KentPoliceStationReps",
+    "/LegalUpdates",
+    "/LegalUpdates/[slug]",
+    "/MagistratesCourtFees",
+    "/MaidstonePoliceStationReps",
+    "/Map",
+    "/MediaKit",
+    "/MedwayPoliceStationReps",
+    "/PACE",
+    "/PoliceDisclosureGuide",
+    "/PoliceStationCover",
+    "/PoliceStationRates",
+    "/PoliceStationRepJobsUK",
+    "/PoliceStationRepPay",
+    "/PoliceStationRepsByCounty",
+    "/Premium",
+    "/PrepareForCIT",
+    "/Privacy",
+    "/Profile",
+    "/RegionalDemandHeatmap",
+    "/RepFAQMaster",
+    "/RepsHub",
+    "/Resources",
+    "/SevenoaksPoliceStationReps",
+    "/SolicitorPoliceStationCoverUK",
+    "/StationsDirectory",
+    "/Subscribe",
+    "/SwanleyPoliceStationReps",
+    "/Terms",
+    "/TonbridgePoliceStationReps",
+    "/WhatDoesRepDo",
+    "/WhatsApp",
+    "/Wiki",
+    "/Wiki/[slug]",
+    "/[...slug]",
+    "/[slug]",
+    "/county-seo/[slug]",
+    "/county/[county]",
+    "/criminal-solicitor-police-station",
+    "/directory",
+    "/directory/[county]",
+    "/directory/counties",
+    "/free-legal-advice-police-station",
+    "/police-station-rep-essex",
+    "/police-station-rep-kent",
+    "/police-station-rep-london",
+    "/police-station-representative",
+    "/police-station-representatives-directory-england-wales",
+    "/police-station-rights-uk",
+    "/police-station/[station]",
+    "/register",
+    "/rep/[slug]",
+    "/search"
+  ],
+  "routeMatrix": [
+    {
+      "path": "/",
+      "type": "static"
+    },
+    {
+      "path": "/About",
+      "type": "static"
+    },
+    {
+      "path": "/AboutFounder",
+      "type": "static"
+    },
+    {
+      "path": "/Accessibility",
+      "type": "static"
+    },
+    {
+      "path": "/Account",
+      "type": "static"
+    },
+    {
+      "path": "/AccreditedRepresentativeGuide",
+      "type": "static"
+    },
+    {
+      "path": "/Advertisers",
+      "type": "static"
+    },
+    {
+      "path": "/Advertising",
+      "type": "static"
+    },
+    {
+      "path": "/BeginnersGuide",
+      "type": "static"
+    },
+    {
+      "path": "/Blog",
+      "type": "static"
+    },
+    {
+      "path": "/Blog/[slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/BuildPortfolioGuide",
+      "type": "static"
+    },
+    {
+      "path": "/Complaints",
+      "type": "static"
+    },
+    {
+      "path": "/Contact",
+      "type": "static"
+    },
+    {
+      "path": "/Cookies",
+      "type": "static"
+    },
+    {
+      "path": "/CriminalLawCareerGuide",
+      "type": "static"
+    },
+    {
+      "path": "/CrownCourtFees",
+      "type": "static"
+    },
+    {
+      "path": "/CustodyNote",
+      "type": "static"
+    },
+    {
+      "path": "/DSCCRegistrationGuide",
+      "type": "static"
+    },
+    {
+      "path": "/DataProtection",
+      "type": "static"
+    },
+    {
+      "path": "/DutySolicitorVsRep",
+      "type": "static"
+    },
+    {
+      "path": "/EmergencyCover",
+      "type": "static"
+    },
+    {
+      "path": "/EscapeFeeCalculator",
+      "type": "static"
+    },
+    {
+      "path": "/FAQ",
+      "type": "static"
+    },
+    {
+      "path": "/Firms",
+      "type": "static"
+    },
+    {
+      "path": "/FirmsWhatsAppGroup",
+      "type": "static"
+    },
+    {
+      "path": "/Forces",
+      "type": "static"
+    },
+    {
+      "path": "/FormsLibrary",
+      "type": "static"
+    },
+    {
+      "path": "/Forum",
+      "type": "static"
+    },
+    {
+      "path": "/GDPR",
+      "type": "static"
+    },
+    {
+      "path": "/GetWork",
+      "type": "static"
+    },
+    {
+      "path": "/GettingStarted",
+      "type": "static"
+    },
+    {
+      "path": "/GoFeatured",
+      "type": "static"
+    },
+    {
+      "path": "/GravesendPoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/HowToBecome",
+      "type": "static"
+    },
+    {
+      "path": "/HowToBecomePoliceStationRep",
+      "type": "static"
+    },
+    {
+      "path": "/ICO",
+      "type": "static"
+    },
+    {
+      "path": "/InterviewUnderCaution",
+      "type": "static"
+    },
+    {
+      "path": "/Join",
+      "type": "static"
+    },
+    {
+      "path": "/KentAgentCover",
+      "type": "static"
+    },
+    {
+      "path": "/KentCustodySuites",
+      "type": "static"
+    },
+    {
+      "path": "/KentPoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/LegalUpdates",
+      "type": "static"
+    },
+    {
+      "path": "/LegalUpdates/[slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/MagistratesCourtFees",
+      "type": "static"
+    },
+    {
+      "path": "/MaidstonePoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/Map",
+      "type": "static"
+    },
+    {
+      "path": "/MediaKit",
+      "type": "static"
+    },
+    {
+      "path": "/MedwayPoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/PACE",
+      "type": "static"
+    },
+    {
+      "path": "/PoliceDisclosureGuide",
+      "type": "static"
+    },
+    {
+      "path": "/PoliceStationCover",
+      "type": "static"
+    },
+    {
+      "path": "/PoliceStationRates",
+      "type": "static"
+    },
+    {
+      "path": "/PoliceStationRepJobsUK",
+      "type": "static"
+    },
+    {
+      "path": "/PoliceStationRepPay",
+      "type": "static"
+    },
+    {
+      "path": "/PoliceStationRepsByCounty",
+      "type": "static"
+    },
+    {
+      "path": "/Premium",
+      "type": "static"
+    },
+    {
+      "path": "/PrepareForCIT",
+      "type": "static"
+    },
+    {
+      "path": "/Privacy",
+      "type": "static"
+    },
+    {
+      "path": "/Profile",
+      "type": "static"
+    },
+    {
+      "path": "/RegionalDemandHeatmap",
+      "type": "static"
+    },
+    {
+      "path": "/RepFAQMaster",
+      "type": "static"
+    },
+    {
+      "path": "/RepsHub",
+      "type": "static"
+    },
+    {
+      "path": "/Resources",
+      "type": "static"
+    },
+    {
+      "path": "/SevenoaksPoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/SolicitorPoliceStationCoverUK",
+      "type": "static"
+    },
+    {
+      "path": "/StationsDirectory",
+      "type": "static"
+    },
+    {
+      "path": "/Subscribe",
+      "type": "static"
+    },
+    {
+      "path": "/SwanleyPoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/Terms",
+      "type": "static"
+    },
+    {
+      "path": "/TonbridgePoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/WhatDoesRepDo",
+      "type": "static"
+    },
+    {
+      "path": "/WhatsApp",
+      "type": "static"
+    },
+    {
+      "path": "/Wiki",
+      "type": "static"
+    },
+    {
+      "path": "/Wiki/[slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/[...slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/[slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/county-seo/[slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/county/[county]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/criminal-solicitor-police-station",
+      "type": "static"
+    },
+    {
+      "path": "/directory",
+      "type": "static"
+    },
+    {
+      "path": "/directory/[county]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/directory/counties",
+      "type": "static"
+    },
+    {
+      "path": "/free-legal-advice-police-station",
+      "type": "static"
+    },
+    {
+      "path": "/police-station-rep-essex",
+      "type": "static"
+    },
+    {
+      "path": "/police-station-rep-kent",
+      "type": "static"
+    },
+    {
+      "path": "/police-station-rep-london",
+      "type": "static"
+    },
+    {
+      "path": "/police-station-representative",
+      "type": "static"
+    },
+    {
+      "path": "/police-station-representatives-directory-england-wales",
+      "type": "static"
+    },
+    {
+      "path": "/police-station-rights-uk",
+      "type": "static"
+    },
+    {
+      "path": "/police-station/[station]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/register",
+      "type": "static"
+    },
+    {
+      "path": "/rep/[slug]",
+      "type": "dynamic"
+    },
+    {
+      "path": "/search",
+      "type": "static"
+    }
+  ],
+  "searchAudit": {
+    "components": [
+      {
+        "id": "DirectorySearch",
+        "path": "components/DirectorySearch.tsx",
+        "pages": [
+          "/directory",
+          "/search"
+        ],
+        "data": "Representative[], County[], PoliceStation[] from getAll*",
+        "behaviour": "Live filter + URL sync (400ms debounce); county/station/availability/accreditation; pagination",
+        "fixesApplied": [
+          "Trim free-text q for matching and URL",
+          "Trim station filter so whitespace-only does not over-filter"
+        ]
+      },
+      {
+        "id": "HomeQuickSearch",
+        "path": "components/HomeQuickSearch.tsx",
+        "pages": [
+          "/"
+        ],
+        "data": "Station names + county names from homepage loader",
+        "behaviour": "Form GET → /directory?q=&station=&county="
+      },
+      {
+        "id": "StationsDirectoryExplorer",
+        "path": "components/StationsDirectoryExplorer.tsx",
+        "pages": [
+          "/StationsDirectory"
+        ],
+        "data": "PoliceStation[]",
+        "behaviour": "Trim query; haystack match on name/address/postcode/county/force/phones"
+      },
+      {
+        "id": "MapPageStationSearch",
+        "path": "app/Map/page.tsx",
+        "pages": [
+          "/Map"
+        ],
+        "data": "GET /api/stations JSON",
+        "behaviour": "Client fetch; trim query before name/county/address filter"
+      },
+      {
+        "id": "FirmDirectory",
+        "path": "components/FirmDirectory.tsx",
+        "pages": [
+          "/Firms"
+        ],
+        "data": "LawFirm[]",
+        "behaviour": "Trim query; filter name/address/county/specialisms; county + sort"
+      }
+    ],
+    "forms": [
+      {
+        "path": "components/HomeQuickSearch.tsx",
+        "action": "router.push → /directory?...",
+        "method": "client"
+      },
+      {
+        "path": "app/register/page.tsx",
+        "note": "Registration flow"
+      },
+      {
+        "path": "app/Contact/page.tsx",
+        "note": "Contact — verify submit in browser"
+      }
+    ]
+  },
+  "externalUrlCheck": {
+    "note": "GOV.UK/Judiciary URLs not HTTP-verified here (many block bots). Spot-check in browser after deploy."
+  }
+}

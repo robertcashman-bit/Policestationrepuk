@@ -1,9 +1,10 @@
 /**
  * policestationrepuk-seo-layer — central SEO config.
- * Override via env if needed: NEXT_PUBLIC_SITE_URL
+ * Production canonical host is always https://policestationrepuk.org (set in vercel.json build env).
+ * For local/staging only, override with NEXT_PUBLIC_SITE_URL.
  */
 
-/** Production default: .org clone; override with NEXT_PUBLIC_SITE_URL if needed. */
+/** Canonical production URL — must stay policestationrepuk.org for sitemap, JSON-LD, and Open Graph. */
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '').trim() ||
   'https://policestationrepuk.org';

@@ -21,7 +21,11 @@ function canonicalHostRedirect(request: NextRequest): NextResponse | null {
     return NextResponse.redirect(url, 301);
   }
 
-  if (host === 'policestationrepuk.com' || host === 'www.policestationrepuk.com') {
+  if (
+    host === 'policestationrepuk.com' ||
+    host === 'www.policestationrepuk.com' ||
+    host === 'new.policestationrepuk.com'
+  ) {
     const url = request.nextUrl.clone();
     url.hostname = apex;
     url.protocol = 'https:';

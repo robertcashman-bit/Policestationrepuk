@@ -74,6 +74,15 @@ County URLs are implemented via Next.js rewrites: `/police-station-representativ
 - Target **LCP < 1s** with edge deployment (Vercel/Cloudflare)
 - Cache headers set in `next.config.ts`
 
+## Production deployment (Vercel)
+
+Live traffic for **policestationrepuk.org** is served from **Vercel**. The blog and all app routes come from the **latest successful production deployment** of this GitHub repo — not from a separate CMS.
+
+1. **Vercel → Project → Settings → Git**: confirm the connected repository is **`robertcashman-bit/Policestationrepuk`** and the **Production Branch** is **`master`** or **`main`** (this repo keeps both branches aligned).
+2. **Deployments**: if a build fails, Vercel keeps serving the previous deployment — the public site can then look “stuck” on old HTML (e.g. an old blog index). Fix the build error and redeploy.
+3. **GitHub Actions**: workflow **CI — Next.js build** runs `npm ci && npm run build` on every push to `master`/`main` so breakages are visible under the **Actions** tab.
+4. **Optional deploy hook**: Vercel → **Settings → Git → Deploy Hooks** → create a hook for **Production**. Add the hook URL as repository secret **`VERCEL_DEPLOY_HOOK`**. Pushes will then POST that hook after CI (see `.github/workflows/vercel-deploy-hook.yml`).
+
 ## Getting Started
 
 ### Prerequisites

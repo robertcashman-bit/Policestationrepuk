@@ -24,7 +24,9 @@ export async function HomeBlogPreview() {
       <div className="page-container !py-0">
         <div className="text-center">
           <h2 className="text-h2 mt-0 text-[var(--navy)]">Latest Legal Insights</h2>
-          <p className="mt-2 text-sm text-[var(--muted)]">Expert guidance from the PSR Kent Blog</p>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            Practical notes for firms and freelance police station representatives
+          </p>
         </div>
 
         <div className="mt-8 grid gap-5 sm:grid-cols-2 sm:gap-6">

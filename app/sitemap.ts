@@ -6,7 +6,7 @@ import {
   getAllWikiArticles,
   getAllLegalUpdates,
 } from '@/lib/data';
-import { getAllBlogPosts } from '@/lib/blog-data';
+import { getAllBlogArticles } from '@/lib/blog/registry';
 import { getMirrorPaths, hasMirrorData } from '@/lib/mirror-data';
 import { SITEMAP_PATHS } from '@/lib/sitemap-paths';
 import { COUNTY_SEO_PAGES } from '@/lib/county-seo-pages';
@@ -176,11 +176,12 @@ async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'monthly' as const,
     priority: 0.6,
   }));
-  const blogPostUrls = getAllBlogPosts().map((p) => ({
-    url: `${BASE}/Blog/${p.slug}`,
-    lastModified: now,
+  const blogArticles = getAllBlogArticles();
+  const blogPostUrls = blogArticles.map((a) => ({
+    url: `${BASE}/Blog/${a.slug}`,
+    lastModified: a.modified ? new Date(a.modified) : now,
     changeFrequency: 'monthly' as const,
-    priority: 0.55,
+    priority: 0.58,
   }));
 
   // county-seo slugs are 308-redirected to /directory/{slug} by middleware — omit from sitemap

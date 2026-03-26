@@ -83,7 +83,7 @@ const nextConfig: NextConfig = {
   },
 
   async redirects() {
-    const blogRedirect = "https://robertdcashman.wixsite.com/website/blog";
+    const blogLegacyHub = "https://policestationrepuk.org/Blog";
     return [
       {
         source: "/police-station-representatives",
@@ -134,20 +134,20 @@ const nextConfig: NextConfig = {
       // NOTE: /blog/:slug → /Blog/:slug case redirect moved to middleware.ts
       // next.config redirects match case-insensitively on Vercel, creating a loop for /Blog/* URLs.
       // Duplicate blog slugs → canonical versions
-      { source: "/Blog/what-is-a-duty-solicitor-4", destination: "/Blog/what-is-a-duty-solicitor", permanent: true },
-      { source: "/Blog/whats-a-duty-solicitor", destination: "/Blog/what-is-a-duty-solicitor", permanent: true },
-      { source: "/Blog/nofurtheractionafterpoliceinterview", destination: "/Blog/no-further-action-after-police-interview", permanent: true },
-      { source: "/Blog/have-to-attend-a-police-station-part-2-1", destination: "/Blog/have-to-attend-a-police-station-part-2", permanent: true },
-      { source: "/Blog/help-the-police-have-contacted-me-1", destination: "/Blog/help-the-police-have-contacted-me", permanent: true },
-      { source: "/Blog/property-returned-from-police-uk", destination: "/Blog/getting-your-property-returned-by-the-police-in-the-uk", permanent: true },
-      { source: "/Blog/what-happens-if-you-don-t-attend-a-voluntary-police-interview-inengland", destination: "/Blog/what-happens-if-you-don-t-attend-a-voluntary-police-interview-in-england", permanent: true },
-      { source: "/Blog/understanding-police-bail-imposition-conditions-breaches-and-legal-implications-explained", destination: "/Blog/demystifying-police-bail-understanding-imposition-conditions-breaches-and-legal-implications", permanent: true },
-      { source: "/Blog/whats-a-voluntary-police-interview", destination: "/Blog/voluntaryinterviewwithpolice", permanent: true },
-      { source: "/Blog/what-s-a-voluntary-police-interview", destination: "/Blog/voluntaryinterviewwithpolice", permanent: true },
-      { source: "/Blog/whats-happens-at-a-police-station-voluntary-interview-part-2", destination: "/Blog/inside-a-voluntary-police-interview-what-to-expect-part-2", permanent: true },
-      { source: "/Blog/police-station-representation", destination: "/Blog/what-is-police-station-representation", permanent: true },
-      { source: "/Blog/understanding-police-cautions-and-warnings-what-you-need-to-know", destination: "/Blog/police-caution", permanent: true },
-      { source: "/Blog/copy-of-what-is-common-assault-in-english-law", destination: "/Blog/what-is-common-assault-in-english-law", permanent: true },
+      { source: "/Blog/what-is-a-duty-solicitor-4", destination: "/Blog/freelance-police-station-representative-vs-duty-solicitor", permanent: true },
+      { source: "/Blog/whats-a-duty-solicitor", destination: "/Blog/freelance-police-station-representative-vs-duty-solicitor", permanent: true },
+      { source: "/Blog/nofurtheractionafterpoliceinterview", destination: "/Blog/best-practice-handover-notes-after-police-station-attendance", permanent: true },
+      { source: "/Blog/have-to-attend-a-police-station-part-2-1", destination: "/Blog", permanent: true },
+      { source: "/Blog/help-the-police-have-contacted-me-1", destination: "/Blog", permanent: true },
+      { source: "/Blog/property-returned-from-police-uk", destination: "/Blog", permanent: true },
+      { source: "/Blog/what-happens-if-you-don-t-attend-a-voluntary-police-interview-inengland", destination: "/Blog", permanent: true },
+      { source: "/Blog/understanding-police-bail-imposition-conditions-breaches-and-legal-implications-explained", destination: "/Blog", permanent: true },
+      { source: "/Blog/whats-a-voluntary-police-interview", destination: "/Blog", permanent: true },
+      { source: "/Blog/what-s-a-voluntary-police-interview", destination: "/Blog", permanent: true },
+      { source: "/Blog/whats-happens-at-a-police-station-voluntary-interview-part-2", destination: "/Blog", permanent: true },
+      { source: "/Blog/police-station-representation", destination: "/Blog/what-does-a-freelance-police-station-representative-do", permanent: true },
+      { source: "/Blog/understanding-police-cautions-and-warnings-what-you-need-to-know", destination: "/Blog", permanent: true },
+      { source: "/Blog/copy-of-what-is-common-assault-in-english-law", destination: "/Blog", permanent: true },
       { source: "/Blog/welcome-to-our-blog", destination: "/Blog", permanent: true },
       { source: "/Blog/police-station-agent-blog", destination: "/Blog", permanent: true },
       {
@@ -172,14 +172,14 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       // Legacy Wix blog paths that do NOT match current app/Blog routes
-      { source: "/post/:path*", destination: blogRedirect, permanent: true },
-      { source: "/news/:path*", destination: blogRedirect, permanent: true },
-      { source: "/posts/:path*", destination: blogRedirect, permanent: true },
-      { source: "/article/:path*", destination: blogRedirect, permanent: true },
-      { source: "/blog-1/:path*", destination: blogRedirect, permanent: true },
-      { source: "/articles/:path*", destination: blogRedirect, permanent: true },
-      { source: "/new-blog/:path*", destination: blogRedirect, permanent: true },
-      { source: "/blog-old/:path*", destination: blogRedirect, permanent: true },
+      { source: "/post/:path*", destination: blogLegacyHub, permanent: true },
+      { source: "/news/:path*", destination: blogLegacyHub, permanent: true },
+      { source: "/posts/:path*", destination: blogLegacyHub, permanent: true },
+      { source: "/article/:path*", destination: blogLegacyHub, permanent: true },
+      { source: "/blog-1/:path*", destination: blogLegacyHub, permanent: true },
+      { source: "/articles/:path*", destination: blogLegacyHub, permanent: true },
+      { source: "/new-blog/:path*", destination: blogLegacyHub, permanent: true },
+      { source: "/blog-old/:path*", destination: blogLegacyHub, permanent: true },
       {
         source: "/BlogPostPage",
         destination: "/Blog",
@@ -403,7 +403,11 @@ const nextConfig: NextConfig = {
       { source: "/can-police-take-my-phone", destination: "/PACE", permanent: true },
       { source: "/case-status", destination: "/Contact", permanent: true },
       { source: "/police-caution", destination: "/Blog", permanent: true },
-      { source: "/nofurtheractionafterpoliceinterview", destination: "/Blog", permanent: true },
+      {
+        source: "/nofurtheractionafterpoliceinterview",
+        destination: "/Blog/best-practice-handover-notes-after-police-station-attendance",
+        permanent: true,
+      },
       { source: "/what-to-do-if-a-loved-one-is-arrested", destination: "/PACE", permanent: true },
       { source: "/arrestednow", destination: "/PACE", permanent: true },
       { source: "/arrested-what-to-do", destination: "/PACE", permanent: true },

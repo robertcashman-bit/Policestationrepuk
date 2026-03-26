@@ -13,57 +13,57 @@
   },
   {
     "from": "/post/*",
-    "to": "https://robertdcashman.wixsite.com/website/blog",
+    "to": "https://policestationrepuk.org/Blog",
     "statusCode": 301,
-    "notes": "Redirect all legacy /post/ URLs to live Wix blog"
+    "notes": "Legacy /post/ → on-site Blog index"
   },
   {
     "from": "/news/*",
-    "to": "https://robertdcashman.wixsite.com/website/blog",
+    "to": "https://policestationrepuk.org/Blog",
     "statusCode": 301,
-    "notes": "Redirect all legacy /news/ URLs to live Wix blog"
+    "notes": "Legacy /news/ → on-site Blog index"
   },
   {
     "from": "/posts/*",
-    "to": "https://robertdcashman.wixsite.com/website/blog",
+    "to": "https://policestationrepuk.org/Blog",
     "statusCode": 301,
-    "notes": "Redirect all legacy /posts/ URLs to live Wix blog"
+    "notes": "Legacy /posts/ → on-site Blog index"
   },
   {
     "from": "/blog/*",
-    "to": "https://robertdcashman.wixsite.com/website/blog",
+    "to": "https://policestationrepuk.org/Blog",
     "statusCode": 301,
-    "notes": "Redirect all legacy /blog/ URLs to live Wix blog"
+    "notes": "Legacy /blog/* pattern (see next.config + middleware for slug routing)"
   },
   {
     "from": "/article/*",
-    "to": "https://robertdcashman.wixsite.com/website/blog",
+    "to": "https://policestationrepuk.org/Blog",
     "statusCode": 301,
-    "notes": "Redirect all legacy /article/ URLs to live Wix blog"
+    "notes": "Legacy /article/ → on-site Blog index"
   },
   {
     "from": "/blog-1/*",
-    "to": "https://robertdcashman.wixsite.com/website/blog",
+    "to": "https://policestationrepuk.org/Blog",
     "statusCode": 301,
-    "notes": "Redirect all legacy /blog-1/ URLs to live Wix blog"
+    "notes": "Legacy /blog-1/ → on-site Blog index"
   },
   {
     "from": "/articles/*",
-    "to": "https://robertdcashman.wixsite.com/website/blog",
+    "to": "https://policestationrepuk.org/Blog",
     "statusCode": 301,
-    "notes": "Redirect all legacy /articles/ URLs to live Wix blog"
+    "notes": "Legacy /articles/ → on-site Blog index"
   },
   {
     "from": "/new-blog/*",
-    "to": "https://robertdcashman.wixsite.com/website/blog",
+    "to": "https://policestationrepuk.org/Blog",
     "statusCode": 301,
-    "notes": "Redirect all legacy /new-blog/ URLs to live Wix blog"
+    "notes": "Legacy /new-blog/ → on-site Blog index"
   },
   {
     "from": "/blog-old/*",
-    "to": "https://robertdcashman.wixsite.com/website/blog",
+    "to": "https://policestationrepuk.org/Blog",
     "statusCode": 301,
-    "notes": "Redirect all legacy /blog-old/ URLs to live Wix blog"
+    "notes": "Legacy /blog-old/ → on-site Blog index"
   },
   {
     "from": "/LegalLinks",
@@ -96,15 +96,9 @@
     "notes": "Temporary mapping for Google HTML verification file to SPA route."
   },
   {
-    "from": "/Blog",
-    "to": "https://www.policestationrepkent.co.uk/blog",
-    "statusCode": 301,
-    "notes": "Corrected target with www + .co.uk"
-  },
-  {
     "from": "/BlogPostPage",
-    "to": "https://www.policestationrepkent.co.uk/blog",
+    "to": "/Blog",
     "statusCode": 301,
-    "notes": "Corrected target with www + .co.uk"
+    "notes": "Legacy blog entry → on-site Blog index (editorial blog on policestationrepuk.org)"
   }
 ]

@@ -1,16 +1,14 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { buildMetadata, blogPostingSchema } from '@/lib/seo';
+import { BlogArticleMarkdown } from '@/components/BlogArticleMarkdown';
+import { buildMetadata, blogPostingSchema, breadcrumbSchema, faqPageSchema } from '@/lib/seo';
 import { JsonLd } from '@/components/JsonLd';
-import { breadcrumbSchema } from '@/lib/seo';
-import {
-  getAllBlogPosts,
-  getBlogPostBySlug,
-  loadBlogCrawlFile,
-  isPlaceholderBlogRecord,
-  getLiveBlogArticleUrl,
-} from '@/lib/blog-data';
+import { getAllBlogPosts, getBlogPostBySlug, getFullBlogArticle, getBlogRelatedForSlug } from '@/lib/blog-data';
+import { SITE_URL } from '@/lib/seo-layer/config';
+import { categoryLabel } from '@/lib/blog/categories';
+import type { BlogCategoryId } from '@/lib/blog/types';
 
 export const dynamic = 'force-static';
 export const revalidate = false;
@@ -23,155 +21,80 @@ export async function generateStaticParams() {
   return getAllBlogPosts().map((p) => ({ slug: p.slug }));
 }
 
-export const dynamicParams = true;
-
-function metaDescriptionForBlogPost(title: string, crawlContent: string, placeholder: boolean): string {
-  const fallback = `${title} — Practical guides on police station representation, interviews, and cautions. Free UK directory and resources on PoliceStationRepUK.`;
-  if (placeholder) return fallback;
-  const oneLine = crawlContent.replace(/\s+/g, ' ').trim();
-  if (!oneLine) return fallback;
-  const max = 155;
-  if (oneLine.length <= max) return oneLine;
-  const cut = oneLine.slice(0, max - 1);
-  const lastSpace = cut.lastIndexOf(' ');
-  const snippet = (lastSpace > 80 ? cut.slice(0, lastSpace) : cut).trimEnd();
-  return `${snippet}…`;
-}
+export const dynamicParams = false;
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
-  if (!post) return {};
-  const crawl = loadBlogCrawlFile(slug);
-  const placeholder = isPlaceholderBlogRecord(crawl);
-  const rawContent = (crawl?.content ?? '').trim();
-  const crawledAt = crawl?.crawledAt;
+  const article = getFullBlogArticle(slug);
+  if (!article) return {};
+  const imageUrl = `${SITE_URL}${article.image.src}`;
   return buildMetadata({
-    title: `${post.title} | Blog`,
-    description: metaDescriptionForBlogPost(post.title, rawContent, placeholder),
+    title: article.metaTitle,
+    description: article.metaDescription,
     path: `/Blog/${slug}`,
-    noIndex: placeholder,
-    ogType: placeholder ? 'website' : 'article',
-    ...(crawledAt && !placeholder ? { publishedTime: crawledAt, modifiedTime: crawledAt } : {}),
+    ogType: 'article',
+    publishedTime: article.published,
+    modifiedTime: article.modified,
+    ogImage: {
+      url: imageUrl,
+      width: article.image.width,
+      height: article.image.height,
+      alt: article.image.alt,
+    },
   });
 }
 
-function Heading({ level, text }: { level: number; text: string }) {
-  const Tag = `h${Math.min(Math.max(level, 2), 6)}` as 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
-  const styles: Record<number, string> = {
-    2: 'text-2xl font-bold mt-10 mb-4 pb-2 border-b-2 border-[var(--gold-pale)] text-[var(--navy)]',
-    3: 'text-xl font-semibold mt-8 mb-3 text-[var(--navy)]',
-    4: 'text-lg font-semibold mt-6 mb-2 text-[var(--navy)]',
-    5: 'text-base font-semibold mt-5 mb-2 text-[var(--navy)]',
-    6: 'text-sm font-bold mt-4 mb-2 uppercase tracking-wide text-[var(--muted)]',
-  };
+function CategoryPills({ categories }: { categories: BlogCategoryId[] }) {
   return (
-    <Tag className={`tracking-tight first:mt-0 ${styles[Math.min(level, 6)] || styles[4]}`}>{text}</Tag>
-  );
-}
-
-function ArticleBody({
-  headings,
-  content,
-}: {
-  headings: { level: number; text: string }[];
-  content: string;
-}) {
-  const subHeadings = headings.filter((h) => h.level > 1);
-  const contentParagraphs = content
-    .split(/\n{2,}/)
-    .map((p) => p.trim())
-    .filter(Boolean);
-  const chunkSize =
-    subHeadings.length > 0 ? Math.ceil(contentParagraphs.length / (subHeadings.length + 1)) : contentParagraphs.length;
-
-  if (subHeadings.length > 0) {
-    return (
-      <article className="content-section">
-        {contentParagraphs.length > 0 && chunkSize > 0 && (
-          <div className="mb-6 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 shadow-[var(--card-shadow)] sm:p-8">
-            <div className="space-y-4 leading-[1.8] text-[var(--muted)]">
-              {contentParagraphs.slice(0, chunkSize).map((p, i) => (
-                <p key={i} className="whitespace-pre-line">
-                  {p}
-                </p>
-              ))}
-            </div>
-          </div>
-        )}
-        {subHeadings.map((h, idx) => {
-          const start = chunkSize * (idx + 1);
-          const end = chunkSize * (idx + 2);
-          const sectionParas = contentParagraphs.slice(start, end);
-          return (
-            <section
-              key={idx}
-              className="mb-6 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 shadow-[var(--card-shadow)] sm:p-8"
-            >
-              <Heading level={h.level} text={h.text} />
-              {sectionParas.length > 0 && (
-                <div className="mt-3 space-y-4 leading-[1.8] text-[var(--muted)]">
-                  {sectionParas.map((p, i) => (
-                    <p key={i} className="whitespace-pre-line">
-                      {p}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </section>
-          );
-        })}
-      </article>
-    );
-  }
-
-  return (
-    <article className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 shadow-[var(--card-shadow)] sm:p-8">
-      <div className="max-w-none space-y-5 break-words leading-[1.8] text-[var(--muted)]">
-        {content.split(/\n{2,}/).map((p, i) => (
-          <p key={i} className="whitespace-pre-line">
-            {p.trim()}
-          </p>
-        ))}
-      </div>
-    </article>
+    <div className="flex flex-wrap gap-2">
+      {categories.map((id) => (
+        <Link
+          key={id}
+          href={`/Blog?cat=${id}`}
+          className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:border-[var(--gold)]/60 hover:bg-white/15"
+        >
+          {categoryLabel(id)}
+        </Link>
+      ))}
+    </div>
   );
 }
 
 export default async function BlogArticlePage({ params }: PageProps) {
   const { slug } = await params;
   const post = getBlogPostBySlug(slug);
-  if (!post) notFound();
+  const article = getFullBlogArticle(slug);
+  if (!post || !article) notFound();
 
-  const crawl = loadBlogCrawlFile(slug);
-  const placeholder = isPlaceholderBlogRecord(crawl);
-  const liveUrl = getLiveBlogArticleUrl(slug);
-
-  const h1 = post.title;
-  const headings = crawl?.headings?.length ? crawl.headings : [{ level: 1, text: h1 }];
-  const content = (crawl?.content || '').trim();
+  const related = getBlogRelatedForSlug(slug, article.relatedSlugs);
+  const imageUrl = `${SITE_URL}${article.image.src}`;
 
   const bc = breadcrumbSchema([
     { name: 'Home', url: '/' },
     { name: 'Blog', url: '/Blog' },
-    { name: post.title, url: `/Blog/${slug}` },
+    { name: article.title, url: `/Blog/${slug}` },
   ]);
 
-  const description = metaDescriptionForBlogPost(h1, content, placeholder);
-  const articleSchema = !placeholder
-    ? blogPostingSchema({
-        title: h1,
-        slug,
-        description,
-        datePublished: crawl?.crawledAt,
-        dateModified: crawl?.crawledAt,
-      })
-    : null;
+  const articleSchema = blogPostingSchema({
+    title: article.title,
+    slug,
+    description: article.metaDescription,
+    datePublished: article.published,
+    dateModified: article.modified,
+    imageUrl,
+  });
+
+  const faqLd =
+    article.faqs && article.faqs.length > 0 ? faqPageSchema(article.faqs.map((f) => ({ q: f.q, a: f.a }))) : null;
+
+  const pub = new Date(article.published);
+  const mod = new Date(article.modified);
 
   return (
     <>
       <JsonLd data={bc} />
-      {articleSchema && <JsonLd data={articleSchema} />}
+      <JsonLd data={articleSchema} />
+      {faqLd && <JsonLd data={faqLd} />}
       <section className="bg-[var(--navy)] py-10 sm:py-14">
         <div className="page-container !py-0">
           <Breadcrumbs
@@ -179,93 +102,104 @@ export default async function BlogArticlePage({ params }: PageProps) {
             items={[
               { label: 'Home', href: '/' },
               { label: 'Blog', href: '/Blog' },
-              { label: post.title },
+              { label: article.title },
             ]}
           />
-          <h1 className="mt-3 text-h1 text-white">{h1}</h1>
-          <p className="mt-3 max-w-2xl text-lg text-slate-300">
-            Practical context for police station interviews, cautions, and criminal defence in England &amp; Wales.
+          <div className="mt-4">
+            <CategoryPills categories={article.categories} />
+          </div>
+          <h1 className="mt-4 text-h1 text-white">{article.title}</h1>
+          <p className="mt-2 text-sm text-slate-300">
+            Published{' '}
+            <time dateTime={article.published}>{pub.toLocaleDateString('en-GB', { dateStyle: 'long' })}</time>
+            {' · '}
+            Updated{' '}
+            <time dateTime={article.modified}>{mod.toLocaleDateString('en-GB', { dateStyle: 'long' })}</time>
           </p>
+          <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-200">{article.summary}</p>
         </div>
       </section>
 
       <div className="page-container">
         <div className="mx-auto max-w-3xl">
-          {placeholder ? (
-            <div className="space-y-8">
-              <div className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)] sm:p-8">
-                <p className="leading-relaxed text-[var(--muted)]">
-                  This article is listed in the PoliceStationRepUK blog index. The in-app crawl did not capture the full
-                  article body yet. You can read the long-form version on the legacy mirror (typically .com) while
-                  content is consolidated on policestationrepuk.org, or use our free guides below on this site.
-                </p>
-                <a
-                  href={liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-gold mt-6 inline-flex !no-underline"
-                >
-                  Read full article on legacy mirror →
-                </a>
-              </div>
+          <figure className="mt-8 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--card-shadow)]">
+            <Image
+              src={article.image.src}
+              alt={article.image.alt}
+              width={article.image.width}
+              height={article.image.height}
+              className="h-auto w-full object-cover"
+              sizes="(max-width: 768px) 100vw, 768px"
+              priority
+              unoptimized
+            />
+          </figure>
 
-              <div className="rounded-[var(--radius-lg)] border border-[var(--gold-pale)] bg-[var(--gold-pale)] p-6">
-                <h2 className="text-lg font-bold text-[var(--navy)]">Related on this site</h2>
-                <ul className="mt-3 list-inside list-disc space-y-2 text-sm text-[var(--navy)]">
-                  <li>
-                    <Link href="/directory" className="font-semibold text-[var(--gold-hover)] hover:underline">
-                      Find accredited reps — directory hub
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/search" className="font-semibold text-[var(--gold-hover)] hover:underline">
-                      Advanced search &amp; filters
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/InterviewUnderCaution" className="font-semibold text-[var(--gold-hover)] hover:underline">
-                      Interview under caution
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/PACE" className="font-semibold text-[var(--gold-hover)] hover:underline">
-                      PACE &amp; custody rights
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/Resources" className="font-semibold text-[var(--gold-hover)] hover:underline">
-                      Resources hub
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/Blog" className="font-semibold text-[var(--gold-hover)] hover:underline">
-                      All blog posts
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          ) : (
-            <ArticleBody headings={headings} content={content} />
+          <div className="mt-8 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--gold-pale)] p-5 sm:p-6">
+            <p className="text-sm font-semibold uppercase tracking-wide text-[var(--navy)]">At a glance</p>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+              Primary topic focus: <span className="font-medium text-[var(--navy)]">{article.primaryKeyword}</span>. This
+              article is for criminal defence professionals and accredited representatives. It is general information,
+              not legal advice.
+            </p>
+          </div>
+
+          <article className="mt-10">
+            <BlogArticleMarkdown markdown={article.bodyMarkdown} />
+          </article>
+
+          {article.faqs && article.faqs.length > 0 && (
+            <section className="mt-12 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 sm:p-8 shadow-[var(--card-shadow)]">
+              <h2 className="text-xl font-bold text-[var(--navy)]">Frequently asked questions</h2>
+              <dl className="mt-6 space-y-6">
+                {article.faqs.map((f, i) => (
+                  <div key={i}>
+                    <dt className="font-semibold text-[var(--navy)]">{f.q}</dt>
+                    <dd className="mt-2 leading-relaxed text-[var(--muted)]">{f.a}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
           )}
 
-          <aside className="mt-10 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--gold-pale)] p-6 sm:p-8">
-            <h2 className="text-lg font-bold text-[var(--navy)]">Need police station cover?</h2>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
-              Browse accredited representatives by area or narrow results with filters — free for firms and reps.
+          <section className="mt-12">
+            <h2 className="text-lg font-bold text-[var(--navy)]">Related articles</h2>
+            <ul className="mt-4 space-y-3">
+              {related.map((r) => (
+                <li key={r.slug}>
+                  <Link
+                    href={`/Blog/${r.slug}`}
+                    className="font-medium text-[var(--gold-hover)] no-underline hover:text-[var(--gold)] hover:underline"
+                  >
+                    {r.title}
+                  </Link>
+                  <p className="mt-1 text-sm text-[var(--muted)]">{r.excerpt}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <aside className="mt-12 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--navy)] p-6 text-white sm:p-8">
+            <h2 className="text-lg font-bold">Need cover or want to be found?</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-300">
+              PoliceStationRepUK connects criminal defence firms with accredited police station representatives across
+              England and Wales.
             </p>
-            <div className="mt-5 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
-              <Link
-                href="/directory"
-                className="btn-gold inline-flex justify-center !px-4 !py-2.5 !text-sm !no-underline sm:inline-flex"
-              >
+            <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
+              <Link href="/directory" className="btn-gold inline-flex justify-center !no-underline sm:inline-flex">
                 Find reps — directory
               </Link>
               <Link
-                href="/search"
-                className="inline-flex justify-center rounded-lg border-2 border-[var(--navy)]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[var(--navy)] no-underline transition-colors hover:border-[var(--gold-hover)] hover:text-[var(--gold-hover)] sm:inline-flex"
+                href="/Register"
+                className="inline-flex justify-center rounded-lg border-2 border-white/30 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:border-[var(--gold)] hover:bg-white/15 sm:inline-flex"
               >
-                Advanced search
+                Join the directory
+              </Link>
+              <Link
+                href="/PoliceStationCover"
+                className="inline-flex justify-center rounded-lg border-2 border-white/30 bg-transparent px-4 py-2.5 text-sm font-semibold text-white no-underline transition-colors hover:border-[var(--gold)] sm:inline-flex"
+              >
+                Police station cover for firms
               </Link>
             </div>
           </aside>
@@ -275,6 +209,13 @@ export default async function BlogArticlePage({ params }: PageProps) {
               ← Back to blog
             </Link>
           </p>
+
+          <footer className="mt-10 border-t border-[var(--card-border)] pt-6 text-sm text-[var(--muted)]">
+            <p>
+              <span className="font-semibold text-[var(--navy)]">PoliceStationRepUK</span> — editorial team. Content is
+              for professional readers; it does not create a retainer or adviser–client relationship.
+            </p>
+          </footer>
         </div>
       </div>
     </>

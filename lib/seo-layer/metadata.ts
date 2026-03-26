@@ -10,11 +10,25 @@ export interface MetadataInput {
   ogType?: 'website' | 'article';
   publishedTime?: string;
   modifiedTime?: string;
+  /** Absolute URL to Open Graph / Twitter image */
+  ogImage?: { url: string; width?: number; height?: number; alt?: string };
 }
 
 export function buildMetadata(opts: MetadataInput): Metadata {
   const url = `${SITE_URL}${opts.path}`;
   const ogType = opts.ogType ?? 'website';
+
+  const ogImages =
+    opts.ogImage?.url != null
+      ? [
+          {
+            url: opts.ogImage.url,
+            width: opts.ogImage.width ?? 1200,
+            height: opts.ogImage.height ?? 630,
+            alt: opts.ogImage.alt,
+          },
+        ]
+      : undefined;
 
   const openGraph: Metadata['openGraph'] =
     ogType === 'article'
@@ -27,6 +41,7 @@ export function buildMetadata(opts: MetadataInput): Metadata {
           locale: 'en_GB',
           ...(opts.publishedTime ? { publishedTime: opts.publishedTime } : {}),
           ...(opts.modifiedTime ? { modifiedTime: opts.modifiedTime } : {}),
+          ...(ogImages ? { images: ogImages } : {}),
         }
       : {
           title: opts.title,
@@ -35,6 +50,7 @@ export function buildMetadata(opts: MetadataInput): Metadata {
           siteName: SITE_NAME,
           type: 'website',
           locale: 'en_GB',
+          ...(ogImages ? { images: ogImages } : {}),
         };
 
   return {
@@ -46,6 +62,7 @@ export function buildMetadata(opts: MetadataInput): Metadata {
       card: 'summary_large_image',
       title: opts.title,
       description: opts.description,
+      ...(ogImages?.[0]?.url ? { images: [ogImages[0].url] } : {}),
     },
     robots: opts.noIndex ? { index: false, follow: true } : undefined,
   };

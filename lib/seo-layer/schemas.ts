@@ -173,6 +173,7 @@ export function blogPostingSchema(post: {
   description: string;
   datePublished?: string;
   dateModified?: string;
+  imageUrl?: string;
 }) {
   return {
     '@context': 'https://schema.org',
@@ -180,6 +181,7 @@ export function blogPostingSchema(post: {
     headline: post.title,
     url: `${SITE_URL}/Blog/${post.slug}`,
     description: post.description,
+    ...(post.imageUrl ? { image: [post.imageUrl] } : {}),
     ...(post.datePublished ? { datePublished: post.datePublished } : {}),
     ...(post.dateModified ? { dateModified: post.dateModified } : {}),
     author: {

@@ -19,6 +19,7 @@ export function FirmDirectory({ firms }: FirmDirectoryProps) {
   const [query, setQuery] = useState('');
   const [county, setCounty] = useState('');
   const [sort, setSort] = useState('name');
+  const [psOnly, setPsOnly] = useState(false);
   const [page, setPage] = useState(1);
 
   const counties = useMemo(() => {
@@ -45,22 +46,32 @@ export function FirmDirectory({ firms }: FirmDirectoryProps) {
       result = result.filter((f) => f.county === county);
     }
 
+    if (psOnly) {
+      result = result.filter((f) => f.policeStationWork);
+    }
+
     if (sort === 'county') {
       result.sort((a, b) => a.county.localeCompare(b.county) || a.name.localeCompare(b.name));
     } else {
-      result.sort((a, b) => a.name.localeCompare(b.name));
+      result.sort((a, b) => {
+        const aPs = a.policeStationWork ? 0 : 1;
+        const bPs = b.policeStationWork ? 0 : 1;
+        if (aPs !== bPs) return aPs - bPs;
+        return a.name.localeCompare(b.name);
+      });
     }
 
     return result;
-  }, [firms, query, county, sort]);
+  }, [firms, query, county, sort, psOnly]);
 
   const paged = filtered.slice(0, page * PAGE_SIZE);
   const hasMore = paged.length < filtered.length;
-  const hasActiveFilters = query.trim() || county;
+  const hasActiveFilters = query.trim() || county || psOnly;
 
   function resetFilters() {
     setQuery('');
     setCounty('');
+    setPsOnly(false);
     setSort('name');
     setPage(1);
   }
@@ -79,7 +90,7 @@ export function FirmDirectory({ firms }: FirmDirectoryProps) {
                 setQuery(e.target.value);
                 setPage(1);
               }}
-              className="w-full rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)] focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]"
+              className="w-full rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-base text-[var(--foreground)] placeholder:text-[var(--muted)] focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)] sm:text-sm"
             />
           </div>
 
@@ -89,7 +100,7 @@ export function FirmDirectory({ firms }: FirmDirectoryProps) {
               setCounty(e.target.value);
               setPage(1);
             }}
-            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm text-[var(--foreground)]"
+            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-base text-[var(--foreground)] sm:text-sm"
           >
             <option value="">All counties</option>
             {counties.map((c) => (
@@ -102,7 +113,7 @@ export function FirmDirectory({ firms }: FirmDirectoryProps) {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm text-[var(--foreground)]"
+            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-base text-[var(--foreground)] sm:text-sm"
           >
             {SORT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -110,6 +121,18 @@ export function FirmDirectory({ firms }: FirmDirectoryProps) {
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="mt-3 flex items-center gap-3">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={psOnly}
+              onChange={(e) => { setPsOnly(e.target.checked); setPage(1); }}
+              className="h-4 w-4 rounded border-[var(--border)]"
+            />
+            <span className="font-medium text-[var(--navy)]">Police station work only</span>
+          </label>
         </div>
 
         {/* Results count & clear */}

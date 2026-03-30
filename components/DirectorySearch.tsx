@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { DirectoryCard } from '@/components/DirectoryCard';
 import type { Representative, County, PoliceStation } from '@/lib/types';
@@ -67,6 +67,9 @@ export function DirectorySearch({
   defaultQuery = '',
 }: DirectorySearchProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const internalNavigationRef = useRef(false);
   const [query, setQuery] = useState(defaultQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(defaultQuery);
   const [county, setCounty] = useState(defaultCounty);
@@ -80,13 +83,23 @@ export function DirectorySearch({
   }, [query]);
 
   useEffect(() => {
-    setQuery(defaultQuery);
-    setDebouncedQuery(defaultQuery);
-    setCounty(defaultCounty);
-    setStation(defaultStation);
-    setAvailability(defaultAvailability);
+    if (internalNavigationRef.current) {
+      internalNavigationRef.current = false;
+      return;
+    }
+
+    const nextQuery = searchParams.get('q') ?? '';
+    const nextCounty = searchParams.get('county') ?? '';
+    const nextStation = searchParams.get('station') ?? '';
+    const nextAvailability = searchParams.get('availability') ?? '';
+
+    setQuery(nextQuery);
+    setDebouncedQuery(nextQuery);
+    setCounty(nextCounty);
+    setStation(nextStation);
+    setAvailability(nextAvailability);
     setPage(1);
-  }, [defaultQuery, defaultCounty, defaultStation, defaultAvailability]);
+  }, [pathname, searchParams]);
 
   const syncUrl = useCallback(() => {
     const params = new URLSearchParams();
@@ -97,8 +110,12 @@ export function DirectorySearch({
     if (availability) params.set('availability', availability);
     const qs = params.toString();
     const path = qs ? `${urlBase}?${qs}` : urlBase;
+    const currentQs = searchParams.toString();
+    const currentPath = currentQs ? `${pathname}?${currentQs}` : pathname;
+    if (currentPath === path) return;
+    internalNavigationRef.current = true;
     router.replace(path, { scroll: false });
-  }, [router, urlBase, debouncedQuery, county, station, availability]);
+  }, [router, pathname, searchParams, urlBase, debouncedQuery, county, station, availability]);
 
   useEffect(() => {
     const timer = setTimeout(syncUrl, 400);
@@ -199,7 +216,7 @@ export function DirectorySearch({
               placeholder="Search by county, station, name..."
               value={query}
               onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-              className="w-full rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)] focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]"
+              className="w-full rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-base text-[var(--foreground)] placeholder:text-[var(--muted)] focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)] sm:text-sm"
             />
           </div>
 
@@ -207,7 +224,7 @@ export function DirectorySearch({
           <select
             value={county}
             onChange={(e) => { setCounty(e.target.value); setStation(''); setPage(1); }}
-            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm text-[var(--foreground)]"
+            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-base text-[var(--foreground)] sm:text-sm"
           >
             <option value="">All counties</option>
             {counties.map((c) => (
@@ -219,7 +236,7 @@ export function DirectorySearch({
           <select
             value={availability}
             onChange={(e) => { setAvailability(e.target.value); setPage(1); }}
-            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm text-[var(--foreground)]"
+            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-base text-[var(--foreground)] sm:text-sm"
           >
             {AVAILABILITY_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -233,7 +250,7 @@ export function DirectorySearch({
             <select
               value={station}
               onChange={(e) => { setStation(e.target.value); setPage(1); }}
-              className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm text-[var(--foreground)]"
+              className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-base text-[var(--foreground)] sm:text-sm"
             >
               <option value="">All stations in {county}</option>
               {countyStations.map((s) => (
@@ -246,7 +263,7 @@ export function DirectorySearch({
               placeholder="Filter by station name..."
               value={station}
               onChange={(e) => { setStation(e.target.value); setPage(1); }}
-              className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)]"
+              className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-base text-[var(--foreground)] placeholder:text-[var(--muted)] sm:text-sm"
             />
           )}
         </div>

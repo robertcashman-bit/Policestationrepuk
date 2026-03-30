@@ -13,12 +13,7 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/search` },
 };
 
-interface PageProps {
-  searchParams: Promise<{ [key: string]: string | undefined }>;
-}
-
-export default async function SearchPage({ searchParams }: PageProps) {
-  const params = await searchParams;
+export default async function SearchPage() {
   const [reps, counties, stations] = await Promise.all([
     getAllReps(),
     getAllCounties(),
@@ -55,11 +50,6 @@ export default async function SearchPage({ searchParams }: PageProps) {
             counties={counties}
             stations={stations}
             urlBase="/search"
-            defaultCounty={params.county ?? ''}
-            defaultStation={params.station ?? ''}
-            defaultAvailability={params.availability ?? ''}
-            defaultAccreditation={params.accreditation ?? ''}
-            defaultQuery={params.q ?? ''}
           />
         </Suspense>
       </div>

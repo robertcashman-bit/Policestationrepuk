@@ -76,6 +76,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
+  if (path === '/Register') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/register';
+    return NextResponse.redirect(url, 308);
+  }
+
   const blogMatch = path.match(/^\/blog\/(.+)$/);
   if (blogMatch && path !== `/Blog/${blogMatch[1]}`) {
     const url = request.nextUrl.clone();

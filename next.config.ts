@@ -121,17 +121,17 @@ const nextConfig: NextConfig = {
       },
       {
         source: "/functions/rss",
-        destination: "/Blog",
+        destination: "/rss.xml",
         permanent: true,
       },
       {
         source: "/feed.xml",
-        destination: "/sitemap.xml",
+        destination: "/rss.xml",
         permanent: true,
       },
       {
         source: "/feed",
-        destination: "/Blog",
+        destination: "/rss.xml",
         permanent: true,
       },
       // NOTE: /blog/:slug → /Blog/:slug case redirect moved to middleware.ts
@@ -161,7 +161,7 @@ const nextConfig: NextConfig = {
       // Base44 legacy redirects
       {
         source: "/police-station-rep-registration",
-        destination: "/Register",
+        destination: "/register",
         permanent: true,
       },
       {

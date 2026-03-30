@@ -13,7 +13,12 @@ export const metadata = buildMetadata({
 
 export const dynamic = 'force-static';
 
-export default async function StationsDirectoryPage() {
+interface PageProps {
+  searchParams?: Promise<{ [key: string]: string | undefined }>;
+}
+
+export default async function StationsDirectoryPage({ searchParams }: PageProps) {
+  const params = (await searchParams) ?? {};
   const stations = await getAllStations();
 
   return (
@@ -39,7 +44,7 @@ export default async function StationsDirectoryPage() {
       </section>
 
       <div className="page-container">
-        <StationsDirectoryExplorer stations={stations} />
+        <StationsDirectoryExplorer stations={stations} initialQuery={params.q ?? ''} />
 
         <div className="mt-14 border-t border-[var(--border)] pt-10">
           <h2 className="text-h2 text-[var(--navy)]">Find a Representative</h2>

@@ -78,7 +78,27 @@ export default async function PoliceStationPage({ params }: PageProps) {
               <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
                 <h2 className="text-lg font-bold text-[var(--navy)]">Legal representation at this station</h2>
                 <p className="mt-3 leading-relaxed text-[var(--muted)]">
-                  When someone is detained at {station.name} Police Station, they are entitled to free legal advice. A police station representative or solicitor can attend the custody suite to advise the detainee, review disclosure, sit in on police interviews, and make representations about bail.
+                  When someone is detained at {station.name} Police Station, they are entitled to free legal advice under PACE Code C. A police station representative or solicitor can attend the custody suite to advise the detainee, review disclosure, sit in on police interviews, and make representations about bail.
+                </p>
+                {station.forceName && (
+                  <p className="mt-3 leading-relaxed text-[var(--muted)]">
+                    {station.name} is part of the {station.forceName} force area{station.county && station.county !== station.forceName ? ` in ${station.county}` : ''}. Representatives listed below have indicated they cover this station or surrounding custody suites.
+                  </p>
+                )}
+              </section>
+
+              <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
+                <h2 className="text-lg font-bold text-[var(--navy)]">What happens at a police station?</h2>
+                <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[var(--muted)]">
+                  <li className="flex gap-2"><span className="mt-0.5 shrink-0 text-[var(--gold)]">1.</span>The custody officer books the detainee in and explains their rights, including the right to free legal advice.</li>
+                  <li className="flex gap-2"><span className="mt-0.5 shrink-0 text-[var(--gold)]">2.</span>The DSCC is contacted to allocate a duty solicitor or the detainee&apos;s own solicitor is called.</li>
+                  <li className="flex gap-2"><span className="mt-0.5 shrink-0 text-[var(--gold)]">3.</span>The representative reviews disclosure, consults with the client, and advises on interview strategy.</li>
+                  <li className="flex gap-2"><span className="mt-0.5 shrink-0 text-[var(--gold)]">4.</span>After the interview the representative makes representations on charge, bail, or further investigation.</li>
+                </ul>
+                <p className="mt-3 text-sm text-[var(--muted)]">
+                  <Link href="/PACE" className="font-medium text-[var(--gold-hover)] no-underline hover:underline">
+                    Read more about PACE rights and custody procedures →
+                  </Link>
                 </p>
               </section>
 

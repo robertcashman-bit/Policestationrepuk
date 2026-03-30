@@ -6,11 +6,11 @@ export function HomeCustodyNote() {
       <div className="page-container !py-0">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-h2 mt-0 text-white">Custody Note</h2>
-          <p className="mt-1 text-sm font-medium text-cyan-100">The custody note app for freelance reps</p>
+          <p className="mt-1 text-sm font-medium text-cyan-100">Desktop software for police station attendance notes</p>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white">
             Built for freelance police station representatives and criminal solicitors. Structured
-            notes with LAA code support, time recording, firm billing, and PDF export — so you can
-            focus on the client, not the paperwork.
+            attendance notes, telephone advice records, time recording, firm billing, and PDF export
+            in one Windows app that still works when signal is poor.
           </p>
 
           <div className="mt-6 inline-flex max-w-full flex-wrap items-center justify-center gap-2 rounded-full border-2 border-white/30 bg-black/25 px-5 py-2.5 text-sm font-semibold text-white">
@@ -43,7 +43,7 @@ export function HomeCustodyNote() {
           </div>
 
           <p className="mt-5 text-xs text-white">
-            No credit card for trial · Windows 10+ · From £15.99/mo · Cancel any time
+            No credit card for trial · Windows 10+ · From £9.99/mo · Cancel any time
           </p>
         </div>
       </div>

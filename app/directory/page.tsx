@@ -13,12 +13,7 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/directory` },
 };
 
-interface PageProps {
-  searchParams: Promise<{ [key: string]: string | undefined }>;
-}
-
-export default async function DirectoryPage({ searchParams }: PageProps) {
-  const params = await searchParams;
+export default async function DirectoryPage() {
   const [reps, counties, stations] = await Promise.all([
     getAllReps(),
     getAllCounties(),
@@ -122,10 +117,10 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
         <div className="mb-6 rounded-[var(--radius-lg)] border border-[var(--navy-light)] bg-[var(--navy)] p-[var(--card-padding)] text-center shadow-[var(--card-shadow)]">
           <Link href="https://custodynote.com" target="_blank" rel="noopener noreferrer" className="no-underline">
             <p className="text-sm font-bold text-white">
-              Custody Note — The app for freelance reps
+              Custody Note — Desktop software for police station attendance notes
             </p>
             <p className="mt-1 text-xs text-white">
-              30-day free trial · From £15.99/mo · Use code A2MJY2NQ for 25% off
+              30-day free trial · From £9.99/mo · Use code A2MJY2NQ for 25% off
             </p>
           </Link>
         </div>
@@ -135,11 +130,6 @@ export default async function DirectoryPage({ searchParams }: PageProps) {
             reps={reps}
             counties={counties}
             stations={stations}
-            defaultCounty={params.county ?? ''}
-            defaultStation={params.station ?? ''}
-            defaultAvailability={params.availability ?? ''}
-            defaultAccreditation={params.accreditation ?? ''}
-            defaultQuery={params.q ?? ''}
           />
         </Suspense>
 

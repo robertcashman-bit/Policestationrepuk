@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
+import { FORCE_TO_COUNTIES } from '@/lib/police-force-to-counties';
 
 export const metadata = buildMetadata({
   title: 'UK Police Forces Directory — Stations by Force Area',
@@ -66,6 +67,11 @@ const grouped = FORCES.reduce<Record<string, string[]>>((acc, force) => {
 
 const sortedLetters = Object.keys(grouped).sort();
 
+function getForceCoverage(force: string): string[] {
+  const key = force.toLowerCase().replace(/\s*(police|constabulary)\s*/gi, '').trim();
+  return FORCE_TO_COUNTIES[key] ?? [];
+}
+
 export default function ForcesPage() {
   return (
     <>
@@ -89,7 +95,7 @@ export default function ForcesPage() {
       <div className="page-container">
 
       <div className="mb-8 rounded-[var(--radius)] border border-yellow-200 bg-yellow-50 p-4 text-sm leading-relaxed text-yellow-800">
-        Listings are provided for professional reference only. PoliceStationRepUK.com does not
+        Listings are provided for professional reference only. PoliceStationRepUK does not
         verify availability, does not arrange attendance, and does not recommend or endorse any
         individual listed.
       </div>
@@ -102,14 +108,21 @@ export default function ForcesPage() {
               {grouped[letter].map((force) => (
                 <Link
                   key={force}
-                  href="/StationsDirectory"
+                  href={{ pathname: '/StationsDirectory', query: { q: force } }}
                   className="group flex items-center gap-3 rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-4 no-underline shadow-[var(--card-shadow)] transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--gold)]/10 text-sm font-bold text-[var(--gold-hover)]">
                     {force[0]}
                   </span>
-                  <span className="font-medium text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
-                    {force}
+                  <span className="min-w-0">
+                    <span className="block font-medium text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
+                      {force}
+                    </span>
+                    <span className="block text-xs text-[var(--muted)]">
+                      {getForceCoverage(force).length > 0
+                        ? `Browse stations serving ${getForceCoverage(force).join(', ')}`
+                        : 'Browse stations in this force area'}
+                    </span>
                   </span>
                 </Link>
               ))}

@@ -100,7 +100,7 @@ export default function MapPage() {
               placeholder="Search stations by name, county, or address..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white px-4 py-3.5 text-sm text-[var(--navy)] shadow-[var(--card-shadow)] placeholder:text-[var(--muted)] focus:border-[var(--gold)] focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 sm:max-w-lg"
+              className="w-full rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white px-4 py-3.5 text-base text-[var(--navy)] shadow-[var(--card-shadow)] placeholder:text-[var(--muted)] focus:border-[var(--gold)] focus:outline-none focus:ring-2 focus:ring-[var(--gold)]/20 sm:max-w-lg sm:text-sm"
             />
             <p className="shrink-0 text-sm text-[var(--muted)]">
               {geoCount} mapped &middot; {filtered.length} total

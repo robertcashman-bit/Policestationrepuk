@@ -6,11 +6,16 @@ export interface FirmCardProps {
 }
 
 export function FirmCard({ firm }: FirmCardProps) {
-  const phoneHref = firm.phone ? phoneToTelHref(firm.phone) : null;
+  const isPlaceholder = (v: string | undefined | null) =>
+    !v || /^(not available|n\/a|none|unknown|-|\.+)$/i.test(v.trim());
+
+  const phoneHref = !isPlaceholder(firm.phone) ? phoneToTelHref(firm.phone) : null;
+  const cleanEmail = !isPlaceholder(firm.email) ? firm.email : null;
+  const websiteRaw = !isPlaceholder(firm.website) ? firm.website : null;
   const websiteUrl =
-    firm.website && !firm.website.startsWith('http')
-      ? `https://${firm.website}`
-      : firm.website || null;
+    websiteRaw && !websiteRaw.startsWith('http')
+      ? `https://${websiteRaw}`
+      : websiteRaw;
 
   return (
     <article className="group flex flex-col rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white shadow-[var(--card-shadow)] transition-all duration-200 hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--gold)]/40">
@@ -80,9 +85,9 @@ export function FirmCard({ firm }: FirmCardProps) {
               Call
             </a>
           )}
-          {firm.email && (
+          {cleanEmail && (
             <a
-              href={`mailto:${firm.email}`}
+              href={`mailto:${cleanEmail}`}
               aria-label={`Email ${firm.name}`}
               className="btn-outline flex-1 !min-h-[40px] !px-3 !py-2 !text-sm text-center"
             >

@@ -166,7 +166,7 @@ Once a quarter, ask a regular firm contact: *“Anything we should tweak on form
 
 ## Visibility without spam
 
-Keep your [directory listing](/Register) accurate. Update counties when you move, hours when your pattern changes, and accreditation when renewed.
+Keep your [directory listing](/register) accurate. Update counties when you move, hours when your pattern changes, and accreditation when renewed.
 
 ## Study the buyer
 

@@ -15,10 +15,13 @@ const MAILTO_BASE = 'mailto:robertcashman@defencelegalservices.co.uk';
 export default async function FirmsPage() {
   const firms = await getAllLawFirms();
 
+  const psWorkCount = firms.filter((f) => f.policeStationWork).length;
+  const dutyCount = firms.filter((f) => f.dutySolicitorScheme).length;
+
   const stats = [
     { label: 'Active Firms', value: String(firms.length) },
-    { label: 'Verified Reviews', value: '0' },
-    { label: 'Highly Rated (4+)', value: '0' },
+    { label: 'Police Station Work', value: String(psWorkCount) },
+    { label: 'Duty Solicitor Scheme', value: String(dutyCount) },
   ];
 
   return (
@@ -52,6 +55,13 @@ export default async function FirmsPage() {
               <p className="mt-1 text-sm text-[var(--muted)]">{stat.label}</p>
             </div>
           ))}
+        </div>
+
+        <div className="mb-6 rounded-[var(--radius)] border border-yellow-200 bg-yellow-50 p-4 text-sm leading-relaxed text-yellow-800">
+          This directory includes firms sourced from public SRA data and community submissions.
+          Some entries may not actively take police station instructions. Listings marked
+          &ldquo;Police Station&rdquo; have indicated they accept police station cover work.
+          Please verify details directly with the firm before relying on this information.
         </div>
 
         {/* Searchable directory */}

@@ -80,7 +80,7 @@ export function RegisterForm() {
               autoComplete="name"
               value={formData.name}
               onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
-              className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+              className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
             />
           </div>
           <div>
@@ -95,7 +95,7 @@ export function RegisterForm() {
               autoComplete="email"
               value={formData.email}
               onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
-              className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+              className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
             />
           </div>
         </div>
@@ -111,7 +111,7 @@ export function RegisterForm() {
               autoComplete="tel"
               value={formData.phone}
               onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
-              className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+              className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
             />
           </div>
           <div>
@@ -124,7 +124,7 @@ export function RegisterForm() {
               placeholder="e.g. PSRAS, Duty Solicitor"
               value={formData.accreditation}
               onChange={(e) => setFormData((p) => ({ ...p, accreditation: e.target.value }))}
-              className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+              className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
             />
           </div>
         </div>
@@ -138,7 +138,7 @@ export function RegisterForm() {
             placeholder="e.g. Kent, London, Essex"
             value={formData.counties}
             onChange={(e) => setFormData((p) => ({ ...p, counties: e.target.value }))}
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
           />
           <p className="mt-1 text-xs text-[var(--muted)]">Separate multiple counties with commas.</p>
         </div>
@@ -152,7 +152,7 @@ export function RegisterForm() {
             placeholder="e.g. Maidstone, Canterbury"
             value={formData.stations}
             onChange={(e) => setFormData((p) => ({ ...p, stations: e.target.value }))}
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
           />
           <p className="mt-1 text-xs text-[var(--muted)]">Add the custody suites or stations you can realistically attend.</p>
         </div>
@@ -164,7 +164,7 @@ export function RegisterForm() {
             id="availability"
             value={formData.availability}
             onChange={(e) => setFormData((p) => ({ ...p, availability: e.target.value }))}
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
           >
             <option value="full-time">Full-time</option>
             <option value="part-time">Part-time</option>
@@ -183,7 +183,7 @@ export function RegisterForm() {
             value={formData.message}
             onChange={(e) => setFormData((p) => ({ ...p, message: e.target.value }))}
             placeholder="Add notes that help firms instruct you quickly, such as travel radius, overnight work, language skills, or specialist experience."
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
           />
         </div>
         <button

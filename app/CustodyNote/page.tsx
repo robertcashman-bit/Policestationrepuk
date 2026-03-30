@@ -1,16 +1,20 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'CustodyNote — The Custody Note App for Freelance Reps',
+  title: 'Custody Note — Desktop Software for Police Station Attendance Notes',
   description:
-    'CustodyNote is the digital custody record app for police station representatives. One app for attendances, advice and billing. Designed to support LAA record-keeping.',
+    'Custody Note is Windows desktop software for criminal defence solicitors and accredited reps: structured attendance notes, telephone and voluntary interview records, offline-first workflows, PDF export, and LAA-oriented billing with a free 30-day trial.',
   path: '/CustodyNote',
 });
 
-const CUSTODYNOTE_URL = 'https://custodynote.com';
+const CUSTODYNOTE_PRICING = 'https://custodynote.com/pricing';
+const CUSTODYNOTE_DOWNLOAD =
+  'https://github.com/robertcashman-bit/custody-note-app/releases/download/v1.4.160/Custody-Note-Setup-1.4.160.exe';
 const DISCOUNT_CODE = 'A2MJY2NQ';
+const SUBSCRIPTION_GBP = '9.99';
 
 const RECORD_TYPES = [
   {
@@ -35,18 +39,36 @@ const RECORD_TYPES = [
 
 const FEATURE_CARDS = [
   {
-    name: 'Telephone Advice',
-    desc: 'Dedicated form for INVB telephone advice sessions. Captures all required LAA fields in a streamlined layout designed for speed.',
+    name: 'Structured records',
+    desc: 'Purpose-built workflows for full attendances, telephone advice, and rapid note capture so you are not adapting generic Word templates mid-job.',
   },
   {
-    name: 'Quick Capture',
-    desc: 'When you need to grab client details, offence information, or case notes on the go — without filling in a full attendance form.',
+    name: 'PDF-ready output',
+    desc: 'Turn working notes into a clean PDF record you can save, print, or send to the instructing firm without another rewrite.',
   },
   {
-    name: 'Full Attendance',
-    desc: 'The complete police station attendance record. 16 structured sections covering every aspect of your attendance from arrival to billing.',
+    name: 'Billing and firm admin',
+    desc: 'Keep fee codes, time recording, declarations, and firm-level billing details together with the case record instead of splitting them across apps.',
   },
 ];
+
+const SCREENSHOTS = [
+  {
+    src: '/images/custodynote/illustration-structured-form.svg',
+    title: 'Structured attendance workflow',
+    desc: 'A single screen for the key custody, disclosure, consultation, interview, and outcome fields.',
+  },
+  {
+    src: '/images/custodynote/illustration-pdf-billing.svg',
+    title: 'PDF and billing output',
+    desc: 'Export a professional attendance note and keep LAA-oriented billing information tied to the matter.',
+  },
+  {
+    src: '/images/custodynote/illustration-offline.svg',
+    title: 'Offline-first desktop app',
+    desc: 'Use it in poor-signal custody environments, then sync or back up later when you are back online.',
+  },
+] as const;
 
 const FORM_SECTIONS = [
   'Case Reference & Arrival',
@@ -94,8 +116,8 @@ const SECURITY_FEATURES = [
     desc: 'Records stay on your device. No cloud dependency required. You control where your data lives.',
   },
   {
-    title: 'Cloud Backup (£19.99/mo)',
-    desc: 'Optional cloud sync with AWS Object Lock for immutable backups. Multi-device access and automatic backups.',
+    title: 'Cloud backup available',
+    desc: 'Optional cloud backup is available alongside the core app, while the main workflow remains fully usable on your own machine.',
   },
 ];
 
@@ -158,13 +180,13 @@ export default function CustodyNotePage() {
           </div>
 
           <h1 className="text-h1 text-white">
-            The custody note app for freelance reps
+            Desktop software for police station attendance notes
           </h1>
 
           <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
             Built for freelance police station representatives and criminal solicitors who need a
-            reliable, structured way to record attendances, telephone advice and billing — all in one
-            offline-capable desktop app.
+            reliable, structured way to record attendances, telephone advice, voluntary interview
+            work, billing, and PDF-ready handover notes in one Windows desktop app.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -184,31 +206,70 @@ export default function CustodyNotePage() {
               Exclusive Discount
             </p>
             <p className="mt-2 text-base font-semibold text-white">
-              25% off your subscription — Enter code{' '}
+              25% off your subscription after the trial. Enter code{' '}
               <span className="rounded bg-[var(--gold)] px-2.5 py-0.5 font-mono text-sm text-[var(--navy)]">
                 {DISCOUNT_CODE}
               </span>{' '}
-              at checkout on custodynote.com
+              on the Custody Note pricing page.
             </p>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 flex flex-wrap gap-3">
             <a
-              href={CUSTODYNOTE_URL}
+              href={CUSTODYNOTE_DOWNLOAD}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-gold inline-flex min-h-[44px] items-center no-underline"
             >
-              Start 30-Day Free Trial →
+              Download Free 30-Day Trial →
             </a>
-            <p className="mt-3 text-xs text-slate-300">
-              No credit card for trial · Windows 10+ · From £15.99/mo · Cancel any time
-            </p>
+            <a
+              href={CUSTODYNOTE_PRICING}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline inline-flex min-h-[44px] items-center !border-white !text-white no-underline hover:!bg-white hover:!text-[var(--navy)]"
+            >
+              View Pricing
+            </a>
           </div>
+          <p className="mt-3 text-xs text-slate-300">
+            No credit card for trial · Windows 10+ · From £{SUBSCRIPTION_GBP}/mo · Cancel any time
+          </p>
         </div>
       </section>
 
       <div className="page-container">
+
+      <section className="mb-14">
+        <h2 className="text-h2 mb-2 text-[var(--navy)]">See the workflow before you buy</h2>
+        <p className="mb-6 max-w-2xl text-[var(--muted)]">
+          The live product site explains the software, but this page should also show what the app is
+          for. These preview panels highlight the structured workflow, export path, and offline-first
+          setup that matter most in practice.
+        </p>
+        <div className="grid gap-5 lg:grid-cols-3">
+          {SCREENSHOTS.map((shot) => (
+            <article
+              key={shot.title}
+              className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--card-shadow)]"
+            >
+              <div className="border-b border-[var(--card-border)] bg-slate-50 p-3">
+                <Image
+                  src={shot.src}
+                  alt={shot.title}
+                  width={960}
+                  height={720}
+                  className="h-auto w-full rounded-[var(--radius)] border border-slate-200"
+                />
+              </div>
+              <div className="p-5">
+                <h3 className="font-semibold text-[var(--navy)]">{shot.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{shot.desc}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
       {/* 3 Record Types */}
       <section className="mb-14">
@@ -241,8 +302,8 @@ export default function CustodyNotePage() {
           One app for attendances, advice &amp; billing
         </h2>
         <p className="mb-6 max-w-2xl text-[var(--muted)]">
-          Stop juggling spreadsheets, Word documents and paper forms. CustodyNote brings everything
-          into a single, structured workflow.
+          Stop juggling spreadsheets, Word documents, handwritten notes, and separate billing files.
+          Custody Note brings the working note and the finished record into a single workflow.
         </p>
         <div className="grid gap-4 sm:grid-cols-3">
           {FEATURE_CARDS.map((fc) => (
@@ -353,16 +414,19 @@ export default function CustodyNotePage() {
         <div className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-8 shadow-[var(--card-shadow)] sm:p-10">
           <h2 className="text-h2 text-center text-[var(--navy)]">Simple Pricing</h2>
           <p className="mx-auto mt-3 max-w-2xl text-center text-[var(--muted)]">
-            Subscription only — no per-seat charges, no hidden fees, no firm approval needed. Cancel
-            any time.
+            One desktop subscription, a free 30-day trial, and no need to stitch together extra tools
+            just to get from attendance to invoice.
           </p>
           <div className="mx-auto mt-8 max-w-md">
             <div className="rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/40 bg-[var(--gold)]/5 p-6">
               <p className="text-center text-2xl font-bold text-[var(--navy)]">
-                From £15.99<span className="text-base font-normal text-[var(--muted)]">/mo</span>
+                From £{SUBSCRIPTION_GBP}<span className="text-base font-normal text-[var(--muted)]">/mo</span>
               </p>
               <p className="mt-1 text-center text-sm text-[var(--muted)]">
                 30-day free trial included
+              </p>
+              <p className="mt-1 text-center text-xs text-[var(--muted)]">
+                Use code {DISCOUNT_CODE} for 25% off at checkout
               </p>
               <ul className="mt-6 space-y-3">
                 {PRICING_FEATURES.map((pf) => (
@@ -373,12 +437,12 @@ export default function CustodyNotePage() {
                 ))}
               </ul>
               <a
-                href={CUSTODYNOTE_URL}
+                href={CUSTODYNOTE_PRICING}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-gold mt-6 flex min-h-[44px] items-center justify-center no-underline"
               >
-                Start 30-Day Free Trial →
+                View Pricing & Trial →
               </a>
             </div>
           </div>
@@ -393,18 +457,18 @@ export default function CustodyNotePage() {
           <span className="rounded bg-[var(--gold)] px-2.5 py-0.5 font-mono text-sm text-[var(--navy)]">
             {DISCOUNT_CODE}
           </span>{' '}
-          for 25% off your subscription.
+          for 25% off your subscription on the pricing page.
         </p>
         <a
-          href={CUSTODYNOTE_URL}
+          href={CUSTODYNOTE_PRICING}
           target="_blank"
           rel="noopener noreferrer"
           className="btn-gold mt-6 inline-flex min-h-[44px] items-center no-underline"
         >
-          Start 30-Day Free Trial →
+          View Pricing & Trial →
         </a>
         <p className="mt-3 text-xs text-[var(--muted)]">
-          No credit card for trial · Windows 10+ · From £15.99/mo · Cancel any time
+          No credit card for trial · Windows 10+ · From £{SUBSCRIPTION_GBP}/mo · Cancel any time
         </p>
       </section>
 

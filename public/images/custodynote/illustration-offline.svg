@@ -1,0 +1,24 @@
+<svg width="960" height="720" viewBox="0 0 960 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="720" rx="28" fill="#082F49"/>
+  <rect x="60" y="60" width="840" height="600" rx="26" fill="#E0F2FE"/>
+  <rect x="98" y="102" width="764" height="516" rx="24" fill="#FFFFFF"/>
+  <rect x="134" y="136" width="300" height="180" rx="20" fill="#0F172A"/>
+  <text x="166" y="190" fill="#F8FAFC" font-family="Arial, sans-serif" font-size="30" font-weight="700">Offline mode</text>
+  <text x="166" y="234" fill="#CBD5E1" font-family="Arial, sans-serif" font-size="19">Signal drops in custody areas.</text>
+  <text x="166" y="266" fill="#CBD5E1" font-family="Arial, sans-serif" font-size="19">Your working note should not.</text>
+  <rect x="462" y="136" width="364" height="180" rx="20" fill="#DCFCE7"/>
+  <text x="494" y="190" fill="#166534" font-family="Arial, sans-serif" font-size="30" font-weight="700">Local records</text>
+  <text x="494" y="234" fill="#166534" font-family="Arial, sans-serif" font-size="19">Data stays on your own machine by default.</text>
+  <text x="494" y="266" fill="#166534" font-family="Arial, sans-serif" font-size="19">Back up or sync later on your terms.</text>
+  <rect x="134" y="350" width="692" height="224" rx="20" fill="#F8FAFC" stroke="#CBD5E1"/>
+  <text x="166" y="400" fill="#0F172A" font-family="Arial, sans-serif" font-size="28" font-weight="700">Typical workflow</text>
+  <circle cx="198" cy="466" r="32" fill="#0EA5E9"/>
+  <text x="188" y="474" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="24" font-weight="700">1</text>
+  <text x="248" y="474" fill="#334155" font-family="Arial, sans-serif" font-size="22">Open the record before arriving.</text>
+  <circle cx="198" cy="526" r="32" fill="#F59E0B"/>
+  <text x="188" y="534" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="24" font-weight="700">2</text>
+  <text x="248" y="534" fill="#334155" font-family="Arial, sans-serif" font-size="22">Take notes throughout consultation and interview.</text>
+  <circle cx="198" cy="586" r="32" fill="#22C55E"/>
+  <text x="188" y="594" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="24" font-weight="700">3</text>
+  <text x="248" y="594" fill="#334155" font-family="Arial, sans-serif" font-size="22">Export or back up when you are online again.</text>
+</svg>

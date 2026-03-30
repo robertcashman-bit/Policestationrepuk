@@ -26,8 +26,14 @@ function groupKey(s: PoliceStation, groupBy: GroupBy): string {
   return force || 'Force not listed';
 }
 
-export function StationsDirectoryExplorer({ stations }: { stations: PoliceStation[] }) {
-  const [query, setQuery] = useState('');
+export function StationsDirectoryExplorer({
+  stations,
+  initialQuery = '',
+}: {
+  stations: PoliceStation[];
+  initialQuery?: string;
+}) {
+  const [query, setQuery] = useState(initialQuery);
   const [groupBy, setGroupBy] = useState<GroupBy>('force');
   const [custodyOnly, setCustodyOnly] = useState(false);
   const [sortBy, setSortBy] = useState<SortBy>('name');
@@ -95,7 +101,7 @@ export function StationsDirectoryExplorer({ stations }: { stations: PoliceStatio
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Name, town, postcode, county, force…"
               autoComplete="off"
-              className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+              className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
             />
           </div>
 

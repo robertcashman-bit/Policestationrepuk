@@ -158,7 +158,7 @@ export default function EscapeFeeCalculatorPage() {
                 id="rate-category"
                 value={rateCategory}
                 onChange={(e) => setRateCategory(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-sm text-[var(--foreground)]"
+                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-base text-[var(--foreground)] sm:text-sm"
               >
                 {RATE_CATEGORIES.map((rate) => (
                   <option key={rate.id} value={rate.id}>
@@ -184,7 +184,7 @@ export default function EscapeFeeCalculatorPage() {
                 placeholder="e.g. 3.5"
                 value={attendanceHours}
                 onChange={(e) => setAttendanceHours(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-sm text-[var(--foreground)]"
+                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-base text-[var(--foreground)] sm:text-sm"
               />
               <p className="mt-1 text-xs text-[var(--muted)]">
                 Total time at the station (consultation, interview, waiting for decisions etc.)
@@ -203,7 +203,7 @@ export default function EscapeFeeCalculatorPage() {
                 placeholder="e.g. 1.0"
                 value={travelHours}
                 onChange={(e) => setTravelHours(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-sm text-[var(--foreground)]"
+                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-base text-[var(--foreground)] sm:text-sm"
               />
               <p className="mt-1 text-xs text-[var(--muted)]">
                 Total travel time to and from the station
@@ -222,7 +222,7 @@ export default function EscapeFeeCalculatorPage() {
                 placeholder="e.g. 0.5"
                 value={waitingHours}
                 onChange={(e) => setWaitingHours(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-sm text-[var(--foreground)]"
+                className="mt-1 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-base text-[var(--foreground)] sm:text-sm"
               />
               <p className="mt-1 text-xs text-[var(--muted)]">
                 Waiting time at the station (if recorded separately from attendance)

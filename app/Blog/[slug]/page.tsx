@@ -227,7 +227,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
                 Find reps — directory
               </Link>
               <Link
-                href="/Register"
+                href="/register"
                 className="inline-flex justify-center rounded-lg border-2 border-white/30 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:border-[var(--gold)] hover:bg-white/15 sm:inline-flex"
               >
                 Join the directory

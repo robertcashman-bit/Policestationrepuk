@@ -36,7 +36,7 @@ export default function TermsPage() {
             Directory Status and No Intermediation
           </h2>
           <p className="mb-4 text-sm leading-relaxed text-[var(--muted)]">
-            PoliceStationRepUK.com does not act as an agent, introducer, or intermediary for legal
+            PoliceStationRepUK does not act as an agent, introducer, or intermediary for legal
             services. Listings are provided for information only. Any engagement between a police
             station representative and a law firm or organisation is a matter solely between those
             parties.

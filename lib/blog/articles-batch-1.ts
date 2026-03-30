@@ -292,7 +292,7 @@ Send structured notes quickly — see [handover notes best practice](/Blog/best-
 
 ## Stay visible for the next instruction
 
-Keep your [directory profile](/Register) accurate on counties, hours, and accreditation so firms can match you to live demand. Firms planning cover may also use [police station cover overview](/PoliceStationCover) before they instruct.
+Keep your [directory profile](/register) accurate on counties, hours, and accreditation so firms can match you to live demand. Firms planning cover may also use [police station cover overview](/PoliceStationCover) before they instruct.
 
 ---
 

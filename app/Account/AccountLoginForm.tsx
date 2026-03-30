@@ -52,7 +52,7 @@ export function AccountLoginForm() {
               setEmail(e.target.value);
               setSubmitted(false);
             }}
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
           />
         </div>
         <div>
@@ -71,7 +71,7 @@ export function AccountLoginForm() {
               setPassword(e.target.value);
               setSubmitted(false);
             }}
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
           />
           <p className="mt-1 text-xs text-[var(--muted)]">At least 8 characters.</p>
         </div>

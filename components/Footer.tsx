@@ -24,8 +24,10 @@ import {
 
 function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
   return (
-    <div>
-      <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">{title}</h3>
+    <div className="min-w-0">
+      <h3 className="break-words text-xs font-bold uppercase leading-snug tracking-widest text-[var(--gold)]">
+        {title}
+      </h3>
       <ul className="mt-4 space-y-1.5">
         {links.map((link, i) => (
           <li key={`${link.href}-${link.label}-${i}`}>

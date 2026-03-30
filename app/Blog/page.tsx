@@ -237,7 +237,7 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
               your hours or counties change.
             </p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-              <Link href="/Register" className="btn-gold inline-flex justify-center !px-4 !py-2.5 !text-sm !no-underline">
+              <Link href="/register" className="btn-gold inline-flex justify-center !px-4 !py-2.5 !text-sm !no-underline">
                 Register free
               </Link>
               <Link

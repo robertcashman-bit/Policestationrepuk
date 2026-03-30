@@ -287,7 +287,18 @@ export async function getWikiArticlesByCategory(category: string): Promise<WikiA
 }
 
 export async function getAllLawFirms(): Promise<LawFirm[]> {
-  return loadJsonFile<LawFirm>('law-firms.json');
+  const raw = loadJsonFile<LawFirm>('law-firms.json');
+  const seen = new Set<string>();
+  const deduped: LawFirm[] = [];
+  for (const f of raw) {
+    const key = f.sraNumber?.trim()
+      ? `sra:${f.sraNumber.trim()}`
+      : `slug:${f.slug}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(f);
+  }
+  return deduped;
 }
 
 export async function getLawFirmBySlug(slug: string): Promise<LawFirm | undefined> {

@@ -14,7 +14,7 @@ export const PRIMARY_NAV = [
   { href: '/Blog', text: 'Blog' },
   { href: '/CustodyNote', text: '🆕 Custody Note' },
   { href: '/directory', text: '🔍 Find a Rep' },
-  { href: '/Register', text: 'Join the Directory (Free)' },
+  { href: '/register', text: 'Join the Directory (Free)' },
   { href: '/StationsDirectory', text: '📞 Station Numbers' },
   { href: '/FormsLibrary', text: '📄 Forms' },
   { href: '/Resources', text: '🌐 Resources' },
@@ -32,7 +32,7 @@ export const HEADER_SHARE_LABEL = 'Share this directory with colleagues';
 export const HEADER_SHARE_LABEL_COPIED = 'Link copied!';
 
 /** Mobile duplicate CTA (mirrors prominent join button on source) */
-export const HEADER_MOBILE_CTA_HREF = '/Register';
+export const HEADER_MOBILE_CTA_HREF = '/register';
 export const HEADER_MOBILE_CTA_TEXT = 'Join the Directory (Free)';
 
 export type FooterLink = { href: string; label: string; external?: boolean };
@@ -49,7 +49,7 @@ export const FOOTER_DIRECTORIES: FooterLink[] = [
 
 /** Footer column “For Representatives” — order & labels from homepage crawl */
 export const FOOTER_FOR_REPRESENTATIVES: FooterLink[] = [
-  { href: '/Register', label: 'Join the Directory (Free)' },
+  { href: '/register', label: 'Join the Directory (Free)' },
   { href: '/Profile', label: 'My Profile' },
   { href: '/GoFeatured', label: 'Become Featured' },
   { href: '/PoliceStationRepJobsUK', label: 'Rep Jobs UK' },
@@ -120,7 +120,7 @@ export const FOOTER_UTILITY_SHARE = 'Share Directory';
 export const FOOTER_UTILITY_TOP = 'Top';
 export const FOOTER_UTILITY_SITEMAP_HREF = '/sitemap.xml';
 export const FOOTER_UTILITY_SITEMAP_LABEL = 'Sitemap';
-export const FOOTER_UTILITY_RSS_HREF = '/Blog';
+export const FOOTER_UTILITY_RSS_HREF = '/rss.xml';
 export const FOOTER_UTILITY_RSS_LABEL = 'RSS Feed';
 export const FOOTER_UTILITY_COOKIE_SETTINGS = 'Cookie Settings';
 

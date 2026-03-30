@@ -53,79 +53,84 @@ export function RegisterForm() {
   return (
     <>
       {status === 'success' && (
-        <div role="alert" className="mt-6 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800">
+        <div role="alert" className="rounded-lg border border-green-200 bg-green-50 p-4 text-green-800">
           Thank you. Your registration request has been received. We will be in touch.
         </div>
       )}
       {status === 'error' && (
-        <div role="alert" className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
+        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
           Something went wrong. Please try again or contact us.
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div aria-hidden="true" className="absolute -left-[9999px] -top-[9999px]">
           <label htmlFor="reg-website">Website</label>
           <input id="reg-website" name="website" type="text" tabIndex={-1} autoComplete="off" value={hp} onChange={(e) => setHp(e.target.value)} />
         </div>
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-[var(--foreground)]">
-            Full name *
-          </label>
-          <input
-            id="name"
-            type="text"
-            required
-            autoComplete="name"
-            value={formData.name}
-            onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
-          />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-[var(--foreground)]">
+              Full name *
+            </label>
+            <input
+              id="name"
+              type="text"
+              required
+              autoComplete="name"
+              value={formData.name}
+              onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+              className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+            />
+          </div>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-[var(--foreground)]">
+              Email *
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              inputMode="email"
+              autoComplete="email"
+              value={formData.email}
+              onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
+              className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+            />
+          </div>
         </div>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-[var(--foreground)]">
-            Email *
-          </label>
-          <input
-            id="email"
-            type="email"
-            required
-            inputMode="email"
-            autoComplete="email"
-            value={formData.email}
-            onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
-          />
-        </div>
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-[var(--foreground)]">
-            Phone
-          </label>
-          <input
-            id="phone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            value={formData.phone}
-            onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
-          />
-        </div>
-        <div>
-          <label htmlFor="accreditation" className="block text-sm font-medium text-[var(--foreground)]">
-            Accreditation (e.g. Law Society, Duty Solicitor)
-          </label>
-          <input
-            id="accreditation"
-            type="text"
-            value={formData.accreditation}
-            onChange={(e) => setFormData((p) => ({ ...p, accreditation: e.target.value }))}
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
-          />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-[var(--foreground)]">
+              Phone
+            </label>
+            <input
+              id="phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
+              className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+            />
+          </div>
+          <div>
+            <label htmlFor="accreditation" className="block text-sm font-medium text-[var(--foreground)]">
+              Accreditation
+            </label>
+            <input
+              id="accreditation"
+              type="text"
+              placeholder="e.g. PSRAS, Duty Solicitor"
+              value={formData.accreditation}
+              onChange={(e) => setFormData((p) => ({ ...p, accreditation: e.target.value }))}
+              className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
+            />
+          </div>
         </div>
         <div>
           <label htmlFor="counties" className="block text-sm font-medium text-[var(--foreground)]">
-            Counties covered (comma-separated)
+            Counties covered
           </label>
           <input
             id="counties"
@@ -135,10 +140,11 @@ export function RegisterForm() {
             onChange={(e) => setFormData((p) => ({ ...p, counties: e.target.value }))}
             className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
           />
+          <p className="mt-1 text-xs text-[var(--muted)]">Separate multiple counties with commas.</p>
         </div>
         <div>
           <label htmlFor="stations" className="block text-sm font-medium text-[var(--foreground)]">
-            Stations covered (comma-separated)
+            Stations covered
           </label>
           <input
             id="stations"
@@ -148,6 +154,7 @@ export function RegisterForm() {
             onChange={(e) => setFormData((p) => ({ ...p, stations: e.target.value }))}
             className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
           />
+          <p className="mt-1 text-xs text-[var(--muted)]">Add the custody suites or stations you can realistically attend.</p>
         </div>
         <div>
           <label htmlFor="availability" className="block text-sm font-medium text-[var(--foreground)]">
@@ -172,9 +179,10 @@ export function RegisterForm() {
           </label>
           <textarea
             id="message"
-            rows={3}
+            rows={4}
             value={formData.message}
             onChange={(e) => setFormData((p) => ({ ...p, message: e.target.value }))}
+            placeholder="Add notes that help firms instruct you quickly, such as travel radius, overnight work, language skills, or specialist experience."
             className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-[var(--foreground)]"
           />
         </div>

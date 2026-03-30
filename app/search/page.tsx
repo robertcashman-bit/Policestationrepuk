@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { getAllReps, getAllCounties, getAllStations } from '@/lib/data';
 import { DirectorySearch } from '@/components/DirectorySearch';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotice';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
@@ -44,6 +45,9 @@ export default async function SearchPage() {
       </section>
 
       <div className="page-container">
+        <div className="mb-6">
+          <DirectoryComplianceNotice />
+        </div>
         <Suspense fallback={<p className="text-[var(--muted)]">Loading search…</p>}>
           <DirectorySearch
             reps={reps}

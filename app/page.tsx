@@ -82,9 +82,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <HomeSeoConversionHub />
-
       <HomeCustodyNote />
+
+      <HomeSeoConversionHub />
 
       <HomeKentSpotlight />
 

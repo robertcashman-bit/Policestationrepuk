@@ -12,9 +12,6 @@ import { SITEMAP_PATHS } from '@/lib/sitemap-paths';
 import { COUNTY_SEO_PAGES } from '@/lib/county-seo-pages';
 import { SITE_URL as BASE } from '@/lib/seo-layer/config';
 
-/** Force Node.js so filesystem-backed data loaders in `@/lib/data` always work (avoids Edge 500s). */
-export const runtime = 'nodejs';
-
 const now = new Date();
 
 function safeLastModified(input: string | Date | undefined | null, fallback: Date): Date {
@@ -150,13 +147,38 @@ async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  const [counties, reps, stations, wikiArticles, legalUpdates] = await Promise.all([
-    getAllCounties(),
-    getAllReps(),
-    getAllStations(),
-    getAllWikiArticles(),
-    getAllLegalUpdates(),
-  ]);
+  let counties: Awaited<ReturnType<typeof getAllCounties>> = [];
+  let reps: Awaited<ReturnType<typeof getAllReps>> = [];
+  let stations: Awaited<ReturnType<typeof getAllStations>> = [];
+  let wikiArticles: Awaited<ReturnType<typeof getAllWikiArticles>> = [];
+  let legalUpdates: Awaited<ReturnType<typeof getAllLegalUpdates>> = [];
+  try {
+    const batch = await Promise.all([
+      getAllCounties(),
+      getAllReps(),
+      getAllStations(),
+      getAllWikiArticles(),
+      getAllLegalUpdates(),
+    ]);
+    [counties, reps, stations, wikiArticles, legalUpdates] = batch;
+  } catch (dataErr) {
+    console.error('[sitemap] dynamic data load failed, continuing with static paths only:', dataErr);
+  }
+
+  let blogPostUrls: MetadataRoute.Sitemap = [];
+  try {
+    const blogArticles = getAllBlogArticles();
+    blogPostUrls = blogArticles
+      .filter((a) => a.slug && String(a.slug).trim())
+      .map((a) => ({
+        url: `${BASE}/Blog/${a.slug}`,
+        lastModified: safeLastModified(a.modified ?? a.published, now),
+        changeFrequency: 'monthly' as const,
+        priority: 0.58,
+      }));
+  } catch (blogErr) {
+    console.error('[sitemap] blog URLs skipped:', blogErr);
+  }
   const directoryCountyUrls = counties
     .filter((c) => c.slug && String(c.slug).trim())
     .map((c) => ({
@@ -196,15 +218,6 @@ async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: safeLastModified(u.publishedDate, now),
       changeFrequency: 'monthly' as const,
       priority: 0.6,
-    }));
-  const blogArticles = getAllBlogArticles();
-  const blogPostUrls = blogArticles
-    .filter((a) => a.slug && String(a.slug).trim())
-    .map((a) => ({
-      url: `${BASE}/Blog/${a.slug}`,
-      lastModified: safeLastModified(a.modified ?? a.published, now),
-      changeFrequency: 'monthly' as const,
-      priority: 0.58,
     }));
 
   // county-seo slugs are 308-redirected to /directory/{slug} by middleware — omit from sitemap

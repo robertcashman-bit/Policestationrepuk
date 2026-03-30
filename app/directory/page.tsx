@@ -4,6 +4,8 @@ import { Suspense } from 'react';
 import { getAllReps, getAllCounties, getAllStations } from '@/lib/data';
 import { DirectorySearch } from '@/components/DirectorySearch';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotice';
+import { AdvertisementLabel } from '@/components/AdvertisementLabel';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
@@ -113,17 +115,25 @@ export default async function DirectoryPage() {
       </section>
 
       <div className="page-container">
-        {/* CustodyNote banner */}
-        <div className="mb-6 rounded-[var(--radius-lg)] border border-[var(--navy-light)] bg-[var(--navy)] p-[var(--card-padding)] text-center shadow-[var(--card-shadow)]">
-          <Link href="https://custodynote.com" target="_blank" rel="noopener noreferrer" className="no-underline">
-            <p className="text-sm font-bold text-white">
-              Custody Note — Desktop software for police station attendance notes
-            </p>
-            <p className="mt-1 text-xs text-white">
-              30-day free trial · From £9.99/mo · Use code A2MJY2NQ for 25% off
-            </p>
-          </Link>
+        <div className="mb-6">
+          <DirectoryComplianceNotice />
         </div>
+
+        {/* Custody Note — promoted product */}
+        <aside className="mb-6 rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/35 bg-[var(--navy)] p-[var(--card-padding)] text-center shadow-[var(--card-shadow)]">
+          <div className="flex flex-col items-center gap-2">
+            <AdvertisementLabel variant="dark" label="Featured product" />
+            <Link href="https://custodynote.com" target="_blank" rel="noopener noreferrer" className="no-underline">
+              <p className="text-sm font-bold text-white">
+                Custody Note — police station attendance note software
+              </p>
+              <p className="mt-1 text-xs text-white/85">
+                30-day free trial · £9.99/mo · PSR UK code{' '}
+                <span className="font-mono font-semibold text-[var(--gold)]">A2MJY2NQ</span> for 25% off that subscription
+              </p>
+            </Link>
+          </div>
+        </aside>
 
         <Suspense fallback={<p className="text-[var(--muted)]">Loading directory...</p>}>
           <DirectorySearch
@@ -135,7 +145,9 @@ export default async function DirectoryPage() {
 
         <p className="mt-6 text-xs text-[var(--muted)]">
           Listings are based on information provided at registration. Availability and station
-          coverage may change. If you spot an inaccuracy, please report it and we will review it promptly.
+          coverage may change. PoliceStationRepUK does not verify every credential; firms must satisfy
+          their own compliance checks before instructing. If you spot an inaccuracy, please report it
+          and we will review it promptly.
         </p>
       </div>
     </>

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotice';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
@@ -63,6 +64,9 @@ export default function PoliceStationRepJobsUKPage() {
       </section>
 
       <div className="page-container">
+        <div className="mb-8">
+          <DirectoryComplianceNotice />
+        </div>
 
       {/* Key Qualifications */}
       <section className="mb-14">

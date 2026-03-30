@@ -39,7 +39,7 @@ export function HomeHero() {
             {['Free directory', 'Duty solicitor friendly', 'PACE resources'].map((label) => (
               <span
                 key={label}
-                className="inline-flex items-center gap-1.5 rounded-full border-2 border-emerald-300 bg-emerald-600 px-4 py-2 text-sm font-bold text-white sm:px-5 sm:py-2.5 sm:text-base"
+                className="inline-flex items-center gap-1.5 rounded-full border-2 border-emerald-900 bg-emerald-900 px-4 py-2 text-sm font-bold text-white sm:px-5 sm:py-2.5 sm:text-base"
               >
                 <span aria-hidden>✓</span>
                 {label}

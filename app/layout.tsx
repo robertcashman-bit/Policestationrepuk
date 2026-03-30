@@ -2,9 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { CookieBanner } from '@/components/CookieBanner';
-import { HelpChatButton } from '@/components/HelpChatButton';
-import { FloatingDirectoryActions } from '@/components/FloatingDirectoryActions';
+import { DeferredGlobalWidgets } from '@/components/DeferredGlobalWidgets';
 import { JsonLd } from '@/components/JsonLd';
 import './globals.css';
 import { SITE_URL } from '@/lib/seo-layer/config';
@@ -92,9 +90,7 @@ export default function RootLayout({
         <Header />
         <main id="main-content" className="site-shell-main flex-1 w-full min-w-0">{children}</main>
         <Footer />
-        <FloatingDirectoryActions />
-        <HelpChatButton />
-        <CookieBanner />
+        <DeferredGlobalWidgets />
       </body>
     </html>
   );

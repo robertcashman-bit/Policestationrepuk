@@ -84,14 +84,20 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
             >
               ←
             </button>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-1">
               {featuredReps.map((_, i) => (
                 <button
                   key={i}
+                  type="button"
                   onClick={() => setCurrent(i)}
-                  className={`h-2.5 w-2.5 rounded-full transition-all ${i === current ? 'bg-[var(--gold)] w-6' : 'bg-white hover:bg-[var(--gold-light)]'}`}
-                  aria-label={`Go to slide ${i + 1}`}
-                />
+                  className="flex h-11 w-11 items-center justify-center rounded-full text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  aria-label={`Go to spotlight ${i + 1} of ${featuredReps.length}`}
+                >
+                  <span
+                    className={`block rounded-full transition-all ${i === current ? 'h-2.5 w-6 bg-[var(--gold)]' : 'h-2.5 w-2.5 bg-white hover:bg-[var(--gold-light)]'}`}
+                    aria-hidden
+                  />
+                </button>
               ))}
             </div>
             <button

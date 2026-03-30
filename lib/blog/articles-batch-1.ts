@@ -1,19 +1,19 @@
 import type { BlogArticle } from './types';
 
 const IMG = (slug: string, alt: string) => ({
-  src: `/images/blog/${slug}.svg`,
+  src: `/images/blog/raster/${slug}.webp`,
   alt,
   width: 1200,
-  height: 630,
+  height: 675,
 });
 
 export const ARTICLES_BATCH_1: BlogArticle[] = [
   {
     slug: 'what-does-a-freelance-police-station-representative-do',
     title: 'What Does a Freelance Police Station Representative Actually Do?',
-    metaTitle: 'What Does a Freelance Police Station Representative Do? | PoliceStationRepUK',
+    metaTitle: 'Freelance Police Station Rep: What They Do | PSR UK',
     metaDescription:
-      'A clear, practical overview of the freelance police station representative role: who they act for, what they do in custody, and how firms use them alongside duty solicitors.',
+      'What a freelance police station representative does in custody: who they act for, how firms instruct them, and how that differs from duty solicitor cover.',
     primaryKeyword: 'freelance police station representative',
     categories: ['freelance-reps', 'attendance', 'law-firms'],
     published: '2026-03-20T09:00:00.000Z',
@@ -40,8 +40,24 @@ export const ARTICLES_BATCH_1: BlogArticle[] = [
         q: 'Who does the representative take instructions from?',
         a: 'Typically from the criminal defence firm that instructs them. The rep’s role is to attend, advise within their accreditation, and report back so the firm can run the case. Exact arrangements should always be agreed in writing between firm and representative.',
       },
+      {
+        q: 'Where can firms find accredited representatives?',
+        a: 'Use the PoliceStationRepUK directory and search to filter by area and accreditation, then complete your own panel checks and engagement terms.',
+      },
     ],
     bodyMarkdown: `
+## Key takeaways
+
+- A **freelance police station representative** attends on the instructing firm’s instructions and reports back clearly — distinct from duty solicitor rota cover.
+- Strong briefing, custody discipline, and structured notes drive repeat instructions and safer files.
+- PoliceStationRepUK is a **directory** for discovery; it does not replace supervision, insurers, or retainers.
+
+## Questions this article answers
+
+- What does a freelance police station representative actually do in custody?
+- How does freelance cover differ from the duty solicitor route?
+- What should firms and reps prioritise before, during, and after attendance?
+
 ## Role in one sentence
 
 A freelance police station representative is an accredited professional who attends a police station (or other investigative interview under caution) **on behalf of an instructing firm**, to support the client and feed clear information back to the lawyers running the file.
@@ -85,9 +101,9 @@ For **firms**, freelance cover is often about capacity: out-of-hours rotas, geog
   {
     slug: 'how-firms-can-instruct-freelance-police-station-reps',
     title: 'How Criminal Defence Firms Can Instruct Freelance Police Station Reps More Effectively',
-    metaTitle: 'Instruct Freelance Police Station Reps Effectively | Law Firm Guide',
+    metaTitle: 'Instruct Freelance Police Station Reps | Law Firms',
     metaDescription:
-      'Practical steps for criminal defence firms: clearer instructions, faster deployments, better briefs, and stronger post-attendance reporting when using freelance police station representatives.',
+      'How criminal defence firms instruct freelance police station reps: clearer briefs, faster deployments, escalation rules, and stronger post-attendance reporting.',
     primaryKeyword: 'instruct freelance police station rep',
     categories: ['law-firms', 'best-practice'],
     published: '2026-03-21T09:00:00.000Z',
@@ -114,11 +130,27 @@ For **firms**, freelance cover is often about capacity: out-of-hours rotas, geog
         q: 'How do we agree fees and cancellation terms?',
         a: 'Use your firm’s standard terms with panel reps or the representative’s own engagement letter. Agree who bills the client or legal aid and what happens if the police cancel. PoliceStationRepUK does not set fees between firms and reps.',
       },
+      {
+        q: 'How do we instruct a freelance police station rep in a hurry?',
+        a: 'Send a minimum viable brief (identity, allegation summary, strategy headline, custody location), confirm the named contact for mid-attendance decisions, then follow up in writing. Use [emergency cover routes](/EmergencyCover) alongside your panel list when you need a new name fast.',
+      },
     ],
     bodyMarkdown: `
+## Key takeaways
+
+- **Instruct freelance police station rep** workflows improve when one contact owns routing and written instructions back every urgent call.
+- Minimum brief content (identity, allegation, strategy, billing) prevents guesswork in custody.
+- Panel depth by geography and time band beats a single “favourite name” at 2 a.m.
+
+## Questions this article answers
+
+- How should firms structure instructions to freelance reps?
+- What belongs in a minimum viable brief at deployment time?
+- How do escalation rules and channel discipline reduce risk?
+
 ## Why instruction quality matters
 
-A freelance rep can only work with what you provide. Thin instructions create duplicated calls, slower attendance, and avoidable strain on the client. Strong instructions look boring on paper — and that is the point.
+When you instruct a freelance police station rep, clarity is the main lever. A freelance rep can only work with what you provide. Thin instructions create duplicated calls, slower attendance, and avoidable strain on the client. Strong instructions look boring on paper — and that is the point.
 
 ## Single point of contact
 
@@ -167,7 +199,7 @@ When you need a new name quickly, filter by county and accreditation on the [dir
     title: 'Police Station Attendance Checklist for Freelance Representatives',
     metaTitle: 'Police Station Attendance Checklist for Freelance Reps | UK',
     metaDescription:
-      'A practical checklist for freelance police station representatives before, during, and after custody attendance — aligned with how criminal defence firms expect files to be run.',
+      'Police station attendance checklist for freelance reps: before travel, custody desk, consultation, interview support, outcomes, and notes firms can rely on.',
     primaryKeyword: 'police station attendance checklist',
     categories: ['attendance', 'freelance-reps', 'best-practice'],
     published: '2026-03-18T09:00:00.000Z',
@@ -194,9 +226,27 @@ When you need a new name quickly, filter by county and accreditation on the [dir
         q: 'What if the firm’s strategy changes mid-attendance?',
         a: 'Confirm instructions in writing where possible, or note time-stamped phone approval in your attendance record. If you cannot reach the firm, follow your accreditation rules and document the limitation clearly.',
       },
+      {
+        q: 'Does this checklist replace PACE training?',
+        a: 'No. It complements your accreditation and firm instructions. For context on process and rights, see the in-site [PACE overview](/PACE) and your regulator’s materials.',
+      },
     ],
     bodyMarkdown: `
+## Key takeaways
+
+- Use a **police station attendance checklist** so preparation, custody desk steps, and reporting stay consistent.
+- Document disclosure, outcomes, and follow-ups the same day — tired fee earners skim predictable headings.
+- Align with the firm’s PACE awareness and your accreditation limits; this is operational guidance, not case advice.
+
+## Questions this article answers
+
+- What should a rep verify before travelling to custody?
+- What belongs in post-attendance notes for the instructing firm?
+- How do voluntary interviews differ in practice from booked-in custody?
+
 ## Before you travel
+
+This **police station attendance checklist** is a field aide — adapt it to the instructing firm and the venue.
 
 - Confirm **station, suite, and booking window** with the firm and custody where possible.
 - Re-read the brief; flag gaps (missing DOB, offence detail, AA/interpreter).
@@ -242,7 +292,7 @@ Send structured notes quickly — see [handover notes best practice](/Blog/best-
 
 ## Stay visible for the next instruction
 
-Keep your [directory profile](/Register) accurate on counties, hours, and accreditation so firms can match you to live demand.
+Keep your [directory profile](/Register) accurate on counties, hours, and accreditation so firms can match you to live demand. Firms planning cover may also use [police station cover overview](/PoliceStationCover) before they instruct.
 
 ---
 
@@ -254,7 +304,7 @@ Keep your [directory profile](/Register) accurate on counties, hours, and accred
     title: 'What Law Firms Should Include in a Proper Police Station Brief',
     metaTitle: 'Police Station Brief for Freelance Rep: What to Include',
     metaDescription:
-      'What criminal defence firms should put in a police station brief for a freelance accredited representative: facts, strategy, risk flags, and billing — so attendance runs smoothly.',
+      'What to put in a police station brief for a freelance rep: client IDs, allegation summary, vulnerabilities, tactics, billing — so custody attendance runs smoothly.',
     primaryKeyword: 'police station brief for freelance rep',
     categories: ['law-firms', 'best-practice', 'attendance'],
     published: '2026-03-19T09:00:00.000Z',
@@ -281,8 +331,24 @@ Keep your [directory profile](/Register) accurate on counties, hours, and accred
         q: 'Should we include internal firm gossip or speculation?',
         a: 'No. Stick to facts, instructions, and known risks. Speculation clouds advice and can leak into notes in unhelpful ways.',
       },
+      {
+        q: 'Where does interview under caution fit in?',
+        a: 'Many briefs support a PACE interview or voluntary interview under caution. Point the rep to your preferred approach and any [interview under caution](/InterviewUnderCaution) notes the firm already uses.',
+      },
     ],
     bodyMarkdown: `
+## Key takeaways
+
+- A **police station brief for freelance rep** use should bundle identity, allegations, vulnerabilities, tactics, and billing in one thread.
+- Vague offence labels and silent strategy create custody risk; name escalation thresholds explicitly.
+- Attach what you already hold on disclosure; say plainly when you have only a label.
+
+## Questions this article answers
+
+- What must a firm include when briefing a freelance representative?
+- How much disclosure should travel with the instruction?
+- How should tactical limits and billing be expressed?
+
 ## The purpose of the brief
 
 The brief exists so a freelance representative can **stand in your shoes for a few hours** without improvising client strategy from thin air. It should answer: who, what, where, why it matters, and how you want the attendance conducted.

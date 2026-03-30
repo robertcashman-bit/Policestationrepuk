@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/blog/build-blog-hero-webp.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -30,6 +31,13 @@
     "visual-parity": "npx playwright install chromium && npx tsx scripts/visual-parity.ts",
     "parity:full": "npx tsx scripts/final-parity-suite.ts",
     "audit:links": "node scripts/audit/internal-link-audit.mjs",
+    "audit:crawl": "node scripts/audit/sitemap-crawl.mjs",
+    "audit:blog-seo": "npx tsx scripts/audit/blog-seo.ts",
+    "validate:schema": "npx tsx scripts/audit/validate-blog-schema.ts",
+    "test:directory-search": "npx tsx scripts/directory-search-selftest.ts",
+    "blog:heroes": "node scripts/blog/build-blog-hero-webp.mjs",
+    "blog:heroes:fetch": "node scripts/blog/fetch-hero-images.mjs",
+    "analyze": "ANALYZE=true next build",
     "audit:validate": "node scripts/audit-validate.mjs",
     "audit:validate:fix": "node scripts/audit-validate.mjs --fix",
     "validate:articles": "npx tsx scripts/validate-articles.ts",
@@ -51,6 +59,8 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
+    "@lhci/cli": "^0.15.1",
+    "@next/bundle-analyzer": "^16.2.1",
     "@tailwindcss/postcss": "^4.0.14",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^22.13.10",
@@ -63,6 +73,7 @@
     "pixelmatch": "^7.1.0",
     "playwright": "^1.58.2",
     "pngjs": "^7.0.0",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.0.14",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"

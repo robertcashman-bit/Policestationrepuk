@@ -80,7 +80,7 @@ export function Header() {
               onClick={() => setOpen((v) => !v)}
               aria-label={open ? 'Close menu' : 'Open menu'}
               aria-expanded={open}
-              className="flex shrink-0 items-center gap-2 rounded-lg bg-orange-500 px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-orange-600 lg:hidden"
+              className="flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg border-2 border-white/40 bg-[var(--navy-light)] px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:border-[var(--gold)] hover:bg-[var(--navy)] lg:hidden"
             >
               {open ? (
                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>

@@ -17,3 +17,16 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build
+      - name: Directory search engine self-test
+        run: npm run test:directory-search
+      - name: Lighthouse CI (tier-1 URLs, warn-only thresholds)
+        run: npx lhci autorun
+      - name: Blog SEO content rules
+        run: npm run audit:blog-seo
+      - name: Blog JSON-LD shape check
+        run: npm run validate:schema
+      - name: Live sitemap crawl (sample)
+        env:
+          CRAWL_MAX_URLS: '800'
+          CRAWL_CONCURRENCY: '10'
+        run: node scripts/audit/sitemap-crawl.mjs

@@ -6,13 +6,19 @@ import Link from 'next/link';
 import { DirectoryCard } from '@/components/DirectoryCard';
 import type { Representative, County, PoliceStation } from '@/lib/types';
 import { repMatchesCountyName } from '@/lib/county-matching';
-import { searchReps, type ScoredRep } from '@/lib/rep-search';
+import {
+  buildCountyCanonicalMap,
+  representativeToSearchRow,
+  searchDirectory,
+} from '@/lib/directory-search-engine';
+import { forceMatchesCounty } from '@/lib/police-force-to-counties';
+
+type ScoredRep = Representative & { _score: number };
 
 interface DirectorySearchProps {
   reps: Representative[];
   counties: County[];
   stations: PoliceStation[];
-  /** Where filter query params are synced (default `/directory`; use `/search` on the search page). */
   urlBase?: string;
   defaultCounty?: string;
   defaultStation?: string;
@@ -63,61 +69,6 @@ const SORT_OPTIONS = [
   { value: 'stations', label: 'Most stations' },
 ];
 
-const FORCE_TO_COUNTIES: Record<string, string[]> = {
-  'avon and somerset': ['Somerset', 'Bristol'],
-  'bedfordshire': ['Bedfordshire'],
-  'cambridgeshire': ['Cambridgeshire'],
-  'cheshire': ['Cheshire'],
-  'city of london': ['London'],
-  'cleveland': ['Cleveland'],
-  'cumbria': ['Cumbria'],
-  'derbyshire': ['Derbyshire'],
-  'devon and cornwall': ['Devon', 'Cornwall'],
-  'dorset': ['Dorset'],
-  'durham': ['County Durham'],
-  'dyfed-powys': ['Powys', 'Dyfed'],
-  'essex': ['Essex'],
-  'gloucestershire': ['Gloucestershire'],
-  'greater manchester': ['Greater Manchester'],
-  'gwent': ['Gwent'],
-  'hampshire': ['Hampshire'],
-  'hertfordshire': ['Hertfordshire'],
-  'humberside': ['Humberside'],
-  'kent': ['Kent'],
-  'lancashire': ['Lancashire'],
-  'leicestershire': ['Leicestershire'],
-  'lincolnshire': ['Lincolnshire'],
-  'merseyside': ['Merseyside'],
-  'met': ['London'],
-  'metropolitan': ['London'],
-  'norfolk': ['Norfolk'],
-  'north wales': ['North Wales'],
-  'north yorkshire': ['North Yorkshire', 'Yorkshire'],
-  'northamptonshire': ['Northamptonshire'],
-  'northumbria': ['Northumberland', 'Tyne and Wear'],
-  'nottinghamshire': ['Nottinghamshire'],
-  'south wales': ['South Wales'],
-  'south yorkshire': ['South Yorkshire', 'Yorkshire'],
-  'staffordshire': ['Staffordshire'],
-  'suffolk': ['Suffolk'],
-  'surrey': ['Surrey'],
-  'sussex': ['Sussex'],
-  'thames valley': ['Berkshire', 'Buckinghamshire', 'Oxfordshire'],
-  'warwickshire': ['Warwickshire'],
-  'west mercia': ['Shropshire', 'Herefordshire', 'Worcestershire'],
-  'west midlands': ['West Midlands'],
-  'west yorkshire': ['West Yorkshire', 'Yorkshire'],
-  'wiltshire': ['Wiltshire'],
-};
-
-function forceMatchesCounty(forceName: string, countyName: string): boolean {
-  const forceKey = forceName.toLowerCase().replace(/\s*(police|constabulary)\s*/gi, '').trim();
-  const counties = FORCE_TO_COUNTIES[forceKey];
-  if (counties) return counties.some((c) => c.toLowerCase() === countyName.toLowerCase());
-  return forceName.toLowerCase().includes(countyName.toLowerCase()) ||
-    countyName.toLowerCase().includes(forceKey);
-}
-
 const PAGE_SIZE = 24;
 
 export function DirectorySearch({
@@ -133,6 +84,7 @@ export function DirectorySearch({
 }: DirectorySearchProps) {
   const router = useRouter();
   const [query, setQuery] = useState(defaultQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(defaultQuery);
   const [county, setCounty] = useState(defaultCounty);
   const [station, setStation] = useState(defaultStation);
   const [availability, setAvailability] = useState(defaultAvailability);
@@ -141,7 +93,13 @@ export function DirectorySearch({
   const [page, setPage] = useState(1);
 
   useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query), 200);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  useEffect(() => {
     setQuery(defaultQuery);
+    setDebouncedQuery(defaultQuery);
     setCounty(defaultCounty);
     setStation(defaultStation);
     setAvailability(defaultAvailability);
@@ -151,7 +109,7 @@ export function DirectorySearch({
 
   const syncUrl = useCallback(() => {
     const params = new URLSearchParams();
-    const qTrim = query.trim();
+    const qTrim = debouncedQuery.trim();
     if (qTrim) params.set('q', qTrim);
     if (county) params.set('county', county);
     if (station) params.set('station', station);
@@ -160,22 +118,40 @@ export function DirectorySearch({
     const qs = params.toString();
     const path = qs ? `${urlBase}?${qs}` : urlBase;
     router.replace(path, { scroll: false });
-  }, [router, urlBase, query, county, station, availability, accreditation]);
+  }, [router, urlBase, debouncedQuery, county, station, availability, accreditation]);
 
   useEffect(() => {
     const timer = setTimeout(syncUrl, 400);
     return () => clearTimeout(timer);
   }, [syncUrl]);
 
-  const hasTextQuery = query.trim().length > 0;
+  const hasTextQuery = debouncedQuery.trim().length > 0;
 
   useEffect(() => {
     if (hasTextQuery && sort !== 'relevance') setSort('relevance');
     else if (!hasTextQuery && sort === 'relevance') setSort('name');
   }, [hasTextQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const countyCanonicalMap = useMemo(
+    () => buildCountyCanonicalMap(counties.map((c) => c.name)),
+    [counties],
+  );
+
+  const searchRows = useMemo(
+    () => reps.map((r) => representativeToSearchRow(r, countyCanonicalMap)),
+    [reps, countyCanonicalMap],
+  );
+
   const filtered = useMemo(() => {
-    let result: ScoredRep[] = searchReps(query, reps, stations, counties);
+    let result: ScoredRep[];
+
+    const q = debouncedQuery.trim();
+    if (!q) {
+      result = reps.map((r) => ({ ...r, _score: 0 }));
+    } else {
+      const matched = searchDirectory(searchRows, q);
+      result = matched.map((row, i) => ({ ...row.rep, _score: 1000 - i }));
+    }
 
     if (county) {
       result = result.filter((r) => repMatchesCountyName(r.county, county));
@@ -213,7 +189,16 @@ export function DirectorySearch({
     nonFeatured.sort(sortFn);
 
     return [...featured, ...nonFeatured];
-  }, [reps, stations, counties, query, county, station, availability, accreditation, sort]);
+  }, [
+    reps,
+    searchRows,
+    debouncedQuery,
+    county,
+    station,
+    availability,
+    accreditation,
+    sort,
+  ]);
 
   const featuredReps = filtered.filter((r) => r.featured);
   const nonFeaturedReps = filtered.filter((r) => !r.featured);
@@ -222,6 +207,7 @@ export function DirectorySearch({
 
   function resetFilters() {
     setQuery('');
+    setDebouncedQuery('');
     setCounty('');
     setStation('');
     setAvailability('');
@@ -391,11 +377,26 @@ export function DirectorySearch({
         <div className="mt-8 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-12 text-center shadow-[var(--card-shadow)]">
           <p className="text-xl font-bold text-[var(--navy)]">No representatives found</p>
           <p className="mt-2 text-[var(--muted)]">
-            Try adjusting your filters or{' '}
-            <button onClick={resetFilters} className="font-medium text-[var(--gold-hover)] hover:text-[var(--gold)]">
-              clear all filters
-            </button>
-            .
+            {hasActiveFilters ? (
+              <>
+                {debouncedQuery.trim() ? (
+                  <>
+                    No representatives found for &ldquo;{debouncedQuery.trim()}&rdquo;. Try another search or broaden
+                    your terms, or{' '}
+                  </>
+                ) : null}
+                Adjust your filters or{' '}
+                <button
+                  onClick={resetFilters}
+                  className="font-medium text-[var(--gold-hover)] hover:text-[var(--gold)]"
+                >
+                  clear all filters
+                </button>
+                .
+              </>
+            ) : (
+              <>No representatives match the current directory data.</>
+            )}
           </p>
         </div>
       ) : null}

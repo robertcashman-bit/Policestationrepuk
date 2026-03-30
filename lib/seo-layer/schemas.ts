@@ -166,6 +166,16 @@ export function directoryServiceLocalBusinessSchema() {
   };
 }
 
+/** Editorial byline for BlogPosting JSON-LD (Person); publisher remains the platform org. */
+export function blogEditorPersonSchema() {
+  return {
+    '@type': 'Person',
+    name: 'Robert Cashman',
+    url: `${SITE_URL}/AboutFounder`,
+    jobTitle: 'Founder, PoliceStationRepUK',
+  };
+}
+
 /** BlogPosting schema for individual blog articles */
 export function blogPostingSchema(post: {
   title: string;
@@ -184,15 +194,15 @@ export function blogPostingSchema(post: {
     ...(post.imageUrl ? { image: [post.imageUrl] } : {}),
     ...(post.datePublished ? { datePublished: post.datePublished } : {}),
     ...(post.dateModified ? { dateModified: post.dateModified } : {}),
-    author: {
-      '@type': 'Organization',
-      name: SITE_NAME,
-      url: SITE_URL,
-    },
+    author: blogEditorPersonSchema(),
     publisher: {
       '@type': 'Organization',
       name: SITE_NAME,
       url: SITE_URL,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${SITE_URL}/og-default.png`,
+      },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',

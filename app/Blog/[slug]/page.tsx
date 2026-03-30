@@ -9,6 +9,8 @@ import { getAllBlogPosts, getBlogPostBySlug, getFullBlogArticle, getBlogRelatedF
 import { SITE_URL } from '@/lib/seo-layer/config';
 import { categoryLabel } from '@/lib/blog/categories';
 import type { BlogCategoryId } from '@/lib/blog/types';
+import { getTopicClusterForSlug } from '@/lib/blog/topic-clusters';
+import { BlogAuthorBio } from '@/components/BlogAuthorBio';
 
 export const dynamic = 'force-static';
 export const revalidate = false;
@@ -67,6 +69,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
   if (!post || !article) notFound();
 
   const related = getBlogRelatedForSlug(slug, article.relatedSlugs);
+  const topicCluster = getTopicClusterForSlug(slug);
   const imageUrl = `${SITE_URL}${article.image.src}`;
 
   const bc = breadcrumbSchema([
@@ -131,7 +134,6 @@ export default async function BlogArticlePage({ params }: PageProps) {
               className="h-auto w-full object-cover"
               sizes="(max-width: 768px) 100vw, 768px"
               priority
-              unoptimized
             />
           </figure>
 
@@ -178,6 +180,41 @@ export default async function BlogArticlePage({ params }: PageProps) {
               ))}
             </ul>
           </section>
+
+          {topicCluster && (
+            <section className="mt-12 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--gold-pale)]/40 p-6 sm:p-8">
+              <h2 className="text-lg font-bold text-[var(--navy)]">More in this topic cluster</h2>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{topicCluster.title}</p>
+              <p className="mt-4">
+                <Link
+                  href={topicCluster.pillarPath}
+                  className="text-sm font-semibold text-[var(--gold-hover)] no-underline hover:underline"
+                >
+                  {topicCluster.pillarLabel} →
+                </Link>
+              </p>
+              <ul className="mt-4 space-y-2">
+                {topicCluster.relatedSlugs.map((s) => {
+                  const p = getBlogPostBySlug(s);
+                  if (!p) return null;
+                  return (
+                    <li key={s}>
+                      <Link
+                        href={`/Blog/${s}`}
+                        className="text-sm font-medium text-[var(--navy)] no-underline hover:text-[var(--gold-hover)] hover:underline"
+                      >
+                        {p.title}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
+
+          <div className="mt-12">
+            <BlogAuthorBio />
+          </div>
 
           <aside className="mt-12 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--navy)] p-6 text-white sm:p-8">
             <h2 className="text-lg font-bold">Need cover or want to be found?</h2>

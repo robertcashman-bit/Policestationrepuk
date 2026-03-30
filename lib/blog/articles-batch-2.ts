@@ -1,10 +1,10 @@
 import type { BlogArticle } from './types';
 
 const IMG = (slug: string, alt: string) => ({
-  src: `/images/blog/${slug}.svg`,
+  src: `/images/blog/raster/${slug}.webp`,
   alt,
   width: 1200,
-  height: 630,
+  height: 675,
 });
 
 export const ARTICLES_BATCH_2: BlogArticle[] = [
@@ -13,7 +13,7 @@ export const ARTICLES_BATCH_2: BlogArticle[] = [
     title: 'Freelance Police Station Representative vs Duty Solicitor: What Is the Difference?',
     metaTitle: 'Freelance Police Station Rep vs Duty Solicitor | Explained',
     metaDescription:
-      'Understand the difference between a freelance accredited police station representative and a duty solicitor: allocation, who instructs whom, and how firms use both in England and Wales.',
+      'Freelance police station representative vs duty solicitor: how allocation works, who instructs whom, and when firms use each in England and Wales.',
     primaryKeyword: 'freelance police station representative vs duty solicitor',
     categories: ['law-firms', 'freelance-reps', 'best-practice'],
     published: '2026-03-17T09:00:00.000Z',
@@ -40,8 +40,24 @@ export const ARTICLES_BATCH_2: BlogArticle[] = [
         q: 'Does legal aid pay the same for each?',
         a: 'Billing rules depend on the scheme, certificate, and stage of work. Firms should follow LAA guidance and their own billing team processes — this article does not give fee advice.',
       },
+      {
+        q: 'Can a firm use both on one file?',
+        a: 'Sometimes the pathway changes as the case develops. The important point is clarity: record who attended, under what scheme or instruction, and how the client was advised. Use your firm’s PACE materials for process background — this article is not case-specific advice.',
+      },
     ],
     bodyMarkdown: `
+## Key takeaways
+
+- **Freelance police station representative vs duty solicitor** is mainly about *how someone is engaged*: rota allocation versus firm instruction.
+- Both pathways need clear file notes so clients, billing, and supervision stay coherent.
+- Freelance reps often extend a firm’s strategy; duty solicitors may own the file or hand off — practices vary.
+
+## Questions this article answers
+
+- How does duty solicitor allocation differ from instructing a freelance rep?
+- When might a firm still book freelance cover if duty exists?
+- What should be recorded on the file after attendance?
+
 ## Two different front doors
 
 **Duty solicitors** are typically accessed through a rota system when a detainee asks for the duty solicitor or when that pathway is otherwise engaged. The point is **scheme allocation**, not a standing relationship with a particular firm.
@@ -119,11 +135,27 @@ Whether you are a firm or a rep, the [accredited representative directory](/dire
         q: 'What if we genuinely do not know the allegation detail yet?',
         a: 'Say so, and instruct how to handle limited disclosure — for example, seek maximum permissible disclosure before interview, or attend a voluntary slot to clarify scope first.',
       },
+      {
+        q: 'Should we route everything through the directory?',
+        a: 'PoliceStationRepUK helps you discover reps; operational messaging should stay on your firm’s approved systems. Use the public directory to shortlist, then onboard through your panel process.',
+      },
     ],
     bodyMarkdown: `
+## Key takeaways
+
+- **Mistakes instructing freelance police station reps** usually trace to thin briefs, vague strategy, slow callbacks, and weak feedback loops.
+- Fix the handover template, escalation ladder, and billing assumptions before blaming “rep quality.”
+- Panel reps are independent professionals — respect boundaries and data rules.
+
+## Questions this article answers
+
+- What briefing errors create the most custody friction?
+- How should firms handle mid-attendance decisions and billing?
+- What habits protect relationships with freelance representatives?
+
 ## 1. The “title-only” brief
 
-Sending only an offence label (“GBH — Maidstone”) forces the rep to reconstruct context under pressure. Fix: use the template in [what to include in a brief](/Blog/what-to-include-in-a-police-station-brief).
+These **mistakes instructing freelance police station reps** are easy to avoid once you see them. Sending only an offence label (“GBH — Maidstone”) forces the rep to reconstruct context under pressure. Fix: use the template in [what to include in a brief](/Blog/what-to-include-in-a-police-station-brief).
 
 ## 2. Ambiguous strategy
 
@@ -194,11 +226,27 @@ Combine this article with [out-of-hours network planning](/Blog/out-of-hours-pol
         q: 'Should reps give opinions on prospects?',
         a: 'Be cautious. Factual reporting plus clear questions back to the firm is usually safer than bold predictions, unless you have a specific role agreement allowing evaluative comment.',
       },
+      {
+        q: 'Where should firms store the notes?',
+        a: 'Use the firm’s case system or encrypted channels. If you are comparing reps, read the in-site article on what makes a good police station representative for traits that show up in written work.',
+      },
     ],
     bodyMarkdown: `
+## Key takeaways
+
+- **Police station handover notes** should follow the same headings every time: metadata, disclosure, advice summary, outcome, tasks, risks.
+- Factual tone beats advocacy in notes; flag questions back to the firm instead of bold predictions.
+- Send on approved secure channels and acknowledge receipt on the firm side.
+
+## Questions this article answers
+
+- What structure do fee earners actually read at midnight?
+- How much interview detail belongs in a handover?
+- How should confidentiality and storage be handled?
+
 ## Why structure beats prose
 
-Fee earners skim at speed. **Headings and bullets** beat long paragraphs. A predictable order means nothing important is missed when someone tired is reading at midnight.
+**Police station handover notes** work best when they follow a predictable shape. Fee earners skim at speed. **Headings and bullets** beat long paragraphs. A predictable order means nothing important is missed when someone tired is reading at midnight.
 
 ## Suggested layout
 
@@ -234,11 +282,11 @@ Send through **secure channels**. If you must phone first, follow with written c
 
 ## For firms receiving notes
 
-Acknowledge receipt. If the rep missed something, ask once clearly — they usually prefer a direct question to silent disappointment.
+Acknowledge receipt. If the rep missed something, ask once clearly — they usually prefer a direct question to silent disappointment. If you are building a panel, pair note quality with [how firms instruct freelance reps](/Blog/how-firms-can-instruct-freelance-police-station-reps).
 
 ## Link to attendance discipline
 
-Pair this habit with the [attendance checklist](/Blog/police-station-attendance-checklist) so field work and reporting stay aligned.
+Pair this habit with the [attendance checklist](/Blog/police-station-attendance-checklist) so field work and reporting stay aligned. Firms can also brief against [what to include in a police station brief](/Blog/what-to-include-in-a-police-station-brief) so reps receive consistent inputs.
 
 ---
 
@@ -250,7 +298,7 @@ Pair this habit with the [attendance checklist](/Blog/police-station-attendance-
     title: 'Out-of-Hours Police Station Cover: How Firms Can Build a Reliable Freelance Network',
     metaTitle: 'Out of Hours Police Station Cover for Law Firms | Network Guide',
     metaDescription:
-      'How criminal defence firms build reliable out-of-hours police station cover using freelance accredited representatives: rota design, geography, escalation, and quality control.',
+      'Build reliable out-of-hours police station cover with freelance reps: map demand, split time bands, plan geography, vet panels, and run clear night escalations.',
     primaryKeyword: 'out of hours police station cover',
     categories: ['law-firms', 'best-practice'],
     published: '2026-03-14T09:00:00.000Z',
@@ -277,11 +325,27 @@ Pair this habit with the [attendance checklist](/Blog/police-station-attendance-
         q: 'Should we pay retainers?',
         a: 'Some firms do; others rely on per-attendance fees. That is a commercial decision — document it either way so expectations match.',
       },
+      {
+        q: 'How does PoliceStationRepUK help with out-of-hours cover?',
+        a: 'It is a discovery layer for accredited representatives — not a substitute for your rota rules. Start from the site search, then add names to your formal panel with agreed terms.',
+      },
     ],
     bodyMarkdown: `
+## Key takeaways
+
+- **Out of hours police station cover** needs mapped demand, time bands, and geography — not one exhausted contact.
+- Vet reps with real test instructions; review note quality and decline rates quarterly.
+- Discovery tools complement, but never replace, your formal panel agreement and rota governance.
+
+## Questions this article answers
+
+- How many names should a firm hold per custody cluster?
+- How should night escalation and strategy approval work?
+- What signals predict reliable freelance cover?
+
 ## Map real demand
 
-Pull six months of data: **which custody suites**, which nights, and which offence types spike. Your network should match reality, not a map pin in the county town if you never go there.
+**Out of hours police station cover** should reflect real demand, not hope. Pull six months of data: **which custody suites**, which nights, and which offence types spike. Your network should match reality, not a map pin in the county town if you never go there.
 
 ## Time bands, not vibes
 
@@ -305,7 +369,7 @@ Quarterly review: late arrivals, note quality, polite decline rate. Drop names t
 
 ## Directory discovery
 
-PoliceStationRepUK is built to help you **discover names** you might not meet at the local solicitors’ dinner. Start from [search](/search), then bring people into your formal panel process.
+PoliceStationRepUK is built to help you **discover names** you might not meet at the local solicitors’ dinner. Start from [search](/search), then bring people into your formal panel process. Cross-check wider [police station cover](/PoliceStationCover) pages when you explain the model to new fee earners.
 
 ## For reps wanting more night work
 

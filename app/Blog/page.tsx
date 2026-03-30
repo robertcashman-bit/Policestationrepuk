@@ -116,15 +116,14 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
                   href={`/Blog/${post.slug}`}
                   className="group flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] no-underline shadow-[var(--card-shadow)] transition-all hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
                 >
-                  <div className="relative aspect-[1200/630] w-full overflow-hidden bg-[var(--navy)]">
+                  <div className="relative aspect-video w-full overflow-hidden bg-[var(--navy)]">
                     <Image
                       src={post.image.src}
                       alt={post.image.alt}
                       width={1200}
-                      height={630}
+                      height={675}
                       className="h-full w-full object-cover opacity-95 transition-opacity group-hover:opacity-100"
                       sizes="(max-width: 1024px) 100vw, 33vw"
-                      unoptimized
                     />
                   </div>
                   <div className="flex flex-1 flex-col p-5">
@@ -163,16 +162,15 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
                 href={`/Blog/${post.slug}`}
                 className="group flex flex-col overflow-hidden rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] no-underline shadow-[var(--card-shadow)] transition-all hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
               >
-                <div className="relative aspect-[1200/630] w-full overflow-hidden bg-[var(--navy)]">
+                <div className="relative aspect-video w-full overflow-hidden bg-[var(--navy)]">
                   <Image
                     src={post.image.src}
                     alt={post.image.alt}
-                    width={600}
-                    height={315}
+                    width={768}
+                    height={432}
                     className="h-full w-full object-cover opacity-95 transition-opacity group-hover:opacity-100"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     loading="lazy"
-                    unoptimized
                   />
                 </div>
                 <div className="flex flex-1 flex-col p-5">

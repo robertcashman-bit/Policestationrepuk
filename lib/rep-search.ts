@@ -307,10 +307,12 @@ export function scoreRep(rep: Representative, nq: NormalizedQuery): number {
     }
   }
 
-  // Remaining tokens: fuzzy match across name, notes, stations
+  // Remaining tokens: fuzzy match across name, phone, accreditation, notes, stations
   for (const token of nq.remainingTokens) {
     if (token.length < 2) continue;
-    const haystack = [repName, repCounty, repNotes, ...repStations].join(' ');
+    const repPhone = (rep.phone || '').toLowerCase();
+    const repAccred = (rep.accreditation || '').toLowerCase();
+    const haystack = [repName, repPhone, repAccred, repCounty, repNotes, ...repStations].join(' ');
 
     if (haystack.includes(token)) {
       score += 25;
@@ -377,23 +379,23 @@ export function searchReps(
     if (results.length > 0) return results;
   }
 
-  // Fallback 2: broad token match across all fields
+  // Fallback 2: broad token match across all fields (incl. phone, accreditation)
   const allTokens = nq.tokens;
   results = scored.filter((r) => {
     const hay = [
-      r.name, r.county, r.notes, ...(r.stations || []),
-    ].join(' ').toLowerCase();
-    return allTokens.some((t) => t.length >= 3 && hay.includes(t));
+      r.name,
+      r.phone,
+      r.county,
+      r.accreditation,
+      r.notes,
+      ...(r.stations || []),
+    ]
+      .join(' ')
+      .toLowerCase();
+    return allTokens.some((t) => t.length >= 2 && hay.includes(t));
   });
   results.sort((a, b) => b._score - a._score);
   if (results.length > 0) return results.map((r) => ({ ...r, _score: Math.max(r._score, 30) }));
 
-  // Fallback 3: return top available reps (never empty)
-  scored.sort((a, b) => {
-    const aAvail = /24|on\s*call/i.test(a.availability || '') ? 1 : 0;
-    const bAvail = /24|on\s*call/i.test(b.availability || '') ? 1 : 0;
-    if (bAvail !== aAvail) return bAvail - aAvail;
-    return (a.name || '').localeCompare(b.name || '');
-  });
-  return scored.slice(0, 10).map((r) => ({ ...r, _score: 1 }));
+  return [];
 }

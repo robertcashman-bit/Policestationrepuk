@@ -1,10 +1,10 @@
 import type { BlogArticle } from './types';
 
 const IMG = (slug: string, alt: string) => ({
-  src: `/images/blog/${slug}.svg`,
+  src: `/images/blog/raster/${slug}.webp`,
   alt,
   width: 1200,
-  height: 630,
+  height: 675,
 });
 
 export const ARTICLES_BATCH_3: BlogArticle[] = [
@@ -13,7 +13,7 @@ export const ARTICLES_BATCH_3: BlogArticle[] = [
     title: 'Accreditation, Professional Standards, and Reliability in Freelance Police Station Work',
     metaTitle: 'Police Station Rep Accreditation & Professional Standards',
     metaDescription:
-      'Why accreditation and professional standards matter for freelance police station representatives and the firms that instruct them — and how to demonstrate reliability in practice.',
+      'Why police station rep accreditation and professional standards matter for freelance reps and instructing firms — and how to show reliability beyond the certificate.',
     primaryKeyword: 'police station rep accreditation',
     categories: ['freelance-reps', 'best-practice', 'law-firms'],
     published: '2026-03-13T09:00:00.000Z',
@@ -40,11 +40,27 @@ export const ARTICLES_BATCH_3: BlogArticle[] = [
         q: 'Do firms need to check accreditation every time?',
         a: 'Panel agreements often include ongoing confirmation. For one-off instructions, a quick check against the register you trust is sensible risk management.',
       },
+      {
+        q: 'How should reps present accreditation on a profile?',
+        a: 'List schemes you actually hold, keep renewal dates honest, and align geography and hours with reality. The directory is a shop window — accuracy builds repeat instructions.',
+      },
     ],
     bodyMarkdown: `
+## Key takeaways
+
+- **Police station rep accreditation** is a supervised baseline — not a substitute for judgment, CPD, or honest profile data.
+- Firms should still ask who supervises edge cases; reps should maintain accurate hours and geography on listings.
+- Reliability shows up in notes, punctuality, and calm escalation — not only certificates.
+
+## Questions this article answers
+
+- What does accreditation actually signal to instructing firms?
+- How should reps maintain standards between renewals?
+- How can firms verify competence without pointless bureaucracy?
+
 ## What accreditation communicates
 
-Accreditation shows a **baseline competence gate** supervised by a professional body. It is not a guarantee of every tactical decision on a difficult file — that still sits with supervision, experience, and judgment.
+**Police station rep accreditation** signals a supervised baseline. Accreditation shows a **baseline competence gate** supervised by a professional body. It is not a guarantee of every tactical decision on a difficult file — that still sits with supervision, experience, and judgment.
 
 ## For freelance representatives
 
@@ -67,7 +83,7 @@ Firms quietly score:
 
 ## PoliceStationRepUK’s role
 
-The site is a **directory and discovery layer**. It helps firms find accredited professionals and helps reps present coverage clearly. It does not replace regulator checks or your firm’s panel due diligence.
+The site is a **directory and discovery layer**. It helps firms find accredited professionals and helps reps present coverage clearly. It does not replace regulator checks or your firm’s panel due diligence. Browse the [representative directory](/directory) when you are shortlisting names.
 
 ## Further reading on getting accredited
 
@@ -83,7 +99,7 @@ See the in-site guide to [becoming a police station rep](/HowToBecomePoliceStati
     title: 'How Freelance Police Station Representatives Can Win Repeat Instructions From Firms',
     metaTitle: 'Win Repeat Instructions as a Freelance Police Station Rep',
     metaDescription:
-      'Practical ways freelance accredited police station representatives earn repeat work from criminal defence firms: communication, notes, boundaries, and professional visibility.',
+      'How freelance police station reps win repeat instructions: clear communication, structured notes, clean boundaries, and accurate directory visibility for firms.',
     primaryKeyword: 'win repeat instructions freelance police station rep',
     categories: ['freelance-reps', 'best-practice'],
     published: '2026-03-12T09:00:00.000Z',
@@ -110,11 +126,27 @@ See the in-site guide to [becoming a police station rep](/HowToBecomePoliceStati
         q: 'How soon should I send attendance notes?',
         a: 'Follow the firm’s SLA if they gave one; otherwise same evening for overnight work, or within hours for day jobs unless agreed otherwise.',
       },
+      {
+        q: 'What is the fastest way to lose repeat work?',
+        a: 'Silent failures: late arrival without warning, notes that omit outcomes, or taking instructions outside your accreditation. Firms forgive pressure; they rarely forgive surprises.',
+      },
     ],
     bodyMarkdown: `
+## Key takeaways
+
+- To **win repeat instructions freelance police station rep** panels trust, prioritise predictable attendance, channel discipline, and structured notes.
+- Decline early when conflicted or beyond accreditation — flaky “yes” answers erode panels faster than a firm “no.”
+- Visibility means an accurate directory profile, not noisy follow-ups.
+
+## Questions this article answers
+
+- What behaviours make firms rebook the same representative?
+- How should reps ask for feedback without seeming needy?
+- Where should reps invest time beyond marketing slogans?
+
 ## Be boring in the right ways
 
-Firms want reps who **show up**, **sound calm**, and **write notes that drop straight onto the file**. Excitement belongs elsewhere.
+**Winning repeat instructions** as a freelance police station rep is mostly about being boring in the right ways. Firms want reps who **show up**, **sound calm**, and **write notes that drop straight onto the file**. Excitement belongs elsewhere.
 
 ## Communicate in the firm’s channel
 
@@ -142,7 +174,7 @@ Fee earners care about **risk reduction**. Frame your updates around what keeps 
 
 ## Cross-link skills
 
-If you also cover magistrates mentions honestly, say so — many firms value **continuity** when geography aligns.
+If you also cover magistrates mentions honestly, say so — many firms value **continuity** when geography aligns. Read [how firms instruct reps](/Blog/how-firms-can-instruct-freelance-police-station-reps) to see what good instruction looks like from the buyer side.
 
 ---
 
@@ -181,11 +213,27 @@ If you also cover magistrates mentions honestly, say so — many firms value **c
         q: 'Should we prioritise ex-police candidates?',
         a: 'Some firms like that background; others prefer career defence practitioners. Focus on verifiable competence, references, and how they handle independence from investigating officers.',
       },
+      {
+        q: 'How many reps should we try before panelising?',
+        a: 'Many firms run two to three test instructions on standard files before adding a name to the overnight rota. Pair trials with [handover note discipline](/Blog/best-practice-handover-notes-after-police-station-attendance).',
+      },
     ],
     bodyMarkdown: `
+## Key takeaways
+
+- A **good police station representative** combines calm judgment, plain-language client care, and disciplined custody teamwork.
+- File awareness — what the fee earner needs next — separates panel staples from one-off covers.
+- Test new names with supervised instructions and redacted note samples where possible.
+
+## Questions this article answers
+
+- What traits do criminal defence firms actually shortlist for?
+- How important is local knowledge versus honesty about unfamiliar suites?
+- How should firms trial reps before adding them to overnight rotas?
+
 ## Judgment under time pressure
 
-Good reps **slow the room down safely**: they do not rush clients into interviews when disclosure is inadequate, and they do not grandstand for an audience.
+A **good police station representative** earns trust in the first consultation. Good reps **slow the room down safely**: they do not rush clients into interviews when disclosure is inadequate, and they do not grandstand for an audience.
 
 ## Client communication
 
@@ -209,7 +257,7 @@ When onboarding a new rep to panel, consider a **supervised first instruction** 
 
 ## Discovery
 
-Use [search filters](/search) to narrow candidates, then apply your own panel checks. [Solicitor-focused cover overview](/SolicitorPoliceStationCoverUK) links firm strategy to directory use.
+Use [search filters](/search) to narrow candidates, then apply your own panel checks. [Solicitor-focused cover overview](/SolicitorPoliceStationCoverUK) links firm strategy to directory use. For overnight planning, see [out-of-hours cover](/Blog/out-of-hours-police-station-cover-for-law-firms).
 
 ---
 
@@ -248,11 +296,27 @@ Use [search filters](/search) to narrow candidates, then apply your own panel ch
         q: 'What is the single best fix for firms?',
         a: 'Publish a **named night contact ladder** and keep it accurate. Reps waste more time chasing switches than on any other task.',
       },
+      {
+        q: 'Does faster communication mean less supervision?',
+        a: 'No. Speed helps execution; supervision and accreditation boundaries still govern what reps may do. Use your firm’s policies alongside the habits in this article.',
+      },
     ],
     bodyMarkdown: `
+## Key takeaways
+
+- **Police station representation communication** needs defined urgency rules, named night contacts, and written confirmation after midnight calls.
+- Single-thread updates beat scattered texts across several fee earners.
+- Speed never replaces supervision boundaries or accreditation limits.
+
+## Questions this article answers
+
+- Where does firm–rep communication usually break down in custody?
+- What is the minimum process fix for overnight teams?
+- How should reps document failed contact attempts?
+
 ## Custody is real-time
 
-Decisions on disclosure gaps, interview timing, and client welfare often cannot wait until Monday. **Latency is a tactical risk**, not just an inconvenience.
+**Police station representation communication** fails when channels are vague. Decisions on disclosure gaps, interview timing, and client welfare often cannot wait until Monday. **Latency is a tactical risk**, not just an inconvenience.
 
 ## Define “urgent”
 
@@ -276,7 +340,7 @@ If nobody will be reachable, **say so** when instructing and provide an alternat
 
 ## Tie-in to commercial pages
 
-When you need cover urgently, [emergency cover information](/EmergencyCover) and the [police station cover overview](/PoliceStationCover) explain how firms use the ecosystem around PoliceStationRepUK.
+When you need cover urgently, [emergency cover information](/EmergencyCover) and the [police station cover overview](/PoliceStationCover) explain how firms use the ecosystem around PoliceStationRepUK. For instruction hygiene, read [common mistakes when instructing reps](/Blog/common-mistakes-when-instructing-freelance-police-station-reps).
 
 ## Measure and improve
 

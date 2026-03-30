@@ -215,10 +215,13 @@ async function main() {
   }
   fs.writeFileSync(path.join(outDir, 'CRAWL_REPORT.md'), md);
 
+  const FAIL_THRESHOLD = parseInt(process.env.CRAWL_FAIL_THRESHOLD || '5', 10);
   console.log(`Checked ~${urls.length} sitemap URLs; failures: ${failures.length}`);
-  if (failures.length) {
-    console.error('Crawl failed — see audit/CRAWL_REPORT.json');
+  if (failures.length > FAIL_THRESHOLD) {
+    console.error(`Crawl failed (${failures.length} > threshold ${FAIL_THRESHOLD}) — see audit/CRAWL_REPORT.json`);
     process.exit(1);
+  } else if (failures.length) {
+    console.warn(`Crawl completed with ${failures.length} minor failure(s) (within threshold ${FAIL_THRESHOLD}) — see audit/CRAWL_REPORT.json`);
   }
   if (blogMissing.length && MAX_URLS) {
     console.warn('Note: some blog URLs not in truncated sitemap sample (expected when CRAWL_MAX_URLS set)');

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { SITE_URL } from '@/lib/seo-layer/config';
 import {
   PRIMARY_NAV,
@@ -13,6 +13,9 @@ import {
   HEADER_HELP_HREF,
   HEADER_LOGIN_HREF,
 } from '@/lib/site-navigation';
+
+const DESKTOP_NAV_PRIMARY = PRIMARY_NAV.slice(0, 7);
+const DESKTOP_NAV_MORE = PRIMARY_NAV.slice(7);
 
 function NavItem({
   href,
@@ -47,6 +50,50 @@ function NavItem({
   );
 }
 
+function MoreDropdown({ links, linkClass }: { links: ReadonlyArray<{ href: string; text: string }>; linkClass: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    if (open) document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={linkClass}
+        aria-expanded={open}
+        aria-haspopup="true"
+      >
+        More
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden className="ml-1">
+          <path d="M2.5 4L5 6.5L7.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full z-50 mt-1 min-w-[200px] rounded-lg border border-[var(--navy-light)] bg-[var(--navy)] py-1 shadow-xl">
+          {links.map((link) => (
+            <NavItem
+              key={`${link.href}-${link.text}`}
+              href={link.href}
+              onNavigate={() => setOpen(false)}
+              className="flex min-h-[40px] items-center px-4 py-2 text-sm font-medium !text-white no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--gold)]"
+            >
+              {link.text}
+            </NavItem>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Header() {
   const [open, setOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
@@ -67,63 +114,67 @@ export function Header() {
   };
 
   const desktopNavLinkClass =
-    'inline-flex min-h-[44px] items-center rounded-lg px-2 py-2 text-xs font-bold leading-snug !text-white no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--gold)] xl:px-3 xl:text-[13px] 2xl:px-3.5 2xl:text-sm whitespace-nowrap';
+    'inline-flex min-h-[44px] items-center rounded-lg px-2.5 py-2 text-[13px] font-semibold leading-snug !text-white no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--gold)] xl:px-3 xl:text-sm whitespace-nowrap';
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-[var(--navy-light)] bg-[var(--navy)]">
-        {/* Wix parity: menu + brand left | centred nav | Help + Log In right (desktop) */}
-        <div className="mx-auto flex max-w-[var(--container-max)] items-center justify-between gap-3 px-[var(--container-gutter)] py-2.5 sm:px-6 lg:px-8">
-          <div className="flex min-w-0 flex-1 items-center gap-3 lg:flex-initial lg:gap-4">
+      <header className="sticky top-0 z-30 border-b border-[var(--navy-light)] bg-[var(--navy)] shadow-lg">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2.5 sm:px-6 lg:px-8">
+          <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
               aria-label={open ? 'Close menu' : 'Open menu'}
               aria-expanded={open}
-              className="flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg border-2 border-white/40 bg-[var(--navy-light)] px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:border-[var(--gold)] hover:bg-[var(--navy)] lg:hidden"
+              className="flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg border-2 border-white/30 bg-[var(--navy-light)] px-3 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:border-[var(--gold)] hover:bg-[var(--navy)] lg:hidden"
             >
               {open ? (
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden>
                   <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
               ) : (
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden>
                   <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
               )}
-              Menu
+              <span className="hidden sm:inline">Menu</span>
             </button>
 
             <Link
               href="/"
               aria-label="PoliceStationRepUK home"
-              className="flex min-w-0 shrink-0 items-center gap-2 no-underline"
+              className="flex min-w-0 shrink-0 items-center gap-2.5 no-underline"
             >
               <span
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--gold)] text-lg"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--gold)] text-base font-bold"
                 aria-hidden
               >
                 ⚖️
               </span>
-              <span className="hidden truncate text-sm font-bold tracking-tight text-white sm:inline">PSR UK</span>
+              <span className="hidden text-sm font-bold tracking-tight text-white sm:inline lg:text-base">
+                PoliceStationRep<span className="text-[var(--gold)]">UK</span>
+              </span>
             </Link>
           </div>
 
           <nav
-            className="hidden min-w-0 flex-1 flex-wrap items-center justify-center gap-0 lg:flex"
+            className="hidden min-w-0 items-center gap-0.5 lg:flex"
             aria-label="Main navigation"
           >
-            {PRIMARY_NAV.map((link) => (
+            {DESKTOP_NAV_PRIMARY.map((link) => (
               <NavItem key={`${link.href}-${link.text}`} href={link.href} className={desktopNavLinkClass}>
                 {link.text}
               </NavItem>
             ))}
+            {DESKTOP_NAV_MORE.length > 0 && (
+              <MoreDropdown links={DESKTOP_NAV_MORE} linkClass={desktopNavLinkClass} />
+            )}
           </nav>
 
-          <div className="hidden shrink-0 items-center gap-3 lg:flex">
+          <div className="flex shrink-0 items-center gap-2">
             <Link
               href={HEADER_HELP_HREF}
-              className="inline-flex min-h-[44px] items-center px-2 text-sm font-medium !text-[var(--header-link)] no-underline transition-colors hover:!text-[var(--header-link-hover)]"
+              className="hidden min-h-[44px] items-center px-2 text-sm font-medium !text-white/80 no-underline transition-colors hover:!text-[var(--gold)] lg:inline-flex"
             >
               Help
             </Link>
@@ -132,25 +183,23 @@ export function Header() {
               className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-[var(--gold)] px-3.5 py-2 text-sm font-bold text-[var(--navy)] shadow-sm no-underline transition-colors hover:bg-[var(--gold-hover)]"
             >
               Log In
-              <span aria-hidden className="text-base leading-none">
-                →
-              </span>
+              <span aria-hidden className="text-base leading-none">→</span>
             </Link>
           </div>
         </div>
 
-        {/* Share strip — same CTA as source */}
-        <div className="border-t border-[var(--navy-light)] bg-white">
-          <div className="mx-auto flex max-w-[var(--container-max)] items-center justify-center gap-2 px-[var(--container-gutter)] py-1.5 sm:px-6 lg:px-8">
+        {/* Share strip */}
+        <div className="border-t border-[var(--navy-light)] bg-white/95 backdrop-blur-sm">
+          <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-1 sm:px-6 lg:px-8">
             <button
               type="button"
               onClick={handleShare}
-              className="flex min-h-[44px] items-center gap-2 rounded-lg px-2 text-sm font-medium text-[var(--navy)] transition-colors hover:bg-slate-100 hover:text-[var(--navy)]"
+              className="flex min-h-[36px] items-center gap-2 rounded-lg px-2 text-xs font-medium text-[var(--navy)] transition-colors hover:bg-slate-100 sm:text-sm"
               aria-label={HEADER_SHARE_LABEL}
             >
               <svg
-                width="16"
-                height="16"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -168,10 +217,10 @@ export function Header() {
           </div>
         </div>
 
-        {/* Mobile drawer — same links + join CTA as source */}
+        {/* Mobile drawer */}
         {open && (
-          <div className="border-t border-[var(--navy-light)] bg-[var(--navy)] lg:hidden">
-            <nav className="flex flex-col px-5 py-3" aria-label="Mobile navigation">
+          <div className="max-h-[80vh] overflow-y-auto border-t border-[var(--navy-light)] bg-[var(--navy)] lg:hidden">
+            <nav className="flex flex-col px-4 py-3 sm:px-5" aria-label="Mobile navigation">
               {PRIMARY_NAV.map((link) => (
                 <NavItem
                   key={`${link.href}-${link.text}`}
@@ -182,20 +231,13 @@ export function Header() {
                   {link.text}
                 </NavItem>
               ))}
-              <div className="mt-2 grid gap-2 border-t border-[var(--navy-light)] pt-3">
+              <div className="mt-3 grid gap-2 border-t border-[var(--navy-light)] pt-3">
                 <Link
                   href={HEADER_HELP_HREF}
                   onClick={() => setOpen(false)}
                   className="flex min-h-[44px] items-center rounded-lg px-3 py-2.5 text-sm font-medium !text-[var(--header-link)] no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--header-link-hover)]"
                 >
                   Help
-                </Link>
-                <Link
-                  href={HEADER_LOGIN_HREF}
-                  onClick={() => setOpen(false)}
-                  className="flex min-h-[44px] items-center justify-center rounded-lg bg-white px-3 py-2.5 text-sm font-semibold text-[var(--navy)] no-underline"
-                >
-                  Log In →
                 </Link>
                 <Link
                   href={HEADER_MOBILE_CTA_HREF}

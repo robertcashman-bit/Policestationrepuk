@@ -153,7 +153,7 @@ export function HomeSeoConversionHub() {
               Coverage across England &amp; Wales
             </h2>
             <p className="mt-2 text-sm text-[var(--muted)]">
-              Keyword hubs and county directory pages — internal links for SEO and discovery.
+              Browse representatives by region — select a county to see available reps and local custody suites.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               {COVERAGE_LINKS.map((l) => (
@@ -224,11 +224,7 @@ export function HomeSeoConversionHub() {
             Need cover now?
           </h2>
           <p className="mx-auto mt-2 max-w-xl text-sm font-semibold text-[var(--navy)]">
-            Search the free directory by county, station, or rep name. For Kent agency cover (phone and WhatsApp), see{' '}
-            <Link href="/police-station-rep-kent" className="font-bold underline underline-offset-2">
-              Police station rep — Kent
-            </Link>
-            .
+            Search the free directory by county, station, or rep name.
           </p>
           <div className="mt-6 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
             <Link

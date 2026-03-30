@@ -90,6 +90,7 @@ export const FOOTER_LEGAL: FooterLink[] = [
     href: '/police-station-representatives-directory-england-wales',
     label: 'About the PoliceStationRepUK Directory',
   },
+  { href: '/Advertising', label: 'Advertising & Promotions Disclosure' },
   { href: '/Terms', label: 'Terms' },
   { href: '/Privacy', label: 'Privacy' },
   { href: '/Cookies', label: 'Cookies' },
@@ -113,7 +114,11 @@ export const FOOTER_REGULATORY_TITLE = 'Regulatory Notice';
 
 /** Disclaimer body — neutral branding for .org / .com deployments. */
 export const FOOTER_REGULATORY_BODY =
-  'PoliceStationRepUK is a professional directory and information platform. This website does not provide legal advice, does not offer regulated legal services, and is not authorised or regulated by the Solicitors Regulation Authority (SRA), the Bar Standards Board, or the Legal Aid Agency. All representatives listed are self-registered and independently responsible for their own accreditation, insurance, and regulatory compliance. Users should verify credentials independently before instructing any representative.';
+  'PoliceStationRepUK is a directory and connection platform operated by Defence Legal Services Ltd. It is not a law firm, does not provide legal advice, and does not itself supply regulated legal services through the directory function. It is not authorised or regulated by the Solicitors Regulation Authority (SRA), the Bar Standards Board, or the Legal Aid Agency. Representatives listed are self-registered and independently responsible for their own accreditation, insurance, and regulatory compliance. Any engagement arranged via the directory is a direct contract between the instructing firm and the representative — PoliceStationRepUK is not a party to that arrangement. Firms remain responsible for instruction, supervision, professional obligations, and compliance. This site contains advertisements and promoted services that are clearly labelled; these are separate from the directory function. Users should verify credentials independently before instructing any representative.';
+
+/** Advertising disclosure text for footer */
+export const FOOTER_ADVERTISING_DISCLOSURE =
+  'This site features advertisements and promoted services, including from Custody Note and Police Station Agent (policestationagent.com). These are products and services of Defence Legal Services Ltd or affiliated businesses and are separate from the PoliceStationRepUK directory function. All advertisements are labelled.';
 
 /** Bottom utility row — hrefs as on source (Next redirects resolve to sitemap/blog) */
 export const FOOTER_UTILITY_SHARE = 'Share Directory';

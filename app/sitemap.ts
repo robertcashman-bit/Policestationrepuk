@@ -11,7 +11,20 @@ import { getMirrorPaths, hasMirrorData } from '@/lib/mirror-data';
 import { SITEMAP_PATHS } from '@/lib/sitemap-paths';
 import { COUNTY_SEO_PAGES } from '@/lib/county-seo-pages';
 import { SITE_URL as BASE } from '@/lib/seo-layer/config';
+
+/** Force Node.js so filesystem-backed data loaders in `@/lib/data` always work (avoids Edge 500s). */
+export const runtime = 'nodejs';
+
 const now = new Date();
+
+function safeLastModified(input: string | Date | undefined | null, fallback: Date): Date {
+  if (input instanceof Date && !Number.isNaN(input.getTime())) return input;
+  if (typeof input === 'string' && input.trim()) {
+    const d = new Date(input);
+    if (!Number.isNaN(d.getTime())) return d;
+  }
+  return fallback;
+}
 
 /** Lowercase path segments that must not appear twice with different casing (SEO). */
 const CANONICAL_PATH_LOWER = new Map<string, string>([
@@ -144,45 +157,55 @@ async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
     getAllWikiArticles(),
     getAllLegalUpdates(),
   ]);
-  const directoryCountyUrls = counties.map((c) => ({
-    url: `${BASE}/directory/${c.slug}`,
-    lastModified: now,
-    changeFrequency: 'weekly' as const,
-    priority: 0.85,
-  }));
-  const repUrls = reps.map((r) => ({
-    url: `${BASE}/rep/${r.slug}`,
-    lastModified: now,
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }));
-  const stationUrls = stations.map((s) => ({
-    url: `${BASE}/police-station/${s.slug}`,
-    lastModified: now,
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }));
+  const directoryCountyUrls = counties
+    .filter((c) => c.slug && String(c.slug).trim())
+    .map((c) => ({
+      url: `${BASE}/directory/${c.slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.85,
+    }));
+  const repUrls = reps
+    .filter((r) => r.slug && String(r.slug).trim())
+    .map((r) => ({
+      url: `${BASE}/rep/${r.slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    }));
+  const stationUrls = stations
+    .filter((s) => s.slug && String(s.slug).trim())
+    .map((s) => ({
+      url: `${BASE}/police-station/${s.slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }));
   const wikiUrls = wikiArticles
-    .filter((a) => a.slug)
+    .filter((a) => a.slug && String(a.slug).trim())
     .map((a) => ({
       url: `${BASE}/Wiki/${a.slug}`,
-      lastModified: a.lastImprovedDate ? new Date(a.lastImprovedDate) : now,
+      lastModified: safeLastModified(a.lastImprovedDate, now),
       changeFrequency: 'monthly' as const,
       priority: 0.65,
     }));
-  const legalUpdateUrls = legalUpdates.map((u) => ({
-    url: `${BASE}/LegalUpdates/${u.slug}`,
-    lastModified: u.publishedDate ? new Date(u.publishedDate) : now,
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }));
+  const legalUpdateUrls = legalUpdates
+    .filter((u) => u.slug && String(u.slug).trim())
+    .map((u) => ({
+      url: `${BASE}/LegalUpdates/${u.slug}`,
+      lastModified: safeLastModified(u.publishedDate, now),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }));
   const blogArticles = getAllBlogArticles();
-  const blogPostUrls = blogArticles.map((a) => ({
-    url: `${BASE}/Blog/${a.slug}`,
-    lastModified: a.modified ? new Date(a.modified) : now,
-    changeFrequency: 'monthly' as const,
-    priority: 0.58,
-  }));
+  const blogPostUrls = blogArticles
+    .filter((a) => a.slug && String(a.slug).trim())
+    .map((a) => ({
+      url: `${BASE}/Blog/${a.slug}`,
+      lastModified: safeLastModified(a.modified ?? a.published, now),
+      changeFrequency: 'monthly' as const,
+      priority: 0.58,
+    }));
 
   // county-seo slugs are 308-redirected to /directory/{slug} by middleware — omit from sitemap
   // as the canonical /directory/ URLs are already included above.

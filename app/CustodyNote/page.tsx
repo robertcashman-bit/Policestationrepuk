@@ -206,7 +206,7 @@ export default function CustodyNotePage() {
               Exclusive Discount
             </p>
             <p className="mt-2 text-base font-semibold text-white">
-              25% off your subscription after the trial. Enter code{' '}
+              25% off the £{SUBSCRIPTION_GBP}/month subscription after the trial. Enter code{' '}
               <span className="rounded bg-[var(--gold)] px-2.5 py-0.5 font-mono text-sm text-[var(--navy)]">
                 {DISCOUNT_CODE}
               </span>{' '}

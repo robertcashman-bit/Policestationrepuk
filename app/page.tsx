@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { JsonLd } from '@/components/JsonLd';
 import { HomeHero } from '@/components/HomeHero';
 import { HomeCustodyNote } from '@/components/HomeCustodyNote';
@@ -49,48 +50,51 @@ export default async function HomePage() {
 
       <HomeHero />
 
-      <section className="section-pad-compact border-b border-[var(--border)] bg-white" aria-label="Site statistics">
-        <div className="page-container !py-0">
-          <div className="text-center">
-            <h2 className="text-h2 mt-0 text-[var(--navy)]">Trusted nationwide coverage</h2>
-            <p className="mt-1.5 text-sm leading-normal text-[var(--muted)]">
-              Real-time access to accredited representatives across England &amp; Wales
-            </p>
+      {/* Trust stats strip */}
+      <section className="border-b border-[var(--border)] bg-white py-8 sm:py-10" aria-label="Site statistics">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-6 text-center sm:grid-cols-4">
+            {[
+              { value: `${MARKETING_REPS_DISPLAY}+`, label: 'Registered Reps' },
+              { value: `${MARKETING_STATIONS_DISPLAY}+`, label: 'Stations Listed' },
+              { value: String(UK_FORCES_COUNT), label: 'Police Forces' },
+              { value: 'Since 2016', label: 'Established' },
+            ].map((s) => (
+              <div key={s.label}>
+                <p className="text-2xl font-extrabold leading-none text-[var(--navy)] sm:text-3xl">{s.value}</p>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">{s.label}</p>
+              </div>
+            ))}
           </div>
-          <div className="mt-5 grid grid-cols-3 gap-4 text-center sm:mt-6 sm:gap-6">
-            <div>
-              <p className="text-[1.75rem] font-extrabold leading-none text-[var(--navy)] sm:text-4xl">
-                {MARKETING_REPS_DISPLAY}+
-              </p>
-              <p className="mt-1 text-sm font-medium text-[var(--muted)]">Reps</p>
-            </div>
-            <div>
-              <p className="text-[1.75rem] font-extrabold leading-none text-[var(--navy)] sm:text-4xl">
-                {MARKETING_STATIONS_DISPLAY}+
-              </p>
-              <p className="mt-1 text-sm font-medium text-[var(--muted)]">Stations</p>
-            </div>
-            <div>
-              <p className="text-[1.75rem] font-extrabold leading-none text-[var(--navy)] sm:text-4xl">{UK_FORCES_COUNT}</p>
-              <p className="mt-1 text-sm font-medium text-[var(--muted)]">Forces</p>
-            </div>
-          </div>
+        </div>
+      </section>
+
+      {/* Platform disclaimer */}
+      <section className="border-b border-[var(--gold)]/20 bg-[var(--gold-pale)] py-4" aria-label="Platform notice">
+        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
+          <p className="text-xs leading-relaxed text-[var(--navy)]/80">
+            <strong className="font-bold text-[var(--navy)]">PoliceStationRepUK is a directory</strong> — not a law
+            firm, agency, or provider of legal services. It connects criminal defence firms with accredited
+            representatives. Any engagement is a direct contract between the instructing firm and the
+            representative. Firms retain responsibility for instruction, supervision, and regulatory compliance.{' '}
+            <Link href="/About" className="font-semibold text-[var(--navy)] underline">Learn more</Link>
+          </p>
         </div>
       </section>
 
       <HomeSeoConversionHub />
 
-      <HomeKentSpotlight />
-
       <HomeCustodyNote />
 
+      <HomeKentSpotlight />
+
       <HomeRecentlyJoined reps={reps} />
+
+      <HomeWhyChoose />
 
       <HomeTrainingResources />
 
       <HomeFeaturedCarousel featuredReps={featuredReps} />
-
-      <HomeWhyChoose />
 
       <HomeTestimonials />
 

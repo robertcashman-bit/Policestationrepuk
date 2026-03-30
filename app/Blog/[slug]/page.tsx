@@ -11,6 +11,7 @@ import { categoryLabel } from '@/lib/blog/categories';
 import type { BlogCategoryId } from '@/lib/blog/types';
 import { getTopicClusterForSlug } from '@/lib/blog/topic-clusters';
 import { BlogAuthorBio } from '@/components/BlogAuthorBio';
+import { BlogBottomAd } from '@/components/BlogBottomAd';
 
 export const dynamic = 'force-static';
 export const revalidate = false;
@@ -219,8 +220,9 @@ export default async function BlogArticlePage({ params }: PageProps) {
           <aside className="mt-12 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--navy)] p-6 text-white sm:p-8">
             <h2 className="text-lg font-bold">Need cover or want to be found?</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-300">
-              PoliceStationRepUK connects criminal defence firms with accredited police station representatives across
-              England and Wales.
+              PoliceStationRepUK is a free directory connecting criminal defence firms with accredited
+              police station representatives across England and Wales. The contract for any work is
+              between the instructing firm and the representative.
             </p>
             <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:flex-wrap">
               <Link href="/directory" className="btn-gold inline-flex justify-center !no-underline sm:inline-flex">
@@ -241,6 +243,8 @@ export default async function BlogArticlePage({ params }: PageProps) {
             </div>
           </aside>
 
+          <BlogBottomAd />
+
           <p className="mt-10">
             <Link href="/Blog" className="font-medium text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
               ← Back to blog
@@ -251,6 +255,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
             <p>
               <span className="font-semibold text-[var(--navy)]">PoliceStationRepUK</span> — editorial team. Content is
               for professional readers; it does not create a retainer or adviser–client relationship.
+              PoliceStationRepUK is a directory — it does not provide regulated legal services.
             </p>
           </footer>
         </div>

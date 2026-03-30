@@ -260,6 +260,13 @@ export default function TermsPage() {
             All featured listings are clearly labelled as &ldquo;Featured&rdquo; or
             &ldquo;Advertisement&rdquo;.
           </p>
+          <p className="mt-3 text-sm text-[var(--muted)]">
+            For how we label third-party advertisements and promotions, see the{' '}
+            <Link href="/Advertising" className="font-semibold text-[var(--navy)] underline">
+              Advertising &amp; Promotions Disclosure
+            </Link>{' '}
+            page.
+          </p>
         </section>
 
         {/* Reporting Inaccuracies */}

@@ -29,20 +29,19 @@ export function webSiteSchema() {
   };
 }
 
-/** Site-wide LegalService (directory platform), distinct from per-rep `legalServiceSchema`. */
+/** Site-wide operator as Organization (directory platform — not a LegalService provider). */
 export function platformLegalServiceSchema() {
   return {
     '@context': 'https://schema.org',
-    '@type': 'LegalService',
+    '@type': 'Organization',
     name: SITE_NAME,
     url: SITE_URL,
+    description: DEFAULT_DESCRIPTION,
     areaServed: {
       '@type': 'AdministrativeArea',
       name: 'England and Wales',
     },
-    serviceType: 'Police Station Representation',
-    description: DEFAULT_DESCRIPTION,
-    provider: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+    knowsAbout: 'Police station representative directory and professional information for criminal defence firms',
   };
 }
 
@@ -136,7 +135,7 @@ export function faqPageSchema(items: { q: string; a: string }[]) {
   };
 }
 
-/** LocalBusiness-style footprint for the directory operator (UK-wide service area). */
+/** Directory operator footprint (UK-wide); not a storefront — telephone is general enquiries only. */
 export function directoryServiceLocalBusinessSchema() {
   return {
     '@context': 'https://schema.org',
@@ -147,7 +146,7 @@ export function directoryServiceLocalBusinessSchema() {
     url: SITE_URL,
     telephone: '+44-1732-247427',
     image: `${SITE_URL}/og-default.png`,
-    priceRange: 'Free directory',
+    priceRange: 'Free directory listing',
     address: {
       '@type': 'PostalAddress',
       addressCountry: 'GB',

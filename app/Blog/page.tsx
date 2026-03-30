@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { JsonLd } from '@/components/JsonLd';
+import { BlogBottomAd } from '@/components/BlogBottomAd';
 import { buildMetadata, breadcrumbSchema } from '@/lib/seo';
 import { getAllBlogPosts } from '@/lib/blog-data';
 import { BLOG_CATEGORIES, categoryLabel } from '@/lib/blog/categories';
@@ -205,7 +206,11 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
           </div>
         </section>
 
-        <div className="mt-14 grid gap-6 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 sm:grid-cols-2 sm:p-8">
+        <div className="mt-14">
+          <BlogBottomAd />
+        </div>
+
+        <div className="mt-10 grid gap-6 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 sm:grid-cols-2 sm:p-8">
           <div>
             <h2 className="text-lg font-bold text-[var(--navy)]">For firms needing cover</h2>
             <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">

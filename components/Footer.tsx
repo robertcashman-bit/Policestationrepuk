@@ -9,6 +9,7 @@ import {
   FOOTER_LEGAL,
   FOOTER_REGULATORY_BODY,
   FOOTER_REGULATORY_TITLE,
+  FOOTER_ADVERTISING_DISCLOSURE,
   FOOTER_SPOTLIGHT_KENT_BODY,
   FOOTER_SPOTLIGHT_KENT_TITLE,
   FOOTER_SPOTLIGHT_TRAINING_BODY,
@@ -102,8 +103,14 @@ export function Footer() {
             {FOOTER_REGULATORY_TITLE}
           </h4>
           <p className="mt-3 max-w-4xl text-xs leading-relaxed text-white">{FOOTER_REGULATORY_BODY}</p>
-          <p className="mt-3 text-xs text-white">
-            &copy; {year} PoliceStationRepUK. All rights reserved.
+
+          <h4 className="mt-6 text-xs font-bold uppercase tracking-widest text-[var(--gold)]">
+            Advertising Disclosure
+          </h4>
+          <p className="mt-2 max-w-4xl text-xs leading-relaxed text-white">{FOOTER_ADVERTISING_DISCLOSURE}</p>
+
+          <p className="mt-4 text-xs text-white/70">
+            &copy; {year} PoliceStationRepUK — operated by Defence Legal Services Ltd. All rights reserved.
           </p>
         </div>
 

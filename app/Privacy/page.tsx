@@ -67,6 +67,13 @@ export default function PrivacyPage() {
               </li>
             </ul>
           </div>
+          <p className="mt-4 text-sm text-[var(--muted)]">
+            <Link href="/Advertising" className="font-semibold text-[var(--navy)] underline">
+              Advertising &amp; Promotions Disclosure
+            </Link>
+            {' '}
+            — how we label third-party promotions on this site.
+          </p>
         </section>
 
         {/* What Data We Collect */}

@@ -228,11 +228,38 @@ export default function ResourcesPage() {
               { label: 'Resources', href: '/Resources' },
             ]}
           />
-          <h1 className="mt-3 text-h1 text-white">Essential Legal Resources</h1>
+          <h1 className="mt-3 text-h1 text-white">Knowledge Centre &amp; Resources</h1>
           <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
             Curated resources for police station representatives and criminal defence solicitors
             across England &amp; Wales — legislation, legal aid guidance, career tools, and more.
           </p>
+          <p className="mt-3 text-sm text-slate-300">
+            General information only — not legal advice. Always follow your regulator, insurer, and
+            supervising solicitor on live cases.
+          </p>
+        </div>
+      </section>
+
+      {/* Quick access bar */}
+      <section className="border-b border-[var(--border)] bg-slate-50 py-6">
+        <div className="page-container !py-0">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { href: '/Wiki', label: 'Rep Wiki', desc: 'In-depth guides and scenarios' },
+              { href: '/FormsLibrary', label: 'Forms Library', desc: 'CRM1–CRM18A legal aid forms' },
+              { href: '/StationsDirectory', label: 'Station Numbers', desc: 'Custody suite phone directory' },
+              { href: '/Blog', label: 'Professional Blog', desc: 'Practical articles for the profession' },
+            ].map((q) => (
+              <Link
+                key={q.href}
+                href={q.href}
+                className="flex flex-col rounded-lg border border-[var(--card-border)] bg-white p-4 no-underline shadow-sm transition-all hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-md"
+              >
+                <p className="font-semibold text-[var(--navy)]">{q.label}</p>
+                <p className="mt-1 text-xs text-[var(--muted)]">{q.desc}</p>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 

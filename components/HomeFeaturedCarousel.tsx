@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { Representative } from '@/lib/types';
 import { phoneToTelHref } from '@/lib/phone';
+import { AdvertisementLabel } from './AdvertisementLabel';
 
 export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Representative[] }) {
   const [current, setCurrent] = useState(0);
@@ -20,11 +21,14 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
   };
 
   return (
-    <section className="section-pad bg-[var(--navy)]" aria-label="Spotlight representatives">
+    <section className="section-pad bg-[var(--navy)]" aria-label="Sponsored representative listings">
       <div className="page-container !py-0">
         <div className="text-center">
-          <h2 className="text-h2 mt-0 text-white">Featured Premium Reps</h2>
-          <p className="mt-2 text-white">Promoted listings with maximum visibility</p>
+          <AdvertisementLabel variant="dark" label="Promoted Listings" />
+          <h2 className="text-h2 mt-3 text-white">Featured Representatives</h2>
+          <p className="mt-2 text-sm text-white/80">
+            These are paid promoted listings. Firms and reps should verify accreditation and credentials independently.
+          </p>
         </div>
 
         <div className="mx-auto mt-8 max-w-2xl">

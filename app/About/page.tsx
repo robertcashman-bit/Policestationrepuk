@@ -130,31 +130,80 @@ export default function AboutPage() {
 
       {/* What We Are */}
       <section className="mb-14 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-8 shadow-[var(--card-shadow)]">
-        <h2 className="text-h2 mb-4 text-[var(--navy)]">What We Are</h2>
-        <p className="mb-2 font-semibold text-[var(--navy)]">
-          More than just a directory — we&apos;re a complete professional ecosystem
+        <h2 className="text-h2 mb-4 text-[var(--navy)]">What PoliceStationRepUK Is</h2>
+        <p className="mb-4 text-sm leading-relaxed text-[var(--muted)]">
+          PoliceStationRepUK is a free directory and connection platform. It is <strong className="text-[var(--navy)]">not</strong> a
+          law firm, legal practice, or agency that provides regulated legal services through the directory function.
         </p>
         <h3 className="mt-6 text-base font-semibold text-[var(--navy)]">
-          A Free Professional Directory
+          Directory &amp; Connection Platform
         </h3>
         <ul className="mt-3 space-y-2 text-sm text-[var(--muted)]">
           <li className="flex gap-2">
             <span className="mt-0.5 text-emerald-600">✓</span>
-            Free directory of freelance police station accredited representatives and criminal solicitors
+            Free directory of accredited police station representatives and criminal solicitors
           </li>
           <li className="flex gap-2">
             <span className="mt-0.5 text-emerald-600">✓</span>
-            Helps criminal solicitor practices locate representatives to attend police stations
+            Helps criminal defence firms find representatives to attend police stations
           </li>
           <li className="flex gap-2">
             <span className="mt-0.5 text-emerald-600">✓</span>
-            Completely free to register and consult — 24 hours a day, 7 days a week, 365 days a year
+            Free to register and free to search — 24/7, 365 days a year
           </li>
           <li className="flex gap-2">
             <span className="mt-0.5 text-emerald-600">✓</span>
-            Comprehensive criminal law resource for police station representatives and solicitors
+            Publishes educational resources on criminal law practice (general information, not legal advice)
           </li>
         </ul>
+        <h3 className="mt-6 text-base font-semibold text-[var(--navy)]">
+          How It Works
+        </h3>
+        <ul className="mt-3 space-y-2 text-sm text-[var(--muted)]">
+          <li className="flex gap-2">
+            <span className="mt-0.5 text-[var(--navy)]">1.</span>
+            Criminal defence firms search for accredited representatives by county, station, or name
+          </li>
+          <li className="flex gap-2">
+            <span className="mt-0.5 text-[var(--navy)]">2.</span>
+            Firms contact representatives directly through details shown on profiles
+          </li>
+          <li className="flex gap-2">
+            <span className="mt-0.5 text-[var(--navy)]">3.</span>
+            The engagement is a direct contract between the instructing firm and the representative
+          </li>
+        </ul>
+        <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <p className="text-sm font-semibold text-amber-900">Important</p>
+          <p className="mt-1 text-xs leading-relaxed text-amber-800">
+            PoliceStationRepUK does not supervise legal case conduct, guarantee the quality of any
+            representative, or become a party to the arrangement between a firm and a rep.
+            Firms remain responsible for their own instruction, supervision, insurance checks where
+            required, and regulatory compliance. Representatives are independently responsible for
+            their accreditation and professional obligations.
+          </p>
+        </div>
+      </section>
+
+      {/* Advertising disclosure */}
+      <section className="mb-14 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-slate-50 p-8">
+        <h2 className="text-h2 mb-4 text-[var(--navy)]">Advertising &amp; Promoted Services</h2>
+        <p className="text-sm leading-relaxed text-[var(--muted)]">
+          This site features advertisements and promoted services from related businesses, including
+          Custody Note (desktop attendance note software) and Police Station Agent (Kent solicitor
+          agent cover via <a href="https://www.policestationagent.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--navy)] underline">policestationagent.com</a>).
+          These are products and services of Defence Legal Services Ltd or affiliated businesses.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">
+          All advertisements and promoted services are clearly labelled on the site. They are
+          <strong className="text-[var(--navy)]"> separate from the directory function</strong> and
+          should not be confused with editorial content or core directory listings.
+        </p>
+        <p className="mt-3">
+          <Link href="/Advertising" className="text-sm font-semibold text-[var(--navy)] underline">
+            Advertising opportunities →
+          </Link>
+        </p>
       </section>
 
       {/* Our Values */}

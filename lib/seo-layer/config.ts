@@ -10,5 +10,6 @@ export const SITE_URL =
   'https://policestationrepuk.org';
 export const SITE_NAME = 'PoliceStationRepUK';
 
+/** Short meta/JSON-LD description: directory only — not a law firm or provider of regulated services. */
 export const DEFAULT_DESCRIPTION =
-  'UK directory of accredited police station representatives providing duty solicitor cover and criminal defence representation at police stations across England and Wales.';
+  'Free directory connecting criminal defence firms with accredited police station representatives across England and Wales. PoliceStationRepUK is not a law firm and does not provide legal advice or regulated legal services through the directory.';

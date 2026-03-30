@@ -54,21 +54,6 @@ const AVAILABILITY_OPTIONS = [
   { value: 'flexible', label: 'Flexible / By arrangement' },
 ];
 
-const ACCREDITATION_OPTIONS = [
-  { value: '', label: 'All accreditations' },
-  { value: 'Law Society', label: 'Law Society Accredited' },
-  { value: 'Duty Solicitor', label: 'Duty Solicitor' },
-  { value: 'Probationary', label: 'Probationary' },
-  { value: 'Accredited', label: 'Accredited Representative' },
-];
-
-const SORT_OPTIONS = [
-  { value: 'relevance', label: 'Relevance' },
-  { value: 'name', label: 'Name (A-Z)' },
-  { value: 'experience', label: 'Experience' },
-  { value: 'stations', label: 'Most stations' },
-];
-
 const PAGE_SIZE = 24;
 
 export function DirectorySearch({
@@ -79,7 +64,6 @@ export function DirectorySearch({
   defaultCounty = '',
   defaultStation = '',
   defaultAvailability = '',
-  defaultAccreditation = '',
   defaultQuery = '',
 }: DirectorySearchProps) {
   const router = useRouter();
@@ -88,8 +72,6 @@ export function DirectorySearch({
   const [county, setCounty] = useState(defaultCounty);
   const [station, setStation] = useState(defaultStation);
   const [availability, setAvailability] = useState(defaultAvailability);
-  const [accreditation, setAccreditation] = useState(defaultAccreditation);
-  const [sort, setSort] = useState('name');
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -103,9 +85,8 @@ export function DirectorySearch({
     setCounty(defaultCounty);
     setStation(defaultStation);
     setAvailability(defaultAvailability);
-    setAccreditation(defaultAccreditation);
     setPage(1);
-  }, [defaultQuery, defaultCounty, defaultStation, defaultAvailability, defaultAccreditation]);
+  }, [defaultQuery, defaultCounty, defaultStation, defaultAvailability]);
 
   const syncUrl = useCallback(() => {
     const params = new URLSearchParams();
@@ -114,11 +95,10 @@ export function DirectorySearch({
     if (county) params.set('county', county);
     if (station) params.set('station', station);
     if (availability) params.set('availability', availability);
-    if (accreditation) params.set('accreditation', accreditation);
     const qs = params.toString();
     const path = qs ? `${urlBase}?${qs}` : urlBase;
     router.replace(path, { scroll: false });
-  }, [router, urlBase, debouncedQuery, county, station, availability, accreditation]);
+  }, [router, urlBase, debouncedQuery, county, station, availability]);
 
   useEffect(() => {
     const timer = setTimeout(syncUrl, 400);
@@ -126,11 +106,6 @@ export function DirectorySearch({
   }, [syncUrl]);
 
   const hasTextQuery = debouncedQuery.trim().length > 0;
-
-  useEffect(() => {
-    if (hasTextQuery && sort !== 'relevance') setSort('relevance');
-    else if (!hasTextQuery && sort === 'relevance') setSort('name');
-  }, [hasTextQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const countyCanonicalMap = useMemo(
     () => buildCountyCanonicalMap(counties.map((c) => c.name)),
@@ -169,19 +144,11 @@ export function DirectorySearch({
       result = result.filter((r) => normalizeAvailability(r.availability) === availability);
     }
 
-    if (accreditation) {
-      result = result.filter((r) =>
-        (r.accreditation || '').toLowerCase().includes(accreditation.toLowerCase()),
-      );
-    }
-
     const featured = result.filter((r) => r.featured);
     const nonFeatured = result.filter((r) => !r.featured);
 
     const sortFn = (a: ScoredRep, b: ScoredRep) => {
-      if (sort === 'relevance') return b._score - a._score;
-      if (sort === 'experience') return (b.yearsExperience ?? 0) - (a.yearsExperience ?? 0);
-      if (sort === 'stations') return (b.stations || []).length - (a.stations || []).length;
+      if (hasTextQuery) return b._score - a._score;
       return (a.name || '').localeCompare(b.name || '');
     };
 
@@ -196,8 +163,7 @@ export function DirectorySearch({
     county,
     station,
     availability,
-    accreditation,
-    sort,
+    hasTextQuery,
   ]);
 
   const featuredReps = filtered.filter((r) => r.featured);
@@ -211,13 +177,11 @@ export function DirectorySearch({
     setCounty('');
     setStation('');
     setAvailability('');
-    setAccreditation('');
-    setSort('name');
     setPage(1);
   }
 
   const hasActiveFilters =
-    query.trim() || county || station || availability || accreditation;
+    query.trim() || county || station || availability;
 
   const countyStations = county
     ? stations.filter((s) => forceMatchesCounty(s.forceName || '', county))
@@ -232,7 +196,7 @@ export function DirectorySearch({
           <div className="sm:col-span-2 lg:col-span-2">
             <input
               type="text"
-              placeholder="Search by name, county, station, town, force or postcode..."
+              placeholder="Search by county, station, name..."
               value={query}
               onChange={(e) => { setQuery(e.target.value); setPage(1); }}
               className="w-full rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)] focus:border-[var(--gold)] focus:ring-1 focus:ring-[var(--gold)]"
@@ -263,8 +227,8 @@ export function DirectorySearch({
           </select>
         </div>
 
-        {/* Second row: station filter + accreditation + sort */}
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        {/* Second row: station filter only */}
+        <div className="mt-3">
           {county && countyStations.length > 0 ? (
             <select
               value={station}
@@ -285,26 +249,6 @@ export function DirectorySearch({
               className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm text-[var(--foreground)] placeholder:text-[var(--muted)]"
             />
           )}
-
-          <select
-            value={accreditation}
-            onChange={(e) => { setAccreditation(e.target.value); setPage(1); }}
-            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm text-[var(--foreground)]"
-          >
-            {ACCREDITATION_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
-
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--background)] px-3 py-3 text-sm text-[var(--foreground)]"
-          >
-            {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
         </div>
 
         {/* Active filters / results count */}

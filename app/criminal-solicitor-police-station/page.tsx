@@ -3,9 +3,9 @@ import { buildMetadata } from '@/lib/seo';
 import { PillarSeoLayout } from '@/components/PillarSeoLayout';
 
 export const metadata = buildMetadata({
-  title: 'Criminal Solicitor Police Station Cover — Find Reps & 24/7 Directory',
+  title: 'Police Station Rep Cover for Firms | How Firms Source Reps',
   description:
-    'How criminal solicitor firms source police station cover, use accredited representatives, DSCC, WhatsApp, and PoliceStationRepUK — free directory across England and Wales.',
+    'How law firms source police station rep cover using accredited representatives, DSCC, WhatsApp groups, and the PoliceStationRepUK directory — free rep directory across England and Wales.',
   path: '/criminal-solicitor-police-station',
 });
 

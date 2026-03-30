@@ -3,9 +3,9 @@ import { buildMetadata } from '@/lib/seo';
 import { PillarSeoLayout } from '@/components/PillarSeoLayout';
 
 export const metadata = buildMetadata({
-  title: 'Free Legal Advice at the Police Station (UK) — Rights & Legal Aid',
+  title: 'Your Rights at the Police Station (UK) | PACE Guide',
   description:
-    'How free legal advice works at the police station in England and Wales: duty solicitors, legal aid advice and assistance, and the role of representatives (general information).',
+    'PACE custody rights explained: what happens when you are arrested, your right to legal advice, custody procedures, and the role of accredited police station representatives in England and Wales.',
   path: '/free-legal-advice-police-station',
 });
 
@@ -71,6 +71,14 @@ export default function FreeLegalAdvicePoliceStationPage() {
         </Link>{' '}
         answers common process questions at a high level.
       </p>
+      <div className="my-6 rounded-[var(--radius-lg)] bg-[var(--navy)] p-6 text-center">
+        <p className="text-sm font-semibold text-white">
+          Need a solicitor at the police station?{' '}
+          <a href="https://www.policestationagent.com" target="_blank" rel="noopener noreferrer" className="text-[var(--gold)] underline">
+            Visit policestationagent.com
+          </a>
+        </p>
+      </div>
       <h2 className="text-xl font-bold text-[var(--navy)]">For firms reading this page</h2>
       <p>
         Trainees often search “free legal advice police station” when drafting client care notes. Point them to{' '}

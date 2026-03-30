@@ -4,8 +4,8 @@ import { CrawlContent } from '@/components/CrawlContent';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Duty Solicitor vs Police Station Rep — Key Differences',
-  description: 'Understand the key differences between duty solicitors and accredited police station representatives. Qualifications, roles, and how they work together in criminal defence custody work.',
+  title: 'Rota Duty Scheme vs Freelance Police Station Rep | Comparison',
+  description: 'Compare the rota duty scheme with freelance accredited police station representatives — qualifications, roles, custody attendance, and how firms use rep cover alongside rota arrangements.',
   path: '/DutySolicitorVsRep',
 });
 
@@ -29,6 +29,12 @@ export default function DutySolicitorVsRepPage() {
               <Link href="/directory" className="btn-gold no-underline">Find a Rep</Link>
               <Link href="/Contact" className="btn-outline !border-slate-500 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)] no-underline">Contact Us</Link>
             </div>
+            <p className="mt-5 text-sm text-slate-300">
+              Need a solicitor at the police station?{' '}
+              <a href="https://www.policestationagent.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--gold)] underline">
+                Visit policestationagent.com
+              </a>
+            </p>
           </section>
         </div>
       </div>

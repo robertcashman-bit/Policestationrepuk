@@ -27,9 +27,9 @@ import { HOMEPAGE_FAQS } from '@/lib/homepage-faqs';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
-  title: 'Police Station Representation UK | Free Rep Directory for Criminal Solicitors',
+  title: 'Police Station Rep Directory UK | Find Accredited Representatives',
   description:
-    'Police station representation across the UK: free directory of accredited police station reps for criminal solicitor firms. Find cover in England & Wales by county, station, or name.',
+    'Free directory of accredited police station representatives across England & Wales. Find reps by county, station, or name — 100% free for firms and reps. No fees, no middleman.',
   alternates: { canonical: SITE_URL },
 };
 
@@ -77,7 +77,7 @@ export default async function HomePage() {
             firm, agency, or provider of legal services. It connects criminal defence firms with accredited
             representatives. Any engagement is a direct contract between the instructing firm and the
             representative. Firms retain responsibility for instruction, supervision, and regulatory compliance.{' '}
-            <Link href="/About" className="font-semibold text-[var(--navy)] underline">Learn more</Link>
+            <Link href="/About" className="font-semibold text-[var(--navy)] underline">Learn more about the directory</Link>
           </p>
         </div>
       </section>

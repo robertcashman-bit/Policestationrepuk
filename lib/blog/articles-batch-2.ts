@@ -11,9 +11,9 @@ export const ARTICLES_BATCH_2: BlogArticle[] = [
   {
     slug: 'freelance-police-station-representative-vs-duty-solicitor',
     title: 'Freelance Police Station Representative vs Duty Solicitor: What Is the Difference?',
-    metaTitle: 'Freelance Police Station Rep vs Duty Solicitor | Explained',
+    metaTitle: 'Freelance Police Station Rep vs Rota Duty Scheme | Key Differences',
     metaDescription:
-      'Freelance police station representative vs duty solicitor: how allocation works, who instructs whom, and when firms use each in England and Wales.',
+      'Freelance police station representative vs rota duty scheme: how allocation works, who instructs whom, and when firms use each route in England and Wales.',
     primaryKeyword: 'freelance police station representative vs duty solicitor',
     categories: ['law-firms', 'freelance-reps', 'best-practice'],
     published: '2026-03-17T09:00:00.000Z',

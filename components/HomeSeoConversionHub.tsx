@@ -19,11 +19,11 @@ export function HomeSeoConversionHub() {
         <div className="page-container !py-0">
           <div className="mx-auto max-w-3xl text-center">
             <h2 id="trust-heading" className="text-h2 mt-0 text-[var(--navy)]">
-              Used by criminal solicitors across the UK
+              Used by criminal law firms across the UK
             </h2>
             <p className="mt-3 text-base leading-relaxed text-[var(--muted)]">
-              PoliceStationRepUK helps <strong className="text-[var(--navy)]">duty solicitor firms</strong>, criminal
-              teams, and cover coordinators find <strong className="text-[var(--navy)]">accredited police station
+              PoliceStationRepUK helps <strong className="text-[var(--navy)]">criminal defence firms</strong>, cover
+              coordinators, and rota managers find <strong className="text-[var(--navy)]">accredited police station
               representatives</strong> for overnight, weekend, and emergency attendance. The directory has supported the
               profession since <strong className="text-[var(--navy)]">2016</strong> with a free-to-search, free-to-join
               model.
@@ -55,7 +55,7 @@ export function HomeSeoConversionHub() {
               <p className="text-base font-medium leading-relaxed text-[var(--foreground)]">
                 <strong className="text-[var(--navy)]">PoliceStationRepUK</strong> is the UK&apos;s free directory of{' '}
                 <strong className="text-[var(--navy)]">accredited police station representatives</strong> for{' '}
-                <strong className="text-[var(--navy)]">criminal defence solicitors</strong> who need{' '}
+                <strong className="text-[var(--navy)]">criminal defence firms</strong> who need{' '}
                 <strong className="text-[var(--navy)]">police station cover</strong> in England and Wales. It does not
                 provide legal advice; it connects firms with reps and publishes guides on custody and PACE for general
                 education only.
@@ -191,7 +191,7 @@ export function HomeSeoConversionHub() {
                 href="/criminal-solicitor-police-station"
                 className="mt-5 inline-block text-sm font-bold text-[var(--gold)] underline underline-offset-2 hover:text-white"
               >
-                Criminal solicitor — police station cover guide →
+                Police station rep cover guide for firms →
               </Link>
             </div>
             <div>
@@ -199,14 +199,24 @@ export function HomeSeoConversionHub() {
                 Arrested? Need legal advice?
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-white">
-                This site is a <strong className="text-[var(--gold)]">directory for solicitors and reps</strong>, not a
+                This site is a <strong className="text-[var(--gold)]">directory for firms and reps</strong>, not a
                 substitute for your own lawyer. If you or someone you know is at a police station, ask for the duty
                 solicitor or contact a criminal defence firm immediately.
               </p>
               <p className="mt-3 text-sm text-white">
+                <a
+                  href="https://www.policestationagent.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-[var(--gold)] underline"
+                >
+                  Need a solicitor? Visit policestationagent.com
+                </a>
+              </p>
+              <p className="mt-3 text-sm text-white">
                 General information only:{' '}
                 <Link href="/free-legal-advice-police-station" className="font-semibold text-[var(--gold)] underline">
-                  Free legal advice at the police station
+                  Your rights at the police station
                 </Link>
                 {' · '}
                 <Link href="/police-station-rights-uk" className="font-semibold text-[var(--gold)] underline">

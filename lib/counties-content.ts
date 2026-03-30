@@ -3,9 +3,9 @@ import type { CountyContent } from './types';
 const countyContentMap: Record<string, CountyContent> = {
   kent: {
     metaTitle:
-      'Police Station Representatives Kent | 24/7 Duty Solicitor Cover',
+      'Police Station Representatives Kent | Accredited Rep Directory',
     metaDescription:
-      'Find accredited police station representatives in Kent. Experienced reps available for duty solicitor cover at Maidstone, Canterbury, Medway, Folkestone, and all Kent custody suites.',
+      'Find accredited police station representatives in Kent. Experienced reps available for custody attendance at Maidstone, Canterbury, Medway, Folkestone, and all Kent custody suites.',
     h1: 'Police Station Representatives in Kent',
     intro:
       'Kent is one of the busiest policing areas in the South East of England. With major custody suites at Maidstone, Canterbury, Medway, and Folkestone, criminal solicitors across the county frequently need reliable police station representatives to provide cover at short notice. Whether you are a duty solicitor looking for overnight cover or a firm needing full-time outsourced police station attendance, our directory connects you with experienced, accredited representatives throughout Kent.',
@@ -217,7 +217,7 @@ const countyContentMap: Record<string, CountyContent> = {
   'merseyside': {
     metaTitle: 'Police Station Representatives Merseyside | Liverpool Cover',
     metaDescription:
-      'Find accredited police station representatives in Merseyside. Experienced reps for duty solicitor cover at all Merseyside Police custody suites including Liverpool, Wirral, and St Helens.',
+      'Find accredited police station representatives in Merseyside. Experienced reps for custody attendance at all Merseyside Police custody suites including Liverpool, Wirral, and St Helens.',
     h1: 'Police Station Representatives in Merseyside',
     intro:
       'Merseyside Police serves Liverpool, Wirral, Sefton, Knowsley, and St Helens. As one of England\'s busiest metropolitan forces, Merseyside generates substantial demand for custody representation. Criminal solicitors across the region need experienced police station representatives who can attend promptly and handle the full range of offences dealt with in Merseyside custody suites.',
@@ -235,7 +235,7 @@ const countyContentMap: Record<string, CountyContent> = {
   'west-yorkshire': {
     metaTitle: 'Police Station Representatives West Yorkshire | Leeds & Bradford',
     metaDescription:
-      'Find accredited police station representatives in West Yorkshire. Professional reps for duty solicitor cover at Leeds, Bradford, Wakefield, Huddersfield, and all WYP custody suites.',
+      'Find accredited police station representatives in West Yorkshire. Professional reps for custody attendance at Leeds, Bradford, Wakefield, Huddersfield, and all WYP custody suites.',
     h1: 'Police Station Representatives in West Yorkshire',
     intro:
       'West Yorkshire Police (WYP) is one of England\'s largest forces, covering Leeds, Bradford, Wakefield, Huddersfield, and Halifax. The force processes a high volume of custody detentions across multiple suites, creating constant demand for reliable representative attendance. Our directory connects criminal defence firms with experienced, accredited reps covering the full WYP area.',
@@ -258,8 +258,8 @@ export function getCountyContent(slug: string, countyName: string): CountyConten
   }
 
   return {
-    metaTitle: `Police Station Representatives ${countyName} | Duty Solicitor Cover`,
-    metaDescription: `Find accredited police station representatives in ${countyName}. Experienced reps available for duty solicitor cover at all ${countyName} custody suites. 24/7 availability.`,
+    metaTitle: `Police Station Representatives ${countyName} | Accredited Rep Cover`,
+    metaDescription: `Find accredited police station representatives in ${countyName}. Experienced reps available for custody attendance at all ${countyName} custody suites. 24/7 availability.`,
     h1: `Police Station Representatives in ${countyName}`,
     intro: `${countyName} has a strong demand for qualified police station representatives. Criminal solicitors throughout ${countyName} rely on accredited representatives to attend custody suites on their behalf, providing expert legal advice to detained persons and ensuring full compliance with PACE and the Codes of Practice. Our directory connects you with experienced, vetted police station representatives covering all major custody suites in ${countyName}.`,
     sections: [

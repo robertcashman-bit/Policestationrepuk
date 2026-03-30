@@ -4,7 +4,7 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Medway Police Station Representatives | Gillingham Cover',
-  description: 'Find accredited police station representatives covering Medway (Gillingham) custody suite. Reliable duty solicitor cover and criminal defence attendance for the Medway towns area.',
+  description: 'Find accredited police station representatives covering Medway (Gillingham) custody suite. Reliable custody rep cover and accredited representative attendance for the Medway towns area.',
   path: '/MedwayPoliceStationReps',
 });
 

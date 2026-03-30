@@ -103,7 +103,7 @@ export const FOOTER_LEGAL: FooterLink[] = [
 /** Mid-footer spotlight — h3 + body from homepage headings/content */
 export const FOOTER_SPOTLIGHT_KENT_TITLE = 'Need a Police Station Rep in Kent?';
 export const FOOTER_SPOTLIGHT_KENT_BODY =
-  'Duty Solicitor • 24/7 Immediate Coverage • All Kent stations';
+  'Accredited Reps • 24/7 Immediate Coverage • All Kent Custody Suites';
 
 export const FOOTER_SPOTLIGHT_TRAINING_TITLE = 'Training Guides & Resources';
 export const FOOTER_SPOTLIGHT_TRAINING_BODY =

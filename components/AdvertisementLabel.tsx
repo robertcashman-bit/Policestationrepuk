@@ -14,7 +14,7 @@ export function AdvertisementLabel({
   const variantClass = {
     light: 'border border-slate-300 bg-white/90 text-slate-500',
     dark: 'border border-white/20 bg-white/10 text-white/70',
-    gold: 'border border-[var(--gold)]/40 bg-[var(--gold-pale)] text-[var(--navy)]/70',
+    gold: 'border border-[var(--gold)]/40 bg-[var(--gold-pale)] text-[var(--navy)]',
   }[variant];
 
   return (

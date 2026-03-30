@@ -4,7 +4,7 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Kent Agent Cover — Police Station Rep Attendance Kent',
-  description: 'Reliable police station agent cover across Kent for criminal defence solicitors. Find experienced reps for duty solicitor shifts, overnight attendance, and private client instructions at Kent custody suites.',
+  description: 'Reliable police station rep cover across Kent for law firms. Find experienced accredited representatives for overnight custody attendance, weekend shifts, and private client instructions at Kent custody suites.',
   path: '/KentAgentCover',
 });
 

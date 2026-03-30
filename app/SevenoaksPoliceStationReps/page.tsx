@@ -4,7 +4,7 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Sevenoaks Police Station Representatives | Find Cover',
-  description: 'Find accredited police station representatives covering Sevenoaks and West Kent. Professional duty solicitor cover and criminal defence attendance at Sevenoaks custody suite.',
+  description: 'Find accredited police station representatives covering Sevenoaks and West Kent. Professional custody rep cover and accredited representative attendance at Sevenoaks custody suite.',
   path: '/SevenoaksPoliceStationReps',
 });
 

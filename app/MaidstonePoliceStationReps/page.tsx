@@ -4,7 +4,7 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Maidstone Police Station Representatives | 24/7 Cover',
-  description: 'Find accredited police station representatives for Maidstone custody suite. Experienced reps available for duty solicitor cover, private client instructions, and overnight attendance.',
+  description: 'Find accredited police station representatives for Maidstone custody suite. Experienced reps available for custody attendance, private client instructions, and overnight rep cover.',
   path: '/MaidstonePoliceStationReps',
 });
 

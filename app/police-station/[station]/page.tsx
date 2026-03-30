@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps) {
   if (!stationData) return {};
   return buildMetadata({
     title: `${stationData.name} Police Station | Representatives`,
-    description: `Police station representatives covering ${stationData.name}, ${stationData.forceName || stationData.county || ''}. Find accredited reps for custody suite attendance and duty solicitor cover.`,
+    description: `Police station representatives covering ${stationData.name}, ${stationData.forceName || stationData.county || ''}. Find accredited reps for custody suite attendance and freelance cover.`,
     path: `/police-station/${station}`,
   });
 }

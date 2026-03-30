@@ -150,6 +150,12 @@ export default function FAQPage() {
           </Link>{' '}
           and we&apos;ll respond within 24 hours.
         </p>
+        <p className="mt-3 text-sm text-[var(--muted)]">
+          Need a solicitor at the police station?{' '}
+          <a href="https://www.policestationagent.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--gold-hover)] underline">
+            Visit policestationagent.com
+          </a>
+        </p>
       </div>
       </div>
     </>

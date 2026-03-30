@@ -4,7 +4,7 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Tonbridge Police Station Representatives | West Kent Cover',
-  description: 'Find accredited police station representatives for Tonbridge and Tunbridge Wells custody suites. Duty solicitor cover and criminal defence attendance across West Kent.',
+  description: 'Find accredited police station representatives for Tonbridge and Tunbridge Wells custody suites. Custody rep cover and accredited representative attendance across West Kent.',
   path: '/TonbridgePoliceStationReps',
 });
 

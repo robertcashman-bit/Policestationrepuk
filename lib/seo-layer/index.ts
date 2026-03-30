@@ -18,4 +18,5 @@ export {
   blogPostingSchema,
   faqPageSchema,
   directoryServiceLocalBusinessSchema,
+  directoryItemListSchema,
 } from './schemas';

@@ -85,6 +85,15 @@ export function Footer() {
             >
               Kent reps hub →
             </Link>
+            <span className="mx-1 text-xs text-slate-500">·</span>
+            <a
+              href="https://www.policestationagent.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
+            >
+              Need a solicitor? →
+            </a>
           </div>
           <div>
             <h4 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_TRAINING_TITLE}</h4>

@@ -215,6 +215,24 @@ export function blogPostingSchema(post: {
   };
 }
 
+/** ItemList schema for directory listing pages (reps grid) */
+export function directoryItemListSchema(reps: { name: string; slug: string }[], countyName?: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: countyName
+      ? `Police Station Representatives in ${countyName}`
+      : 'Police Station Representative Directory',
+    numberOfItems: reps.length,
+    itemListElement: reps.slice(0, 20).map((rep, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE_URL}/rep/${rep.slug}`,
+      name: rep.name,
+    })),
+  };
+}
+
 /** Person schema for representative profile pages */
 export function personSchema(rep: {
   name: string;

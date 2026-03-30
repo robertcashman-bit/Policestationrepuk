@@ -3,8 +3,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Police Station Cover for Solicitors — Find Rep Cover UK',
-  description: 'Find reliable police station agent cover across England and Wales. Outsource custody attendance to accredited reps — maintain duty solicitor compliance without attending every call-out yourself.',
+  title: 'Police Station Cover for Law Firms UK | Rep Directory',
+  description: 'Find reliable police station rep cover across England and Wales. Outsource custody attendance to accredited representatives — browse the free rep directory for overnight, weekend, and overflow cover.',
   path: '/SolicitorPoliceStationCoverUK',
 });
 

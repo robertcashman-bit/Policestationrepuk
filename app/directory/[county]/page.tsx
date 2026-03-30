@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCountyBySlug, getRepsByCounty, getStationsByCounty } from '@/lib/data';
 import { getCountyContent } from '@/lib/counties-content';
-import { buildMetadata, legalServiceSchema, breadcrumbSchema, placeSchema } from '@/lib/seo';
+import { buildMetadata, legalServiceSchema, breadcrumbSchema, placeSchema, directoryItemListSchema } from '@/lib/seo';
 import { JsonLd } from '@/components/JsonLd';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DirectoryCard } from '@/components/DirectoryCard';
@@ -59,15 +59,23 @@ export default async function DirectoryCountyPage({ params }: PageProps) {
       <JsonLd data={placeSchemaData} />
       <JsonLd data={breadcrumbSchemaData} />
       {reps.length > 0 && (
-        <JsonLd
-          data={legalServiceSchema({
-            name: reps[0].name,
-            slug: reps[0].slug,
-            counties: [reps[0].county].filter(Boolean),
-            accreditation: reps[0].accreditation,
-            phone: reps[0].phone,
-          })}
-        />
+        <>
+          <JsonLd
+            data={legalServiceSchema({
+              name: reps[0].name,
+              slug: reps[0].slug,
+              counties: [reps[0].county].filter(Boolean),
+              accreditation: reps[0].accreditation,
+              phone: reps[0].phone,
+            })}
+          />
+          <JsonLd
+            data={directoryItemListSchema(
+              reps.map((r) => ({ name: r.name, slug: r.slug })),
+              county.name
+            )}
+          />
+        </>
       )}
 
       {/* Navy header */}

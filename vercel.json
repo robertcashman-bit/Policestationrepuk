@@ -4,13 +4,13 @@
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "policestationrepuk.com" }],
       "destination": "https://policestationrepuk.org/$1",
-      "permanent": true
+      "statusCode": 301
     },
     {
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "www.policestationrepuk.com" }],
       "destination": "https://policestationrepuk.org/$1",
-      "permanent": true
+      "statusCode": 301
     }
   ]
 }

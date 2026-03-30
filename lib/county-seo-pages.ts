@@ -21,7 +21,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
       'Find accredited police station representatives covering Kent. Representatives available 24/7 for Maidstone, Canterbury, Medway, Folkestone, Tunbridge Wells, and more.',
     h1: 'Kent Police Station Cover Network',
     intro:
-      'Accredited police station representatives covering Maidstone, Canterbury, Medway, Folkestone, Tunbridge Wells, and all Kent custody suites. Our Kent representatives are available 24/7 for criminal defence solicitors needing police station cover.',
+      'Accredited police station representatives covering Maidstone, Canterbury, Medway, Folkestone, Tunbridge Wells, and all Kent custody suites. Our Kent representatives are available 24/7 for criminal defence firms needing police station cover.',
     stationNames: ['Maidstone', 'Canterbury', 'Medway', 'Folkestone', 'Tunbridge Wells', 'Gravesend', 'Tonbridge', 'Sevenoaks', 'Swanley'],
   },
   {
@@ -33,7 +33,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
       'Find accredited police station representatives covering Greater London. Reps available 24/7 for all Metropolitan Police custody suites.',
     h1: 'London Police Station Representatives',
     intro:
-      'Accredited police station representatives covering all Greater London custody suites. Our London representatives provide 24/7 cover for criminal defence solicitors across the Metropolitan Police area.',
+      'Accredited police station representatives covering all Greater London custody suites. Our London representatives provide 24/7 cover for criminal defence firms across the Metropolitan Police area.',
     stationNames: ['Brixton', 'Lewisham', 'Charing Cross', 'Croydon', 'Islington', 'Hammersmith'],
   },
   {
@@ -45,7 +45,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
       'Find accredited police station representatives covering Essex. Representatives available for all Essex Police custody suites.',
     h1: 'Essex Police Station Representatives',
     intro:
-      'Accredited police station representatives covering all Essex Police custody suites. Our Essex representatives are available for criminal defence solicitors needing police station cover across the county.',
+      'Accredited police station representatives covering all Essex Police custody suites. Our Essex representatives are available for criminal defence firms needing police station cover across the county.',
     stationNames: ['Chelmsford', 'Southend', 'Basildon', 'Colchester', 'Harlow'],
   },
   {
@@ -57,7 +57,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
       'Find accredited police station representatives covering Greater Manchester. Representatives available for all GMP custody suites.',
     h1: 'Manchester Police Station Representatives',
     intro:
-      'Accredited police station representatives covering Greater Manchester Police custody suites. Our Manchester representatives provide cover for criminal defence solicitors across the region.',
+      'Accredited police station representatives covering Greater Manchester Police custody suites. Our Manchester representatives provide cover for criminal defence firms across the region.',
     stationNames: ['Manchester Central', 'Salford', 'Bolton', 'Stockport', 'Wigan'],
   },
   {

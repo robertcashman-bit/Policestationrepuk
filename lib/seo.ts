@@ -16,5 +16,6 @@ export {
   blogPostingSchema,
   faqPageSchema,
   directoryServiceLocalBusinessSchema,
+  directoryItemListSchema,
 } from './seo-layer';
 export type { MetadataInput } from './seo-layer';

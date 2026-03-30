@@ -7,6 +7,8 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotice';
 import { AdvertisementLabel } from '@/components/AdvertisementLabel';
 import { SITE_URL } from '@/lib/seo-layer/config';
+import { JsonLd } from '@/components/JsonLd';
+import { breadcrumbSchema, directoryItemListSchema } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'Police Station Rep Directory — Search by County & Station',
@@ -22,8 +24,16 @@ export default async function DirectoryPage() {
     getAllStations(),
   ]);
 
+  const bc = breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Directory', url: '/directory' },
+  ]);
+  const itemList = directoryItemListSchema(reps.map((r) => ({ name: r.name, slug: r.slug })));
+
   return (
     <>
+      <JsonLd data={bc} />
+      <JsonLd data={itemList} />
       {/*
         Wix directory hub parity (screenshots/source/directory): white SEO block → breadcrumb band
         → gradient hero with three sub-links (Search lives in the tool below, not in the hero row).

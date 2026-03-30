@@ -13,7 +13,7 @@ export const ARTICLES_BATCH_1: BlogArticle[] = [
     title: 'What Does a Freelance Police Station Representative Actually Do?',
     metaTitle: 'Freelance Police Station Rep: What They Do | PSR UK',
     metaDescription:
-      'What a freelance police station representative does in custody: who they act for, how firms instruct them, and how that differs from duty solicitor cover.',
+      'What a freelance police station representative does in custody: who they act for, how firms instruct them, and how that differs from rota scheme cover.',
     primaryKeyword: 'freelance police station representative',
     categories: ['freelance-reps', 'attendance', 'law-firms'],
     published: '2026-03-20T09:00:00.000Z',

@@ -4,7 +4,9 @@ import { getRepBySlug } from '@/lib/data';
 import { buildMetadata, legalServiceSchema, breadcrumbSchema, personSchema } from '@/lib/seo';
 import { JsonLd } from '@/components/JsonLd';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { RepTrustBadges } from '@/components/RepTrustBadges';
 import { phoneToTelHref } from '@/lib/phone';
+import { availabilityBucket, isUrgentCoverCapable, profileCompleteness } from '@/lib/directory-ranking';
 
 export const dynamic = 'force-static';
 export const revalidate = false;
@@ -29,28 +31,66 @@ export async function generateMetadata({ params }: PageProps) {
   });
 }
 
-const AVAIL_MAP: Record<string, { label: string; color: string }> = {
-  'full-time': { label: '24/7 Available', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  'part-time': { label: 'Part-time', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-  weekends: { label: 'Weekends', color: 'bg-violet-50 text-violet-700 border-violet-200' },
-  nights: { label: 'Nights', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
-  'on-call': { label: 'On-call', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
-};
+function availabilitySummary(raw: string): { label: string; detail: string; chip: string } {
+  const b = availabilityBucket(raw);
+  const map: Record<string, { label: string; detail: string }> = {
+    '24-7': {
+      label: 'Broad hours',
+      detail: 'Listing indicates 24/7 or similar — confirm directly before instructing.',
+    },
+    'evenings-nights': {
+      label: 'Evenings & nights',
+      detail: 'Often suited to out-of-hours custody work — always confirm availability for your matter.',
+    },
+    weekends: {
+      label: 'Weekends',
+      detail: 'Weekend-oriented listing — contact the rep to confirm cover for your station and time.',
+    },
+    daytime: {
+      label: 'Daytime / office hours',
+      detail: 'Typical business-hours pattern — verify response times for urgent work.',
+    },
+    flexible: {
+      label: 'Flexible / by arrangement',
+      detail: 'Availability by agreement — message or call with your requirements.',
+    },
+    unknown: {
+      label: 'Availability',
+      detail: 'See contact details and ask the rep directly.',
+    },
+  };
+  const m = map[b] || map.unknown;
+  return { ...m, chip: m.label };
+}
 
 export default async function RepPage({ params }: PageProps) {
   const { slug } = await params;
   const rep = await getRepBySlug(slug);
   if (!rep) notFound();
 
-  const availabilityLabel = rep.availability || 'Availability on request';
-  const avail = AVAIL_MAP[rep.availability] ?? {
-    label: availabilityLabel,
-    color: 'bg-slate-50 text-slate-700 border-slate-200',
-  };
+  const avail = availabilitySummary(rep.availability || '');
+  const urgentCapable = isUrgentCoverCapable(rep);
+  const completeness = profileCompleteness(rep);
 
-  const legalService = legalServiceSchema({ name: rep.name, slug: rep.slug, counties: [rep.county].filter(Boolean), accreditation: rep.accreditation, phone: rep.phone });
-  const person = personSchema({ name: rep.name, slug: rep.slug, phone: rep.phone, accreditation: rep.accreditation, counties: [rep.county].filter(Boolean) });
-  const bc = breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Directory', url: '/directory' }, { name: rep.name, url: `/rep/${rep.slug}` }]);
+  const legalService = legalServiceSchema({
+    name: rep.name,
+    slug: rep.slug,
+    counties: [rep.county].filter(Boolean),
+    accreditation: rep.accreditation,
+    phone: rep.phone,
+  });
+  const person = personSchema({
+    name: rep.name,
+    slug: rep.slug,
+    phone: rep.phone,
+    accreditation: rep.accreditation,
+    counties: [rep.county].filter(Boolean),
+  });
+  const bc = breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Directory', url: '/directory' },
+    { name: rep.name, url: `/rep/${rep.slug}` },
+  ]);
 
   return (
     <>
@@ -58,128 +98,195 @@ export default async function RepPage({ params }: PageProps) {
       <JsonLd data={person} />
       <JsonLd data={bc} />
 
-      {/* Header banner */}
-      <section className="bg-[var(--navy)] py-8 sm:py-12">
-        <div className="page-container !py-0">
-          <Breadcrumbs light items={[{ label: 'Home', href: '/' }, { label: 'Directory', href: '/directory' }, { label: rep.name }]} />
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className={`rounded-full border px-3 py-1 text-xs font-bold ${avail.color}`}>{avail.label}</span>
-            <span className="rounded-full bg-[var(--navy-light)] px-3 py-1 text-xs font-semibold text-white">
-              {(rep.accreditation || '').includes('Duty')
-                ? 'Duty Solicitor Accredited'
-                : (rep.accreditation || '').includes('Probationary')
-                  ? 'Probationary Representative'
-                  : 'Law Society Accredited'}
+      <section className="relative overflow-hidden bg-[var(--navy)] pb-10 pt-8 sm:pb-14 sm:pt-12">
+        <div
+          className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[var(--gold)]/10 blur-3xl"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -bottom-16 left-0 h-48 w-48 rounded-full bg-white/5 blur-2xl"
+          aria-hidden
+        />
+        <div className="page-container relative !py-0">
+          <Breadcrumbs
+            light
+            items={[{ label: 'Home', href: '/' }, { label: 'Directory', href: '/directory' }, { label: rep.name }]}
+          />
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
+              {avail.chip}
             </span>
+            <span className="rounded-full bg-[var(--navy-light)]/90 px-3 py-1 text-xs font-semibold text-white">
+              {(rep.accreditation || '').includes('Duty')
+                ? 'Duty solicitor'
+                : (rep.accreditation || '').includes('Probationary')
+                  ? 'Probationary representative'
+                  : 'Accredited representative'}
+            </span>
+            {urgentCapable && (
+              <span className="rounded-full border border-emerald-400/40 bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-100">
+                Often suitable for urgent / OOH enquiries
+              </span>
+            )}
           </div>
-          <h1 className="mt-3 text-h1 text-white">{rep.name}</h1>
-          <p className="mt-2 text-lg text-white">
-            {rep.county?.trim() ? rep.county : 'Coverage: see stations listed below'}
+          <h1 className="mt-4 text-balance text-h1 text-white sm:max-w-3xl">{rep.name}</h1>
+          <p className="mt-3 max-w-2xl text-lg text-white/90">
+            {rep.county?.trim() ? `${rep.county}` : 'Coverage details below'}
+            {rep.yearsExperience != null && rep.yearsExperience > 0 ? ` · ${rep.yearsExperience}+ years’ experience` : ''}
+          </p>
+          <div className="mt-4 max-w-2xl">
+            <RepTrustBadges rep={rep} variant="profile" />
+          </div>
+          <p className="mt-3 max-w-2xl text-xs leading-relaxed text-white/70">
+            This page is a directory listing. PoliceStationRepUK does not verify credentials or supervise cases — your firm
+            remains responsible for instruction, checks, and compliance.
           </p>
         </div>
       </section>
 
       <div className="page-container">
-        <div className="mx-auto max-w-4xl">
-          <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-            {/* Main content */}
+        <div className="mx-auto max-w-5xl">
+          <div className="-mt-6 grid gap-6 lg:grid-cols-[1fr_340px]">
             <div className="space-y-6">
-              {/* About */}
+              <section className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_8px_30px_-10px_rgba(15,23,42,0.12)] sm:p-8">
+                <h2 className="text-lg font-bold text-[var(--navy)]">Availability summary</h2>
+                <p className="mt-2 font-medium text-slate-800">{avail.label}</p>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">{avail.detail}</p>
+                {rep.availability?.trim() && (
+                  <p className="mt-3 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+                    <span className="font-semibold text-slate-900">From listing: </span>
+                    {rep.availability}
+                  </p>
+                )}
+              </section>
+
               {((rep.bio || rep.notes) ?? '').trim() ? (
-                <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
+                <section className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_8px_30px_-10px_rgba(15,23,42,0.12)] sm:p-8">
                   <h2 className="text-lg font-bold text-[var(--navy)]">About</h2>
-                  <p className="mt-3 leading-relaxed text-[var(--muted)]">{rep.bio || rep.notes}</p>
+                  <p className="mt-3 whitespace-pre-line leading-relaxed text-slate-600">{rep.bio || rep.notes}</p>
                 </section>
               ) : null}
 
               {rep.stations && rep.stations.length > 0 ? (
-                <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
-                  <h2 className="text-lg font-bold text-[var(--navy)]">Police stations covered</h2>
-                  <div className="mt-3 flex flex-wrap gap-2">
+                <section className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_8px_30px_-10px_rgba(15,23,42,0.12)] sm:p-8">
+                  <h2 className="text-lg font-bold text-[var(--navy)]">Station coverage</h2>
+                  <p className="mt-1 text-sm text-slate-600">
+                    Stations the rep has listed — confirm current cover before instructing.
+                  </p>
+                  <ul className="mt-4 grid gap-2 sm:grid-cols-2">
                     {rep.stations.map((s) => (
-                      <span key={s} className="rounded-full bg-[var(--gold-pale)] px-3 py-1 text-sm font-medium text-[var(--navy)]">{s}</span>
+                      <li
+                        key={s}
+                        className="rounded-lg border border-slate-100 bg-[var(--gold-pale)]/50 px-3 py-2 text-sm font-medium text-[var(--navy)]"
+                      >
+                        {s}
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </section>
               ) : null}
 
-              {/* Specialisms */}
               {rep.specialisms && rep.specialisms.length > 0 && (
-                <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
+                <section className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_8px_30px_-10px_rgba(15,23,42,0.12)] sm:p-8">
                   <h2 className="text-lg font-bold text-[var(--navy)]">Specialisms</h2>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {rep.specialisms.map((s) => (
-                      <span key={s} className="rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1 text-sm text-[var(--navy)]">{s}</span>
+                      <span
+                        key={s}
+                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-[var(--navy)]"
+                      >
+                        {s}
+                      </span>
                     ))}
                   </div>
                 </section>
               )}
 
-              {/* Languages */}
-              {rep.languages && rep.languages.length > 1 && (
-                <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
+              {rep.languages && rep.languages.length > 0 && (
+                <section className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_8px_30px_-10px_rgba(15,23,42,0.12)] sm:p-8">
                   <h2 className="text-lg font-bold text-[var(--navy)]">Languages</h2>
-                  <p className="mt-3 text-[var(--muted)]">{rep.languages.join(', ')}</p>
+                  <p className="mt-3 text-slate-600">{rep.languages.join(', ')}</p>
                 </section>
               )}
+
+              <section className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-5 text-sm text-slate-600">
+                <strong className="text-[var(--navy)]">Listing completeness:</strong> {completeness}% of common fields
+                present. Higher scores usually mean easier due diligence — not an endorsement.
+              </section>
             </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Contact card */}
-              <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
+            <div className="space-y-5 lg:sticky lg:top-24 lg:self-start">
+              <section className="rounded-2xl border-2 border-[var(--gold)]/30 bg-white p-6 shadow-lg shadow-[var(--navy)]/10">
                 <h2 className="text-lg font-bold text-[var(--navy)]">Contact</h2>
+                <p className="mt-1 text-xs text-slate-600">Reach out direct — your contract is with the firm / rep, not the directory.</p>
                 <div className="mt-4 space-y-3">
                   {rep.phone ? (
-                    <a href={phoneToTelHref(rep.phone)} className="btn-gold w-full">
-                      📞 {rep.phone}
+                    <a href={phoneToTelHref(rep.phone)} className="btn-gold w-full text-center font-bold">
+                      Call {rep.phone}
                     </a>
                   ) : null}
                   {rep.email ? (
-                    <a href={`mailto:${rep.email}`} className="btn-outline w-full">
-                      ✉️ Email
+                    <a href={`mailto:${rep.email}`} className="btn-outline w-full text-center font-semibold">
+                      Send email
                     </a>
                   ) : null}
                   {rep.whatsappLink ? (
-                    <a href={rep.whatsappLink} target="_blank" rel="noopener noreferrer" className="btn-outline w-full !border-emerald-300 !text-emerald-700 hover:!bg-emerald-50">
-                      💬 WhatsApp
+                    <a
+                      href={rep.whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-outline w-full !border-emerald-300 !font-semibold !text-emerald-800 hover:!bg-emerald-50"
+                    >
+                      WhatsApp
                     </a>
                   ) : null}
                   {!rep.phone && !rep.email && (
-                    <p className="text-sm text-[var(--muted)]">Contact via directory search or WhatsApp group.</p>
+                    <p className="text-sm text-slate-600">Use the directory search or your firm networks to reach this rep.</p>
                   )}
                 </div>
               </section>
 
-              {/* Quick info */}
-              <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
-                <h2 className="text-lg font-bold text-[var(--navy)]">Details</h2>
+              <section className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[var(--card-shadow)]">
+                <h2 className="text-lg font-bold text-[var(--navy)]">At a glance</h2>
                 <dl className="mt-3 space-y-3 text-sm">
                   <div>
-                    <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Availability</dt>
-                    <dd className="mt-0.5 font-medium text-[var(--navy)]">{avail.label}</dd>
+                    <dt className="text-xs font-bold uppercase tracking-wider text-slate-500">Accreditation</dt>
+                    <dd className="mt-0.5 font-medium text-slate-900">{rep.accreditation || '—'}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-bold uppercase tracking-wider text-slate-500">County / area</dt>
+                    <dd className="mt-0.5 font-medium text-slate-900">{rep.county || '—'}</dd>
                   </div>
                   {rep.yearsExperience != null && (
                     <div>
-                      <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Experience</dt>
-                      <dd className="mt-0.5 font-medium text-[var(--navy)]">{rep.yearsExperience} years</dd>
+                      <dt className="text-xs font-bold uppercase tracking-wider text-slate-500">Experience stated</dt>
+                      <dd className="mt-0.5 font-medium text-slate-900">{rep.yearsExperience} years</dd>
                     </div>
                   )}
-                  <div>
-                    <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Counties</dt>
-                    <dd className="mt-0.5 font-medium text-[var(--navy)]">{rep.county}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Accreditation</dt>
-                    <dd className="mt-0.5 font-medium text-[var(--navy)]">{rep.accreditation}</dd>
-                  </div>
+                  {rep.postcode?.trim() && (
+                    <div>
+                      <dt className="text-xs font-bold uppercase tracking-wider text-slate-500">Postcode (listing)</dt>
+                      <dd className="mt-0.5 font-medium text-slate-900">{rep.postcode}</dd>
+                    </div>
+                  )}
                 </dl>
               </section>
+
+              {rep.websiteUrl && (
+                <a
+                  href={rep.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full rounded-xl border border-slate-200 py-3 text-center text-sm font-semibold text-[var(--navy)] no-underline hover:bg-slate-50"
+                >
+                  External website →
+                </a>
+              )}
             </div>
           </div>
 
-          <p className="mt-10">
-            <Link href="/directory" className="font-medium text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
+          <p className="mt-12 border-t border-slate-100 pt-8">
+            <Link href="/directory" className="font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
               ← Back to directory
             </Link>
           </p>

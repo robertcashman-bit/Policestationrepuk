@@ -67,9 +67,14 @@ export function DirectoryCard({ rep }: DirectoryCardProps) {
           </blockquote>
         )}
 
-        {/* Counties */}
+        {/* Counties + optional experience */}
         <p className="mt-2 text-sm font-medium text-[var(--muted)]">
           {rep.county?.trim() ? rep.county : 'Coverage: see full profile'}
+          {rep.yearsExperience != null && rep.yearsExperience > 0 ? (
+            <span className="mt-1 block text-xs font-normal text-[var(--muted)]">
+              {rep.yearsExperience}+ years&apos; experience
+            </span>
+          ) : null}
         </p>
 
         {/* Stations as pills */}

@@ -215,8 +215,29 @@ export async function getAllStations(): Promise<PoliceStation[]> {
 export async function getRepsByStation(stationName: string): Promise<Representative[]> {
   const file = loadDataFromFiles();
   if (!file) return [];
-  const q = stationName.toLowerCase();
-  return file.reps.filter((r) => (r.stations || []).some((s) => s.toLowerCase().includes(q)));
+  const normalizedInput = stationName.toLowerCase().trim();
+  const stationMeta = file.stations.find(
+    (s) =>
+      s.name.toLowerCase() === normalizedInput ||
+      s.slug.toLowerCase() === normalizedInput,
+  );
+  const nameKeys = new Set<string>();
+  nameKeys.add(normalizedInput);
+  if (stationMeta) {
+    nameKeys.add(stationMeta.name.toLowerCase());
+    const short = stationMeta.name.toLowerCase().replace(/\s*police station\s*$/i, '').trim();
+    if (short.length >= 5) nameKeys.add(short);
+  }
+  return file.reps.filter((r) =>
+    (r.stations || []).some((label) => {
+      const sl = label.toLowerCase();
+      for (const key of nameKeys) {
+        if (!key) continue;
+        if (sl === key || sl.includes(key) || key.includes(sl)) return true;
+      }
+      return false;
+    }),
+  );
 }
 
 export function countySlugToPageSlug(countySlug: string): string {

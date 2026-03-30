@@ -7,6 +7,7 @@ import { JsonLd } from '@/components/JsonLd';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DirectoryCard } from '@/components/DirectoryCard';
 import { StationCard } from '@/components/StationCard';
+import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotice';
 
 export const dynamic = 'force-static';
 export const revalidate = false;
@@ -98,6 +99,9 @@ export default async function DirectoryCountyPage({ params }: PageProps) {
 
       <div className="page-container">
         <div className="mx-auto max-w-6xl">
+          <div className="mb-8">
+            <DirectoryComplianceNotice />
+          </div>
           <section>
             <h2 className="text-h2 text-[var(--navy)]">Representatives in {county.name}</h2>
             {reps.length === 0 ? (

@@ -11,7 +11,7 @@ import { SITE_URL } from '@/lib/seo-layer/config';
 export const metadata: Metadata = {
   title: 'Police Station Rep Directory — Search by County & Station',
   description:
-    'Free directory of accredited police station representatives across England and Wales. Search by station, county, or availability. No fees for solicitors or reps — completely free.',
+    'Free directory of accredited police station representatives across England and Wales. Search by name, county, police force, station, postcode, availability, and accreditation. No fees for solicitors or reps.',
   alternates: { canonical: `${SITE_URL}/directory` },
 };
 

@@ -10,6 +10,7 @@ import { SITE_URL } from '@/lib/seo-layer/config';
 import { JsonLd } from '@/components/JsonLd';
 import { breadcrumbSchema, directoryItemListSchema } from '@/lib/seo';
 import { ResultsGridSkeleton } from '@/components/directory/ResultsGrid';
+import { JoinCTA } from '@/components/directory/JoinCTA';
 
 export const metadata: Metadata = {
   title: 'Police Station Rep Directory — Search by County & Station',
@@ -67,7 +68,10 @@ export default async function DirectoryPage() {
               Stations
             </span>
           </div>
-          <div className="mt-6 flex flex-wrap gap-2.5">
+          <div className="mt-6">
+            <JoinCTA variant="hero" />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2.5">
             <Link
               href="/Map"
               className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:bg-white/20"

@@ -387,6 +387,7 @@ export function DirectorySearch({
         value={query}
         onChange={(v) => { setQuery(v); setPage(1); }}
         resultCount={filtered.length}
+        onQuickCounty={(c) => { setQuery(c); setPage(1); }}
       />
 
       {/* Quick actions strip */}

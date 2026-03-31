@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import type { Representative } from '@/lib/types';
 import { DirectoryCard } from '@/components/DirectoryCard';
+import { JoinCTA } from '@/components/directory/JoinCTA';
 
 interface RightPanelProps {
   featuredReps: Representative[];
@@ -21,20 +22,20 @@ export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
 
   return (
     <div className="space-y-4">
-      {/* Quick navigation */}
-      <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
-        <h3 className="mb-3 text-sm font-bold text-[var(--navy)]">Explore</h3>
-        <div className="grid grid-cols-2 gap-2">
-          {QUICK_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2.5 text-xs font-semibold text-[var(--navy)] no-underline transition-all hover:border-[var(--gold)]/40 hover:bg-[var(--gold-pale)] hover:shadow-sm"
-            >
-              <span aria-hidden>{link.icon}</span>
-              {link.label}
-            </Link>
-          ))}
+      {/* Trust banner */}
+      <div className="rounded-xl border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/50 p-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--navy)]/10">
+            <svg className="h-5 w-5 text-[var(--navy)]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-[var(--navy)]">Trusted by solicitor firms</p>
+            <p className="text-xs text-slate-500">
+              {totalReps} experienced reps across England &amp; Wales
+            </p>
+          </div>
         </div>
       </div>
 
@@ -58,6 +59,26 @@ export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
         </div>
       )}
 
+      {/* Join CTA */}
+      <JoinCTA variant="sidebar" totalReps={totalReps} />
+
+      {/* Quick navigation */}
+      <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+        <h3 className="mb-3 text-sm font-bold text-[var(--navy)]">Explore</h3>
+        <div className="grid grid-cols-2 gap-2">
+          {QUICK_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2.5 text-xs font-semibold text-[var(--navy)] no-underline transition-all hover:border-[var(--gold)]/40 hover:bg-[var(--gold-pale)] hover:shadow-sm"
+            >
+              <span aria-hidden>{link.icon}</span>
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* Custody Note CTA */}
       <div className="overflow-hidden rounded-xl border border-[var(--gold)]/25 bg-gradient-to-b from-[var(--navy)] to-[#152e6e] p-4 shadow-sm">
         <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
@@ -79,20 +100,6 @@ export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
           className="mt-3 block rounded-lg bg-[var(--gold)] px-3 py-2 text-center text-xs font-bold text-[var(--ink)] no-underline transition-colors hover:bg-[var(--gold-hover)]"
         >
           Try Free
-        </Link>
-      </div>
-
-      {/* Directory CTA */}
-      <div className="rounded-xl border border-emerald-200/60 bg-gradient-to-b from-emerald-50 to-white p-4 shadow-sm">
-        <h3 className="text-sm font-bold text-[var(--navy)]">Join the directory</h3>
-        <p className="mt-1 text-xs leading-relaxed text-slate-600">
-          {totalReps} reps listed. Get discovered by solicitor firms looking for cover.
-        </p>
-        <Link
-          href="/register"
-          className="mt-3 block rounded-lg bg-[var(--navy)] px-3 py-2.5 text-center text-xs font-bold text-white no-underline transition-colors hover:bg-[var(--navy-light)]"
-        >
-          Register free
         </Link>
       </div>
     </div>

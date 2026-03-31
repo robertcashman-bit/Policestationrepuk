@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { DirectoryCard, type MatchHighlight } from '@/components/DirectoryCard';
+import { JoinCTA } from '@/components/directory/JoinCTA';
 import type { Representative } from '@/lib/types';
 
 interface ResultsGridProps {
@@ -47,6 +48,8 @@ export function ResultsGridSkeleton() {
   );
 }
 
+const INLINE_CTA_POSITION = 6;
+
 export function ResultsGrid({
   featuredReps,
   nonFeaturedReps,
@@ -60,52 +63,44 @@ export function ResultsGrid({
 }: ResultsGridProps) {
   if (totalCount === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-16 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
-          <svg className="h-7 w-7 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-          </svg>
-        </div>
-        <p className="text-lg font-bold text-[var(--navy)]">No listings match</p>
-        <p className="mx-auto mt-2 max-w-md text-sm text-slate-600">
-          {hasActiveFilters
-            ? 'Try widening your search or resetting filters to see more results.'
-            : 'No representatives are listed for this view yet.'}
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          {hasActiveFilters && (
-            <button type="button" onClick={onReset} className="btn-gold !text-sm">
-              Reset filters
+      <div className="space-y-6">
+        <JoinCTA variant="empty-state" />
+        {hasActiveFilters && (
+          <div className="text-center">
+            <button type="button" onClick={onReset} className="btn-outline !text-sm">
+              Reset all filters
             </button>
-          )}
-          <Link href="/directory/counties" className="btn-outline !text-sm no-underline">
-            Browse counties
-          </Link>
-          <Link href="/register" className="btn-outline !text-sm no-underline">
-            Join directory
-          </Link>
-        </div>
+          </div>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Featured */}
+    <div className="space-y-8">
+      {/* Featured reps — visually distinct section */}
       {featuredReps.length > 0 && (
         <section>
           <div className="mb-4 flex items-end justify-between">
             <div>
-              <h2 className="text-lg font-bold text-[var(--navy)]">Featured listings</h2>
-              <p className="mt-0.5 text-xs text-slate-500">
-                Promoted placements — firms should run their own checks before instructing.
+              <div className="mb-1 flex items-center gap-2">
+                <svg className="h-4 w-4 text-[var(--gold)]" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <h2 className="text-lg font-bold text-[var(--navy)]">Featured Representatives</h2>
+              </div>
+              <p className="text-xs text-slate-500">
+                Promoted placements &mdash; firms should verify credentials before instructing.
               </p>
             </div>
             <Link
               href="/GoFeatured"
-              className="hidden text-xs font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)] sm:inline-block"
+              className="hidden items-center gap-1 text-xs font-bold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)] sm:inline-flex"
             >
-              Go Featured
+              Become featured
+              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
             </Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -120,7 +115,7 @@ export function ResultsGrid({
         </section>
       )}
 
-      {/* All listings */}
+      {/* All listings with inline CTA */}
       {pagedNonFeatured.length > 0 && (
         <section>
           <div className="mb-4 flex items-end justify-between">
@@ -142,7 +137,15 @@ export function ResultsGrid({
               if (sort === 'smart' && i < 3) {
                 matchHighlight = i === 0 ? 'top' : 'runner';
               }
-              return <DirectoryCard key={rep.id} rep={rep} matchHighlight={matchHighlight} />;
+              return (
+                <DirectoryCardWithInlineCTA
+                  key={rep.id}
+                  rep={rep}
+                  matchHighlight={matchHighlight}
+                  index={i}
+                  totalPaged={pagedNonFeatured.length}
+                />
+              );
             })}
           </div>
           {hasMore && (
@@ -159,5 +162,29 @@ export function ResultsGrid({
         </section>
       )}
     </div>
+  );
+}
+
+function DirectoryCardWithInlineCTA({
+  rep,
+  matchHighlight,
+  index,
+  totalPaged,
+}: {
+  rep: Representative;
+  matchHighlight: MatchHighlight;
+  index: number;
+  totalPaged: number;
+}) {
+  const showCTA = index === INLINE_CTA_POSITION - 1 && totalPaged > INLINE_CTA_POSITION;
+  return (
+    <>
+      <DirectoryCard rep={rep} matchHighlight={matchHighlight} />
+      {showCTA && (
+        <div className="sm:col-span-2">
+          <JoinCTA variant="inline" />
+        </div>
+      )}
+    </>
   );
 }

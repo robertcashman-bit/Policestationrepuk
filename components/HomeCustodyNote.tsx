@@ -83,10 +83,10 @@ export function HomeCustodyNote() {
 
             <div className="mt-8 overflow-hidden rounded-xl border border-white/10 shadow-2xl">
               <Image
-                src="/images/custodynote/custodynote-features.png"
-                alt="Custody Note features — PACE-aligned forms, offline mode, PDF export, encrypted backup"
-                width={960}
-                height={540}
+                src="/images/custodynote/custodynote-app-dashboard.png"
+                alt="Custody Note desktop app — dashboard showing Custody Attendance, Voluntary Attendance, Telephone Advice, and Quick Capture workflows"
+                width={1536}
+                height={960}
                 className="h-auto w-full"
               />
             </div>

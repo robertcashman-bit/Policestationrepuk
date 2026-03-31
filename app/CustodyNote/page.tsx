@@ -54,9 +54,9 @@ const FEATURE_CARDS = [
 
 const SCREENSHOTS = [
   {
-    src: '/images/custodynote/custodynote-hero.png',
-    title: 'Custody Note — structured notes for the station',
-    desc: 'Desktop software purpose-built for defence solicitors and reps. Structured attendance notes, offline at the custody suite, PDF-ready for your firm.',
+    src: '/images/custodynote/custodynote-app-dashboard.png',
+    title: 'Custody Note app — main dashboard',
+    desc: 'The actual desktop app: choose Custody Attendance, Voluntary Attendance, Telephone Advice, Quick Capture, or Quick Email — all from one professional dashboard.',
   },
   {
     src: '/images/custodynote/custodynote-features.png',

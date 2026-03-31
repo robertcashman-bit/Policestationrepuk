@@ -26,7 +26,7 @@ export function HomeCustodyNote() {
                 { icon: '📴', label: 'Works Offline' },
                 { icon: '📄', label: 'PDF Export' },
               ].map((f) => (
-                <div key={f.label} className="rounded-lg border border-white/15 bg-white/5 px-4 py-3 backdrop-blur-sm">
+                <div key={f.label} className="rounded-lg border border-white/15 bg-white/5 px-4 py-3">
                   <span className="text-lg" aria-hidden>{f.icon}</span>
                   <p className="mt-1 text-xs font-semibold text-white">{f.label}</p>
                 </div>

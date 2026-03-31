@@ -127,23 +127,9 @@ summary:focus-visible {
   border-radius: 4px;
 }
 
-/* Hero — rich gradient navy. */
+/* Hero — rich gradient navy (optimised: single layer, no pseudo-element for faster LCP). */
 .hero-gradient-source {
   background: linear-gradient(135deg, var(--navy) 0%, #152e6e 40%, var(--navy-light) 100%);
-  position: relative;
-  isolation: isolate;
-}
-.hero-gradient-source::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 30% 20%, rgba(250, 204, 21, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, rgba(29, 78, 216, 0.15) 0%, transparent 50%);
-  pointer-events: none;
-}
-.hero-gradient-source > * {
-  position: relative;
-  z-index: 1;
 }
 
 /* Force all text on navy surfaces to be white */
@@ -257,6 +243,11 @@ footer .text-slate-600 {
     padding-top: var(--section-pad-compact-y-sm);
     padding-bottom: var(--section-pad-compact-y-sm);
   }
+}
+
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
 }
 
 .card-surface {

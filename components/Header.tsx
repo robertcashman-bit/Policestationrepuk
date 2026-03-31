@@ -189,7 +189,7 @@ export function Header() {
         </div>
 
         {/* Share strip */}
-        <div className="border-t border-[var(--navy-light)] bg-white/95 backdrop-blur-sm">
+        <div className="border-t border-[var(--navy-light)] bg-white">
           <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-1 sm:px-6 lg:px-8">
             <button
               type="button"

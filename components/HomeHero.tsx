@@ -17,7 +17,7 @@ export function HomeHero() {
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 backdrop-blur-sm">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[#1e3a8a]/80 px-4 py-2 text-sm font-semibold text-white/90">
             Trusted by {TRUST_BADGE_COUNT}+ professionals · Free since 2016
           </div>
 
@@ -36,7 +36,7 @@ export function HomeHero() {
             {['Free to search', 'Free to join', 'No middleman fees'].map((label) => (
               <span
                 key={label}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-[#1e3a8a]/60 px-4 py-2 text-sm font-medium text-white"
               >
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
                   <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
@@ -56,7 +56,7 @@ export function HomeHero() {
             </Link>
             <Link
               href="/register"
-              className="flex min-h-[52px] items-center justify-center rounded-xl border-2 border-white/40 bg-white/10 px-8 py-3 text-base font-bold text-white no-underline backdrop-blur-sm transition-all hover:border-[var(--gold)] hover:bg-white/15 sm:min-w-[200px]"
+              className="flex min-h-[52px] items-center justify-center rounded-xl border-2 border-white/40 bg-white/10 px-8 py-3 text-base font-bold text-white no-underline transition-all hover:border-[var(--gold)] hover:bg-white/15 sm:min-w-[200px]"
             >
               Join the Directory
             </Link>

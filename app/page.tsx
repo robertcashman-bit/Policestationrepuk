@@ -84,34 +84,58 @@ export default async function HomePage() {
 
       <HomeCustodyNote />
 
-      <HomeSeoConversionHub />
+      <div className="cv-auto">
+        <HomeSeoConversionHub />
+      </div>
 
-      <HomeKentSpotlight />
+      <div className="cv-auto">
+        <HomeKentSpotlight />
+      </div>
 
       <HomeRecentlyJoined reps={reps} />
 
-      <HomeWhyChoose />
+      <div className="cv-auto">
+        <HomeWhyChoose />
+      </div>
 
-      <HomeTrainingResources />
+      <div className="cv-auto">
+        <HomeTrainingResources />
+      </div>
 
-      <HomeFeaturedCarousel featuredReps={featuredReps} />
+      <div className="cv-auto">
+        <HomeFeaturedCarousel featuredReps={featuredReps} />
+      </div>
 
-      <HomeTestimonials />
+      <div className="cv-auto">
+        <HomeTestimonials />
+      </div>
 
-      <HomeBlogPreview />
+      <div className="cv-auto">
+        <HomeBlogPreview />
+      </div>
 
-      <HomeRegisterCta />
+      <div className="cv-auto">
+        <HomeRegisterCta />
+      </div>
 
-      <HomeQuickSearch
-        stations={stations.map((s) => s.name)}
-        counties={counties.map((c) => c.name)}
-      />
+      <div className="cv-auto">
+        <HomeQuickSearch
+          stations={stations.map((s) => s.name)}
+          counties={counties.map((c) => c.name)}
+        />
+      </div>
 
-      <HomeHomepageFaq />
+      <div className="cv-auto">
+        <HomeHomepageFaq />
+      </div>
 
-      <HomePhoneNumbers />
+      <div className="cv-auto">
+        <HomePhoneNumbers />
+      </div>
 
-      <HomeAIAssistant />
+      <div className="cv-auto">
+        <HomeAIAssistant />
+      </div>
     </>
   );
 }

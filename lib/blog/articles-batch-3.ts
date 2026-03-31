@@ -344,7 +344,7 @@ When you need cover urgently, the [police station cover overview](/PoliceStation
 
 ## Measure and improve
 
-Once a quarter, skim **last ten overnight jobs**: how many had communication friction? One process tweak often fixes half of them.
+Once a quarter, skim **last ten overnight jobs**: how many had communication friction? One process tweak often fixes half of them. For detailed handover guidance, see [best practice handover notes](/Blog/best-practice-handover-notes-after-police-station-attendance).
 
 ---
 

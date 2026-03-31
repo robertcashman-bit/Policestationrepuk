@@ -251,7 +251,7 @@ If you want new firms to discover you, keep your [registration](/register) profi
     title: 'Professional Indemnity Insurance for Freelance Police Station Representatives',
     metaTitle: 'Professional Indemnity Insurance for Police Station Reps',
     metaDescription:
-      'What freelance police station representatives should know about professional indemnity insurance: why it matters, what to check with brokers, and how firms may ask about cover.',
+      'What freelance police station reps should know about professional indemnity insurance: why it matters, what to check, and how firms ask about cover.',
     primaryKeyword: 'police station rep insurance',
     categories: ['freelance-reps', 'best-practice', 'law-firms'],
     published: '2026-03-28T09:00:00.000Z',
@@ -313,7 +313,7 @@ Do not rely on general articles for your decision — use professional advice.
 
 ## Directory context
 
-PoliceStationRepUK lists professionals for discovery; it does not replace **police station rep insurance** checks. Pair visibility with clean documentation so when a firm shortlists you from the [directory](/directory), you can respond same day.
+PoliceStationRepUK lists professionals for discovery; it does not replace **police station rep insurance** checks. Pair visibility with clean documentation so when a firm shortlists you from the [directory](/directory), you can respond same day. For more on sustainable freelance practice, see [building a rep career](/Blog/freelance-police-station-rep-career), and for accreditation context read [accreditation and standards](/Blog/accreditation-and-standards-in-freelance-police-station-work).
 
 If a matter requires a solicitor’s retainer, direct clients appropriately — [Need a solicitor?](https://www.policestationagent.com).
 
@@ -327,7 +327,7 @@ If a matter requires a solicitor’s retainer, direct clients appropriately — 
     title: 'Police Station Rep Fee Rates in 2026: Legal Aid vs Private Instructions',
     metaTitle: 'Police Station Rep Fee Rates 2026 — Legal Aid vs Private',
     metaDescription:
-      'How firms and freelance police station reps think about fee rates in 2026: Legal Aid constraints, private arrangements, transparency, and what to agree before attendance.',
+      'How firms and freelance police station reps approach fee rates in 2026: Legal Aid constraints, private terms, and what to agree before attendance.',
     primaryKeyword: 'police station rep rates 2026',
     categories: ['freelance-reps', 'law-firms'],
     published: '2026-03-27T09:00:00.000Z',
@@ -387,7 +387,7 @@ Private instructions may allow more flexible hourly or fixed-fee deals — but o
 
 ## Using the directory fairly
 
-When firms [find a rep](/directory), rate clarity helps matching. Reps should keep profiles professional, not promotional spam — serious firms smell desperation.
+When firms [find a rep](/directory), rate clarity helps matching. Reps should keep profiles professional, not promotional spam — serious firms smell desperation. For the mechanics of instruction, see [how firms instruct freelance reps](/Blog/how-firms-can-instruct-freelance-police-station-reps).
 
 For broader pay context (not fee negotiation advice), see [PoliceStationRepPay](/PoliceStationRepPay).
 
@@ -401,7 +401,7 @@ For broader pay context (not fee negotiation advice), see [PoliceStationRepPay](
     title: 'Pre-Interview Consultation: A Police Station Rep’s Step-by-Step Guide',
     metaTitle: 'Police Station Interview Tips — Pre-Interview Consultation',
     metaDescription:
-      'Practical pre-interview consultation steps for police station representatives: building rapport, identifying risks, aligning strategy with the instructing firm, and clear note-taking.',
+      'Pre-interview consultation steps for police station reps: building rapport, identifying risks, aligning strategy, and clear note-taking.',
     primaryKeyword: 'police station interview tips',
     categories: ['attendance', 'freelance-reps', 'best-practice'],
     published: '2026-03-26T09:00:00.000Z',
@@ -474,7 +474,7 @@ Members of the public needing a solicitor should be directed to [Need a solicito
     title: 'How to Review a Custody Record: Practical Tips for Police Station Reps',
     metaTitle: 'Custody Record Review — Tips for Police Station Reps',
     metaDescription:
-      'How accredited police station representatives can review custody records methodically: clock checks, welfare, legal rights, and clear annotations for the instructing firm.',
+      'How police station reps can review custody records methodically: clock checks, welfare, legal rights, and annotations for the instructing firm.',
     primaryKeyword: 'custody record review',
     categories: ['attendance', 'best-practice'],
     published: '2026-03-25T09:00:00.000Z',
@@ -551,7 +551,7 @@ Your attendance note should let a solicitor who was not there reconstruct risk. 
     title: 'Handling Disclosure at the Police Station: What Representatives Need to Know',
     metaTitle: 'Disclosure at the Police Station — Reps Guide',
     metaDescription:
-      'Professional guidance for police station representatives on disclosure at the police station: asking the right questions, recording what you receive, and staying within your role.',
+      'Guidance for police station reps on disclosure: asking the right questions, recording what you receive, and staying within your role.',
     primaryKeyword: 'disclosure at police station',
     categories: ['attendance', 'law-firms', 'freelance-reps'],
     published: '2026-03-24T09:00:00.000Z',
@@ -622,7 +622,7 @@ Tie disclosure notes into [custody record review](/Blog/how-to-review-custody-re
     title: 'Adverse Inference Risks: A Rep’s Guide to No Comment Police Interviews',
     metaTitle: 'Adverse Inference — No Comment Interview Guide for Reps',
     metaDescription:
-      'Professional guidance for police station representatives on adverse inference and no comment interviews: explaining risks in outline, boundaries, and when solicitors must lead strategy.',
+      'Guidance for police station reps on adverse inference and no comment interviews: explaining risks, boundaries, and when solicitors must lead.',
     primaryKeyword: 'adverse inference police interview',
     categories: ['attendance', 'freelance-reps', 'law-firms'],
     published: '2026-03-23T09:00:00.000Z',

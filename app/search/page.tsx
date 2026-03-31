@@ -6,6 +6,7 @@ import { DirectorySearch } from '@/components/DirectorySearch';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotice';
 import { SITE_URL } from '@/lib/seo-layer/config';
+import { ResultsGridSkeleton } from '@/components/directory/ResultsGrid';
 
 export const metadata: Metadata = {
   title: 'Search Police Station Representatives | PoliceStationRepUK',
@@ -23,32 +24,32 @@ export default async function SearchPage() {
 
   return (
     <>
-      <section className="section-pad-compact border-b border-[var(--border)] bg-white">
-        <div className="page-container !py-0">
-          <h1 className="text-h1 mt-0 max-w-5xl text-[var(--navy)]">Search representatives</h1>
-          <p className="mt-3 max-w-4xl text-base leading-relaxed text-[var(--muted)] sm:text-[1.0625rem]">
-            Filter live directory listings by county, police force, station, accreditation, availability, and
-            postcode-aware search — same data as Find a Rep, with every filter on one screen.
+      <section className="relative overflow-hidden bg-[var(--navy)]">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--navy)] via-[#0f1d45] to-[#0a1633]" />
+        <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-6 sm:px-6 sm:pb-10 sm:pt-8 lg:px-8">
+          <Breadcrumbs
+            light
+            className="!mb-0"
+            items={[{ label: 'Home', href: '/' }, { label: 'Search directory' }]}
+          />
+          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+            Search representatives
+          </h1>
+          <p className="mt-2 max-w-2xl text-base leading-relaxed text-slate-300">
+            Filter live directory listings by county, police force, station, accreditation, availability,
+            and postcode-aware search.
           </p>
-          <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Search directory' }]} />
-        </div>
-      </section>
-
-      <section className="hero-band hero-gradient-source">
-        <div className="page-container !py-0">
-          <p className="text-sm text-white">
-            <Link href="/directory" className="font-semibold text-white no-underline hover:underline">
-              Full directory hub →
+          <p className="mt-3 text-sm">
+            <Link href="/directory" className="font-semibold text-[var(--gold)] no-underline hover:text-white">
+              Full directory hub &rarr;
             </Link>
           </p>
         </div>
       </section>
 
-      <div className="page-container">
-        <div className="mb-6">
-          <DirectoryComplianceNotice />
-        </div>
-        <Suspense fallback={<p className="text-[var(--muted)]">Loading search…</p>}>
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <DirectoryComplianceNotice className="mb-6" />
+        <Suspense fallback={<ResultsGridSkeleton />}>
           <DirectorySearch
             reps={reps}
             counties={counties}

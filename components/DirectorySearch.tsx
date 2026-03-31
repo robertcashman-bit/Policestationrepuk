@@ -2,8 +2,6 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { DirectoryCard, type MatchHighlight } from '@/components/DirectoryCard';
 import type { Representative, County, PoliceStation } from '@/lib/types';
 import { repMatchesCountyName } from '@/lib/county-matching';
 import {
@@ -24,6 +22,13 @@ import {
   isFullProfileListing,
   type ExperienceTier,
 } from '@/lib/directory-ranking';
+
+import { SearchBar } from '@/components/directory/SearchBar';
+import { FilterSidebar, type FilterState } from '@/components/directory/FilterSidebar';
+import { ResultsGrid } from '@/components/directory/ResultsGrid';
+import { RightPanel } from '@/components/directory/RightPanel';
+import { QuickActions } from '@/components/directory/QuickActions';
+import { MobileFilterDrawer } from '@/components/directory/MobileFilterDrawer';
 
 type ScoredRep = Representative & { _score: number };
 
@@ -58,33 +63,7 @@ function normalizeAvailability(raw: string): string {
   return 'flexible';
 }
 
-const AVAILABILITY_OPTIONS = [
-  { value: '', label: 'All availability' },
-  { value: '24-7', label: '24/7 / Full-time' },
-  { value: 'evenings-nights', label: 'Evenings & nights' },
-  { value: 'weekends', label: 'Weekends' },
-  { value: 'daytime', label: 'Daytime' },
-  { value: 'flexible', label: 'Flexible / by arrangement' },
-];
-
-const ACCREDITATION_OPTIONS: { value: AccreditationFilterKey; label: string }[] = [
-  { value: '', label: 'All accreditation types' },
-  { value: 'duty', label: 'Duty solicitor' },
-  { value: 'accredited', label: 'Accredited rep (excl. probationary)' },
-  { value: 'probationary', label: 'Probationary only' },
-];
-
-const EXPERIENCE_OPTIONS: { value: ExperienceTier; label: string }[] = [
-  { value: '', label: 'Any experience level' },
-  { value: 'senior', label: '15+ years' },
-  { value: 'mid', label: '5–14 years' },
-  { value: 'junior', label: '1–4 years' },
-  { value: 'unspecified', label: 'Not stated' },
-];
-
 const PAGE_SIZE = 24;
-
-const QUICK_COUNTIES = ['Kent', 'London', 'Essex', 'Greater Manchester', 'West Midlands'];
 
 export function DirectorySearch({
   reps,
@@ -100,6 +79,7 @@ export function DirectorySearch({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const internalNavigationRef = useRef(false);
+
   const [query, setQuery] = useState(defaultQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(defaultQuery);
   const [county, setCounty] = useState(defaultCounty);
@@ -112,7 +92,7 @@ export function DirectorySearch({
   const [completeOnly, setCompleteOnly] = useState(false);
   const [sort, setSort] = useState<SortKey>('smart');
   const [page, setPage] = useState(1);
-  const [filtersOpen, setFiltersOpen] = useState(true);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQuery(query), 200);
@@ -181,20 +161,9 @@ export function DirectorySearch({
     internalNavigationRef.current = true;
     router.replace(path, { scroll: false });
   }, [
-    router,
-    pathname,
-    searchParams,
-    urlBase,
-    debouncedQuery,
-    county,
-    station,
-    availability,
-    accreditation,
-    force,
-    experience,
-    urgentOnly,
-    completeOnly,
-    sort,
+    router, pathname, searchParams, urlBase, debouncedQuery,
+    county, station, availability, accreditation, force,
+    experience, urgentOnly, completeOnly, sort,
   ]);
 
   useEffect(() => {
@@ -324,21 +293,9 @@ export function DirectorySearch({
 
     return [...featured, ...nonFeatured];
   }, [
-    reps,
-    searchRows,
-    debouncedQuery,
-    county,
-    station,
-    availability,
-    accreditation,
-    force,
-    experience,
-    urgentOnly,
-    completeOnly,
-    stations,
-    counties,
-    hasTextQuery,
-    sort,
+    reps, searchRows, debouncedQuery, county, station,
+    availability, accreditation, force, experience,
+    urgentOnly, completeOnly, stations, counties, hasTextQuery, sort,
   ]);
 
   const featuredReps = filtered.filter((r) => r.featured);
@@ -362,23 +319,16 @@ export function DirectorySearch({
   }
 
   const sortIsNonDefault = sort !== 'smart';
-  const hasActiveFilters =
-    query.trim() ||
-    county ||
-    station ||
-    availability ||
-    accreditation ||
-    force ||
-    experience ||
-    urgentOnly ||
-    completeOnly ||
-    sortIsNonDefault;
+  const hasActiveFilters = !!(
+    query.trim() || county || station || availability ||
+    accreditation || force || experience || urgentOnly ||
+    completeOnly || sortIsNonDefault
+  );
 
   const countyStations = county
     ? stations.filter((s) => forceMatchesCounty(s.forceName || '', county))
     : [];
 
-  /** Preset links — full URL replace so quick actions don’t inherit stale filters. */
   function goQuick(entries: [string, string][]) {
     setPage(1);
     const p = new URLSearchParams();
@@ -389,426 +339,120 @@ export function DirectorySearch({
     router.replace(`${urlBase}?${p.toString()}`, { scroll: false });
   }
 
-  const filterGrid = (
-    <>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="sm:col-span-2 lg:col-span-2">
-          <label htmlFor="dir-q" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Smart search
-          </label>
-          <input
-            id="dir-q"
-            type="search"
-            placeholder="Name, county, station, town, force or postcode…"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setPage(1);
-            }}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50/80 px-4 py-3 text-base text-[var(--foreground)] placeholder:text-slate-400 focus:border-[var(--gold)] focus:bg-white focus:ring-2 focus:ring-[var(--gold)]/30 sm:text-sm"
-          />
-        </div>
+  const filterState: FilterState = {
+    county,
+    station,
+    availability,
+    accreditation,
+    force,
+    experience,
+    urgentOnly,
+    completeOnly,
+    sort,
+  };
 
-        <div>
-          <label htmlFor="dir-county" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            County
-          </label>
-          <select
-            id="dir-county"
-            value={county}
-            onChange={(e) => {
-              setCounty(e.target.value);
-              setStation('');
-              setPage(1);
-            }}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm text-[var(--foreground)]"
-          >
-            <option value="">All counties</option>
-            {counties.map((c) => (
-              <option key={c.slug} value={c.name}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
+  const handleFilterChange = useCallback(<K extends keyof FilterState>(key: K, value: FilterState[K]) => {
+    setPage(1);
+    switch (key) {
+      case 'county': setCounty(value as string); break;
+      case 'station': setStation(value as string); break;
+      case 'availability': setAvailability(value as string); break;
+      case 'accreditation': setAccreditation(value as AccreditationFilterKey); break;
+      case 'force': setForce(value as string); break;
+      case 'experience': setExperience(value as ExperienceTier); break;
+      case 'urgentOnly': setUrgentOnly(value as boolean); break;
+      case 'completeOnly': setCompleteOnly(value as boolean); break;
+      case 'sort': setSort(value as SortKey); break;
+    }
+  }, []);
 
-        <div>
-          <label htmlFor="dir-availability" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Availability
-          </label>
-          <select
-            id="dir-availability"
-            value={availability}
-            onChange={(e) => {
-              setAvailability(e.target.value);
-              setPage(1);
-            }}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm"
-          >
-            {AVAILABILITY_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <label htmlFor="dir-force" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Police force
-          </label>
-          <select
-            id="dir-force"
-            value={force}
-            onChange={(e) => {
-              setForce(e.target.value);
-              setPage(1);
-            }}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm"
-          >
-            <option value="">All forces</option>
-            {forceOptions.map((f) => (
-              <option key={f} value={f}>
-                {f}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="dir-accreditation" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Accreditation
-          </label>
-          <select
-            id="dir-accreditation"
-            value={accreditation}
-            onChange={(e) => {
-              setAccreditation(e.target.value as AccreditationFilterKey);
-              setPage(1);
-            }}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm"
-          >
-            {ACCREDITATION_OPTIONS.map((o) => (
-              <option key={o.value || 'all'} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="dir-experience" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Experience
-          </label>
-          <select
-            id="dir-experience"
-            value={experience}
-            onChange={(e) => {
-              setExperience(e.target.value as ExperienceTier);
-              setPage(1);
-            }}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm"
-          >
-            {EXPERIENCE_OPTIONS.map((o) => (
-              <option key={o.value || 'any'} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="dir-sort" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Rank results by
-          </label>
-          <select
-            id="dir-sort"
-            value={sort}
-            onChange={(e) => {
-              setSort(e.target.value as SortKey);
-              setPage(1);
-            }}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm"
-          >
-            <option value="smart">Recommended (signals + match)</option>
-            {hasTextQuery ? <option value="relevance">Text match only</option> : null}
-            <option value="name">Name (A–Z)</option>
-            <option value="county">County, then name</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-        <div className="min-w-0 flex-1 sm:max-w-md">
-          <label htmlFor="dir-station" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Station
-          </label>
-          {county && countyStations.length > 0 ? (
-            <select
-              id="dir-station"
-              value={station}
-              onChange={(e) => {
-                setStation(e.target.value);
-                setPage(1);
-              }}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm"
-            >
-              <option value="">All stations in {county}</option>
-              {countyStations.map((s) => (
-                <option key={s.id} value={s.name}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              id="dir-station"
-              type="text"
-              placeholder="Filter by station name…"
-              value={station}
-              onChange={(e) => {
-                setStation(e.target.value);
-                setPage(1);
-              }}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm placeholder:text-slate-400"
-            />
-          )}
-        </div>
-
-        <div className="flex flex-wrap gap-4 rounded-lg border border-slate-100 bg-slate-50/80 px-3 py-2 sm:py-3">
-          <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-[var(--navy)]">
-            <input
-              type="checkbox"
-              checked={urgentOnly}
-              onChange={(e) => {
-                setUrgentOnly(e.target.checked);
-                setPage(1);
-              }}
-              className="h-4 w-4 rounded border-slate-300 text-[var(--navy)]"
-            />
-            Out-of-hours ready
-          </label>
-          <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-[var(--navy)]">
-            <input
-              type="checkbox"
-              checked={completeOnly}
-              onChange={(e) => {
-                setCompleteOnly(e.target.checked);
-                setPage(1);
-              }}
-              className="h-4 w-4 rounded border-slate-300 text-[var(--navy)]"
-            />
-            Full profiles only
-          </label>
-        </div>
-      </div>
-    </>
+  const filterSidebarContent = (
+    <FilterSidebar
+      filters={filterState}
+      onFilterChange={handleFilterChange}
+      onReset={resetFilters}
+      counties={counties}
+      countyStations={countyStations}
+      forceOptions={forceOptions}
+      hasTextQuery={hasTextQuery}
+      hasActiveFilters={hasActiveFilters}
+      resultCount={filtered.length}
+    />
   );
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-white to-slate-50/80 p-4 shadow-[0_8px_40px_-12px_rgba(30,58,138,0.15)] sm:p-5">
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-[var(--navy)] sm:text-xl">Quick actions</h2>
-            <p className="text-xs text-slate-600 sm:text-sm">One tap to common discovery paths — you can still refine below.</p>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => goQuick([
-              ['urgent', '1'],
-              ['sort', 'smart'],
-            ])}
-            className="rounded-full border-2 border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-950 transition hover:bg-rose-100"
-          >
-            Urgent cover
-          </button>
-          <button
-            type="button"
-            onClick={() => goQuick([
-              ['availability', '24-7'],
-              ['sort', 'smart'],
-            ])}
-            className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-[var(--navy)] shadow-sm hover:border-[var(--gold)]"
-          >
-            Find a rep now (24/7)
-          </button>
-          <Link
-            href="/directory/counties"
-            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-[var(--navy)] no-underline shadow-sm hover:border-[var(--gold)]"
-          >
-            Browse by county
-          </Link>
-          <Link
-            href="/Forces"
-            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-[var(--navy)] no-underline shadow-sm hover:border-[var(--gold)]"
-          >
-            Browse by force
-          </Link>
-          <Link
-            href="/StationsDirectory"
-            className="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-[var(--navy)] no-underline shadow-sm hover:border-[var(--gold)]"
-          >
-            Station directory
-          </Link>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <span className="w-full text-[11px] font-bold uppercase tracking-wider text-slate-500 sm:w-auto sm:mr-1">Try:</span>
-          {QUICK_COUNTIES.filter((n) => counties.some((c) => c.name === n)).map((name) => (
-            <button
-              key={name}
-              type="button"
-              onClick={() => goQuick([
-                ['county', name],
-                ['availability', 'evenings-nights'],
-                ['sort', 'smart'],
-              ])}
-              className="rounded-full bg-[var(--navy)]/8 px-3 py-1 text-xs font-semibold text-[var(--navy)] hover:bg-[var(--navy)]/15"
-            >
-              {name} · evenings
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="space-y-5">
+      {/* Search bar — full width above the grid */}
+      <SearchBar
+        value={query}
+        onChange={(v) => { setQuery(v); setPage(1); }}
+        resultCount={filtered.length}
+      />
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[var(--card-shadow)]">
+      {/* Quick actions strip */}
+      <QuickActions counties={counties} onQuick={goQuick} />
+
+      {/* Mobile filter toggle */}
+      <div className="lg:hidden">
         <button
           type="button"
-          className="flex w-full items-center justify-between border-b border-slate-100 px-4 py-3 text-left lg:hidden"
-          aria-expanded={filtersOpen}
-          onClick={() => setFiltersOpen((o) => !o)}
+          onClick={() => setMobileFiltersOpen(true)}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-[var(--navy)] shadow-sm"
         >
-          <span className="font-bold text-[var(--navy)]">Filters & ranking</span>
-          <span className="text-slate-500" aria-hidden>
-            {filtersOpen ? '▲' : '▼'}
-          </span>
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+          </svg>
+          Filters & sorting
+          {hasActiveFilters && (
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--gold)] text-[10px] font-bold text-[var(--ink)]">
+              !
+            </span>
+          )}
         </button>
-        <div className={`${filtersOpen ? 'block' : 'hidden'} p-4 sm:p-6 lg:block`}>
-          {filterGrid}
-          <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <p role="status" className="text-sm text-slate-600">
-              <strong className="font-bold text-[var(--navy)]">{filtered.length}</strong> listing
-              {filtered.length !== 1 ? 's' : ''} match your criteria
-            </p>
-            {hasActiveFilters && (
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="text-sm font-bold text-[var(--gold-hover)] hover:text-[var(--gold)]"
-              >
-                Reset everything
-              </button>
-            )}
-          </div>
-        </div>
       </div>
 
-      {featuredReps.length > 0 && (
-        <div className="mt-2">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-[var(--navy)] sm:text-2xl">Featured listings</h2>
-              <p className="mt-1 max-w-2xl text-sm text-slate-600">
-                Promoted placements — same compliance rules apply; firms should still run their own checks before instructing.
-              </p>
-            </div>
-            <Link href="/GoFeatured" className="btn-gold !min-h-[40px] shrink-0 !px-5 !text-sm no-underline">
-              Promote your listing
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {featuredReps.map((rep, i) => {
-              let matchHighlight: MatchHighlight = null;
-              if (sort === 'smart' && i < 2) {
-                matchHighlight = i === 0 ? 'top' : 'runner';
-              }
-              return <DirectoryCard key={rep.id} rep={rep} matchHighlight={matchHighlight} />;
-            })}
-          </div>
-        </div>
-      )}
+      {/* Mobile filter drawer */}
+      <MobileFilterDrawer
+        open={mobileFiltersOpen}
+        onClose={() => setMobileFiltersOpen(false)}
+      >
+        {filterSidebarContent}
+      </MobileFilterDrawer>
 
-      {/* Custody Note inline ad */}
-      <aside className="mt-8 flex items-center justify-between gap-4 rounded-lg border border-[var(--gold)]/30 bg-gradient-to-r from-[var(--navy)] to-[#152e6e] px-5 py-3" aria-label="Promoted: Custody Note">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-bold text-white">
-            Custody Note — police station attendance note software
-          </p>
-          <p className="mt-0.5 text-xs text-white/70">
-            30-day free trial · Code <span className="font-mono font-semibold text-[var(--gold)]">A2MJY2NQ</span> for 25% off
-          </p>
-        </div>
-        <Link
-          href="https://custodynote.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-gold shrink-0 !px-4 !py-2 !text-xs no-underline"
-        >
-          Try Free
-        </Link>
-      </aside>
-
-      {nonFeaturedReps.length > 0 && (
-        <h2 className="mt-12 text-xl font-bold text-[var(--navy)] sm:text-2xl">All listings</h2>
-      )}
-
-      {pagedNonFeatured.length > 0 ? (
-        <>
-          <p className="mt-2 text-sm text-slate-600">
-            {sort === 'smart'
-              ? 'Recommended order uses location match, availability signals, profile depth, and contact options — not a quality guarantee.'
-              : null}
-          </p>
-          <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {pagedNonFeatured.map((rep, i) => {
-              let matchHighlight: MatchHighlight = null;
-              if (sort === 'smart' && i < 3) {
-                matchHighlight = i === 0 ? 'top' : 'runner';
-              }
-              return <DirectoryCard key={rep.id} rep={rep} matchHighlight={matchHighlight} />;
-            })}
+      {/* 3-column layout: Sidebar | Results | Right panel */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        {/* Left sidebar — filters (desktop only) */}
+        <aside className="hidden lg:col-span-3 lg:block">
+          <div className="sticky top-24">
+            {filterSidebarContent}
           </div>
+        </aside>
 
-          {hasMoreNonFeatured && (
-            <div className="mt-10 text-center">
-              <button type="button" onClick={() => setPage((p) => p + 1)} className="btn-outline !min-h-[48px] !px-8 font-semibold">
-                Load more ({nonFeaturedReps.length - pagedNonFeatured.length} remaining)
-              </button>
-            </div>
-          )}
-        </>
-      ) : filtered.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 px-6 py-14 text-center">
-          <p className="text-xl font-bold text-[var(--navy)]">No listings match</p>
-          <p className="mx-auto mt-2 max-w-lg text-slate-600">
-            {hasActiveFilters ? (
-              <>
-                Widen your search, turn off &ldquo;out-of-hours ready&rdquo; or &ldquo;full profiles only&rdquo;, or explore counties and forces.
-              </>
-            ) : (
-              <>No representatives are in the dataset yet for this view.</>
-            )}
-          </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <button type="button" onClick={resetFilters} className="btn-gold !text-sm">
-              Reset filters
-            </button>
-            <Link href="/directory/counties" className="btn-outline !text-sm no-underline">
-              Browse counties
-            </Link>
-            <Link href="/Forces" className="btn-outline !text-sm no-underline">
-              Police forces
-            </Link>
-            <Link href="/register" className="btn-outline !text-sm no-underline">
-              Join the directory
-            </Link>
+        {/* Center — results */}
+        <main className="lg:col-span-6">
+          <ResultsGrid
+            featuredReps={featuredReps}
+            nonFeaturedReps={nonFeaturedReps}
+            pagedNonFeatured={pagedNonFeatured}
+            hasMore={hasMoreNonFeatured}
+            onLoadMore={() => setPage((p) => p + 1)}
+            sort={sort}
+            hasActiveFilters={hasActiveFilters}
+            onReset={resetFilters}
+            totalCount={filtered.length}
+          />
+        </main>
+
+        {/* Right sidebar (desktop only) */}
+        <aside className="hidden lg:col-span-3 lg:block">
+          <div className="sticky top-24">
+            <RightPanel
+              featuredReps={featuredReps}
+              totalReps={reps.length}
+            />
           </div>
-        </div>
-      ) : null}
+        </aside>
+      </div>
     </div>
   );
 }

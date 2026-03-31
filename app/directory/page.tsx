@@ -9,6 +9,7 @@ import { AdvertisementLabel } from '@/components/AdvertisementLabel';
 import { SITE_URL } from '@/lib/seo-layer/config';
 import { JsonLd } from '@/components/JsonLd';
 import { breadcrumbSchema, directoryItemListSchema } from '@/lib/seo';
+import { ResultsGridSkeleton } from '@/components/directory/ResultsGrid';
 
 export const metadata: Metadata = {
   title: 'Police Station Rep Directory — Search by County & Station',
@@ -34,89 +35,78 @@ export default async function DirectoryPage() {
     <>
       <JsonLd data={bc} />
       <JsonLd data={itemList} />
-      {/*
-        Wix directory hub parity (screenshots/source/directory): white SEO block → breadcrumb band
-        → gradient hero with three sub-links (Search lives in the tool below, not in the hero row).
-      */}
-      <section className="border-b border-[var(--border)] bg-white">
-        <div className="page-container !py-8 sm:!py-9">
-          <h1 className="mt-0 max-w-5xl text-h1 text-[var(--navy)]">
-            Police Station Rep Directory — Find Accredited Reps
-          </h1>
-          <p className="mt-3 max-w-4xl text-base leading-relaxed text-[var(--muted)] sm:text-[1.0625rem]">
-            Directory on PoliceStationRepUK. Free network for criminal defence firms and solicitors to
-            find police station cover, post jobs and connect with accredited representatives.
-          </p>
-        </div>
-      </section>
 
-      <div className="border-b border-slate-200 bg-slate-100">
-        <div className="page-container !py-2.5 sm:!py-3">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-[var(--navy)]">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--navy)] via-[#0f1d45] to-[#0a1633]" />
+        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03]" />
+        <div className="relative mx-auto max-w-7xl px-4 pb-10 pt-8 sm:px-6 sm:pb-14 sm:pt-10 lg:px-8">
           <Breadcrumbs
+            light
             className="!mb-0"
             items={[{ label: 'Home', href: '/' }, { label: 'Police Station Rep Directory' }]}
           />
-        </div>
-      </div>
-
-      <section className="hero-band hero-gradient-source">
-        <div className="page-container !py-0">
-          <h2 className="mt-0 text-h1 text-white md:mt-0">
-            Police Station Representatives Directory
-          </h2>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-white sm:mt-4 sm:text-[1.0625rem]">
-            Find accredited police station representatives across England &amp; Wales
+          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+            Find a Police Station Rep
+          </h1>
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">
+            Free directory of accredited police station representatives across England &amp; Wales.
+            Search by name, county, force, station, or postcode.
           </p>
-
-          {/* Sub-navigation — matches Wix (three links only) */}
-          <div className="mt-5 flex flex-wrap justify-center gap-2.5 sm:mt-6 sm:justify-start sm:gap-3">
+          <div className="mt-5 flex flex-wrap gap-3 text-sm">
+            <span className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 font-semibold text-white">
+              <span className="text-lg font-extrabold text-[var(--gold)]">{reps.length}</span>
+              Representatives
+            </span>
+            <span className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 font-semibold text-white">
+              <span className="text-lg font-extrabold text-[var(--gold)]">{counties.length}</span>
+              Counties
+            </span>
+            <span className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 font-semibold text-white">
+              <span className="text-lg font-extrabold text-[var(--gold)]">{stations.length}</span>
+              Stations
+            </span>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-2.5">
             <Link
               href="/Map"
-              className="btn-outline !border-white !text-white !text-sm hover:!bg-white hover:!text-[var(--navy)]"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:bg-white/20"
             >
-              📍 Map View
+              Map View
             </Link>
             <Link
               href="/Forces"
-              className="btn-outline !border-white !text-white !text-sm hover:!bg-white hover:!text-[var(--navy)]"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:bg-white/20"
             >
-              🛡️ Browse by Force
+              Browse by Force
             </Link>
             <Link
               href="/StationsDirectory"
-              className="btn-outline !border-white !text-white !text-sm hover:!bg-white hover:!text-[var(--navy)]"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:bg-white/20"
             >
-              📊 Stations Directory
+              Stations Directory
             </Link>
           </div>
         </div>
       </section>
 
       {/* Accreditation notice */}
-      <section className="border-b border-yellow-200 bg-yellow-50 py-4">
-        <div className="page-container !py-0">
+      <section className="border-b border-yellow-200 bg-yellow-50 py-3">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex gap-3">
-            <span className="text-2xl leading-none text-yellow-600" aria-hidden>
-              ⚠️
+            <span className="text-xl leading-none text-yellow-600" aria-hidden>
+              &#9888;&#65039;
             </span>
             <div className="min-w-0 flex-1">
-              <h2 className="text-sm font-bold text-yellow-800">
-                Important: Full Accreditation Required
-              </h2>
-              <p className="mt-1 text-xs leading-relaxed text-yellow-700">
-                You must be a fully accredited police station representative (or Duty Solicitor) to be
-                listed in this directory. Probationary representatives are{' '}
-                <strong className="font-bold text-yellow-900">not eligible</strong> to work as freelance
-                agents. Under the Standard Crime Contract Specification and LAA Police Station Register
-                Arrangements, a Probationary Representative must be registered under a specific
-                Supervising Solicitor at a specific provider (firm).
-              </p>
-              <p className="mt-2">
+              <p className="text-xs leading-relaxed text-yellow-700">
+                <strong className="font-bold text-yellow-800">Full accreditation required.</strong>{' '}
+                Only fully accredited police station representatives (or Duty Solicitors) may be listed.
+                Probationary representatives are not eligible to work as freelance agents.{' '}
                 <Link
                   href="/AccreditedRepresentativeGuide"
-                  className="text-xs font-semibold text-yellow-800 no-underline hover:text-yellow-600"
+                  className="font-semibold text-yellow-800 no-underline hover:text-yellow-600"
                 >
-                  Standard Crime Contract Specification →
+                  Learn more &rarr;
                 </Link>
               </p>
             </div>
@@ -124,28 +114,35 @@ export default async function DirectoryPage() {
         </div>
       </section>
 
-      <div className="page-container">
-        <div className="mb-6">
-          <DirectoryComplianceNotice />
-        </div>
+      {/* Main content */}
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <DirectoryComplianceNotice className="mb-6" />
 
         {/* Custody Note — promoted product */}
-        <aside className="mb-6 rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/35 bg-[var(--navy)] p-[var(--card-padding)] text-center shadow-[var(--card-shadow)]">
-          <div className="flex flex-col items-center gap-2">
+        <aside className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-[var(--gold)]/25 bg-gradient-to-r from-[var(--navy)] to-[#152e6e] px-5 py-3 shadow-sm">
+          <div className="flex items-center gap-3">
             <AdvertisementLabel variant="dark" label="Featured product" />
-            <Link href="https://custodynote.com" target="_blank" rel="noopener noreferrer" className="no-underline">
-              <p className="text-sm font-bold text-white">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-bold text-white">
                 Custody Note — police station attendance note software
               </p>
-              <p className="mt-1 text-xs text-white/85">
-                30-day free trial · £9.99/mo · PSR UK code{' '}
-                <span className="font-mono font-semibold text-[var(--gold)]">A2MJY2NQ</span> for 25% off that subscription
+              <p className="mt-0.5 text-xs text-white/70">
+                30-day free trial &middot; &pound;9.99/mo &middot; Code{' '}
+                <span className="font-mono font-semibold text-[var(--gold)]">A2MJY2NQ</span> for 25% off
               </p>
-            </Link>
+            </div>
           </div>
+          <Link
+            href="https://custodynote.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-gold shrink-0 !px-4 !py-2 !text-xs no-underline"
+          >
+            Try Free
+          </Link>
         </aside>
 
-        <Suspense fallback={<p className="text-[var(--muted)]">Loading directory...</p>}>
+        <Suspense fallback={<ResultsGridSkeleton />}>
           <DirectorySearch
             reps={reps}
             counties={counties}
@@ -153,7 +150,7 @@ export default async function DirectoryPage() {
           />
         </Suspense>
 
-        <p className="mt-6 text-xs text-[var(--muted)]">
+        <p className="mt-8 text-xs text-[var(--muted)]">
           Listings are based on information provided at registration. Availability and station
           coverage may change. PoliceStationRepUK does not verify every credential; firms must satisfy
           their own compliance checks before instructing. If you spot an inaccuracy, please report it

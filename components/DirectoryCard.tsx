@@ -32,9 +32,11 @@ export interface DirectoryCardProps {
   rep: Representative;
   /** Visual emphasis when using Recommended ranking */
   matchHighlight?: MatchHighlight;
+  /** Compact variant for sidebar / small spaces */
+  compact?: boolean;
 }
 
-export function DirectoryCard({ rep, matchHighlight }: DirectoryCardProps) {
+export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardProps) {
   const [showContact, setShowContact] = useState(false);
   const avail = getAvailabilityBadge(rep.availability || '');
   const phoneHref = rep.phone ? phoneToTelHref(rep.phone) : null;
@@ -51,6 +53,28 @@ export function DirectoryCard({ rep, matchHighlight }: DirectoryCardProps) {
       : matchHighlight === 'runner'
         ? 'ring-1 ring-[var(--gold)]/35'
         : '';
+
+  if (compact) {
+    return (
+      <Link
+        href={`/rep/${rep.slug}`}
+        className="group flex items-start gap-3 rounded-lg border border-slate-100 bg-slate-50/50 p-3 no-underline transition-all hover:border-[var(--gold)]/40 hover:bg-white hover:shadow-sm"
+      >
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--navy)] text-xs font-bold text-white">
+          {(rep.name || '?')[0]}
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
+            {rep.name}
+          </p>
+          <p className="mt-0.5 truncate text-xs text-slate-500">{rep.county || 'England & Wales'}</p>
+          <span className={`mt-1 inline-flex rounded-full border px-2 py-0.5 text-[10px] font-bold ${avail.color}`}>
+            {avail.label}
+          </span>
+        </div>
+      </Link>
+    );
+  }
 
   return (
     <article

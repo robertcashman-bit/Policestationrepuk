@@ -1,0 +1,100 @@
+'use client';
+
+import Link from 'next/link';
+import type { Representative } from '@/lib/types';
+import { DirectoryCard } from '@/components/DirectoryCard';
+
+interface RightPanelProps {
+  featuredReps: Representative[];
+  totalReps: number;
+}
+
+const QUICK_LINKS = [
+  { href: '/Map', label: 'Station map', icon: '\uD83D\uDCCD' },
+  { href: '/Forces', label: 'Browse by force', icon: '\uD83D\uDEE1\uFE0F' },
+  { href: '/StationsDirectory', label: 'Stations directory', icon: '\uD83C\uDFDB\uFE0F' },
+  { href: '/directory/counties', label: 'Browse counties', icon: '\uD83D\uDDFA\uFE0F' },
+];
+
+export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
+  const topFeatured = featuredReps.slice(0, 2);
+
+  return (
+    <div className="space-y-4">
+      {/* Quick navigation */}
+      <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+        <h3 className="mb-3 text-sm font-bold text-[var(--navy)]">Explore</h3>
+        <div className="grid grid-cols-2 gap-2">
+          {QUICK_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2.5 text-xs font-semibold text-[var(--navy)] no-underline transition-all hover:border-[var(--gold)]/40 hover:bg-[var(--gold-pale)] hover:shadow-sm"
+            >
+              <span aria-hidden>{link.icon}</span>
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Featured spotlight */}
+      {topFeatured.length > 0 && (
+        <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="text-sm font-bold text-[var(--navy)]">Featured reps</h3>
+            <Link
+              href="/GoFeatured"
+              className="text-[10px] font-bold uppercase tracking-wider text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]"
+            >
+              Go Featured
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {topFeatured.map((rep) => (
+              <DirectoryCard key={rep.id} rep={rep} matchHighlight="runner" compact />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Custody Note CTA */}
+      <div className="overflow-hidden rounded-xl border border-[var(--gold)]/25 bg-gradient-to-b from-[var(--navy)] to-[#152e6e] p-4 shadow-sm">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
+          Promoted
+        </p>
+        <p className="mt-1 text-sm font-bold text-white">Custody Note</p>
+        <p className="mt-1 text-xs leading-relaxed text-white/70">
+          Police station attendance note software. 30-day free trial.
+        </p>
+        <p className="mt-2 text-xs text-white/60">
+          Code{' '}
+          <span className="font-mono font-semibold text-[var(--gold)]">A2MJY2NQ</span>{' '}
+          for 25% off
+        </p>
+        <Link
+          href="https://custodynote.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 block rounded-lg bg-[var(--gold)] px-3 py-2 text-center text-xs font-bold text-[var(--ink)] no-underline transition-colors hover:bg-[var(--gold-hover)]"
+        >
+          Try Free
+        </Link>
+      </div>
+
+      {/* Directory CTA */}
+      <div className="rounded-xl border border-emerald-200/60 bg-gradient-to-b from-emerald-50 to-white p-4 shadow-sm">
+        <h3 className="text-sm font-bold text-[var(--navy)]">Join the directory</h3>
+        <p className="mt-1 text-xs leading-relaxed text-slate-600">
+          {totalReps} reps listed. Get discovered by solicitor firms looking for cover.
+        </p>
+        <Link
+          href="/register"
+          className="mt-3 block rounded-lg bg-[var(--navy)] px-3 py-2.5 text-center text-xs font-bold text-white no-underline transition-colors hover:bg-[var(--navy-light)]"
+        >
+          Register free
+        </Link>
+      </div>
+    </div>
+  );
+}

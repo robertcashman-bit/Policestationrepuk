@@ -55,18 +55,31 @@ const FEATURE_CARDS = [
 const SCREENSHOTS = [
   {
     src: '/images/custodynote/custodynote-app-dashboard.png',
-    title: 'Custody Note app — main dashboard',
-    desc: 'The actual desktop app: choose Custody Attendance, Voluntary Attendance, Telephone Advice, Quick Capture, or Quick Email — all from one professional dashboard.',
+    title: 'Dashboard — one screen, every workflow',
+    desc: 'Launch a Custody Attendance, Voluntary Attendance, Telephone Advice, Quick Capture, or Quick Email — all from the main dashboard.',
   },
   {
-    src: '/images/custodynote/custodynote-features.png',
-    title: 'Key features at a glance',
-    desc: 'Full PACE-aligned forms, offline mode, PDF export with LAA billing, and AES-256 encrypted local storage with optional cloud backup.',
+    src: '/images/custodynote/cn-attendance-form.png',
+    title: 'Case Reference & Arrival',
+    desc: 'Section 1 of 16: structured fields for attendance type, file reference, instruction details, and arrival time — with every section just one tab away.',
   },
   {
-    src: '/images/custodynote/custodynote-workflow.png',
-    title: 'Real-world workflow',
-    desc: 'From instruction to attendance, structured note, PDF to firm, and billing prep — without retyping the same facts into five different places.',
+    src: '/images/custodynote/cn-custody-record.png',
+    title: 'Custody Record',
+    desc: 'Section 3: capture custody number, custody record review, and client details from the custody record — all structured and searchable.',
+  },
+] as const;
+
+const EXTRA_SCREENSHOTS = [
+  {
+    src: '/images/custodynote/cn-disclosure.png',
+    title: 'Offences & Disclosure',
+    desc: 'Section 4: matter type selection, offence details, date qualifiers, and mode of trial — mapped to LAA requirements.',
+  },
+  {
+    src: '/images/custodynote/cn-interview.png',
+    title: 'Consultation checklist',
+    desc: 'Section 6: structured compliance checklist for conflict checks, confidentiality, free representation advice, client welfare, and custody record review.',
   },
 ] as const;
 
@@ -241,11 +254,9 @@ export default function CustodyNotePage() {
       <div className="page-container">
 
       <section className="mb-14">
-        <h2 className="text-h2 mb-2 text-[var(--navy)]">See the workflow before you buy</h2>
+        <h2 className="text-h2 mb-2 text-[var(--navy)]">The actual app — see it before you try it</h2>
         <p className="mb-6 max-w-2xl text-[var(--muted)]">
-          The live product site explains the software, but this page should also show what the app is
-          for. These preview panels highlight the structured workflow, export path, and offline-first
-          setup that matter most in practice.
+          Real screenshots from the Custody Note desktop app. Every section is purpose-built for police station work — not adapted from a generic template.
         </p>
         <div className="grid gap-5 lg:grid-cols-3">
           {SCREENSHOTS.map((shot) => (
@@ -257,8 +268,30 @@ export default function CustodyNotePage() {
                 <Image
                   src={shot.src}
                   alt={shot.title}
-                  width={960}
-                  height={720}
+                  width={1536}
+                  height={960}
+                  className="h-auto w-full rounded-[var(--radius)] border border-slate-200"
+                />
+              </div>
+              <div className="p-5">
+                <h3 className="font-semibold text-[var(--navy)]">{shot.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{shot.desc}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          {EXTRA_SCREENSHOTS.map((shot) => (
+            <article
+              key={shot.title}
+              className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--card-shadow)]"
+            >
+              <div className="border-b border-[var(--card-border)] bg-slate-50 p-3">
+                <Image
+                  src={shot.src}
+                  alt={shot.title}
+                  width={1536}
+                  height={960}
                   className="h-auto w-full rounded-[var(--radius)] border border-slate-200"
                 />
               </div>

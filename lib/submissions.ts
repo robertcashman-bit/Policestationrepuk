@@ -1,6 +1,9 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
-export async function saveSubmission(type: 'contact' | 'registration' | 'station-update', data: Record<string, unknown>): Promise<string> {
+export async function saveSubmission(
+  type: 'contact' | 'registration' | 'station-update' | 'lead-magnet',
+  data: Record<string, unknown>,
+): Promise<string> {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const id = `${type}-${timestamp}-${Math.random().toString(36).slice(2, 8)}`;
 

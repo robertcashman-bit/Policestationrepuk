@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { JsonLd } from '@/components/JsonLd';
 import { BlogBottomAd } from '@/components/BlogBottomAd';
+import { BlogCustodyNotePromo } from '@/components/BlogCustodyNotePromo';
 import { buildMetadata, breadcrumbSchema } from '@/lib/seo';
 import { getAllBlogPosts } from '@/lib/blog-data';
 import { BLOG_CATEGORIES, categoryLabel } from '@/lib/blog/categories';
@@ -73,7 +74,9 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
       </section>
 
       <div className="page-container py-10 sm:py-12">
-        <div className="flex flex-col gap-3 border-b border-[var(--card-border)] pb-8 lg:flex-row lg:items-end lg:justify-between">
+        <BlogCustodyNotePromo className="mt-0" />
+
+        <div className="mt-10 flex flex-col gap-3 border-b border-[var(--card-border)] pb-8 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h2 className="text-sm font-bold uppercase tracking-wide text-[var(--muted)]">Browse by topic</h2>
             <p className="mt-1 text-sm text-[var(--muted)]">Filter articles — or view everything below.</p>

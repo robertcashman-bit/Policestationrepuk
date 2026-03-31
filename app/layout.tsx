@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { Header } from '@/components/Header';
+import { CustodyNoteTopBanner } from '@/components/CustodyNoteTopBanner';
 import { Footer } from '@/components/Footer';
 import { DeferredGlobalWidgets } from '@/components/DeferredGlobalWidgets';
 import { JsonLd } from '@/components/JsonLd';
@@ -87,7 +88,10 @@ export default function RootLayout({
         <a href="#main-content" className="skip-link">
           Skip to content
         </a>
-        <Header />
+        <div className="sticky top-0 z-40 shadow-md">
+          <CustodyNoteTopBanner />
+          <Header />
+        </div>
         <main id="main-content" className="site-shell-main flex-1 w-full min-w-0">{children}</main>
         <Footer />
         <DeferredGlobalWidgets />

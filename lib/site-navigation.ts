@@ -1,7 +1,7 @@
 /**
  * Navigation & footer definitions locked to policestationrepuk.com structure.
  * Header: docs/live-site-map.json → navigation.primary (labels + order + hrefs).
- * Footer: homepage crawl data/page-content.json (sections Directories / For Representatives /
+ * Footer: homepage crawl data/page-content.json (sections Directories / For Reps /
  * Tools & Resources / Community + legal links + regulatory block).
  */
 
@@ -48,7 +48,7 @@ export const FOOTER_DIRECTORIES: FooterLink[] = [
   { href: '/UpdateStation', label: 'Update Station Info' },
 ];
 
-/** Footer column “For Representatives” — order & labels from homepage crawl */
+/** Footer column “For Reps” — order & labels from homepage crawl */
 export const FOOTER_FOR_REPRESENTATIVES: FooterLink[] = [
   { href: '/register', label: 'Join the Directory (Free)' },
   { href: '/Profile', label: 'My Profile' },
@@ -133,7 +133,7 @@ export const FOOTER_UTILITY_COOKIE_SETTINGS = 'Cookie Settings';
 
 export const FOOTER_COLUMN_TITLES = {
   directories: 'Directories',
-  forRepresentatives: 'For Representatives',
+  forRepresentatives: 'For reps',
   tools: 'Tools & Resources',
   community: 'Community',
   legal: 'Legal',

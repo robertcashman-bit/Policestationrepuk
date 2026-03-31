@@ -12,6 +12,7 @@ import type { BlogCategoryId } from '@/lib/blog/types';
 import { getTopicClusterForSlug } from '@/lib/blog/topic-clusters';
 import { BlogAuthorBio } from '@/components/BlogAuthorBio';
 import { BlogBottomAd } from '@/components/BlogBottomAd';
+import { BlogCustodyNotePromo } from '@/components/BlogCustodyNotePromo';
 
 export const dynamic = 'force-static';
 export const revalidate = false;
@@ -150,6 +151,8 @@ export default async function BlogArticlePage({ params }: PageProps) {
           <article className="mt-10">
             <BlogArticleMarkdown markdown={article.bodyMarkdown} />
           </article>
+
+          <BlogCustodyNotePromo />
 
           {article.faqs && article.faqs.length > 0 && (
             <section className="mt-12 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 sm:p-8 shadow-[var(--card-shadow)]">

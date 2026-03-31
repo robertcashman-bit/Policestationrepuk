@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { JsonLd } from '@/components/JsonLd';
 import { HomeHero } from '@/components/HomeHero';
 import { HomeCustodyNote } from '@/components/HomeCustodyNote';
+import { ToolsForRepsSection } from '@/components/ToolsForRepsSection';
 import { HomeRecentlyJoined } from '@/components/HomeRecentlyJoined';
 import { HomeTrainingResources } from '@/components/HomeTrainingResources';
 import { HomeFeaturedCarousel } from '@/components/HomeFeaturedCarousel';
@@ -83,6 +84,8 @@ export default async function HomePage() {
       </section>
 
       <HomeCustodyNote />
+
+      <ToolsForRepsSection />
 
       <div className="cv-auto">
         <HomeSeoConversionHub />

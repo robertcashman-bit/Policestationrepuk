@@ -18,8 +18,8 @@ interface Props {
 }
 
 const INPUT_CLS =
-  'mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] placeholder:text-slate-400 sm:text-sm';
-const LABEL_CLS = 'block text-sm font-medium text-[var(--foreground)]';
+  'mt-1 w-full rounded-lg border-2 border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder:text-slate-400 shadow-sm focus:border-[var(--navy)] focus:outline-none focus:ring-2 focus:ring-[var(--navy)]/20 sm:text-sm';
+const LABEL_CLS = 'block text-sm font-bold text-slate-800';
 
 export function StationUpdateForm({ stations }: Props) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
@@ -249,7 +249,7 @@ export function StationUpdateForm({ stations }: Props) {
                   onKeyDown={handleSearchKeyDown}
                   placeholder="Type a station name, address, or postcode…"
                   autoComplete="off"
-                  className="mt-0 w-full rounded-lg border border-[var(--border)] bg-white py-3 pl-10 pr-4 text-base text-[var(--foreground)] placeholder:text-slate-400 sm:text-sm"
+                  className="mt-0 w-full rounded-lg border-2 border-slate-300 bg-white py-3 pl-10 pr-4 text-base text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-[var(--navy)] focus:outline-none focus:ring-2 focus:ring-[var(--navy)]/20 sm:text-sm"
                 />
               </div>
               {showDropdown && filtered.length > 0 && (
@@ -326,15 +326,20 @@ export function StationUpdateForm({ stations }: Props) {
 
           {/* Step 2: Updated information */}
           <fieldset
-            className={`rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-opacity ${
-              selected ? 'opacity-100' : 'pointer-events-none opacity-40'
+            className={`rounded-xl border-2 p-5 shadow-sm transition-all ${
+              selected
+                ? 'border-slate-300 bg-white opacity-100'
+                : 'pointer-events-none border-slate-200 bg-slate-50 opacity-50'
             }`}
             disabled={!selected}
           >
             <legend className="px-2 text-sm font-bold uppercase tracking-wider text-[var(--navy)]">
               2. Suggest corrections
             </legend>
-            <p className="mt-1 text-xs text-slate-500">
+            {!selected && (
+              <p className="mt-1 text-xs font-medium text-amber-600">Select a station above to unlock this section.</p>
+            )}
+            <p className="mt-1 text-xs text-slate-600">
               Only fill in the fields you want to update. Leave the rest blank.
             </p>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">

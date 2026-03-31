@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { CUSTODYNOTE_TRIAL_HREF } from '@/lib/custodynote-promo';
 import {
   FOOTER_COLUMN_TITLES,
   FOOTER_COMMUNITY,
@@ -63,6 +64,37 @@ export function Footer() {
     <footer className="mt-auto border-t border-[var(--navy-light)] bg-[var(--navy)]">
       <div className="mx-auto max-w-[var(--container-max)] px-[var(--container-gutter)] py-12 sm:px-6 sm:py-14 lg:px-8">
         <h2 className="sr-only">Site footer and links</h2>
+
+        <div className="mb-10 rounded-xl border border-[var(--gold)]/35 bg-gradient-to-r from-[#152e6e] to-[var(--navy)] p-5 sm:p-6">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">
+            Tools for Police Station Reps
+          </h3>
+          <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-base font-bold text-white">CustodyNote — attendance note software</p>
+              <p className="mt-1 text-xs text-slate-300">
+                Structured custody notes, offline-first, PDF export. 30-day free trial.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <a
+                href={CUSTODYNOTE_TRIAL_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-[var(--gold)] px-5 py-2.5 text-sm font-bold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
+              >
+                Start Free Trial
+              </a>
+              <Link
+                href="/CustodyNote"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg border-2 border-white/30 px-5 py-2.5 text-sm font-semibold text-white no-underline hover:bg-white/10"
+              >
+                Learn more
+              </Link>
+            </div>
+          </div>
+        </div>
+
         <div className="grid gap-y-10 gap-x-8 sm:grid-cols-2 lg:grid-cols-5">
           <FooterColumn title={FOOTER_COLUMN_TITLES.directories} links={FOOTER_DIRECTORIES} />
           <FooterColumn

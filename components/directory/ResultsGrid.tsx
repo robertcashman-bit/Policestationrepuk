@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { DirectoryCard, type MatchHighlight } from '@/components/DirectoryCard';
 import { JoinCTA } from '@/components/directory/JoinCTA';
+import { CustodyNoteInlineCTA } from '@/components/CustodyNoteInlineCTA';
 import type { Representative } from '@/lib/types';
 
 interface ResultsGridProps {
@@ -64,6 +65,7 @@ export function ResultsGrid({
   if (totalCount === 0) {
     return (
       <div className="space-y-6">
+        <CustodyNoteInlineCTA variant="full" />
         <JoinCTA variant="empty-state" />
         {hasActiveFilters && (
           <div className="text-center">
@@ -112,12 +114,20 @@ export function ResultsGrid({
               return <DirectoryCard key={rep.id} rep={rep} matchHighlight={matchHighlight} />;
             })}
           </div>
+          <div className="mt-8">
+            <CustodyNoteInlineCTA variant="full" />
+          </div>
         </section>
       )}
 
       {/* All listings with inline CTA */}
       {pagedNonFeatured.length > 0 && (
         <section>
+          {featuredReps.length === 0 && (
+            <div className="mb-8">
+              <CustodyNoteInlineCTA variant="full" />
+            </div>
+          )}
           <div className="mb-4 flex items-end justify-between">
             <h2 className="text-lg font-bold text-[var(--navy)]">
               All listings
@@ -147,6 +157,9 @@ export function ResultsGrid({
                 />
               );
             })}
+          </div>
+          <div className="mt-10">
+            <CustodyNoteInlineCTA variant="full" />
           </div>
           {hasMore && (
             <div className="mt-8 text-center">

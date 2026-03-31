@@ -1,0 +1,68 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import {
+  CUSTODYNOTE_TRIAL_HREF,
+  TOP_BANNER_TEXT,
+} from '@/lib/custodynote-promo';
+
+const STORAGE_KEY = 'cn-top-banner-dismissed';
+
+export function CustodyNoteTopBanner() {
+  const [dismissed, setDismissed] = useState(true);
+
+  useEffect(() => {
+    try {
+      setDismissed(localStorage.getItem(STORAGE_KEY) === '1');
+    } catch {
+      setDismissed(false);
+    }
+  }, []);
+
+  if (dismissed) return null;
+
+  return (
+    <div className="relative z-[100] border-b border-[#0a1633] bg-gradient-to-r from-[#0f1d45] via-[#152e6e] to-[#0f1d45] px-3 py-2.5 text-center sm:px-4">
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-2 sm:gap-4">
+        <a
+          href={CUSTODYNOTE_TRIAL_HREF}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm font-semibold text-white no-underline transition-colors hover:text-[var(--gold)] sm:text-[15px]"
+        >
+          {TOP_BANNER_TEXT}
+        </a>
+        <span className="hidden h-4 w-px bg-white/30 sm:inline-block" aria-hidden />
+        <a
+          href={CUSTODYNOTE_TRIAL_HREF}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex shrink-0 items-center rounded-full bg-[var(--gold)] px-4 py-1.5 text-xs font-bold text-[var(--navy)] no-underline shadow-sm transition-colors hover:bg-[var(--gold-hover)]"
+        >
+          Start free trial
+        </a>
+        <button
+          type="button"
+          onClick={() => {
+            try {
+              localStorage.setItem(STORAGE_KEY, '1');
+            } catch {
+              /* ignore */
+            }
+            setDismissed(true);
+          }}
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white sm:right-4"
+          aria-label="Dismiss banner"
+        >
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+            <path
+              fillRule="evenodd"
+              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}

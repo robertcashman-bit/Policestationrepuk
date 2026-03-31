@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { Representative } from '@/lib/types';
 import { DirectoryCard } from '@/components/DirectoryCard';
 import { JoinCTA } from '@/components/directory/JoinCTA';
+import { CustodyNoteInlineCTA } from '@/components/CustodyNoteInlineCTA';
 
 interface RightPanelProps {
   featuredReps: Representative[];
@@ -38,6 +39,8 @@ export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
           </div>
         </div>
       </div>
+
+      <CustodyNoteInlineCTA variant="compact" />
 
       {/* Featured spotlight */}
       {topFeatured.length > 0 && (

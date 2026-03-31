@@ -58,6 +58,23 @@ export default function AboutFounderPage() {
             <p className="text-[var(--muted)] leading-relaxed">Are you an accredited police station representative? Register for free and connect with firms.Register for Free.</p>
           </section>
 
+          <section>
+            <h2 className="text-h2 text-[var(--navy)]">Police station solicitor services</h2>
+            <p className="text-[var(--muted)] leading-relaxed">
+              Robert&apos;s duty solicitor and police station agent work for firms and clients is separate from
+              PoliceStationRepUK. For that service, visit{' '}
+              <a
+                href="https://www.policestationagent.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[var(--navy)] underline decoration-[var(--gold)] underline-offset-2 hover:text-[var(--gold-hover)]"
+              >
+                policestationagent.com
+              </a>
+              .
+            </p>
+          </section>
+
           <section className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
             <h2 className="text-xl font-bold text-white">Need Help?</h2>
             <p className="mt-2 text-slate-300">
@@ -70,6 +87,14 @@ export default function AboutFounderPage() {
               <Link href="/Contact" className="btn-outline no-underline">
                 Contact Us
               </Link>
+              <a
+                href="https://www.policestationagent.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-lg border-2 border-white/40 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white no-underline transition-colors hover:border-[var(--gold)] hover:bg-white/15"
+              >
+                policestationagent.com
+              </a>
             </div>
           </section>
         </div>

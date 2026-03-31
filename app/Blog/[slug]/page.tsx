@@ -263,6 +263,18 @@ export default async function BlogArticlePage({ params }: PageProps) {
               for professional readers; it does not create a retainer or adviser–client relationship.
               PoliceStationRepUK is a directory — it does not provide regulated legal services.
             </p>
+            <p className="mt-4">
+              Need a solicitor or police station agent cover? See{' '}
+              <a
+                href="https://www.policestationagent.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[var(--gold-hover)] underline underline-offset-2 hover:text-[var(--gold)]"
+              >
+                policestationagent.com
+              </a>{' '}
+              (separate from this directory).
+            </p>
           </footer>
         </div>
       </div>

@@ -185,7 +185,7 @@ export function searchDirectory(
       }
 
       if (queryIsCounty && score > 0 && !repMatchesCountyName(item.county, query)) {
-        score = Math.min(score, 4);
+        score = 0;
       }
 
       return { item, score };

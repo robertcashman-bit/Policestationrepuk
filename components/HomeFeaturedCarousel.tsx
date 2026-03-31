@@ -27,7 +27,7 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
           <AdvertisementLabel variant="dark" label="Promoted Listings" />
           <h2 className="text-h2 mt-3 text-white">Featured Representatives</h2>
           <p className="mt-2 text-sm text-white/80">
-            These are paid promoted listings. Firms and reps should verify accreditation and credentials independently.
+            These are promoted listings. Firms and reps should verify accreditation and credentials independently.
           </p>
         </div>
 

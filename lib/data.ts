@@ -120,6 +120,15 @@ function loadDataFromFiles(): FileData | null {
       .map((r) => enrichRepCountyFromStations(r, stations))
       .map((r) => finalizeRepresentative(r));
 
+    for (const county of counties) {
+      const cLower = county.name.toLowerCase();
+      county.stationCount = stations.filter(
+        (s) =>
+          s.forceName?.toLowerCase().includes(cLower) ||
+          (s.county && s.county.toLowerCase() === cLower),
+      ).length;
+    }
+
     _fileData = {
       counties,
       stations,

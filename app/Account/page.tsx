@@ -1,12 +1,11 @@
 import Link from 'next/link';
 import { buildMetadata } from '@/lib/seo';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { AccountLoginForm } from './AccountLoginForm';
 
 export const metadata = buildMetadata({
   title: 'Account — Manage Your PoliceStationRepUK Profile',
   description:
-    'Sign in or manage your PoliceStationRepUK directory profile. Update availability, contact details, and coverage areas. New representatives can register for a free listing in minutes.',
+    'Manage your PoliceStationRepUK directory profile. Update availability, contact details, and coverage areas. New representatives can register for a free listing in minutes.',
   path: '/Account',
 });
 
@@ -23,20 +22,33 @@ export default function AccountPage() {
         />
         <h1 className="mt-3 text-h1 text-white">Account</h1>
         <p className="mt-3 max-w-2xl text-lg text-slate-300">
-          Sign in to manage your directory listing, or go to My Profile for update options while self-service login
-          is expanded.
+          Manage your directory listing or register for a free profile.
         </p>
       </div>
     </section>
 
     <div className="page-container">
       <div className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-[1fr_1fr]">
-        <div className="rounded-xl border border-[var(--card-border)] bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-[var(--navy)]">Sign in</h2>
-          <p className="mt-2 text-sm text-[var(--muted)]">
-            Use the email associated with your directory registration.
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
+            COMING SOON
+          </div>
+          <h2 className="text-lg font-bold text-[var(--navy)]">Self-service login</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+            We are building a self-service portal so you can update your profile, availability, and
+            contact details directly. In the meantime, request any changes through our team.
           </p>
-          <AccountLoginForm />
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/Contact" className="btn-gold inline-block !text-sm">
+              Request changes
+            </Link>
+            <Link
+              href="/Profile"
+              className="inline-block text-sm font-semibold text-[var(--navy)] underline decoration-[var(--gold)] underline-offset-2"
+            >
+              My Profile →
+            </Link>
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -52,7 +64,7 @@ export default function AccountPage() {
           <div className="rounded-xl border border-[var(--card-border)] bg-[var(--gold-pale)] p-6">
             <h2 className="text-lg font-bold text-[var(--navy)]">Already listed?</h2>
             <p className="mt-2 text-sm text-[var(--muted)]">
-              Request changes, featured placement, or help from the team.
+              Request changes, featured placement, or help from the team — all free.
             </p>
             <Link
               href="/Profile"

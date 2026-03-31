@@ -213,6 +213,19 @@ export default async function RepPage({ params }: PageProps) {
                 <strong className="text-[var(--navy)]">Listing completeness:</strong> {completeness}% of common fields
                 present. Higher scores usually mean easier due diligence — not an endorsement.
               </section>
+
+              {completeness < 60 && (
+                <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm">
+                  <p className="font-semibold text-[var(--navy)]">Is this your profile?</p>
+                  <p className="mt-1 leading-relaxed text-slate-600">
+                    Adding more details — such as a bio, station coverage, and contact information — helps
+                    solicitor firms find and instruct you. Updating your profile is free.
+                  </p>
+                  <Link href="/Contact" className="mt-3 inline-block text-sm font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
+                    Request a profile update →
+                  </Link>
+                </section>
+              )}
             </div>
 
             <div className="space-y-5 lg:sticky lg:top-24 lg:self-start">

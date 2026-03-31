@@ -4,12 +4,18 @@ import { useState, type FormEvent } from 'react';
 
 export function EmergencyCoverForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [startedAt] = useState(() => Date.now());
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus('sending');
 
     const data = Object.fromEntries(new FormData(e.currentTarget));
+
+    if (data._hp) {
+      setStatus('sent');
+      return;
+    }
 
     try {
       const res = await fetch('/api/contact', {
@@ -28,6 +34,8 @@ export function EmergencyCoverForm() {
           ]
             .filter(Boolean)
             .join('\n'),
+          _hp: '',
+          _startedAt: startedAt,
         }),
       });
 
@@ -59,6 +67,12 @@ export function EmergencyCoverForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Honeypot — hidden from real users */}
+      <div className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+        <label htmlFor="ec-hp">Leave blank</label>
+        <input id="ec-hp" name="_hp" tabIndex={-1} autoComplete="off" />
+      </div>
+
       <div>
         <label htmlFor="ec-firm" className="block text-sm font-semibold text-[var(--navy)]">
           Firm / Solicitor Name <span className="text-red-500">*</span>

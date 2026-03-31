@@ -35,8 +35,11 @@ export default function MapPage() {
   const [selectedStation, setSelectedStation] = useState<StationPin | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
+  const loadStations = useCallback(() => {
+    setLoading(true);
+    setError(false);
     fetch('/api/stations')
       .then((res) => {
         if (!res.ok) throw new Error('Failed to load');
@@ -47,9 +50,14 @@ export default function MapPage() {
         setLoading(false);
       })
       .catch(() => {
+        setError(true);
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    loadStations();
+  }, [loadStations]);
 
   const handleSelect = useCallback((station: StationPin) => {
     setSelectedStation(station);
@@ -125,6 +133,16 @@ export default function MapPage() {
               <div className="max-h-[500px] overflow-y-auto">
                 {loading ? (
                   <p className="p-4 text-sm text-[var(--muted)]">Loading stations...</p>
+                ) : error ? (
+                  <div className="p-4 text-center">
+                    <p className="text-sm font-medium text-red-600">Failed to load stations.</p>
+                    <button
+                      onClick={loadStations}
+                      className="mt-2 rounded-lg bg-[var(--navy)] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[var(--navy-light)]"
+                    >
+                      Retry
+                    </button>
+                  </div>
                 ) : sortedCounties.length === 0 ? (
                   <p className="p-4 text-sm text-[var(--muted)]">No stations found.</p>
                 ) : (

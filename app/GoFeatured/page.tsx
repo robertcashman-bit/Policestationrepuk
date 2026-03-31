@@ -3,9 +3,9 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Become a Featured Rep — Go Featured',
+  title: 'Become a Featured Rep — Go Featured (Free)',
   description:
-    'Boost your visibility with a Featured Listing on PoliceStationRepUK. Get your own profile page, homepage spotlight, and priority placement — free whilst testing.',
+    'Boost your visibility with a free Featured Listing on PoliceStationRepUK. Get your own profile page, homepage spotlight, and priority placement — completely free.',
   path: '/GoFeatured',
 });
 
@@ -31,7 +31,7 @@ const STATS = [
   { value: '3x', label: 'More Profile Views' },
   { value: '24/7', label: 'Always Visible' },
   { value: 'Top', label: 'Search Placement' },
-  { value: 'Free', label: 'Whilst Testing' },
+  { value: 'Free', label: 'No Cost Ever' },
 ];
 
 const WHY_FEATURED = [
@@ -76,14 +76,13 @@ const FAQS = [
   },
   {
     q: 'Is Go Featured really free?',
-    a: 'Yes — during our testing phase, the Featured Listing (Spotlight Tier) is completely free. We\'ll give plenty of notice before any pricing changes are introduced.',
+    a: 'Yes — the Featured Listing (Spotlight Tier) is completely free. Registration, standard listings, and featured placement are all free on PoliceStationRepUK.',
   },
 ];
 
 export default function GoFeaturedPage() {
   return (
     <>
-      {/* Navy header section */}
       <div className="bg-[var(--navy)] py-10">
         <div className="page-container">
           <Breadcrumbs
@@ -94,12 +93,12 @@ export default function GoFeaturedPage() {
             ]}
           />
           <div className="mb-3 mt-4 inline-block rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-            FREE WHILST TESTING
+            COMPLETELY FREE
           </div>
           <h1 className="text-h1 text-white">Become a Featured Representative</h1>
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-slate-300">
             Stand out from the crowd. Get priority placement, your own profile page, and a homepage
-            spotlight — all included in the Spotlight Tier.
+            spotlight — all free, included in the Spotlight Tier.
           </p>
         </div>
       </div>
@@ -123,7 +122,7 @@ export default function GoFeaturedPage() {
       <section className="mb-14">
         <h2 className="text-h2 mb-2 text-[var(--navy)]">Spotlight Tier</h2>
         <p className="mb-8 text-[var(--muted)]">
-          Everything you need to maximise your visibility and get more work.
+          Everything you need to maximise your visibility and get more work — completely free.
         </p>
         <div className="grid gap-5 sm:grid-cols-3">
           {SPOTLIGHT_FEATURES.map((f) => (
@@ -194,12 +193,12 @@ export default function GoFeaturedPage() {
       <div className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
         <h2 className="text-h2 text-white">Ready to Go Featured?</h2>
         <p className="mt-3 text-slate-300">
-          Already registered? Contact us to activate your Spotlight Listing. Not registered yet?
+          Already registered? Contact us to activate your free Spotlight Listing. Not registered yet?
           Create your free profile first.
         </p>
         <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link href="/register" className="btn-gold">
-            Register Free First
+            Register Free
           </Link>
           <Link
             href="/Contact"

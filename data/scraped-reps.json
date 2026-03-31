@@ -1,16 +1,30 @@
 [
   {
     "name": "Robert Cashman",
-    "phone": "",
+    "phone": "01732 247427",
     "email": "Robertdavidcashman@gmail.com",
     "county": "Kent",
     "availability": "Any",
-    "accreditation": "",
+    "accreditation": "DUTY SOLICITOR",
     "featured": true,
-    "stations": [],
+    "stations": [
+      "North Kent Police Station",
+      "Tonbridge Police Station",
+      "Tunbridge Wells Police Station",
+      "Medway Police Station",
+      "Maidstone Police Station",
+      "Kent Headquarters",
+      "Folkestone Police Station",
+      "Canterbury Police Station",
+      "Coldharbour",
+      "Sittingbourne Police Station",
+      "Swanley Police Station",
+      "Sevenoaks"
+    ],
     "bio": "35 years experience in criminal law. Higher Court Advocate qualification. Specialist in high-quality police station representation. Available 24/7 across Kent and Met border areas.",
     "slug": "68b00c156ab8057e207f5e31",
-    "websiteUrl": "https://policestationagent.com"
+    "websiteUrl": "https://policestationagent.com",
+    "yearsExperience": 35
   },
   {
     "name": "Usman Iqbal",

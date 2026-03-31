@@ -18,6 +18,7 @@ export interface ScrapedRepRow {
   bio?: string;
   slug?: string;
   websiteUrl?: string;
+  yearsExperience?: number;
 }
 
 function trimStr(s: unknown): string {
@@ -39,6 +40,7 @@ export function coerceScrapedRows(raw: unknown): ScrapedRepRow[] {
     if (Array.isArray(row.stations)) {
       stations = row.stations.map((s) => trimStr(s)).filter(Boolean);
     }
+    const ye = typeof row.yearsExperience === 'number' ? row.yearsExperience : undefined;
     out.push({
       name: name || 'Unknown',
       phone: trimStr(row.phone),
@@ -51,6 +53,7 @@ export function coerceScrapedRows(raw: unknown): ScrapedRepRow[] {
       bio: trimStr(row.bio),
       slug: slug || undefined,
       websiteUrl: trimStr(row.websiteUrl),
+      yearsExperience: ye,
     });
   }
   return out;
@@ -167,6 +170,7 @@ export function scrapedRowToRepresentative(row: ScrapedRepRow): Representative {
     spotlightNote: '',
     holidayAvailability: [],
     postcode: '',
+    yearsExperience: row.yearsExperience,
   };
 }
 

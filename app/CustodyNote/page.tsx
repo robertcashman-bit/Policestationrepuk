@@ -54,19 +54,19 @@ const FEATURE_CARDS = [
 
 const SCREENSHOTS = [
   {
-    src: '/images/custodynote/illustration-structured-form.svg',
-    title: 'Structured attendance workflow',
-    desc: 'A single screen for the key custody, disclosure, consultation, interview, and outcome fields.',
+    src: '/images/custodynote/custodynote-hero.png',
+    title: 'Custody Note — structured notes for the station',
+    desc: 'Desktop software purpose-built for defence solicitors and reps. Structured attendance notes, offline at the custody suite, PDF-ready for your firm.',
   },
   {
-    src: '/images/custodynote/illustration-pdf-billing.svg',
-    title: 'PDF and billing output',
-    desc: 'Export a professional attendance note and keep LAA-oriented billing information tied to the matter.',
+    src: '/images/custodynote/custodynote-features.png',
+    title: 'Key features at a glance',
+    desc: 'Full PACE-aligned forms, offline mode, PDF export with LAA billing, and AES-256 encrypted local storage with optional cloud backup.',
   },
   {
-    src: '/images/custodynote/illustration-offline.svg',
-    title: 'Offline-first desktop app',
-    desc: 'Use it in poor-signal custody environments, then sync or back up later when you are back online.',
+    src: '/images/custodynote/custodynote-workflow.png',
+    title: 'Real-world workflow',
+    desc: 'From instruction to attendance, structured note, PDF to firm, and billing prep — without retyping the same facts into five different places.',
   },
 ] as const;
 

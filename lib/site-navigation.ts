@@ -60,6 +60,7 @@ export const FOOTER_FOR_REPRESENTATIVES: FooterLink[] = [
 
 /** Footer column “Tools & Resources” */
 export const FOOTER_TOOLS: FooterLink[] = [
+  { href: 'https://custodynote.com', label: 'Custody Note App', external: true },
   { href: '/police-station-representative', label: 'Police station representative' },
   { href: '/criminal-solicitor-police-station', label: 'Criminal solicitor — police station' },
   { href: '/police-station-rights-uk', label: 'Police station rights UK' },

@@ -75,7 +75,7 @@ export function Footer() {
         </div>
 
         {/* Mid-footer spotlight — same section titles/copy hierarchy as homepage */}
-        <div className="mt-10 grid gap-8 border-t border-[var(--navy-light)] pt-8 sm:grid-cols-2">
+        <div className="mt-10 grid gap-8 border-t border-[var(--navy-light)] pt-8 sm:grid-cols-3">
           <div>
             <h4 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_KENT_TITLE}</h4>
             <p className="mt-1 text-xs text-white">{FOOTER_SPOTLIGHT_KENT_BODY}</p>
@@ -94,6 +94,25 @@ export function Footer() {
             >
               Need a solicitor? →
             </a>
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-white">Custody Note — Attendance Note Software</h4>
+            <p className="mt-1 text-xs text-white">PACE-aligned notes, offline-first, PDF export, AES-256 encryption. 30-day free trial.</p>
+            <a
+              href="https://custodynote.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
+            >
+              Start free trial →
+            </a>
+            <span className="mx-1 text-xs text-slate-500">·</span>
+            <Link
+              href="/CustodyNote"
+              className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
+            >
+              Learn more →
+            </Link>
           </div>
           <div>
             <h4 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_TRAINING_TITLE}</h4>

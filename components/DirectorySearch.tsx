@@ -721,12 +721,36 @@ export function DirectorySearch({
             </Link>
           </div>
           <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {featuredReps.map((rep) => (
-              <DirectoryCard key={rep.id} rep={rep} />
-            ))}
+            {featuredReps.map((rep, i) => {
+              let matchHighlight: MatchHighlight = null;
+              if (sort === 'smart' && i < 2) {
+                matchHighlight = i === 0 ? 'top' : 'runner';
+              }
+              return <DirectoryCard key={rep.id} rep={rep} matchHighlight={matchHighlight} />;
+            })}
           </div>
         </div>
       )}
+
+      {/* Custody Note inline ad */}
+      <aside className="mt-8 flex items-center justify-between gap-4 rounded-lg border border-[var(--gold)]/30 bg-gradient-to-r from-[var(--navy)] to-[#152e6e] px-5 py-3" aria-label="Promoted: Custody Note">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold text-white">
+            Custody Note — police station attendance note software
+          </p>
+          <p className="mt-0.5 text-xs text-white/70">
+            30-day free trial · Code <span className="font-mono font-semibold text-[var(--gold)]">A2MJY2NQ</span> for 25% off
+          </p>
+        </div>
+        <Link
+          href="https://custodynote.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-gold shrink-0 !px-4 !py-2 !text-xs no-underline"
+        >
+          Try Free
+        </Link>
+      </aside>
 
       {nonFeaturedReps.length > 0 && (
         <h2 className="mt-12 text-xl font-bold text-[var(--navy)] sm:text-2xl">All listings</h2>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 const HERO_QUICK_LINKS = [
+  { href: '/CustodyNote', label: 'Custody Note' },
   { href: '/StationsDirectory', label: 'Station Numbers' },
   { href: '/FormsLibrary', label: 'Forms Library' },
   { href: '/Resources', label: 'Resources' },

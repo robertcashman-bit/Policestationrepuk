@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { AdvertisementLabel } from './AdvertisementLabel';
 
@@ -65,6 +66,12 @@ export function HomeCustodyNote() {
                 Start Free Trial
               </Link>
               <Link
+                href="/CustodyNote"
+                className="btn-outline w-full !border-white/40 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)] sm:w-auto"
+              >
+                Learn more →
+              </Link>
+              <Link
                 href="https://custodynote.com/pricing"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -72,6 +79,16 @@ export function HomeCustodyNote() {
               >
                 View pricing →
               </Link>
+            </div>
+
+            <div className="mt-8 overflow-hidden rounded-xl border border-white/10 shadow-2xl">
+              <Image
+                src="/images/custodynote/custodynote-features.png"
+                alt="Custody Note features — PACE-aligned forms, offline mode, PDF export, encrypted backup"
+                width={960}
+                height={540}
+                className="h-auto w-full"
+              />
             </div>
 
             <p className="mt-5 text-xs text-white/60">

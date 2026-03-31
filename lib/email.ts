@@ -98,6 +98,86 @@ export async function sendRegistrationNotification(data: RegistrationSubmission)
   }
 }
 
+interface StationUpdateSubmission {
+  stationId: string;
+  stationName: string;
+  current: {
+    address?: string;
+    postcode?: string;
+    phone?: string;
+    custodyPhone?: string;
+    nonEmergencyPhone?: string;
+  };
+  suggested: {
+    address?: string;
+    postcode?: string;
+    phone?: string;
+    custodyPhone?: string;
+    nonEmergencyPhone?: string;
+  };
+  notes?: string;
+  submitterName: string;
+  submitterEmail: string;
+}
+
+export async function sendStationUpdateNotification(data: StationUpdateSubmission): Promise<boolean> {
+  const client = getResend();
+  if (!client) {
+    console.info('[Station update — no RESEND_API_KEY]', { station: data.stationName, submitter: data.submitterName });
+    return false;
+  }
+
+  const diffRow = (label: string, current: string | undefined, suggested: string | undefined) => {
+    if (!suggested) return '';
+    const cur = current || '(empty)';
+    const changed = cur !== suggested;
+    return `<tr>
+      <td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;width:140px">${label}</td>
+      <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#6b7280">${escapeHtml(cur)}</td>
+      <td style="padding:8px;border-bottom:1px solid #e5e7eb;font-weight:${changed ? 'bold' : 'normal'};color:${changed ? '#059669' : '#374151'}">${escapeHtml(suggested)}</td>
+    </tr>`;
+  };
+
+  const rows = [
+    diffRow('Address', data.current.address, data.suggested.address),
+    diffRow('Postcode', data.current.postcode, data.suggested.postcode),
+    diffRow('Phone', data.current.phone, data.suggested.phone),
+    diffRow('Custody Phone', data.current.custodyPhone, data.suggested.custodyPhone),
+    diffRow('Non-emergency Phone', data.current.nonEmergencyPhone, data.suggested.nonEmergencyPhone),
+  ].filter(Boolean).join('');
+
+  try {
+    await client.emails.send({
+      from: FROM_EMAIL,
+      to: ADMIN_EMAIL,
+      replyTo: data.submitterEmail,
+      subject: `[Station Update] ${data.stationName} — suggested by ${data.submitterName}`,
+      html: `
+        <h2>Station Update Suggestion</h2>
+        <p><strong>Station:</strong> ${escapeHtml(data.stationName)} <span style="color:#6b7280">(${escapeHtml(data.stationId)})</span></p>
+        <table style="border-collapse:collapse;width:100%;max-width:700px;">
+          <thead>
+            <tr style="background:#f9fafb">
+              <th style="padding:8px;text-align:left;border-bottom:2px solid #e5e7eb">Field</th>
+              <th style="padding:8px;text-align:left;border-bottom:2px solid #e5e7eb">Current</th>
+              <th style="padding:8px;text-align:left;border-bottom:2px solid #e5e7eb">Suggested</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        ${data.notes ? `<p style="margin-top:16px"><strong>Notes:</strong><br>${escapeHtml(data.notes).replace(/\n/g, '<br>')}</p>` : ''}
+        <hr style="margin:20px 0;border:none;border-top:1px solid #e5e7eb">
+        <p><strong>Submitted by:</strong> ${escapeHtml(data.submitterName)} &lt;<a href="mailto:${escapeHtml(data.submitterEmail)}">${escapeHtml(data.submitterEmail)}</a>&gt;</p>
+        <p style="margin-top:16px;color:#6b7280;font-size:12px;">Sent via PoliceStationRepUK station update form. Review before applying changes.</p>
+      `,
+    });
+    return true;
+  } catch (err) {
+    console.error('[Station update email failed]', err);
+    return false;
+  }
+}
+
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, '&amp;')

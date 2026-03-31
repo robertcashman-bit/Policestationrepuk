@@ -46,6 +46,17 @@ export default async function StationsDirectoryPage({ searchParams }: PageProps)
       <div className="page-container">
         <StationsDirectoryExplorer stations={stations} initialQuery={params.q ?? ''} />
 
+        <div className="mt-10 rounded-xl border border-slate-200 bg-slate-50 p-6">
+          <h2 className="text-lg font-bold text-[var(--navy)]">Spotted incorrect information?</h2>
+          <p className="mt-1.5 text-sm text-[var(--muted)]">
+            If an address or phone number is wrong, you can suggest a correction. We review all
+            submissions before publishing.
+          </p>
+          <Link href="/UpdateStation" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold-hover)] hover:text-[var(--gold)]">
+            Suggest a station update &rarr;
+          </Link>
+        </div>
+
         <div className="mt-14 border-t border-[var(--border)] pt-10">
           <h2 className="text-h2 text-[var(--navy)]">Find a Representative</h2>
           <p className="mt-2 text-[var(--muted)]">

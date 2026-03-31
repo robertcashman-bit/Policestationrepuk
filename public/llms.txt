@@ -10,7 +10,6 @@ Site: https://policestationrepuk.org
 - https://policestationrepuk.org/Blog — Professional blog (freelance police station reps & criminal defence firms)
 - https://policestationrepuk.org/directory — Accredited representative directory
 - https://policestationrepuk.org/PoliceStationCover — Police station cover for firms
-- https://policestationrepuk.org/EmergencyCover — Emergency cover information
 - https://policestationrepuk.org/Register — Representative registration
 - https://policestationrepuk.org/rss.xml — Blog RSS feed
 

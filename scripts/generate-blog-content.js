@@ -990,7 +990,7 @@ If you need immediate police station cover in Kent — for example, a client has
 Contact Information
 
 Use the PoliceStationRepUK directory to find representatives covering Kent. You can also contact the emergency cover line or use the WhatsApp group for urgent requests.`,
-  [{ href: '/directory/kent', text: 'Kent representatives directory' }, { href: '/KentPoliceStationReps', text: 'Kent police station reps' }, { href: '/EmergencyCover', text: 'Emergency cover' }, { href: '/StationsDirectory', text: 'Station numbers' }]
+  [{ href: '/directory/kent', text: 'Kent representatives directory' }, { href: '/KentPoliceStationReps', text: 'Kent police station reps' }, { href: '/StationsDirectory', text: 'Station numbers' }]
 );
 
 writeArticle('complete-guide-to-legal-representation-at-kent-police-stations',
@@ -1653,7 +1653,7 @@ Your representative will obtain disclosure, conduct a thorough private consultat
 Contact
 
 Use the PoliceStationRepUK directory to find expert legal representation for police stations in Kent. Representatives are available 24/7 for emergency cover.`,
-  [{ href: '/directory/kent', text: 'Kent representatives' }, { href: '/KentPoliceStationReps', text: 'Kent reps' }, { href: '/EmergencyCover', text: 'Emergency cover' }]
+  [{ href: '/directory/kent', text: 'Kent representatives' }, { href: '/KentPoliceStationReps', text: 'Kent reps' }]
 );
 
 writeArticle('what-to-expect-during-a-police-station-interview-in-kent-your-rights-and-legal-representation',

@@ -132,7 +132,7 @@ For **firms**, freelance cover is often about capacity: out-of-hours rotas, geog
       },
       {
         q: 'How do we instruct a freelance police station rep in a hurry?',
-        a: 'Send a minimum viable brief (identity, allegation summary, strategy headline, custody location), confirm the named contact for mid-attendance decisions, then follow up in writing. Use [emergency cover routes](/EmergencyCover) alongside your panel list when you need a new name fast.',
+        a: 'Send a minimum viable brief (identity, allegation summary, strategy headline, custody location), confirm the named contact for mid-attendance decisions, then follow up in writing. Use the [directory](/directory) alongside your panel list when you need a new name fast.',
       },
     ],
     bodyMarkdown: `
@@ -187,7 +187,7 @@ You do not need fifty names; you need **depth by geography and time band**. Map 
 
 ## Using the directory
 
-When you need a new name quickly, filter by county and accreditation on the [directory hub](/directory) and cross-check [emergency-style cover pages](/EmergencyCover) if you operate a rota.
+When you need a new name quickly, filter by county and accreditation on the [directory hub](/directory).
 
 ---
 

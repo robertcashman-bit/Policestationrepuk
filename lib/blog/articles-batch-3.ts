@@ -340,7 +340,7 @@ If nobody will be reachable, **say so** when instructing and provide an alternat
 
 ## Tie-in to commercial pages
 
-When you need cover urgently, [emergency cover information](/EmergencyCover) and the [police station cover overview](/PoliceStationCover) explain how firms use the ecosystem around PoliceStationRepUK. For instruction hygiene, read [common mistakes when instructing reps](/Blog/common-mistakes-when-instructing-freelance-police-station-reps).
+When you need cover urgently, the [police station cover overview](/PoliceStationCover) explains how firms use the ecosystem around PoliceStationRepUK. For instruction hygiene, read [common mistakes when instructing reps](/Blog/common-mistakes-when-instructing-freelance-police-station-reps).
 
 ## Measure and improve
 

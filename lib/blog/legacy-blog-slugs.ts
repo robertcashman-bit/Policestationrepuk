@@ -16,6 +16,15 @@ export const NEW_BLOG_SLUGS_LIST = [
   'how-freelance-police-station-reps-win-repeat-instructions',
   'what-makes-a-good-police-station-representative',
   'why-fast-clear-communication-matters-in-police-station-representation',
+  'why-firms-need-rep-directory',
+  'how-firms-source-emergency-rep-cover',
+  'freelance-police-station-rep-career',
+  'professional-indemnity-insurance-reps',
+  'police-station-rep-fee-rates-2026',
+  'pre-interview-consultation-rep-guide',
+  'how-to-review-custody-record',
+  'handling-disclosure-police-station',
+  'adverse-inference-no-comment-rep-guide',
 ] as const;
 
 export const NEW_BLOG_SLUG_SET = new Set<string>(NEW_BLOG_SLUGS_LIST as unknown as string[]);

@@ -26,6 +26,9 @@ const CLUSTER_DEFS: Record<
       'what-makes-a-good-police-station-representative',
       'accreditation-and-standards-in-freelance-police-station-work',
       'how-freelance-police-station-reps-win-repeat-instructions',
+      'freelance-police-station-rep-career',
+      'professional-indemnity-insurance-reps',
+      'police-station-rep-fee-rates-2026',
     ],
   },
   'firm-instruction': {
@@ -37,6 +40,8 @@ const CLUSTER_DEFS: Record<
       'what-to-include-in-a-police-station-brief',
       'common-mistakes-when-instructing-freelance-police-station-reps',
       'out-of-hours-police-station-cover-for-law-firms',
+      'why-firms-need-rep-directory',
+      'how-firms-source-emergency-rep-cover',
     ],
   },
   'attendance-communication': {
@@ -47,6 +52,10 @@ const CLUSTER_DEFS: Record<
       'police-station-attendance-checklist',
       'best-practice-handover-notes-after-police-station-attendance',
       'why-fast-clear-communication-matters-in-police-station-representation',
+      'pre-interview-consultation-rep-guide',
+      'how-to-review-custody-record',
+      'handling-disclosure-police-station',
+      'adverse-inference-no-comment-rep-guide',
     ],
   },
 };

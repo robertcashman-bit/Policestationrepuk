@@ -230,12 +230,6 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
               >
                 Firm cover
               </Link>
-              <Link
-                href="/EmergencyCover"
-                className="inline-flex justify-center rounded-lg border-2 border-[var(--navy)]/15 px-4 py-2.5 text-sm font-semibold text-[var(--navy)] no-underline hover:border-[var(--gold-hover)]"
-              >
-                Emergency cover
-              </Link>
             </div>
           </div>
           <div>

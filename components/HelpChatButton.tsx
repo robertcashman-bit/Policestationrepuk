@@ -43,12 +43,6 @@ export function HelpChatButton() {
           </p>
           <div className="mt-4 flex flex-col gap-2">
             <Link
-              href="/EmergencyCover"
-              className="rounded-lg bg-red-600 px-4 py-2.5 text-center text-sm font-bold text-white no-underline transition-colors hover:bg-red-700"
-            >
-              🚨 Emergency Cover Request
-            </Link>
-            <Link
               href="/Contact"
               className="rounded-lg bg-[var(--navy)] px-4 py-2.5 text-center text-sm font-medium text-white no-underline transition-colors hover:bg-[var(--navy-light)]"
             >

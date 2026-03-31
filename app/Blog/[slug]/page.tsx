@@ -137,6 +137,9 @@ export default async function BlogArticlePage({ params }: PageProps) {
               sizes="(max-width: 768px) 100vw, 768px"
               priority
             />
+            <figcaption className="px-4 py-2 text-center text-xs text-[var(--muted)]">
+              {article.image.alt}
+            </figcaption>
           </figure>
 
           <div className="mt-8 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--gold-pale)] p-5 sm:p-6">

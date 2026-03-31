@@ -158,6 +158,51 @@ export function normalizeStationQuery(query: string): NormalizedStationQuery {
 }
 
 /* ------------------------------------------------------------------ */
+/*  City → force map (cities whose name also appears in street names)  */
+/* ------------------------------------------------------------------ */
+
+const CITY_FORCES: Record<string, string[]> = {
+  london: ['metropolitan police', 'city of london police', 'british transport police'],
+  manchester: ['greater manchester police'],
+  birmingham: ['west midlands police'],
+  liverpool: ['merseyside police'],
+  leeds: ['west yorkshire police'],
+  bristol: ['avon and somerset constabulary'],
+  sheffield: ['south yorkshire police'],
+  nottingham: ['nottinghamshire police'],
+  leicester: ['leicestershire police'],
+  newcastle: ['northumbria police'],
+};
+
+/* ------------------------------------------------------------------ */
+/*  Street-name detection                                              */
+/* ------------------------------------------------------------------ */
+
+const ROAD_SUFFIX_RE =
+  /\b(road|rd|street|st|lane|ln|way|avenue|ave|drive|dr|close|cl|crescent|cres|place|pl|terrace|tc|grove|gv|mews|row|hill|gate|walk|rise|gardens|gdns|park|square|sq|bridge|broadway)\b/i;
+
+function isStreetNameMatch(address: string, token: string): boolean {
+  const lower = address.toLowerCase();
+  let idx = 0;
+  while ((idx = lower.indexOf(token, idx)) !== -1) {
+    const afterToken = lower.substring(idx + token.length);
+    const nextChunk = afterToken.trimStart().split(/[,\n]/)[0] || '';
+    if (ROAD_SUFFIX_RE.test(nextChunk.split(/\s+/)[0] || '')) return true;
+    const beforeToken = lower.substring(0, idx);
+    const prevWord = beforeToken.trimEnd().split(/\s+/).pop() || '';
+    if (/^\d+$/.test(prevWord) || /^-$/.test(prevWord)) return true;
+    idx += token.length;
+  }
+  return false;
+}
+
+function isLocationMatch(address: string, token: string): boolean {
+  if (!address.toLowerCase().includes(token)) return false;
+  if (isStreetNameMatch(address, token)) return false;
+  return true;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Scoring                                                            */
 /* ------------------------------------------------------------------ */
 
@@ -195,13 +240,18 @@ export function scoreStation(
     }
   }
 
+  // City-to-force boost: "london" → Metropolitan Police etc.
+  const cityForces = CITY_FORCES[fullQuery];
+  if (cityForces && cityForces.some((cf) => force.includes(cf) || cf.includes(force))) {
+    score += 50;
+  }
+
   // Force match
   if (nq.force) {
     if (force === nq.force || force.includes(nq.force) || nq.force.includes(force)) {
       score += 40;
     }
-  } else {
-    // Check tokens against force name (user typed "kent" etc.)
+  } else if (!cityForces) {
     for (const token of nq.tokens) {
       if (token.length >= 3 && force.includes(token)) {
         score += 40;
@@ -210,21 +260,26 @@ export function scoreStation(
     }
   }
 
-  // Address token match
+  // Address match — distinguish location vs street name
   for (const token of nq.tokens) {
     if (token.length >= 3 && address.includes(token)) {
-      score += 30;
+      if (isLocationMatch(address, token)) {
+        score += 30;
+      } else {
+        score += 5;
+      }
       break;
     }
   }
 
-  // Fuzzy name match (Levenshtein)
+  // Fuzzy name match (Levenshtein) — require closer match for short tokens
   if (score < 70) {
     const nameWords = name.split(/\s+/);
     for (const token of nq.tokens) {
       if (token.length >= 4) {
+        const maxDist = token.length >= 6 ? 2 : 1;
         const fuzzyHit = nameWords.some(
-          (w) => w.length >= 3 && levenshtein(w, token) <= 2,
+          (w) => w.length >= 3 && levenshtein(w, token) <= maxDist,
         );
         if (fuzzyHit) {
           score += 25;

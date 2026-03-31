@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getStationBySlug, getRepsByStation } from '@/lib/data';
 import type { PoliceStation } from '@/lib/types';
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps) {
   return buildMetadata({
     title: `${stationData.name} Police Station | Representatives`,
     description: `Police station representatives covering ${stationData.name}, ${stationData.forceName || stationData.county || ''}. Find accredited reps for custody suite attendance and freelance cover.`,
-    path: `/police-station/${station}`,
+    path: `/police-station/${stationData.slug}`,
   });
 }
 
@@ -37,6 +37,10 @@ export default async function PoliceStationPage({ params }: PageProps) {
   const { station: stationSlug } = await params;
   const station = await getStationBySlug(stationSlug);
   if (!station) notFound();
+
+  if (station.slug !== stationSlug) {
+    redirect(`/police-station/${station.slug}`);
+  }
 
   const reps = await getRepsByStation(station.name);
   const schema = localBusinessSchema({ name: station.name, slug: station.slug, address: station.address, county: station.forceName || station.county || '' });

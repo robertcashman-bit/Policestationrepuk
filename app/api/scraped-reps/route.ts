@@ -5,7 +5,17 @@ import { getAllReps, getDirectoryRepSource } from '@/lib/data';
 import { repMatchesCountyName } from '@/lib/county-matching';
 import type { Representative } from '@/lib/types';
 
+const INTERNAL_TOKEN = process.env.INTERNAL_API_TOKEN;
+
 export async function GET(request: Request) {
+  const authHeader = request.headers.get('authorization');
+  if (!INTERNAL_TOKEN || authHeader !== `Bearer ${INTERNAL_TOKEN}`) {
+    return NextResponse.json(
+      { error: 'Unauthorized — this endpoint requires authentication.' },
+      { status: 401 },
+    );
+  }
+
   try {
     let reps = await getAllReps();
     const repSource = getDirectoryRepSource();

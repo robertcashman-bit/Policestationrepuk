@@ -5,7 +5,7 @@ import { buildMetadata } from '@/lib/seo';
 import { getAllWikiArticles } from '@/lib/data';
 
 export const metadata = buildMetadata({
-  title: 'Training Guides & Resources — Free Articles for Reps',
+  title: 'Premium Training Guides & Resources for Police Station Reps',
   description:
     'Browse 45+ free training articles and guides for police station representatives — professional development, PACE, billing, and more.',
   path: '/Premium',

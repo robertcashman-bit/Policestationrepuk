@@ -37,19 +37,6 @@ const nextConfig: NextConfig = {
       { source: "/Directory", destination: "/directory" },
       { source: "/FindYourRep", destination: "/directory" },
       { source: "/Register", destination: "/register" },
-      { source: "/PoliceStationRepsKent", destination: "/directory/kent" },
-      { source: "/PoliceStationRepsLondon", destination: "/directory/london" },
-      { source: "/PoliceStationRepsEssex", destination: "/directory/essex" },
-      { source: "/PoliceStationRepsManchester", destination: "/directory/greater-manchester" },
-      { source: "/PoliceStationRepsWestMidlands", destination: "/directory/west-midlands" },
-      { source: "/PoliceStationRepsWestYorkshire", destination: "/directory/west-yorkshire" },
-      { source: "/PoliceStationRepsSurrey", destination: "/directory/surrey" },
-      { source: "/PoliceStationRepsSussex", destination: "/directory/sussex" },
-      { source: "/PoliceStationRepsHampshire", destination: "/directory/hampshire" },
-      { source: "/PoliceStationRepsNorfolk", destination: "/directory/norfolk" },
-      { source: "/PoliceStationRepsSuffolk", destination: "/directory/suffolk" },
-      { source: "/PoliceStationRepsBerkshire", destination: "/directory/berkshire" },
-      { source: "/PoliceStationRepsHertfordshire", destination: "/directory/hertfordshire" },
     ];
   },
 
@@ -88,6 +75,19 @@ const nextConfig: NextConfig = {
   async redirects() {
     const blogLegacyHub = "https://policestationrepuk.org/Blog";
     return [
+      { source: "/PoliceStationRepsKent", destination: "/directory/kent", permanent: true },
+      { source: "/PoliceStationRepsLondon", destination: "/directory/london", permanent: true },
+      { source: "/PoliceStationRepsEssex", destination: "/directory/essex", permanent: true },
+      { source: "/PoliceStationRepsManchester", destination: "/directory/greater-manchester", permanent: true },
+      { source: "/PoliceStationRepsWestMidlands", destination: "/directory/west-midlands", permanent: true },
+      { source: "/PoliceStationRepsWestYorkshire", destination: "/directory/west-yorkshire", permanent: true },
+      { source: "/PoliceStationRepsSurrey", destination: "/directory/surrey", permanent: true },
+      { source: "/PoliceStationRepsSussex", destination: "/directory/sussex", permanent: true },
+      { source: "/PoliceStationRepsHampshire", destination: "/directory/hampshire", permanent: true },
+      { source: "/PoliceStationRepsNorfolk", destination: "/directory/norfolk", permanent: true },
+      { source: "/PoliceStationRepsSuffolk", destination: "/directory/suffolk", permanent: true },
+      { source: "/PoliceStationRepsBerkshire", destination: "/directory/berkshire", permanent: true },
+      { source: "/PoliceStationRepsHertfordshire", destination: "/directory/hertfordshire", permanent: true },
       {
         source: "/police-station-representatives",
         destination: "/directory",

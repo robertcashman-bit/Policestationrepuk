@@ -204,7 +204,12 @@ export async function getAllReps(): Promise<Representative[]> {
 
 export async function getStationBySlug(slug: string): Promise<PoliceStation | undefined> {
   const file = loadDataFromFiles();
-  return file?.stations.find((s) => s.slug === slug);
+  const stations = file?.stations ?? [];
+  return (
+    stations.find((s) => s.slug === slug) ??
+    stations.find((s) => s.slug === `${slug}-police-station`) ??
+    stations.find((s) => s.slug.startsWith(`${slug}-`))
+  );
 }
 
 export async function getAllStations(): Promise<PoliceStation[]> {

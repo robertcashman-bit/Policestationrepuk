@@ -67,26 +67,26 @@ export function middleware(request: NextRequest) {
   if (legacyTarget && path !== legacyTarget) {
     const url = request.nextUrl.clone();
     url.pathname = legacyTarget;
-    return NextResponse.redirect(url, 308);
+    return NextResponse.redirect(url, 301);
   }
 
   if (path === '/Directory') {
     const url = request.nextUrl.clone();
     url.pathname = '/directory';
-    return NextResponse.redirect(url, 308);
+    return NextResponse.redirect(url, 301);
   }
 
   if (path === '/Register') {
     const url = request.nextUrl.clone();
     url.pathname = '/register';
-    return NextResponse.redirect(url, 308);
+    return NextResponse.redirect(url, 301);
   }
 
   const blogMatch = path.match(/^\/blog\/(.+)$/);
   if (blogMatch && path !== `/Blog/${blogMatch[1]}`) {
     const url = request.nextUrl.clone();
     url.pathname = `/Blog/${blogMatch[1]}`;
-    return NextResponse.redirect(url, 308);
+    return NextResponse.redirect(url, 301);
   }
 
   const blogPostMatch = path.match(/^\/Blog\/([^/]+)\/?$/);
@@ -112,7 +112,7 @@ export function middleware(request: NextRequest) {
     if (COUNTY_SLUG_SET.has(slug)) {
       const url = request.nextUrl.clone();
       url.pathname = `/directory/${slug}`;
-      return NextResponse.redirect(url, 308);
+      return NextResponse.redirect(url, 301);
     }
   }
 
@@ -122,7 +122,7 @@ export function middleware(request: NextRequest) {
     if (COUNTY_SLUG_SET.has(slug)) {
       const url = request.nextUrl.clone();
       url.pathname = `/directory/${slug}`;
-      return NextResponse.redirect(url, 308);
+      return NextResponse.redirect(url, 301);
     }
   }
 
@@ -133,7 +133,7 @@ export function middleware(request: NextRequest) {
     if (dirSlug) {
       const url = request.nextUrl.clone();
       url.pathname = `/directory/${dirSlug}`;
-      return NextResponse.redirect(url, 308);
+      return NextResponse.redirect(url, 301);
     }
   }
 
@@ -143,7 +143,7 @@ export function middleware(request: NextRequest) {
     if (COUNTY_SLUG_SET.has(seg)) {
       const url = request.nextUrl.clone();
       url.pathname = `/directory/${seg}`;
-      return NextResponse.redirect(url, 308);
+      return NextResponse.redirect(url, 301);
     }
   }
 

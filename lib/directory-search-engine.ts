@@ -1,4 +1,5 @@
 import type { Representative, PoliceStation } from '@/lib/types';
+import { repMatchesCountyName } from '@/lib/county-matching';
 
 export interface DirectorySearchRow {
   name: string;
@@ -64,18 +65,32 @@ export function normalizeCounty(county: string, countyMap: Record<string, string
   return countyMap[key] || county.trim();
 }
 
+/** Strip common suffixes to get the core station name for comparison. */
+function stripStationSuffix(name: string): string {
+  return name
+    .replace(/\s*(police station|custody suite|custody unit)\s*/gi, ' ')
+    .trim()
+    .toLowerCase();
+}
+
 function augmentGeoFromStations(rep: Representative, stations: PoliceStation[]): string {
   const labels = [...(rep.stations || []), ...(rep.stationsCovered || [])]
     .map((s) => String(s ?? '').trim().toLowerCase())
-    .filter((x) => x.length >= 3);
+    .filter((x) => x.length >= 5);
   if (!labels.length || !stations.length) return '';
+
+  const strippedLabels = labels.map(stripStationSuffix).filter((x) => x.length >= 4);
 
   const parts: string[] = [];
   for (const st of stations) {
     const nm = (st.name || '').toLowerCase().trim();
-    if (nm.length < 4) continue;
-    const shortNm = nm.replace(/\s*police station\s*|\s*custody suite\s*/g, ' ').trim();
-    const matched = labels.some((l) => nm.includes(l) || l.includes(shortNm) || shortNm.includes(l));
+    if (nm.length < 5) continue;
+    const shortNm = stripStationSuffix(nm);
+    if (shortNm.length < 4) continue;
+
+    const matched = strippedLabels.some(
+      (sl) => sl === shortNm || shortNm === sl || nm === sl || sl === nm,
+    );
     if (matched) {
       parts.push(
         st.name,
@@ -121,12 +136,19 @@ export function representativeToSearchRow(
   };
 }
 
-export function searchDirectory(data: DirectorySearchRow[], query: string): DirectorySearchRow[] {
+export function searchDirectory(
+  data: DirectorySearchRow[],
+  query: string,
+  countyNames?: string[],
+): DirectorySearchRow[] {
   const q = normalize(query);
 
   if (!q) return [...data];
 
   const qPostcode = extractUkPostcodeNorm(query);
+
+  const knownCounties = new Set((countyNames || []).map(normalize));
+  const queryIsCounty = knownCounties.has(q);
 
   return data
     .map((item) => {
@@ -148,10 +170,13 @@ export function searchDirectory(data: DirectorySearchRow[], query: string): Dire
         if (!field) return;
         if (field === q) score += 5;
         else if (field.includes(q)) score += 2;
-        else if (field.length >= 2 && q.includes(field)) score += 2;
       });
 
       if (normalize(item.county) === q) score += 10;
+
+      if (queryIsCounty && repMatchesCountyName(item.county, query)) {
+        score += 50;
+      }
 
       if (qPostcode && item.postcodeNorm && item.postcodeNorm === qPostcode) {
         score += 40;
@@ -159,9 +184,13 @@ export function searchDirectory(data: DirectorySearchRow[], query: string): Dire
         score += 25;
       }
 
+      if (queryIsCounty && score > 0 && !repMatchesCountyName(item.county, query)) {
+        score = Math.min(score, 4);
+      }
+
       return { item, score };
     })
-    .filter((r) => r.score > 0)
+    .filter((r) => r.score >= 2)
     .sort((a, b) => b.score - a.score)
     .map((r) => r.item);
 }

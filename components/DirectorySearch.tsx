@@ -236,7 +236,7 @@ export function DirectorySearch({
     if (!q) {
       result = reps.map((r) => ({ ...r, _score: 0 }));
     } else {
-      const matched = searchDirectory(searchRows, q);
+      const matched = searchDirectory(searchRows, q, counties.map((c) => c.name));
       result = matched.map((row, i) => ({ ...row.rep, _score: 1000 - i }));
     }
 
@@ -336,6 +336,7 @@ export function DirectorySearch({
     urgentOnly,
     completeOnly,
     stations,
+    counties,
     hasTextQuery,
     sort,
   ]);

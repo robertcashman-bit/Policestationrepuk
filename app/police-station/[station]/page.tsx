@@ -79,6 +79,24 @@ export default async function PoliceStationPage({ params }: PageProps) {
           <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
             {/* Main content */}
             <div className="space-y-6">
+              <section>
+                <h2 className="text-h2 text-[var(--navy)]">Representatives covering {station.name}</h2>
+                {reps.length === 0 ? (
+                  <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-8 text-center shadow-[var(--card-shadow)]">
+                    <p className="text-[var(--muted)]">
+                      No representatives listed for this station yet.{' '}
+                      <Link href="/register" className="text-[var(--gold-hover)] hover:underline">Register free</Link> to be listed.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                    {reps.map((rep) => (
+                      <RepCard key={rep.id} rep={rep} />
+                    ))}
+                  </div>
+                )}
+              </section>
+
               <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
                 <h2 className="text-lg font-bold text-[var(--navy)]">Legal representation at this station</h2>
                 <p className="mt-3 leading-relaxed text-[var(--muted)]">
@@ -104,24 +122,6 @@ export default async function PoliceStationPage({ params }: PageProps) {
                     Read more about PACE rights and custody procedures →
                   </Link>
                 </p>
-              </section>
-
-              <section>
-                <h2 className="text-h2 text-[var(--navy)]">Representatives covering {station.name}</h2>
-                {reps.length === 0 ? (
-                  <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-8 text-center shadow-[var(--card-shadow)]">
-                    <p className="text-[var(--muted)]">
-                      No representatives listed for this station yet.{' '}
-                      <Link href="/register" className="text-[var(--gold-hover)] hover:underline">Register free</Link> to be listed.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                    {reps.map((rep) => (
-                      <RepCard key={rep.id} rep={rep} />
-                    ))}
-                  </div>
-                )}
               </section>
             </div>
 
@@ -169,6 +169,16 @@ export default async function PoliceStationPage({ params }: PageProps) {
                 </p>
                 <Link href="/register" className="btn-gold mt-3 w-full !text-sm">
                   Register Free
+                </Link>
+              </section>
+
+              <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--gold-pale)] p-6">
+                <h3 className="font-bold text-[var(--navy)]">CustodyNote</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/80">
+                  The professional custody note app used by police station reps. Record attendance, interviews, outcomes, and handover notes — all from your phone.
+                </p>
+                <Link href="/CustodyNote" className="btn-outline mt-3 w-full !text-sm">
+                  Learn More
                 </Link>
               </section>
             </div>

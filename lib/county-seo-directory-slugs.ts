@@ -16,4 +16,10 @@ export const COUNTY_SEO_SLUG_TO_DIRECTORY_SLUG: Record<string, string> = {
   suffolk: 'suffolk',
   berkshire: 'berkshire',
   hertfordshire: 'hertfordshire',
+  merseyside: 'merseyside',
+  'south-yorkshire': 'south-yorkshire',
+  nottinghamshire: 'nottinghamshire',
+  'avon-and-somerset': 'avon-and-somerset',
+  lancashire: 'lancashire',
+  'devon-and-cornwall': 'devon-and-cornwall',
 };

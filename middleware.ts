@@ -10,6 +10,25 @@ import {
 } from '@/lib/blog/legacy-blog-slugs';
 
 const PS_REP_PREFIX = '/police-station-representatives-';
+const PS_REP_SINGULAR_PREFIX = '/police-station-rep-';
+
+const CITY_TO_DIRECTORY_SLUG: Record<string, string> = {
+  manchester: 'greater-manchester',
+  birmingham: 'west-midlands',
+  leeds: 'west-yorkshire',
+  bradford: 'west-yorkshire',
+  liverpool: 'merseyside',
+  sheffield: 'south-yorkshire',
+  bristol: 'avon-and-somerset',
+  nottingham: 'nottinghamshire',
+  southampton: 'hampshire',
+  portsmouth: 'hampshire',
+  brighton: 'sussex',
+  reading: 'berkshire',
+  norwich: 'norfolk',
+  ipswich: 'suffolk',
+  guildford: 'surrey',
+};
 
 /** Normalize non-canonical hosts to https://policestationrepuk.org (301). */
 function canonicalHostRedirect(request: NextRequest): NextResponse | null {
@@ -76,6 +95,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
+  if (key === '/find-a-rep' || key === '/find-rep' || key === '/findarep') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/directory';
+    return NextResponse.redirect(url, 301);
+  }
+
   if (path === '/Register') {
     const url = request.nextUrl.clone();
     url.pathname = '/register';
@@ -109,6 +134,21 @@ export function middleware(request: NextRequest) {
 
   if (path.startsWith(PS_REP_PREFIX) && !path.slice(PS_REP_PREFIX.length).includes('/')) {
     const slug = path.slice(PS_REP_PREFIX.length).toLowerCase();
+    if (COUNTY_SLUG_SET.has(slug)) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/directory/${slug}`;
+      return NextResponse.redirect(url, 301);
+    }
+  }
+
+  if (path.toLowerCase().startsWith(PS_REP_SINGULAR_PREFIX) && !path.slice(PS_REP_SINGULAR_PREFIX.length).includes('/')) {
+    const slug = path.slice(PS_REP_SINGULAR_PREFIX.length).toLowerCase();
+    const cityTarget = CITY_TO_DIRECTORY_SLUG[slug];
+    if (cityTarget) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/directory/${cityTarget}`;
+      return NextResponse.redirect(url, 301);
+    }
     if (COUNTY_SLUG_SET.has(slug)) {
       const url = request.nextUrl.clone();
       url.pathname = `/directory/${slug}`;

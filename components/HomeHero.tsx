@@ -1,11 +1,11 @@
 import Link from 'next/link';
 
 const HERO_QUICK_LINKS = [
-  { href: '/CustodyNote', label: 'Custody Note' },
+  { href: '/police-station-representative', label: 'What Is a Rep?' },
   { href: '/StationsDirectory', label: 'Station Numbers' },
   { href: '/FormsLibrary', label: 'Forms Library' },
-  { href: '/Resources', label: 'Resources' },
   { href: '/Wiki', label: 'Rep Wiki' },
+  { href: '/Resources', label: 'Resources' },
 ] as const;
 
 const TRUST_BADGE_COUNT = 258;
@@ -23,14 +23,15 @@ export function HomeHero() {
           </div>
 
           <h1 className="text-h1 text-white">
-            The UK&apos;s Free Directory of{' '}
-            <span className="text-[var(--gold)]">Police Station Representatives</span>
+            Find a <span className="text-[var(--gold)]">Police Station Representative</span>{' '}
+            — UK Directory
           </h1>
 
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/90 sm:text-xl">
-            Connecting <strong className="text-white">criminal defence firms</strong> with{' '}
-            <strong className="text-white">accredited representatives</strong> for police station
-            attendance across England &amp; Wales — 24/7, completely free.
+            The UK&apos;s free directory connecting{' '}
+            <strong className="text-white">criminal defence firms</strong> with{' '}
+            <strong className="text-white">accredited police station reps</strong> for custody
+            attendance across England &amp; Wales — 24/7, no fees.
           </p>
 
           <div className="mt-6 flex flex-wrap justify-center gap-2">

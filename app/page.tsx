@@ -14,7 +14,6 @@ import { HomeRegisterCta } from '@/components/HomeRegisterCta';
 import { HomeQuickSearch } from '@/components/HomeQuickSearch';
 import { HomePhoneNumbers } from '@/components/HomePhoneNumbers';
 import { HomeAIAssistant } from '@/components/HomeAIAssistant';
-import { HomeKentSpotlight } from '@/components/HomeKentSpotlight';
 import { HomeSeoConversionHub } from '@/components/HomeSeoConversionHub';
 import { HomeHomepageFaq } from '@/components/HomeHomepageFaq';
 import { getAllReps, getAllStations, getAllCounties } from '@/lib/data';
@@ -28,14 +27,14 @@ import { HOMEPAGE_FAQS } from '@/lib/homepage-faqs';
 import { SITE_NAME, SITE_URL, socialPreviewImageUrl } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
-  title: 'Police Station Reps UK | Find Police Station Representatives',
+  title: 'Find a Police Station Rep — UK Representative Directory',
   description:
-    'Free directory of accredited police station representatives across England & Wales. Find reps by county, station, or name — 100% free for firms and reps. No fees, no middleman.',
+    'Free directory of accredited police station representatives in England & Wales. Search by county, station, or name. 300+ reps, 894 stations. Join free.',
   alternates: { canonical: SITE_URL },
   openGraph: {
-    title: 'Police Station Reps UK | Find Police Station Representatives',
+    title: 'Find a Police Station Rep — UK Representative Directory',
     description:
-      'Find experienced police station representatives across the UK. Connect with available reps quickly and easily.',
+      'Free UK directory of accredited police station representatives. Search by county, station, or name. 300+ reps, 894 stations listed.',
     url: SITE_URL,
     type: 'website',
     siteName: SITE_NAME,
@@ -45,14 +44,14 @@ export const metadata: Metadata = {
         url: socialPreviewImageUrl(),
         width: 1200,
         height: 630,
-        alt: 'Police Station Reps UK — find police station representatives',
+        alt: 'Find a police station representative — UK directory',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Police Station Reps UK',
-    description: 'Find police station representatives across the UK.',
+    title: 'Find a Police Station Rep — UK Directory',
+    description: 'Free directory of police station representatives across England & Wales. 300+ reps, 894 stations.',
     images: [socialPreviewImageUrl()],
   },
 };
@@ -93,43 +92,25 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Platform disclaimer */}
-      <section className="border-b border-[var(--gold)]/20 bg-[var(--gold-pale)] py-4" aria-label="Platform notice">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
-          <p className="text-xs leading-relaxed text-[var(--navy)]/80">
-            <strong className="font-bold text-[var(--navy)]">PoliceStationRepUK is a directory</strong> — not a law
-            firm, agency, or provider of legal services. It connects criminal defence firms with accredited
-            representatives. Any engagement is a direct contract between the instructing firm and the
-            representative. Firms retain responsibility for instruction, supervision, and regulatory compliance.{' '}
-            <Link href="/About" className="font-semibold text-[var(--navy)] underline">Learn more about the directory</Link>
-          </p>
-        </div>
-      </section>
-
-      <HomeCustodyNote />
-
-      <ToolsForRepsSection />
-
       <div className="cv-auto">
         <HomeSeoConversionHub />
       </div>
 
       <div className="cv-auto">
-        <HomeKentSpotlight />
+        <HomeQuickSearch
+          stations={stations.map((s) => s.name)}
+          counties={counties.map((c) => c.name)}
+        />
       </div>
 
       <HomeRecentlyJoined reps={reps} />
 
       <div className="cv-auto">
-        <HomeWhyChoose />
-      </div>
-
-      <div className="cv-auto">
-        <HomeTrainingResources />
-      </div>
-
-      <div className="cv-auto">
         <HomeFeaturedCarousel featuredReps={featuredReps} />
+      </div>
+
+      <div className="cv-auto">
+        <HomeWhyChoose />
       </div>
 
       <div className="cv-auto">
@@ -140,15 +121,16 @@ export default async function HomePage() {
         <HomeBlogPreview />
       </div>
 
+      <HomeCustodyNote />
+
+      <ToolsForRepsSection />
+
       <div className="cv-auto">
-        <HomeRegisterCta />
+        <HomeTrainingResources />
       </div>
 
       <div className="cv-auto">
-        <HomeQuickSearch
-          stations={stations.map((s) => s.name)}
-          counties={counties.map((c) => c.name)}
-        />
+        <HomeRegisterCta />
       </div>
 
       <div className="cv-auto">
@@ -162,6 +144,19 @@ export default async function HomePage() {
       <div className="cv-auto">
         <HomeAIAssistant />
       </div>
+
+      {/* Platform disclaimer */}
+      <section className="border-t border-[var(--gold)]/20 bg-[var(--gold-pale)] py-4" aria-label="Platform notice">
+        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
+          <p className="text-xs leading-relaxed text-[var(--navy)]/80">
+            <strong className="font-bold text-[var(--navy)]">PoliceStationRepUK is a directory</strong> — not a law
+            firm, agency, or provider of legal services. It connects criminal defence firms with accredited
+            representatives. Any engagement is a direct contract between the instructing firm and the
+            representative. Firms retain responsibility for instruction, supervision, and regulatory compliance.{' '}
+            <Link href="/About" className="font-semibold text-[var(--navy)] underline">Learn more about the directory</Link>
+          </p>
+        </div>
+      </section>
     </>
   );
 }

@@ -168,6 +168,78 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
       'Accredited police station representatives covering Hertfordshire Constabulary custody suites including Hatfield, Stevenage, Watford, and surrounding areas.',
     stationNames: ['Hatfield', 'Stevenage', 'Watford', 'St Albans'],
   },
+  {
+    slug: 'merseyside',
+    countyName: 'Merseyside',
+    pageSlug: 'PoliceStationRepsMerseyside',
+    metaTitle: 'Merseyside Police Station Representatives | Find Reps for Firms',
+    metaDescription:
+      'Find accredited police station representatives covering Merseyside. Representatives available for all Merseyside Police custody suites.',
+    h1: 'Merseyside Police Station Representatives',
+    intro:
+      'Accredited police station representatives covering Merseyside Police custody suites including Liverpool, Birkenhead, St Helens, and surrounding areas.',
+    stationNames: ['Liverpool', 'Birkenhead', 'St Helens', 'Southport'],
+  },
+  {
+    slug: 'south-yorkshire',
+    countyName: 'South Yorkshire',
+    pageSlug: 'PoliceStationRepsSouthYorkshire',
+    metaTitle: 'South Yorkshire Police Station Representatives | Find Reps for Firms',
+    metaDescription:
+      'Find accredited police station representatives covering South Yorkshire. Representatives available for all SYP custody suites.',
+    h1: 'South Yorkshire Police Station Representatives',
+    intro:
+      'Accredited police station representatives covering South Yorkshire Police custody suites including Sheffield, Doncaster, Rotherham, and Barnsley.',
+    stationNames: ['Sheffield', 'Doncaster', 'Rotherham', 'Barnsley'],
+  },
+  {
+    slug: 'nottinghamshire',
+    countyName: 'Nottinghamshire',
+    pageSlug: 'PoliceStationRepsNottinghamshire',
+    metaTitle: 'Nottinghamshire Police Station Representatives | Find Reps for Firms',
+    metaDescription:
+      'Find accredited police station representatives covering Nottinghamshire. Representatives available for Nottinghamshire Police custody suites.',
+    h1: 'Nottinghamshire Police Station Representatives',
+    intro:
+      'Accredited police station representatives covering Nottinghamshire Police custody suites including Nottingham, Mansfield, Newark, and surrounding areas.',
+    stationNames: ['Nottingham', 'Mansfield', 'Newark'],
+  },
+  {
+    slug: 'avon-and-somerset',
+    countyName: 'Avon and Somerset',
+    pageSlug: 'PoliceStationRepsAvonSomerset',
+    metaTitle: 'Bristol & Somerset Police Station Representatives | Find Reps for Firms',
+    metaDescription:
+      'Find accredited police station representatives covering Avon and Somerset. Representatives available for Bristol, Bath, and all ASP custody suites.',
+    h1: 'Bristol & Somerset Police Station Representatives',
+    intro:
+      'Accredited police station representatives covering Avon and Somerset Police custody suites including Bristol, Bath, Taunton, and surrounding areas.',
+    stationNames: ['Bristol', 'Bath', 'Taunton', 'Weston-super-Mare'],
+  },
+  {
+    slug: 'lancashire',
+    countyName: 'Lancashire',
+    pageSlug: 'PoliceStationRepsLancashire',
+    metaTitle: 'Lancashire Police Station Representatives | Find Reps for Firms',
+    metaDescription:
+      'Find accredited police station representatives covering Lancashire. Representatives available for all Lancashire Constabulary custody suites.',
+    h1: 'Lancashire Police Station Representatives',
+    intro:
+      'Accredited police station representatives covering Lancashire Constabulary custody suites including Preston, Blackpool, Blackburn, and surrounding areas.',
+    stationNames: ['Preston', 'Blackpool', 'Blackburn', 'Lancaster', 'Burnley'],
+  },
+  {
+    slug: 'devon-and-cornwall',
+    countyName: 'Devon and Cornwall',
+    pageSlug: 'PoliceStationRepsDevonCornwall',
+    metaTitle: 'Devon & Cornwall Police Station Representatives | Find Reps for Firms',
+    metaDescription:
+      'Find accredited police station representatives covering Devon and Cornwall. Representatives available for all D&C Police custody suites.',
+    h1: 'Devon & Cornwall Police Station Representatives',
+    intro:
+      'Accredited police station representatives covering Devon and Cornwall Police custody suites including Exeter, Plymouth, Truro, and surrounding areas.',
+    stationNames: ['Exeter', 'Plymouth', 'Truro', 'Torquay'],
+  },
 ];
 
 export function getCountySeoPage(pageSlug: string): CountySeoPage | null {

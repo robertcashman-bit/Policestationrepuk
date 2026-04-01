@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SITE_URL, SITE_NAME } from './config';
+import { SITE_URL, SITE_NAME, socialPreviewImageUrl } from './config';
 
 export interface MetadataInput {
   title: string;
@@ -18,6 +18,13 @@ export function buildMetadata(opts: MetadataInput): Metadata {
   const url = `${SITE_URL}${opts.path}`;
   const ogType = opts.ogType ?? 'website';
 
+  const defaultOgImage = {
+    url: socialPreviewImageUrl(),
+    width: 1200,
+    height: 630,
+    alt: `${SITE_NAME} — UK police station representative directory`,
+  };
+
   const ogImages =
     opts.ogImage?.url != null
       ? [
@@ -28,7 +35,7 @@ export function buildMetadata(opts: MetadataInput): Metadata {
             alt: opts.ogImage.alt,
           },
         ]
-      : undefined;
+      : [defaultOgImage];
 
   const openGraph: Metadata['openGraph'] =
     ogType === 'article'
@@ -41,7 +48,7 @@ export function buildMetadata(opts: MetadataInput): Metadata {
           locale: 'en_GB',
           ...(opts.publishedTime ? { publishedTime: opts.publishedTime } : {}),
           ...(opts.modifiedTime ? { modifiedTime: opts.modifiedTime } : {}),
-          ...(ogImages ? { images: ogImages } : {}),
+          images: ogImages,
         }
       : {
           title: opts.title,
@@ -50,8 +57,10 @@ export function buildMetadata(opts: MetadataInput): Metadata {
           siteName: SITE_NAME,
           type: 'website',
           locale: 'en_GB',
-          ...(ogImages ? { images: ogImages } : {}),
+          images: ogImages,
         };
+
+  const cardImageUrl = ogImages[0]?.url ?? socialPreviewImageUrl();
 
   return {
     title: opts.title,
@@ -62,7 +71,7 @@ export function buildMetadata(opts: MetadataInput): Metadata {
       card: 'summary_large_image',
       title: opts.title,
       description: opts.description,
-      ...(ogImages?.[0]?.url ? { images: [ogImages[0].url] } : {}),
+      images: [cardImageUrl],
     },
     robots: opts.noIndex ? { index: false, follow: true } : undefined,
   };

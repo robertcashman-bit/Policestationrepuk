@@ -6,7 +6,7 @@ import { Footer } from '@/components/Footer';
 import { DeferredGlobalWidgets } from '@/components/DeferredGlobalWidgets';
 import { JsonLd } from '@/components/JsonLd';
 import './globals.css';
-import { SITE_URL } from '@/lib/seo-layer/config';
+import { SITE_URL, SITE_NAME, socialPreviewImageUrl } from '@/lib/seo-layer/config';
 import { platformLegalServiceSchema } from '@/lib/seo';
 
 /** Set in Vercel / `.env` when verifying in Google Search Console (omit to skip meta tag). */
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   alternates: { canonical: SITE_URL },
   openGraph: {
-    siteName: 'PoliceStationRepUK',
+    siteName: SITE_NAME,
     locale: 'en_GB',
     type: 'website',
     title: 'PoliceStationRepUK — Free Police Station Rep Directory UK',
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     images: [
       {
-        url: `${SITE_URL}/og-default.png`,
+        url: socialPreviewImageUrl(),
         width: 1200,
         height: 630,
         alt: 'PoliceStationRepUK — The UK\'s Free Directory for Police Station Cover',
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     title: 'PoliceStationRepUK — Free Police Station Rep Directory',
     description:
       'Find accredited police station reps across England & Wales. 100% free for solicitors and reps.',
-    images: [`${SITE_URL}/og-default.png`],
+    images: [socialPreviewImageUrl()],
   },
   robots: {
     index: true,

@@ -6,17 +6,42 @@ import { DirectorySearch } from '@/components/DirectorySearch';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotice';
 import { AdvertisementLabel } from '@/components/AdvertisementLabel';
-import { SITE_URL } from '@/lib/seo-layer/config';
+import { SITE_NAME, SITE_URL, socialPreviewImageUrl } from '@/lib/seo-layer/config';
 import { JsonLd } from '@/components/JsonLd';
 import { breadcrumbSchema, directoryItemListSchema } from '@/lib/seo';
 import { ResultsGridSkeleton } from '@/components/directory/ResultsGrid';
 import { JoinCTA } from '@/components/directory/JoinCTA';
 
+const directoryTitle = 'Police Station Rep Directory — Search by County & Station';
+const directoryDescription =
+  'Free directory of accredited police station representatives across England and Wales. Search by name, county, police force, station, postcode, availability, and accreditation. No fees for solicitors or reps.';
+
 export const metadata: Metadata = {
-  title: 'Police Station Rep Directory — Search by County & Station',
-  description:
-    'Free directory of accredited police station representatives across England and Wales. Search by name, county, police force, station, postcode, availability, and accreditation. No fees for solicitors or reps.',
+  title: directoryTitle,
+  description: directoryDescription,
   alternates: { canonical: `${SITE_URL}/directory` },
+  openGraph: {
+    title: directoryTitle,
+    description: directoryDescription,
+    url: `${SITE_URL}/directory`,
+    type: 'website',
+    siteName: SITE_NAME,
+    locale: 'en_GB',
+    images: [
+      {
+        url: socialPreviewImageUrl(),
+        width: 1200,
+        height: 630,
+        alt: 'Search the UK police station representative directory',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: directoryTitle,
+    description: directoryDescription,
+    images: [socialPreviewImageUrl()],
+  },
 };
 
 export default async function DirectoryPage() {

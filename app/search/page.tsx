@@ -5,14 +5,39 @@ import { getAllReps, getAllCounties, getAllStations } from '@/lib/data';
 import { DirectorySearch } from '@/components/DirectorySearch';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotice';
-import { SITE_URL } from '@/lib/seo-layer/config';
+import { SITE_NAME, SITE_URL, socialPreviewImageUrl } from '@/lib/seo-layer/config';
 import { ResultsGridSkeleton } from '@/components/directory/ResultsGrid';
 
+const searchTitle = 'Search Police Station Representatives | PoliceStationRepUK';
+const searchDescription =
+  'Advanced search: filter the same live PoliceStationRepUK listings by county, police force, station, accreditation type, availability, postcode-aware text search, and sort order. Use this page for extra filters; use Find a Rep for the full directory hub.';
+
 export const metadata: Metadata = {
-  title: 'Search Police Station Representatives | PoliceStationRepUK',
-  description:
-    'Advanced search: filter the same live PoliceStationRepUK listings by county, police force, station, accreditation type, availability, postcode-aware text search, and sort order. Use this page for extra filters; use Find a Rep for the full directory hub.',
+  title: searchTitle,
+  description: searchDescription,
   alternates: { canonical: `${SITE_URL}/search` },
+  openGraph: {
+    title: searchTitle,
+    description: searchDescription,
+    url: `${SITE_URL}/search`,
+    type: 'website',
+    siteName: SITE_NAME,
+    locale: 'en_GB',
+    images: [
+      {
+        url: socialPreviewImageUrl(),
+        width: 1200,
+        height: 630,
+        alt: 'Advanced search for police station representatives',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: searchTitle,
+    description: searchDescription,
+    images: [socialPreviewImageUrl()],
+  },
 };
 
 export default async function SearchPage() {

@@ -10,6 +10,13 @@ export const SITE_URL =
   'https://policestationrepuk.org';
 export const SITE_NAME = 'PoliceStationRepUK';
 
+/** Open Graph / Twitter / social tool preview image (served from `public/`). */
+export const SOCIAL_PREVIEW_PATH = '/social-preview.jpg' as const;
+
+export function socialPreviewImageUrl(): string {
+  return `${SITE_URL}${SOCIAL_PREVIEW_PATH}`;
+}
+
 /** Short meta/JSON-LD description: directory only — not a law firm or provider of regulated services. */
 export const DEFAULT_DESCRIPTION =
   'Free directory connecting criminal defence firms with accredited police station representatives across England and Wales. PoliceStationRepUK is not a law firm and does not provide legal advice or regulated legal services through the directory.';

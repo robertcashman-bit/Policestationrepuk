@@ -38,6 +38,7 @@
     "test:directory-search": "npx tsx scripts/directory-search-selftest.ts",
     "blog:heroes": "node scripts/blog/build-blog-hero-webp.mjs",
     "blog:heroes:fetch": "node scripts/blog/fetch-hero-images.mjs",
+    "social:preview": "node scripts/generate-social-preview.mjs",
     "analyze": "ANALYZE=true next build",
     "audit:validate": "node scripts/audit-validate.mjs",
     "audit:validate:fix": "node scripts/audit-validate.mjs --fix",

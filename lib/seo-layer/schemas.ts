@@ -1,4 +1,4 @@
-import { SITE_URL, SITE_NAME, DEFAULT_DESCRIPTION } from './config';
+import { SITE_URL, SITE_NAME, DEFAULT_DESCRIPTION, socialPreviewImageUrl } from './config';
 
 export function organizationSchema() {
   return {
@@ -145,7 +145,7 @@ export function directoryServiceLocalBusinessSchema() {
     description: DEFAULT_DESCRIPTION,
     url: SITE_URL,
     telephone: '+44-1732-247427',
-    image: `${SITE_URL}/og-default.png`,
+    image: socialPreviewImageUrl(),
     priceRange: 'Free directory listing',
     address: {
       '@type': 'PostalAddress',
@@ -200,7 +200,7 @@ export function blogPostingSchema(post: {
       url: SITE_URL,
       logo: {
         '@type': 'ImageObject',
-        url: `${SITE_URL}/og-default.png`,
+        url: socialPreviewImageUrl(),
       },
     },
     mainEntityOfPage: {

@@ -25,13 +25,36 @@ import {
   directoryServiceLocalBusinessSchema,
 } from '@/lib/seo';
 import { HOMEPAGE_FAQS } from '@/lib/homepage-faqs';
-import { SITE_URL } from '@/lib/seo-layer/config';
+import { SITE_NAME, SITE_URL, socialPreviewImageUrl } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
-  title: 'Police Station Rep Directory UK | Find Accredited Representatives',
+  title: 'Police Station Reps UK | Find Police Station Representatives',
   description:
     'Free directory of accredited police station representatives across England & Wales. Find reps by county, station, or name — 100% free for firms and reps. No fees, no middleman.',
   alternates: { canonical: SITE_URL },
+  openGraph: {
+    title: 'Police Station Reps UK | Find Police Station Representatives',
+    description:
+      'Find experienced police station representatives across the UK. Connect with available reps quickly and easily.',
+    url: SITE_URL,
+    type: 'website',
+    siteName: SITE_NAME,
+    locale: 'en_GB',
+    images: [
+      {
+        url: socialPreviewImageUrl(),
+        width: 1200,
+        height: 630,
+        alt: 'Police Station Reps UK — find police station representatives',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Police Station Reps UK',
+    description: 'Find police station representatives across the UK.',
+    images: [socialPreviewImageUrl()],
+  },
 };
 
 const UK_FORCES_COUNT = 42;

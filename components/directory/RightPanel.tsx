@@ -89,12 +89,12 @@ export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
         </p>
         <p className="mt-1 text-sm font-bold text-white">Custody Note</p>
         <p className="mt-1 text-xs leading-relaxed text-white/70">
-          Police station attendance note software. 30-day free trial.
+          Police station attendance note software. 30-day free trial, then £9.99/mo early adopter price.
         </p>
         <p className="mt-2 text-xs text-white/60">
           Code{' '}
           <span className="font-mono font-semibold text-[var(--gold)]">A2MJY2NQ</span>{' '}
-          for 25% off
+          for 25% off · Price will increase
         </p>
         <Link
           href="https://custodynote.com"

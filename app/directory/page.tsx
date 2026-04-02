@@ -156,7 +156,7 @@ export default async function DirectoryPage() {
                 Custody Note — police station attendance note software
               </p>
               <p className="mt-0.5 text-xs text-white/70">
-                30-day free trial &middot; &pound;9.99/mo &middot; Code{' '}
+                30-day free trial &middot; &pound;9.99/mo early adopter price &middot; Code{' '}
                 <span className="font-mono font-semibold text-[var(--gold)]">A2MJY2NQ</span> for 25% off
               </p>
             </div>

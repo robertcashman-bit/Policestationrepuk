@@ -216,14 +216,18 @@ export default function CustodyNotePage() {
 
           <div className="mt-8 rounded-[var(--radius-lg)] border-2 border-[var(--gold)] bg-[var(--navy-light)] p-5">
             <p className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">
-              Exclusive Discount
+              Early Adopter Price
             </p>
             <p className="mt-2 text-base font-semibold text-white">
-              25% off the £{SUBSCRIPTION_GBP}/month subscription after the trial. Enter code{' '}
+              £{SUBSCRIPTION_GBP}/month — early access pricing that will increase as features are added.
+              Subscribe now to lock in this rate for as long as your subscription stays active.
+            </p>
+            <p className="mt-3 text-sm text-slate-300">
+              PSR UK members also get 25% off — use code{' '}
               <span className="rounded bg-[var(--gold)] px-2.5 py-0.5 font-mono text-sm text-[var(--navy)]">
                 {DISCOUNT_CODE}
               </span>{' '}
-              on the Custody Note pricing page.
+              at checkout on custodynote.com.
             </p>
           </div>
 
@@ -246,7 +250,7 @@ export default function CustodyNotePage() {
             </a>
           </div>
           <p className="mt-3 text-xs text-slate-300">
-            No credit card for trial · Windows 10+ · From £{SUBSCRIPTION_GBP}/mo · Cancel any time
+            No credit card for trial · Windows 10+ · £{SUBSCRIPTION_GBP}/mo early adopter price · Cancel any time
           </p>
         </div>
       </section>
@@ -452,14 +456,17 @@ export default function CustodyNotePage() {
           </p>
           <div className="mx-auto mt-8 max-w-md">
             <div className="rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/40 bg-[var(--gold)]/5 p-6">
+              <p className="mb-1 text-center text-xs font-bold uppercase tracking-wider text-[var(--gold-hover)]">
+                Early Adopter Price
+              </p>
               <p className="text-center text-2xl font-bold text-[var(--navy)]">
-                From £{SUBSCRIPTION_GBP}<span className="text-base font-normal text-[var(--muted)]">/mo</span>
+                £{SUBSCRIPTION_GBP}<span className="text-base font-normal text-[var(--muted)]">/mo</span>
               </p>
               <p className="mt-1 text-center text-sm text-[var(--muted)]">
                 30-day free trial included
               </p>
               <p className="mt-1 text-center text-xs text-[var(--muted)]">
-                Use code {DISCOUNT_CODE} for 25% off at checkout
+                This price will increase — lock it in now. Use code {DISCOUNT_CODE} for 25% off.
               </p>
               <ul className="mt-6 space-y-3">
                 {PRICING_FEATURES.map((pf) => (
@@ -486,11 +493,13 @@ export default function CustodyNotePage() {
       <section className="mb-14 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center sm:p-10">
         <h2 className="text-h2 text-white">Ready to try Custody Note?</h2>
         <p className="mx-auto mt-3 max-w-xl text-slate-300">
-          Start your 30-day free trial today. No credit card required. Use discount code{' '}
+          Start your 30-day free trial today. No credit card required. The current £{SUBSCRIPTION_GBP}/mo
+          early adopter price will increase — subscribe now to lock it in. PSR UK members can
+          use code{' '}
           <span className="rounded bg-[var(--gold)] px-2.5 py-0.5 font-mono text-sm text-[var(--navy)]">
             {DISCOUNT_CODE}
           </span>{' '}
-          for 25% off your subscription on the pricing page.
+          for an extra 25% off.
         </p>
         <a
           href={CUSTODYNOTE_PRICING}
@@ -501,7 +510,7 @@ export default function CustodyNotePage() {
           View Pricing & Trial →
         </a>
         <p className="mt-3 text-xs text-[var(--muted)]">
-          No credit card for trial · Windows 10+ · From £{SUBSCRIPTION_GBP}/mo · Cancel any time
+          No credit card for trial · Windows 10+ · £{SUBSCRIPTION_GBP}/mo early adopter price · Cancel any time
         </p>
       </section>
 

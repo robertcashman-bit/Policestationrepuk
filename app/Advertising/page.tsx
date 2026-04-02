@@ -53,10 +53,12 @@ export default function AdvertisingPage() {
                 <p className="mt-1 text-sm text-[var(--muted)]">
                   Desktop attendance note software for criminal defence solicitors and police station
                   representatives. Developed by Defence Legal Services Ltd (trading as Police Station
-                  Agent). Standard pricing: £9.99/month after a 30-day free trial. PoliceStationRepUK
-                  members can use code{' '}
-                  <span className="font-mono font-semibold text-[var(--navy)]">A2MJY2NQ</span> for 25%
-                  off that monthly subscription.
+                  Agent). Current early adopter pricing: £9.99/month after a 30-day free trial — this
+                  price will increase as features are added, but subscribers who join now keep the rate
+                  for as long as their subscription remains active. PoliceStationRepUK members can also
+                  use code{' '}
+                  <span className="font-mono font-semibold text-[var(--navy)]">A2MJY2NQ</span> for an
+                  additional 25% off.
                 </p>
                 <p className="mt-2 text-xs text-[var(--muted)]">
                   Website:{' '}

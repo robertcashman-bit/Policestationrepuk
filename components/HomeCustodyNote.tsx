@@ -35,17 +35,20 @@ export function HomeCustodyNote() {
             </div>
 
             <div className="mt-8 rounded-xl border-2 border-[var(--gold)]/30 bg-[var(--gold)]/10 px-6 py-4">
+              <p className="mb-1 text-xs font-bold uppercase tracking-wider text-[var(--gold)]">
+                Early Adopter Price
+              </p>
               <p className="text-lg font-bold text-white">
-                30-day free trial — then <span className="text-[var(--gold)]">£9.99/month</span> standard
+                30-day free trial — then <span className="text-[var(--gold)]">£9.99/month</span>
               </p>
               <p className="mt-1 text-sm text-white/80">
-                No credit card required · Windows 10+ · Cancel any time
+                This price will increase — subscribe now to lock it in. Cancel any time.
               </p>
             </div>
 
             <div className="mt-6 inline-flex max-w-full flex-wrap items-center justify-center gap-2 rounded-full border-2 border-white/30 bg-black/25 px-5 py-2.5 text-sm font-semibold text-white">
               <span aria-hidden>🎁</span>
-              Exclusive for PSR UK members — 25% off the £9.99/month subscription
+              PSR UK members get an extra 25% off — use code A2MJY2NQ at checkout
             </div>
 
             <p className="mt-3 text-sm font-medium text-white">

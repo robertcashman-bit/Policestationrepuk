@@ -15,6 +15,20 @@ export function LoginForm() {
 
   const supabase = createClient();
 
+  if (!supabase) {
+    return (
+      <div className="mx-auto max-w-md">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-8 text-center">
+          <h2 className="text-lg font-bold text-[var(--navy)]">Self-service portal</h2>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            The login system is being configured. Please check back soon or contact us for profile changes.
+          </p>
+          <Link href="/Contact" className="btn-gold mt-4 inline-block !text-sm">Contact us</Link>
+        </div>
+      </div>
+    );
+  }
+
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError('');
@@ -25,7 +39,7 @@ export function LoginForm() {
     }
     setBusy(true);
     try {
-      const { error: authError } = await supabase.auth.signInWithOtp({
+      const { error: authError } = await supabase!.auth.signInWithOtp({
         email: trimmed,
         options: {
           shouldCreateUser: true,
@@ -55,7 +69,7 @@ export function LoginForm() {
     setBusy(true);
     setStage('checking');
     try {
-      const { error: authError } = await supabase.auth.verifyOtp({
+      const { error: authError } = await supabase!.auth.verifyOtp({
         email: email.trim().toLowerCase(),
         token: code,
         type: 'email',

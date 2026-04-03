@@ -1,25 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getAllReps } from '@/lib/data';
+import { getAllReps, getRawReps } from '@/lib/data';
 import { sendProfileUpdateNotification } from '@/lib/email';
 
-interface ProfileRow {
-  name?: string | null;
-  phone?: string | null;
-  availability?: string | null;
-  accreditation?: string | null;
-  stations_covered?: string[] | null;
-  notes?: string | null;
-  postcode?: string | null;
-  website_url?: string | null;
-  whatsapp_link?: string | null;
-  dscc_pin?: string | null;
-  holiday_availability?: string[] | null;
-  languages?: string[] | null;
-  specialisms?: string[] | null;
-  years_experience?: number | null;
-  updated_at?: string | null;
-}
 
 const ALLOWED_FIELDS = new Set([
   'name',
@@ -40,6 +23,7 @@ const ALLOWED_FIELDS = new Set([
 
 export async function GET() {
   const supabase = await createClient();
+  if (!supabase) return NextResponse.json({ error: 'Not configured' }, { status: 503 });
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -88,6 +72,7 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   const supabase = await createClient();
+  if (!supabase) return NextResponse.json({ error: 'Not configured' }, { status: 503 });
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -97,7 +82,8 @@ export async function PUT(request: Request) {
   }
 
   const email = user.email.toLowerCase();
-  const reps = await getAllReps();
+  // Use raw static data (no overrides) so the change diff reflects actual source values
+  const reps = getRawReps();
   const rep = reps.find((r) => r.email.toLowerCase() === email);
 
   if (!rep) {

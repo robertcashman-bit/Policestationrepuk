@@ -165,7 +165,7 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
   }
 
   async function handleLogout() {
-    await supabase.auth.signOut();
+    await supabase?.auth.signOut();
     window.location.reload();
   }
 
@@ -238,7 +238,7 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
 
       {updatedAt && (
         <p className="mt-2 text-xs text-[var(--muted)]">
-          Last updated: {new Date(updatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          Last updated: {new Date(updatedAt).toLocaleString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </p>
       )}
 

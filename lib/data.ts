@@ -223,29 +223,34 @@ async function loadProfileOverrides(): Promise<Map<string, Record<string, unknow
   return _profileOverrides;
 }
 
-function applyOverrides(rep: Representative, overrides: Record<string, unknown>): Representative {
+export function applyOverrides(rep: Representative, overrides: Record<string, unknown>): Representative {
   return {
     ...rep,
-    name: (overrides.name as string) || rep.name,
-    phone: (overrides.phone as string) || rep.phone,
-    availability: (overrides.availability as string) || rep.availability,
-    accreditation: (overrides.accreditation as string) || rep.accreditation,
-    postcode: (overrides.postcode as string) || rep.postcode,
-    stationsCovered: (overrides.stations_covered as string[]) || rep.stationsCovered,
-    notes: (overrides.notes as string) || rep.notes,
-    websiteUrl: (overrides.website_url as string) || rep.websiteUrl,
-    whatsappLink: (overrides.whatsapp_link as string) || rep.whatsappLink,
-    dsccPin: (overrides.dscc_pin as string) || rep.dsccPin,
-    holidayAvailability: (overrides.holiday_availability as string[]) || rep.holidayAvailability,
-    languages: (overrides.languages as string[]) || rep.languages,
-    specialisms: (overrides.specialisms as string[]) || rep.specialisms,
-    yearsExperience: (overrides.years_experience as number) ?? rep.yearsExperience,
+    name: (overrides.name as string | null) ?? rep.name,
+    phone: (overrides.phone as string | null) ?? rep.phone,
+    availability: (overrides.availability as string | null) ?? rep.availability,
+    accreditation: (overrides.accreditation as string | null) ?? rep.accreditation,
+    postcode: (overrides.postcode as string | null) ?? rep.postcode,
+    stationsCovered: (overrides.stations_covered as string[] | null) ?? rep.stationsCovered,
+    notes: (overrides.notes as string | null) ?? rep.notes,
+    websiteUrl: (overrides.website_url as string | null) ?? rep.websiteUrl,
+    whatsappLink: (overrides.whatsapp_link as string | null) ?? rep.whatsappLink,
+    dsccPin: (overrides.dscc_pin as string | null) ?? rep.dsccPin,
+    holidayAvailability: (overrides.holiday_availability as string[] | null) ?? rep.holidayAvailability,
+    languages: (overrides.languages as string[] | null) ?? rep.languages,
+    specialisms: (overrides.specialisms as string[] | null) ?? rep.specialisms,
+    yearsExperience: (overrides.years_experience as number | null) ?? rep.yearsExperience,
   };
 }
 
-export async function getAllReps(): Promise<Representative[]> {
+/** Returns reps from static JSON only — no Supabase overrides applied. */
+export function getRawReps(): Representative[] {
   const file = loadDataFromFiles();
-  const reps = file?.reps ?? [];
+  return file?.reps ?? [];
+}
+
+export async function getAllReps(): Promise<Representative[]> {
+  const reps = getRawReps();
   const overrides = await loadProfileOverrides();
   if (overrides.size === 0) return reps;
   return reps.map((r) => {

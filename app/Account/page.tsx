@@ -15,9 +15,7 @@ export const metadata = buildMetadata({
 
 export default async function AccountPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = supabase ? (await supabase.auth.getUser()).data.user : null;
 
   return (
     <>

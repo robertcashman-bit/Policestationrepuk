@@ -80,7 +80,7 @@ export async function middleware(request: NextRequest) {
 
   // Refresh Supabase Auth session for account-related routes
   if (path.startsWith('/Account') || path.startsWith('/api/account')) {
-    return updateSession(request);
+    return await updateSession(request);
   }
 
   if (path.startsWith('/_next') || path.startsWith('/api') || path.includes('.')) {

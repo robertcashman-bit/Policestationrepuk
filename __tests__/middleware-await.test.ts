@@ -2,25 +2,23 @@ import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 
-describe('Middleware — await updateSession (Bug 1)', () => {
+describe('Middleware — no Supabase session refresh', () => {
   const middlewarePath = path.resolve(__dirname, '..', 'middleware.ts');
   const source = fs.readFileSync(middlewarePath, 'utf-8');
 
-  it('contains "return await updateSession(request)"', () => {
-    expect(source).toContain('return await updateSession(request)');
+  it('does not import from @/lib/supabase/middleware', () => {
+    expect(source).not.toContain('supabase/middleware');
   });
 
-  it('does NOT contain bare "return updateSession(request)" without await', () => {
-    const lines = source.split('\n');
-    const updateSessionReturns = lines.filter(
-      (line) => line.includes('return') && line.includes('updateSession(request)'),
-    );
-    for (const line of updateSessionReturns) {
-      expect(line).toContain('await');
-    }
+  it('does not call updateSession', () => {
+    expect(source).not.toContain('updateSession');
   });
 
   it('middleware function is declared async', () => {
     expect(source).toMatch(/export\s+async\s+function\s+middleware/);
+  });
+
+  it('still handles canonical host redirects', () => {
+    expect(source).toContain('canonicalHostRedirect');
   });
 });

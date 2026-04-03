@@ -8,7 +8,7 @@ import {
   finalizeRepresentative,
 } from './rep-merge';
 import { repMatchesCountyName } from './county-matching';
-import { supabase, isSupabaseConfigured } from './supabase';
+import { getKV } from './kv';
 
 type FileData = {
   counties: County[];
@@ -210,15 +210,22 @@ let _profileOverrides: Map<string, Record<string, unknown>> | null = null;
 async function loadProfileOverrides(): Promise<Map<string, Record<string, unknown>>> {
   if (_profileOverrides) return _profileOverrides;
   _profileOverrides = new Map();
-  if (!isSupabaseConfigured || !supabase) return _profileOverrides;
+  const kv = getKV();
+  if (!kv) return _profileOverrides;
   try {
-    const { data, error } = await supabase.from('rep_profiles').select('*');
-    if (error) throw error;
-    for (const row of data ?? []) {
-      if (row.email) _profileOverrides.set(row.email.toLowerCase(), row);
+    const keys = await kv.keys('profile:*');
+    if (keys.length === 0) return _profileOverrides;
+    const pipeline = kv.pipeline();
+    for (const key of keys) pipeline.get(key);
+    const results = await pipeline.exec<(Record<string, unknown> | null)[]>();
+    for (let i = 0; i < keys.length; i++) {
+      const row = results[i];
+      if (row && typeof row === 'object' && 'email' in row && typeof row.email === 'string') {
+        _profileOverrides.set(row.email.toLowerCase(), row);
+      }
     }
   } catch (err) {
-    console.error('[data] Failed to load profile overrides from Supabase:', err);
+    console.error('[data] Failed to load profile overrides from KV:', err);
   }
   return _profileOverrides;
 }

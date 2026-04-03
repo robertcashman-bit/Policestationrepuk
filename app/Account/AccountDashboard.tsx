@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/browser';
 
 interface ProfileData {
   name: string;
@@ -49,8 +48,6 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [repSlug, setRepSlug] = useState('');
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
-
-  const supabase = createClient();
 
   const loadProfile = useCallback(async () => {
     try {
@@ -165,7 +162,7 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
   }
 
   async function handleLogout() {
-    await supabase?.auth.signOut();
+    await fetch('/api/auth/logout', { method: 'POST' });
     window.location.reload();
   }
 

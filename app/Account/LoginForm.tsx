@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/browser';
 
 type Stage = 'email' | 'otp' | 'checking';
 
@@ -12,22 +11,6 @@ export function LoginForm() {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-
-  const supabase = createClient();
-
-  if (!supabase) {
-    return (
-      <div className="mx-auto max-w-md">
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-8 text-center">
-          <h2 className="text-lg font-bold text-[var(--navy)]">Self-service portal</h2>
-          <p className="mt-2 text-sm text-[var(--muted)]">
-            The login system is being configured. Please check back soon or contact us for profile changes.
-          </p>
-          <Link href="/Contact" className="btn-gold mt-4 inline-block !text-sm">Contact us</Link>
-        </div>
-      </div>
-    );
-  }
 
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
@@ -39,15 +22,14 @@ export function LoginForm() {
     }
     setBusy(true);
     try {
-      const { error: authError } = await supabase!.auth.signInWithOtp({
-        email: trimmed,
-        options: {
-          shouldCreateUser: true,
-          emailRedirectTo: `${window.location.origin}/Account`,
-        },
+      const res = await fetch('/api/auth/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmed }),
       });
-      if (authError) {
-        setError(authError.message);
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Something went wrong. Please try again.');
       } else {
         setStage('otp');
       }
@@ -69,13 +51,14 @@ export function LoginForm() {
     setBusy(true);
     setStage('checking');
     try {
-      const { error: authError } = await supabase!.auth.verifyOtp({
-        email: email.trim().toLowerCase(),
-        token: code,
-        type: 'email',
+      const res = await fetch('/api/auth/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), code }),
       });
-      if (authError) {
-        setError(authError.message);
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Verification failed. Please try again.');
         setStage('otp');
       } else {
         window.location.reload();

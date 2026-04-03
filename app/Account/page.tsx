@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { getSession } from '@/lib/auth';
 import { buildMetadata } from '@/lib/seo';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { LoginForm } from './LoginForm';
@@ -14,8 +14,7 @@ export const metadata = buildMetadata({
 });
 
 export default async function AccountPage() {
-  const supabase = await createClient();
-  const user = supabase ? (await supabase.auth.getUser()).data.user : null;
+  const email = await getSession();
 
   return (
     <>
@@ -27,7 +26,7 @@ export default async function AccountPage() {
           />
           <h1 className="mt-3 text-h1 text-white">Account</h1>
           <p className="mt-3 max-w-2xl text-lg text-slate-300">
-            {user
+            {email
               ? 'Manage your directory listing — update your profile, availability, and contact details.'
               : 'Sign in to manage your directory listing.'}
           </p>
@@ -35,8 +34,8 @@ export default async function AccountPage() {
       </section>
 
       <div className="page-container">
-        {user?.email ? (
-          <AccountDashboard userEmail={user.email} />
+        {email ? (
+          <AccountDashboard userEmail={email} />
         ) : (
           <LoginForm />
         )}

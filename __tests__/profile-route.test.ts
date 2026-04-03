@@ -2,25 +2,36 @@ import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 
-describe('Profile route — PUT uses raw reps for change diff (Bug 3)', () => {
+describe('Profile route — uses getSession + KV (no Supabase)', () => {
   const routePath = path.resolve(__dirname, '..', 'app', 'api', 'account', 'profile', 'route.ts');
   const source = fs.readFileSync(routePath, 'utf-8');
+
+  it('imports getSession from lib/auth', () => {
+    expect(source).toMatch(/import\s*\{[^}]*getSession[^}]*\}\s*from\s*['"]@\/lib\/auth['"]/);
+  });
+
+  it('imports getKV from lib/kv', () => {
+    expect(source).toMatch(/import\s*\{[^}]*getKV[^}]*\}\s*from\s*['"]@\/lib\/kv['"]/);
+  });
 
   it('imports getRawReps from lib/data', () => {
     expect(source).toMatch(/import\s*\{[^}]*getRawReps[^}]*\}\s*from\s*['"]@\/lib\/data['"]/);
   });
 
-  it('GET handler uses getAllReps (needs merged data for display)', () => {
-    const getHandler = extractFunctionBody(source, 'export async function GET');
-    expect(getHandler).toBeTruthy();
-    expect(getHandler).toContain('getAllReps()');
+  it('does NOT import from supabase', () => {
+    expect(source).not.toContain('supabase');
   });
 
-  it('PUT handler uses getRawReps (needs raw data for diff)', () => {
+  it('GET handler uses getSession for auth', () => {
+    const getHandler = extractFunctionBody(source, 'export async function GET');
+    expect(getHandler).toBeTruthy();
+    expect(getHandler).toContain('getSession()');
+  });
+
+  it('PUT handler uses getRawReps (raw data for diff)', () => {
     const putHandler = extractFunctionBody(source, 'export async function PUT');
     expect(putHandler).toBeTruthy();
     expect(putHandler).toContain('getRawReps()');
-    expect(putHandler).not.toContain('getAllReps()');
   });
 
   it('PUT handler calls getOldValue with the raw rep', () => {
@@ -28,7 +39,7 @@ describe('Profile route — PUT uses raw reps for change diff (Bug 3)', () => {
     expect(putHandler).toContain('getOldValue(rep, key)');
   });
 
-  it('getOldValue maps snake_case DB fields to camelCase rep properties', () => {
+  it('getOldValue maps snake_case fields to camelCase rep properties', () => {
     expect(source).toContain('stations_covered: rep.stationsCovered');
     expect(source).toContain('website_url: rep.websiteUrl');
     expect(source).toContain('whatsapp_link: rep.whatsappLink');
@@ -99,7 +110,6 @@ describe('Change diff logic — unit exercise', () => {
 
   it('uses raw values, not override-merged values, for the "from" side', () => {
     const rawRep = { name: 'Original Static Name', websiteUrl: 'https://original.com' };
-    // If we were using merged data, name might be "Override Name" — but we use raw
     const body = { name: 'Brand New Name', website_url: 'https://new.com' };
     const changes = computeChanges(body, rawRep);
     expect(changes.name.from).toBe('Original Static Name');

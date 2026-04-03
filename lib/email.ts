@@ -210,6 +210,40 @@ export async function sendLeadMagnetNotification(data: {
   }
 }
 
+export async function sendMagicCode(email: string, code: string): Promise<boolean> {
+  const client = getResend();
+  if (!client) {
+    console.info('[Magic code — no RESEND_API_KEY]', { email });
+    return false;
+  }
+
+  try {
+    await client.emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `Your PoliceStationRepUK login code: ${code}`,
+      html: `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:20px">
+          <h2 style="color:#0f172a;margin-bottom:8px">Your login code</h2>
+          <p style="color:#475569;font-size:14px;margin-bottom:20px">
+            Use this code to sign in to your PoliceStationRepUK account. It expires in 10 minutes.
+          </p>
+          <div style="background:#f8fafc;border:2px solid #e2e8f0;border-radius:8px;padding:24px;text-align:center;margin-bottom:20px">
+            <span style="font-family:monospace;font-size:32px;letter-spacing:0.3em;font-weight:bold;color:#0f172a">${escapeHtml(code)}</span>
+          </div>
+          <p style="color:#94a3b8;font-size:12px">
+            If you didn&rsquo;t request this code, you can safely ignore this email.
+          </p>
+        </div>
+      `,
+    });
+    return true;
+  } catch (err) {
+    console.error('[Magic code email failed]', err);
+    return false;
+  }
+}
+
 interface ProfileUpdateData {
   repName: string;
   repEmail: string;

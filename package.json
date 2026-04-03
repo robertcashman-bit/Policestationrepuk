@@ -48,8 +48,8 @@
     "validate:articles:fix": "npx tsx scripts/validate-articles.ts --fix"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.49.1",
+    "@upstash/redis": "^1.37.0",
     "leaflet": "^1.9.4",
     "marked": "^17.0.4",
     "next": "^15.2.3",

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { getAllReps, getRawReps } from '@/lib/data';
+import { getSession } from '@/lib/auth';
+import { getKV } from '@/lib/kv';
+import { getRawReps } from '@/lib/data';
 import { sendProfileUpdateNotification } from '@/lib/email';
-
 
 const ALLOWED_FIELDS = new Set([
   'name',
@@ -22,70 +22,58 @@ const ALLOWED_FIELDS = new Set([
 ]);
 
 export async function GET() {
-  const supabase = await createClient();
-  if (!supabase) return NextResponse.json({ error: 'Not configured' }, { status: 503 });
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user?.email) {
+  const email = await getSession();
+  if (!email) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
-  const email = user.email.toLowerCase();
-  const reps = await getAllReps();
+  const reps = getRawReps();
   const rep = reps.find((r) => r.email.toLowerCase() === email);
-
   if (!rep) {
     return NextResponse.json({ error: 'No listing found for this email' }, { status: 404 });
   }
 
-  // Load any self-service overrides from Supabase
-  const { data: overrides } = await supabase
-    .from('rep_profiles')
-    .select('*')
-    .eq('email', email)
-    .maybeSingle();
+  const kv = getKV();
+  const overrides: Record<string, unknown> = kv
+    ? (await kv.get<Record<string, unknown>>(`profile:${email}`)) ?? {}
+    : {};
 
   const merged = {
     slug: rep.slug,
-    name: overrides?.name ?? rep.name,
+    name: (overrides.name as string | undefined) ?? rep.name,
     email: rep.email,
-    phone: overrides?.phone ?? rep.phone,
-    accreditation: overrides?.accreditation ?? rep.accreditation,
-    availability: overrides?.availability ?? rep.availability,
-    postcode: overrides?.postcode ?? rep.postcode ?? '',
-    stations_covered: overrides?.stations_covered ?? rep.stationsCovered ?? rep.stations ?? [],
-    notes: overrides?.notes ?? rep.notes ?? rep.bio ?? '',
-    website_url: overrides?.website_url ?? rep.websiteUrl ?? '',
-    whatsapp_link: overrides?.whatsapp_link ?? rep.whatsappLink ?? '',
-    dscc_pin: overrides?.dscc_pin ?? rep.dsccPin ?? '',
-    holiday_availability: overrides?.holiday_availability ?? rep.holidayAvailability ?? [],
-    languages: overrides?.languages ?? rep.languages ?? [],
-    specialisms: overrides?.specialisms ?? rep.specialisms ?? [],
-    years_experience: overrides?.years_experience ?? rep.yearsExperience ?? null,
-    updated_at: overrides?.updated_at ?? null,
+    phone: (overrides.phone as string | undefined) ?? rep.phone,
+    accreditation: (overrides.accreditation as string | undefined) ?? rep.accreditation,
+    availability: (overrides.availability as string | undefined) ?? rep.availability,
+    postcode: (overrides.postcode as string | undefined) ?? rep.postcode ?? '',
+    stations_covered: (overrides.stations_covered as string[] | undefined) ?? rep.stationsCovered ?? rep.stations ?? [],
+    notes: (overrides.notes as string | undefined) ?? rep.notes ?? rep.bio ?? '',
+    website_url: (overrides.website_url as string | undefined) ?? rep.websiteUrl ?? '',
+    whatsapp_link: (overrides.whatsapp_link as string | undefined) ?? rep.whatsappLink ?? '',
+    dscc_pin: (overrides.dscc_pin as string | undefined) ?? rep.dsccPin ?? '',
+    holiday_availability: (overrides.holiday_availability as string[] | undefined) ?? rep.holidayAvailability ?? [],
+    languages: (overrides.languages as string[] | undefined) ?? rep.languages ?? [],
+    specialisms: (overrides.specialisms as string[] | undefined) ?? rep.specialisms ?? [],
+    years_experience: (overrides.years_experience as number | undefined) ?? rep.yearsExperience ?? null,
+    updated_at: (overrides.updated_at as string | undefined) ?? null,
   };
 
   return NextResponse.json(merged);
 }
 
 export async function PUT(request: Request) {
-  const supabase = await createClient();
-  if (!supabase) return NextResponse.json({ error: 'Not configured' }, { status: 503 });
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user?.email) {
+  const email = await getSession();
+  if (!email) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
-  const email = user.email.toLowerCase();
-  // Use raw static data (no overrides) so the change diff reflects actual source values
+  const kv = getKV();
+  if (!kv) {
+    return NextResponse.json({ error: 'Storage not configured' }, { status: 503 });
+  }
+
   const reps = getRawReps();
   const rep = reps.find((r) => r.email.toLowerCase() === email);
-
   if (!rep) {
     return NextResponse.json({ error: 'No listing found for this email' }, { status: 404 });
   }
@@ -97,31 +85,24 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  // Whitelist fields
-  const update: Record<string, unknown> = { email, rep_slug: rep.slug };
+  const update: Record<string, unknown> = {};
   for (const key of Object.keys(body)) {
     if (ALLOWED_FIELDS.has(key)) {
       update[key] = body[key];
     }
   }
 
-  // Validate string lengths
   for (const [key, val] of Object.entries(update)) {
     if (typeof val === 'string' && val.length > 5000) {
       return NextResponse.json({ error: `${key} is too long` }, { status: 400 });
     }
   }
 
-  const { error: upsertError } = await supabase
-    .from('rep_profiles')
-    .upsert(update, { onConflict: 'email' });
+  const now = new Date().toISOString();
+  const existing = (await kv.get<Record<string, unknown>>(`profile:${email}`)) ?? {};
+  const merged = { ...existing, ...update, updated_at: now, email, rep_slug: rep.slug };
+  await kv.set(`profile:${email}`, merged);
 
-  if (upsertError) {
-    console.error('[profile upsert]', upsertError);
-    return NextResponse.json({ error: 'Failed to save profile' }, { status: 500 });
-  }
-
-  // Build a summary of what changed for the admin notification
   const changes: Record<string, { from: string; to: string }> = {};
   for (const key of ALLOWED_FIELDS) {
     const newVal = body[key];
@@ -143,11 +124,11 @@ export async function PUT(request: Request) {
     }).catch((err) => console.error('[profile notify]', err));
   }
 
-  return NextResponse.json({ ok: true, updated_at: new Date().toISOString() });
+  return NextResponse.json({ ok: true, updated_at: now });
 }
 
 function getOldValue(
-  rep: Awaited<ReturnType<typeof getAllReps>>[number],
+  rep: ReturnType<typeof getRawReps>[number],
   key: string,
 ): unknown {
   const map: Record<string, unknown> = {

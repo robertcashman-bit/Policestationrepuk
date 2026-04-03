@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { updateSession } from '@/lib/supabase/middleware';
 import { LEGACY_EXACT_REDIRECTS } from '@/lib/legacy-exact-redirects';
 import { COUNTY_SLUG_SET } from '@/lib/county-slugs-bundled';
 import { COUNTY_SEO_SLUG_TO_DIRECTORY_SLUG } from '@/lib/county-seo-directory-slugs';
@@ -77,11 +76,6 @@ export async function middleware(request: NextRequest) {
   if (hostRedirect) return hostRedirect;
 
   const path = request.nextUrl.pathname;
-
-  // Refresh Supabase Auth session for account-related routes
-  if (path.startsWith('/Account') || path.startsWith('/api/account')) {
-    return await updateSession(request);
-  }
 
   if (path.startsWith('/_next') || path.startsWith('/api') || path.includes('.')) {
     return NextResponse.next();

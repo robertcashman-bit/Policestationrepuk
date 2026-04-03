@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { SUPPORT_MAILTO_HREF } from '@/lib/site-contact';
 
 export function HelpChatButton() {
   const [open, setOpen] = useState(false);
@@ -42,6 +43,12 @@ export function HelpChatButton() {
               : 'Get instant answers about registration, finding representatives, or using the directory.'}
           </p>
           <div className="mt-4 flex flex-col gap-2">
+            <a
+              href={SUPPORT_MAILTO_HREF}
+              className="rounded-lg border border-[var(--border)] px-4 py-2.5 text-center text-sm font-medium text-[var(--navy)] no-underline transition-colors hover:border-[var(--gold)] hover:bg-slate-50"
+            >
+              Email support
+            </a>
             <Link
               href="/Contact"
               className="rounded-lg bg-[var(--navy)] px-4 py-2.5 text-center text-sm font-medium text-white no-underline transition-colors hover:bg-[var(--navy-light)]"

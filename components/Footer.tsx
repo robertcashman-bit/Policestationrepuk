@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { CUSTODYNOTE_TRIAL_HREF } from '@/lib/custodynote-promo';
+import { SUPPORT_EMAIL, SUPPORT_MAILTO_HREF } from '@/lib/site-contact';
 import {
   FOOTER_COLUMN_TITLES,
   FOOTER_COMMUNITY,
@@ -170,6 +171,19 @@ export function Footer() {
           <p className="mt-2 max-w-4xl text-xs leading-relaxed text-white">{FOOTER_ADVERTISING_DISCLOSURE}</p>
 
           <p className="mt-4 text-xs text-white/70">
+            <span className="font-semibold text-white/90">Support:</span>{' '}
+            <a
+              href={SUPPORT_MAILTO_HREF}
+              className="break-all font-medium text-[var(--gold)] underline-offset-2 hover:text-white hover:underline"
+            >
+              {SUPPORT_EMAIL}
+            </a>
+            {' · '}
+            <Link href="/Contact" className="font-medium text-white/90 underline-offset-2 hover:text-[var(--gold)] hover:underline">
+              Contact form
+            </Link>
+          </p>
+          <p className="mt-2 text-xs text-white/70">
             &copy; {year} PoliceStationRepUK — operated by Defence Legal Services Ltd. All rights reserved.
           </p>
         </div>

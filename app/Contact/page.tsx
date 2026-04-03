@@ -1,4 +1,5 @@
 import { buildMetadata } from '@/lib/seo';
+import { SUPPORT_EMAIL, SUPPORT_MAILTO_HREF } from '@/lib/site-contact';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { ContactForm } from './ContactForm';
 
@@ -34,16 +35,16 @@ export default function ContactPage() {
           {/* Direct contact cards */}
           <div className="grid gap-4 sm:grid-cols-2">
             <a
-              href="mailto:robertcashman@defencelegalservices.co.uk"
+              href={SUPPORT_MAILTO_HREF}
               className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-5 no-underline shadow-[var(--card-shadow)] transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
             >
               <span className="mt-0.5 text-xl" aria-hidden="true">📧</span>
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
-                  Email (Preferred)
+                  Support email (preferred)
                 </p>
                 <p className="mt-1 text-sm font-semibold text-[var(--gold-hover)] break-all">
-                  robertcashman@defencelegalservices.co.uk
+                  {SUPPORT_EMAIL}
                 </p>
               </div>
             </a>

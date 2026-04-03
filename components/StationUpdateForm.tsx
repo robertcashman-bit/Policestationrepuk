@@ -24,7 +24,8 @@ const LABEL_CLS = 'block text-sm font-bold text-slate-800';
 
 export function StationUpdateForm({ stations }: Props) {
   const searchParams = useSearchParams();
-  const urlStationApplied = useRef(false);
+  /** Last `station` query id applied from the URL — re-applies when the param changes (e.g. A → B). */
+  const lastAppliedStationFromUrl = useRef<string | null>(null);
 
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
@@ -72,12 +73,15 @@ export function StationUpdateForm({ stations }: Props) {
   }, []);
 
   useEffect(() => {
-    if (urlStationApplied.current) return;
     const id = searchParams.get('station');
-    if (!id) return;
+    if (!id) {
+      lastAppliedStationFromUrl.current = null;
+      return;
+    }
+    if (lastAppliedStationFromUrl.current === id) return;
     const stub = stations.find((s) => s.id === id);
     if (!stub) return;
-    urlStationApplied.current = true;
+    lastAppliedStationFromUrl.current = id;
     selectStation(stub);
   }, [searchParams, stations, selectStation]);
 

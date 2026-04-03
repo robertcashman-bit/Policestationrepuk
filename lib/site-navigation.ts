@@ -1,3 +1,5 @@
+import { SUPPORT_MAILTO_HREF } from '@/lib/site-contact';
+
 /**
  * Navigation & footer definitions locked to policestationrepuk.com structure.
  * Header: docs/live-site-map.json → navigation.primary (labels + order + hrefs).
@@ -81,6 +83,7 @@ export const FOOTER_COMMUNITY: FooterLink[] = [
   { href: '/WhatsApp', label: 'WhatsApp Group' },
   { href: '/Forum', label: 'Community Forum' },
   { href: '/Blog', label: 'Blog' },
+  { href: SUPPORT_MAILTO_HREF, label: 'Email support', external: true },
   { href: '/Contact', label: 'Contact Us' },
   { href: '/FAQ', label: 'Help & FAQ' },
 ];

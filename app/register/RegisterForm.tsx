@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 export function RegisterForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,6 +22,7 @@ export function RegisterForm() {
     e.preventDefault();
     if (hp) return;
     setStatus('sending');
+    setErrorDetail(null);
     try {
       const res = await fetch('/api/register', {
         method: 'POST',
@@ -32,7 +34,18 @@ export function RegisterForm() {
           stations: formData.stations ? formData.stations.split(/[\s,]+/).filter(Boolean) : [],
         }),
       });
-      if (res.ok) {
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        id?: string;
+        error?: string;
+      };
+
+      if (res.ok && data.id === 'noop') {
+        setStatus('idle');
+        return;
+      }
+
+      if (res.ok && data.ok && data.id && data.id !== 'noop') {
         setStatus('success');
         setFormData({
           name: '',
@@ -44,9 +57,14 @@ export function RegisterForm() {
           availability: 'full-time',
           message: '',
         });
-      } else setStatus('error');
+        return;
+      }
+
+      setStatus('error');
+      setErrorDetail(data.error || null);
     } catch {
       setStatus('error');
+      setErrorDetail(null);
     }
   }
 
@@ -59,7 +77,8 @@ export function RegisterForm() {
       )}
       {status === 'error' && (
         <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
-          Something went wrong. Please try again or contact us.
+          <p>Something went wrong. Please try again or contact us.</p>
+          {errorDetail && <p className="mt-2 text-sm">{errorDetail}</p>}
         </div>
       )}
 

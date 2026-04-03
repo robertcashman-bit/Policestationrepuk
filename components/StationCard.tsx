@@ -17,7 +17,7 @@ export function StationCard({ station }: { station: PoliceStation }) {
           </span>
         )}
       </div>
-      <p className="mt-1 text-xs font-medium text-[var(--gold-hover)]">{station.forceName || station.county}</p>
+      <p className="mt-1 text-xs font-medium text-[var(--gold-link)]">{station.forceName || station.county}</p>
       {station.postcode && (
         <p className="mt-0.5 text-xs text-[var(--muted)]">{station.postcode}</p>
       )}
@@ -33,7 +33,7 @@ export function StationCard({ station }: { station: PoliceStation }) {
         )}
         <Link
           href={`/police-station/${station.slug}`}
-          className="text-sm font-medium text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]"
+          className="text-sm font-medium text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
         >
           Details →
         </Link>

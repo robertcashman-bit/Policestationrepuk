@@ -129,7 +129,7 @@ export default function PoliceStationRepJobsUKPage() {
         <h2 className="text-h2 mb-4 text-[var(--navy)]">Latest Job Listings</h2>
         <p className="text-sm leading-relaxed text-[var(--muted)]">
           There are no vacancies posted at the moment. Check back regularly or join our{' '}
-          <Link href="/WhatsApp" className="font-medium text-[var(--gold-hover)] hover:underline">
+          <Link href="/WhatsApp" className="font-medium text-[var(--gold-link)] hover:underline">
             WhatsApp group
           </Link>{' '}
           for real-time job notifications from solicitor firms. Many firms post urgent cover

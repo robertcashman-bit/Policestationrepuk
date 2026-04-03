@@ -37,7 +37,7 @@ export function HomeHowItWorks() {
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-[var(--navy)] text-2xl text-white shadow-md">
                 {icon}
               </div>
-              <span className="mt-4 inline-block rounded-full bg-[var(--gold)]/10 px-3 py-0.5 text-xs font-bold text-[var(--gold-hover)]">
+              <span className="mt-4 inline-block rounded-full bg-[var(--gold)]/10 px-3 py-0.5 text-xs font-bold text-[var(--gold-link)]">
                 Step {step}
               </span>
               <h3 className="mt-3 text-lg font-bold text-[var(--navy)]">{title}</h3>

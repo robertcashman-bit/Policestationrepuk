@@ -199,7 +199,7 @@ export function StationsDirectoryExplorer({
             Wrong phone number or address?{' '}
             <Link
               href="/UpdateStation"
-              className="font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)] hover:underline"
+              className="font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)] hover:underline"
             >
               Suggest a correction
             </Link>{' '}
@@ -261,14 +261,14 @@ function PhoneDisplay({ station }: { station: PoliceStation }) {
   switch (cls) {
     case 'station':
       return (
-        <p className="mt-2 text-xs font-medium text-[var(--gold-hover)]">
+        <p className="mt-2 text-xs font-medium text-[var(--gold-link)]">
           {number}
         </p>
       );
     case 'switchboard':
       return (
         <div className="mt-2">
-          <p className="text-xs font-medium text-[var(--gold-hover)]">{number}</p>
+          <p className="text-xs font-medium text-[var(--gold-link)]">{number}</p>
           <p className="text-[10px] text-[var(--muted)]">Force switchboard</p>
         </div>
       );
@@ -303,7 +303,7 @@ function StationDirectoryCard({ station }: { station: PoliceStation }) {
         className="group flex flex-1 flex-col p-4 no-underline"
       >
         <div className="flex items-start justify-between gap-2">
-          <p className="font-medium text-[var(--navy)] group-hover:text-[var(--gold-hover)]">{station.name}</p>
+          <p className="font-medium text-[var(--navy)] group-hover:text-[var(--gold-link)]">{station.name}</p>
           {custody && (
             <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-700">
               Custody
@@ -326,7 +326,7 @@ function StationDirectoryCard({ station }: { station: PoliceStation }) {
       <div className="border-t border-[var(--card-border)] px-4 py-2.5">
         <Link
           href={updateHref}
-          className="text-xs font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)] hover:underline"
+          className="text-xs font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)] hover:underline"
         >
           Correct phone, address or other details →
         </Link>

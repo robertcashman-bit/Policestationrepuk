@@ -131,11 +131,11 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
                     />
                   </div>
                   <div className="flex flex-1 flex-col p-5">
-                    <p className="font-semibold leading-snug text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
+                    <p className="font-semibold leading-snug text-[var(--navy)] group-hover:text-[var(--gold-link)]">
                       {post.title}
                     </p>
                     <p className="mt-2 flex-1 text-sm leading-relaxed text-[var(--muted)]">{post.excerpt}</p>
-                    <p className="mt-4 text-xs font-medium text-[var(--gold-hover)]">Read article →</p>
+                    <p className="mt-4 text-xs font-medium text-[var(--gold-link)]">Read article →</p>
                   </div>
                 </Link>
               ))}
@@ -152,7 +152,7 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
               {filtered.length} article{filtered.length === 1 ? '' : 's'}
               {catFilter ? ` · ` : ''}
               {catFilter ? (
-                <Link href="/Blog" className="font-medium text-[var(--gold-hover)] hover:underline">
+                <Link href="/Blog" className="font-medium text-[var(--gold-link)] hover:underline">
                   Clear filter
                 </Link>
               ) : null}
@@ -180,7 +180,7 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
                 <div className="flex flex-1 flex-col p-5">
                   <time
                     dateTime={post.published}
-                    className="text-xs font-medium uppercase tracking-wide text-[var(--gold-hover)]"
+                    className="text-xs font-medium uppercase tracking-wide text-[var(--gold-link)]"
                   >
                     {new Date(post.published).toLocaleDateString('en-GB', {
                       day: 'numeric',
@@ -188,7 +188,7 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
                       year: 'numeric',
                     })}
                   </time>
-                  <p className="mt-2 font-semibold leading-snug text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
+                  <p className="mt-2 font-semibold leading-snug text-[var(--navy)] group-hover:text-[var(--gold-link)]">
                     {post.title}
                   </p>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-[var(--muted)]">{post.excerpt}</p>
@@ -202,7 +202,7 @@ export default async function BlogPage({ searchParams }: { searchParams: SearchP
                       </span>
                     ))}
                   </div>
-                  <p className="mt-4 text-xs font-medium text-[var(--gold-hover)]">Read article →</p>
+                  <p className="mt-4 text-xs font-medium text-[var(--gold-link)]">Read article →</p>
                 </div>
               </Link>
             ))}

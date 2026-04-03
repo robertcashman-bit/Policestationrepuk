@@ -122,7 +122,7 @@ export default function EscapeFeeCalculatorPage() {
     <div className="page-container">
       <div className="mx-auto max-w-4xl">
         <nav className="mb-6 text-sm text-[var(--muted)]">
-          <Link href="/" className="text-[var(--gold-hover)] no-underline hover:underline">
+          <Link href="/" className="text-[var(--gold-link)] no-underline hover:underline">
             Home
           </Link>
           <span className="mx-2">›</span>

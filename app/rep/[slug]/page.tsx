@@ -221,7 +221,7 @@ export default async function RepPage({ params }: PageProps) {
                     Adding more details — such as a bio, station coverage, and contact information — helps
                     solicitor firms find and instruct you. Updating your profile is free.
                   </p>
-                  <Link href="/Contact" className="mt-3 inline-block text-sm font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
+                  <Link href="/Contact" className="mt-3 inline-block text-sm font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]">
                     Request a profile update →
                   </Link>
                 </section>
@@ -299,7 +299,7 @@ export default async function RepPage({ params }: PageProps) {
           </div>
 
           <p className="mt-12 border-t border-slate-100 pt-8">
-            <Link href="/directory" className="font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
+            <Link href="/directory" className="font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]">
               ← Back to directory
             </Link>
           </p>

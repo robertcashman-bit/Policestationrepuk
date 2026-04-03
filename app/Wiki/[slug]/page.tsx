@@ -92,7 +92,7 @@ export default async function WikiArticlePage({ params }: PageProps) {
 
           {/* Meta pills */}
           <div className="mt-5 flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[var(--gold-pale)] px-3 py-1 text-xs font-bold text-[var(--gold-hover)]">
+            <span className="rounded-full bg-[var(--gold-pale)] px-3 py-1 text-xs font-bold text-[var(--gold-link)]">
               {article.category}
             </span>
             <span className={`rounded-full px-3 py-1 text-xs font-bold ${difficulty}`}>

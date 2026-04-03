@@ -104,7 +104,7 @@ export default function PoliceStationCoverPage() {
         <h2 className="text-h2 mb-4 text-[var(--navy)]">Need Urgent Cover?</h2>
         <p className="text-sm leading-relaxed text-[var(--muted)]">
           For urgent or out-of-hours cover requests, post directly to our{' '}
-          <Link href="/WhatsApp" className="font-medium text-[var(--gold-hover)] hover:underline">
+          <Link href="/WhatsApp" className="font-medium text-[var(--gold-link)] hover:underline">
             WhatsApp group
           </Link>
           . Accredited reps monitor the group 24/7 and can respond within minutes. This is the

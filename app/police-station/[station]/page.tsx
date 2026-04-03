@@ -85,7 +85,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
                   <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-8 text-center shadow-[var(--card-shadow)]">
                     <p className="text-[var(--muted)]">
                       No representatives listed for this station yet.{' '}
-                      <Link href="/register" className="text-[var(--gold-hover)] hover:underline">Register free</Link> to be listed.
+                      <Link href="/register" className="text-[var(--gold-link)] hover:underline">Register free</Link> to be listed.
                     </p>
                   </div>
                 ) : (
@@ -118,7 +118,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
                   <li className="flex gap-2"><span className="mt-0.5 shrink-0 text-[var(--gold)]">4.</span>After the interview the representative makes representations on charge, bail, or further investigation.</li>
                 </ul>
                 <p className="mt-3 text-sm text-[var(--muted)]">
-                  <Link href="/PACE" className="font-medium text-[var(--gold-hover)] no-underline hover:underline">
+                  <Link href="/PACE" className="font-medium text-[var(--gold-link)] no-underline hover:underline">
                     Read more about PACE rights and custody procedures →
                   </Link>
                 </p>
@@ -193,7 +193,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
               href={`/directory/${(station.county || station.forceName || '').toLowerCase().replace(/\s+/g, '-')}`}
-              className="font-medium text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]"
+              className="font-medium text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
             >
               View all reps in {station.forceName || station.county || 'this area'} →
             </Link>
@@ -216,7 +216,7 @@ function StationPhoneDetail({ station }: { station: PoliceStation }) {
       <div>
         <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Phone</dt>
         <dd className="mt-0.5">
-          <a href={phoneToTelHref(number)} className="font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
+          <a href={phoneToTelHref(number)} className="font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]">
             {number}
           </a>
         </dd>
@@ -229,7 +229,7 @@ function StationPhoneDetail({ station }: { station: PoliceStation }) {
       <div>
         <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Phone</dt>
         <dd className="mt-0.5">
-          <a href={phoneToTelHref(number)} className="font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
+          <a href={phoneToTelHref(number)} className="font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]">
             {number}
           </a>
           <span className="mt-0.5 block text-[10px] text-[var(--muted)]">Force switchboard</span>

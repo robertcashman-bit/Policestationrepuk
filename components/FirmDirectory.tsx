@@ -144,7 +144,7 @@ export function FirmDirectory({ firms }: FirmDirectoryProps) {
           {hasActiveFilters && (
             <button
               onClick={resetFilters}
-              className="text-sm font-medium text-[var(--gold-hover)] transition-colors hover:text-[var(--gold)]"
+              className="text-sm font-medium text-[var(--gold-link)] transition-colors hover:text-[var(--gold)]"
             >
               Clear all filters
             </button>
@@ -179,7 +179,7 @@ export function FirmDirectory({ firms }: FirmDirectoryProps) {
             Try adjusting your filters or{' '}
             <button
               onClick={resetFilters}
-              className="font-medium text-[var(--gold-hover)] hover:text-[var(--gold)]"
+              className="font-medium text-[var(--gold-link)] hover:text-[var(--gold)]"
             >
               clear all filters
             </button>

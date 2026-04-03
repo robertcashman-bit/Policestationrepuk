@@ -16,7 +16,7 @@ function FormCard({ form }: { form: FormDocument }) {
     <div className="flex flex-col rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--card-shadow)]">
       <div className="mb-3 flex items-center gap-2">
         {form.isFeatured && (
-          <span className="rounded bg-[var(--gold)]/10 px-2 py-0.5 text-xs font-bold text-[var(--gold-hover)]">
+          <span className="rounded bg-[var(--gold)]/10 px-2 py-0.5 text-xs font-bold text-[var(--gold-link)]">
             Featured
           </span>
         )}
@@ -27,7 +27,7 @@ function FormCard({ form }: { form: FormDocument }) {
         href={form.fileUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-4 text-xs font-medium text-[var(--gold-hover)] no-underline hover:underline"
+        className="mt-4 text-xs font-medium text-[var(--gold-link)] no-underline hover:underline"
       >
         Download / View Form →
       </a>

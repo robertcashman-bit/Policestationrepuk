@@ -53,7 +53,7 @@ export default function GDPRPage() {
               </h3>
               <ul className="space-y-1 text-sm text-[var(--muted)]">
                 <li>We process data lawfully under defined legal bases (contract, legitimate interests, consent, legal obligations)</li>
-                <li>We are transparent about what data we collect and why (see <Link href="/Privacy" className="text-[var(--gold-hover)] hover:underline">Privacy Policy</Link>)</li>
+                <li>We are transparent about what data we collect and why (see <Link href="/Privacy" className="text-[var(--gold-link)] hover:underline">Privacy Policy</Link>)</li>
                 <li>We treat all data subjects fairly without discrimination</li>
               </ul>
             </div>
@@ -198,7 +198,7 @@ export default function GDPRPage() {
           <h2 className="text-h2 mb-4 text-[var(--navy)]">4. Data Subject Rights</h2>
           <p className="mb-3 text-sm text-[var(--muted)]">
             See our{' '}
-            <Link href="/Privacy" className="text-[var(--gold-hover)] hover:underline">
+            <Link href="/Privacy" className="text-[var(--gold-link)] hover:underline">
               Privacy Policy
             </Link>{' '}
             for full details on exercising your rights, including:
@@ -233,7 +233,7 @@ export default function GDPRPage() {
             Contact:{' '}
             <a
               href="mailto:robertcashman@defencelegalservices.co.uk?subject=Data%20Protection%20Enquiry"
-              className="text-[var(--gold-hover)] hover:underline"
+              className="text-[var(--gold-link)] hover:underline"
             >
               robertcashman@defencelegalservices.co.uk
             </a>{' '}
@@ -246,7 +246,7 @@ export default function GDPRPage() {
           <h2 className="text-h2 mb-4 text-[var(--navy)]">6. Security Measures</h2>
           <p className="text-sm text-[var(--muted)]">
             See our{' '}
-            <Link href="/DataProtection" className="text-[var(--gold-hover)] hover:underline">
+            <Link href="/DataProtection" className="text-[var(--gold-link)] hover:underline">
               Data Protection Policy
             </Link>{' '}
             for comprehensive details on our technical and organizational security controls.
@@ -274,15 +274,15 @@ export default function GDPRPage() {
           </ul>
           <p className="mt-4 text-sm text-[var(--muted)]">
             For detailed information on specific aspects of data protection, please see our{' '}
-            <Link href="/Privacy" className="text-[var(--gold-hover)] hover:underline">
+            <Link href="/Privacy" className="text-[var(--gold-link)] hover:underline">
               Privacy Policy
             </Link>
             ,{' '}
-            <Link href="/DataProtection" className="text-[var(--gold-hover)] hover:underline">
+            <Link href="/DataProtection" className="text-[var(--gold-link)] hover:underline">
               Data Protection Policy
             </Link>
             , and{' '}
-            <Link href="/Cookies" className="text-[var(--gold-hover)] hover:underline">
+            <Link href="/Cookies" className="text-[var(--gold-link)] hover:underline">
               Cookies Policy
             </Link>
             .
@@ -293,7 +293,7 @@ export default function GDPRPage() {
         <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 text-center shadow-[var(--card-shadow)]">
           <p className="text-sm text-[var(--muted)]">
             Have a question about GDPR or data protection?{' '}
-            <Link href="/Contact" className="font-medium text-[var(--gold-hover)] hover:underline">
+            <Link href="/Contact" className="font-medium text-[var(--gold-link)] hover:underline">
               Get in touch
             </Link>{' '}
             and we&apos;ll respond within 7 working days.

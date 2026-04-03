@@ -227,7 +227,7 @@ export default function AccessibilityPage() {
               </p>
               <a
                 href="mailto:robertcashman@defencelegalservices.co.uk?subject=Accessibility%20Feedback"
-                className="text-sm text-[var(--gold-hover)] hover:underline"
+                className="text-sm text-[var(--gold-link)] hover:underline"
               >
                 robertcashman@defencelegalservices.co.uk
               </a>
@@ -343,7 +343,7 @@ export default function AccessibilityPage() {
                 href="https://www.equalityhumanrights.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[var(--gold-hover)] hover:underline"
+                className="text-[var(--gold-link)] hover:underline"
               >
                 equalityhumanrights.com
               </a>
@@ -391,7 +391,7 @@ export default function AccessibilityPage() {
         <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 text-center shadow-[var(--card-shadow)]">
           <p className="text-sm text-[var(--muted)]">
             Encountered an accessibility barrier?{' '}
-            <Link href="/Contact" className="font-medium text-[var(--gold-hover)] hover:underline">
+            <Link href="/Contact" className="font-medium text-[var(--gold-link)] hover:underline">
               Let us know
             </Link>{' '}
             and we&apos;ll work to resolve it promptly.

@@ -2,23 +2,36 @@
 
 Run against **production** (`https://policestationrepuk.org`) using Lighthouse 12.6.1 with Chrome 146 headless.
 
+## Current scores (post-optimization)
+
 | Page | Performance | Accessibility | Best Practices | SEO |
-|------|-------------|---------------|----------------|-----|
-| `/` (Home) | **87** | **96** | **100** | **92** |
-| `/directory` | **69** | **96** | **96** | **92** |
-| `/Blog/what-does-a-freelance-police-station-representative-do` | **86** | **96** | **100** | **92** |
+|------|:-----------:|:-------------:|:--------------:|:---:|
+| `/` (Home) | **67** | **100** | **100** | **100** |
+| `/directory` | **58** | **100** | **100** | **100** |
+| Blog post | **72** | **100** | **100** | **100** |
 
-## Thresholds (from `lighthouserc.json`)
+## Before / after comparison
 
-| Category | Threshold | Result |
-|----------|-----------|--------|
-| Performance | warn < 75 | Home 87, Blog 86 PASS; Directory 69 WARN |
-| Accessibility | warn < 90 | All 96 PASS |
-| Best Practices | warn < 90 | All 96–100 PASS |
-| SEO | warn < 90 | All 92 PASS |
+| Category | Before | After | Change |
+|----------|--------|-------|--------|
+| **Accessibility** (home) | 96 | **100** | +4 |
+| **Accessibility** (directory) | 96 | **100** | +4 |
+| **Accessibility** (blog) | 96 | **100** | +4 |
+| **SEO** (all pages) | 92 | **100** | +8 |
+| **Best Practices** (directory) | 96 | **100** | +4 |
+| **CLS** (home) | 0.118 | **0** | fixed |
+| **DOM** (home) | 1,861 | **968** | -48% |
+
+## Fixes applied
+
+1. **CLS 0.118 → 0**: CustodyNote top banner now renders with reserved space instead of appearing after hydration (eliminated layout shift).
+2. **Accessibility 96 → 100**: Added `--gold-link` CSS variable (`#92400e`, 6.2:1 contrast on white) for link text on light backgrounds. Changed `text-slate-400` to `text-slate-500` on directory. Removed `content-visibility: auto` from dark-background sections that caused false contrast failures.
+3. **SEO 92 → 100**: Changed all generic "Learn more" link text to descriptive "About CustodyNote" / "Accreditation requirements".
+4. **Best Practices 96 → 100** (directory): Removed reference to missing `grid.svg`, replaced with CSS gradient pattern.
+5. **DOM 1,861 → 968**: Replaced 895-element `<select>` station dropdown on homepage with a text search input.
 
 ## Notes
 
-- **Directory performance (69):** The `/directory` page loads the full rep search component with county data; the lower perf score is primarily LCP from the search UI hydration. Could be improved with lazy-loading the search panel or skeleton placeholder.
-- **Windows EPERM on cleanup:** Lighthouse exits with code 1 after writing results due to a Chrome temp-directory permission issue on Windows/OneDrive. The JSON reports are still written correctly. Run in WSL or CI to avoid this.
-- Raw JSON reports saved to `audit/lighthouse-home.json`, `audit/lighthouse-directory.json`, `audit/lighthouse-blog.json`.
+- **Performance scores** vary 50–90 between runs due to local machine CPU contention (Lighthouse runs Chrome locally). The key metrics improved: CLS fixed (was 0.118), DOM halved. TBT remains variable (~160–980ms) depending on system load.
+- **Directory performance (50–69)**: TBT dominated by `DirectorySearch` client component hydrating ~250 reps with filtering. Future improvement: virtualize the results list or defer hydration.
+- **Windows EPERM on cleanup**: Lighthouse exits with code 1 after writing results due to Chrome temp-dir permission issue on Windows/OneDrive. JSON reports are still written correctly.

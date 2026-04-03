@@ -49,7 +49,7 @@ export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
             <h3 className="text-sm font-bold text-[var(--navy)]">Featured reps</h3>
             <Link
               href="/GoFeatured"
-              className="text-[10px] font-bold uppercase tracking-wider text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]"
+              className="text-[10px] font-bold uppercase tracking-wider text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
             >
               Go Featured
             </Link>

@@ -69,7 +69,7 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
           {(rep.name || '?')[0]}
         </div>
         <div className="min-w-0">
-          <p className="truncate text-sm font-bold text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
+          <p className="truncate text-sm font-bold text-[var(--navy)] group-hover:text-[var(--gold-link)]">
             {rep.name}
           </p>
           <p className="mt-0.5 truncate text-xs text-slate-500">{rep.county || 'England & Wales'}</p>
@@ -239,7 +239,7 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
             </div>
             <Link
               href={`/rep/${rep.slug}`}
-              className="mt-3 block text-center text-xs font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]"
+              className="mt-3 block text-center text-xs font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
             >
               View full profile &rarr;
             </Link>

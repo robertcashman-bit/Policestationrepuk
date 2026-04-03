@@ -64,7 +64,7 @@ export function SearchBar({
       {/* Quick county chips */}
       {!value && onQuickCounty && (
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-semibold text-slate-400">Popular:</span>
+          <span className="text-[11px] font-semibold text-slate-500">Popular:</span>
           {QUICK_CHIPS.map((chip) => (
             <button
               key={chip}

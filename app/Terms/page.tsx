@@ -82,14 +82,14 @@ export default function TermsPage() {
                 <span className="font-semibold text-[var(--navy)]">Contact:</span>{' '}
                 <a
                   href="mailto:robertcashman@defencelegalservices.co.uk"
-                  className="text-[var(--gold-hover)] hover:underline"
+                  className="text-[var(--gold-link)] hover:underline"
                 >
                   robertcashman@defencelegalservices.co.uk
                 </a>
               </li>
               <li>
                 <span className="font-semibold text-[var(--navy)]">Phone:</span>{' '}
-                <a href="tel:07535494446" className="text-[var(--gold-hover)] hover:underline">
+                <a href="tel:07535494446" className="text-[var(--gold-link)] hover:underline">
                   07535 494446
                 </a>
               </li>
@@ -280,7 +280,7 @@ export default function TermsPage() {
               <span className="text-emerald-600">&#x2022;</span>Email{' '}
               <a
                 href="mailto:robertcashman@defencelegalservices.co.uk"
-                className="text-[var(--gold-hover)] hover:underline"
+                className="text-[var(--gold-link)] hover:underline"
               >
                 robertcashman@defencelegalservices.co.uk
               </a>
@@ -291,7 +291,7 @@ export default function TermsPage() {
             </li>
             <li className="flex gap-2">
               <span className="text-emerald-600">&#x2022;</span>Call{' '}
-              <a href="tel:07535494446" className="text-[var(--gold-hover)] hover:underline">
+              <a href="tel:07535494446" className="text-[var(--gold-link)] hover:underline">
                 07535 494446
               </a>
             </li>

@@ -43,7 +43,7 @@ export default function ContactPage() {
                 <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
                   Support email (preferred)
                 </p>
-                <p className="mt-1 text-sm font-semibold text-[var(--gold-hover)] break-all">
+                <p className="mt-1 text-sm font-semibold text-[var(--gold-link)] break-all">
                   {SUPPORT_EMAIL}
                 </p>
               </div>

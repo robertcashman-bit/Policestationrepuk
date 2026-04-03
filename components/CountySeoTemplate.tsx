@@ -68,7 +68,7 @@ export function CountySeoTemplate({ page, reps, stations }: CountySeoTemplatePro
                 No representatives currently listed for {page.countyName}. Check back soon or{' '}
                 <Link
                   href="/register"
-                  className="text-[var(--gold-hover)] no-underline hover:underline"
+                  className="text-[var(--gold-link)] no-underline hover:underline"
                 >
                   register to be listed
                 </Link>
@@ -98,7 +98,7 @@ export function CountySeoTemplate({ page, reps, stations }: CountySeoTemplatePro
                 Station data for {page.countyName} is being updated. Use the{' '}
                 <Link
                   href="/StationsDirectory"
-                  className="text-[var(--gold-hover)] no-underline hover:underline"
+                  className="text-[var(--gold-link)] no-underline hover:underline"
                 >
                   stations directory
                 </Link>{' '}
@@ -166,7 +166,7 @@ export function CountySeoTemplate({ page, reps, stations }: CountySeoTemplatePro
               </summary>
               <p className="px-5 pb-4 text-sm text-[var(--muted)]">
                 Browse the listings above or use our main{' '}
-                <Link href="/directory" className="text-[var(--gold-hover)] hover:underline">
+                <Link href="/directory" className="text-[var(--gold-link)] hover:underline">
                   directory
                 </Link>{' '}
                 to search by station name or area. Contact representatives directly using the phone
@@ -188,7 +188,7 @@ export function CountySeoTemplate({ page, reps, stations }: CountySeoTemplatePro
               </summary>
               <p className="px-5 pb-4 text-sm text-[var(--muted)]">
                 Registration is free.{' '}
-                <Link href="/register" className="text-[var(--gold-hover)] hover:underline">
+                <Link href="/register" className="text-[var(--gold-link)] hover:underline">
                   Register here
                 </Link>{' '}
                 to create your profile and be listed in the {page.countyName} directory.

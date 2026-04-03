@@ -97,7 +97,7 @@ export function ResultsGrid({
             </div>
             <Link
               href="/GoFeatured"
-              className="hidden items-center gap-1 text-xs font-bold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)] sm:inline-flex"
+              className="hidden items-center gap-1 text-xs font-bold text-[var(--gold-link)] no-underline hover:text-[var(--gold)] sm:inline-flex"
             >
               Become featured
               <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
@@ -131,7 +131,7 @@ export function ResultsGrid({
           <div className="mb-4 flex items-end justify-between">
             <h2 className="text-lg font-bold text-[var(--navy)]">
               All listings
-              <span className="ml-2 text-sm font-normal text-slate-400">
+              <span className="ml-2 text-sm font-normal text-slate-500">
                 {nonFeaturedReps.length}
               </span>
             </h2>

@@ -161,7 +161,7 @@ export default async function DirectoryCountyPage({ params }: PageProps) {
         </p>
 
         <div className="mt-8 flex flex-wrap gap-4">
-          <Link href="/directory" className="font-medium text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
+          <Link href="/directory" className="font-medium text-[var(--gold-link)] no-underline hover:text-[var(--gold)]">
             &larr; Back to full directory
           </Link>
           <Link href="/directory/counties" className="font-medium text-[var(--muted)] no-underline hover:text-[var(--gold-hover)]">

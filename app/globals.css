@@ -9,7 +9,7 @@
   /* Brand gold — bright, solid yellow for CTAs and accents */
   --gold: #facc15;
   --gold-hover: #eab308;
-  --gold-on-light: #a16207; /* WCAG AA on white/light backgrounds */
+  --gold-link: #92400e; /* WCAG AA ~6.2:1 on white — for link text on light backgrounds */
   --gold-light: #fef9c3;
   --gold-pale: #fefce8;
 

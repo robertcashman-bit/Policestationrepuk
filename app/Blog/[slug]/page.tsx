@@ -178,7 +178,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
                 <li key={r.slug}>
                   <Link
                     href={`/Blog/${r.slug}`}
-                    className="font-medium text-[var(--gold-hover)] no-underline hover:text-[var(--gold)] hover:underline"
+                    className="font-medium text-[var(--gold-link)] no-underline hover:text-[var(--gold)] hover:underline"
                   >
                     {r.title}
                   </Link>
@@ -195,7 +195,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
               <p className="mt-4">
                 <Link
                   href={topicCluster.pillarPath}
-                  className="text-sm font-semibold text-[var(--gold-hover)] no-underline hover:underline"
+                  className="text-sm font-semibold text-[var(--gold-link)] no-underline hover:underline"
                 >
                   {topicCluster.pillarLabel} →
                 </Link>
@@ -252,7 +252,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
           <BlogBottomAd />
 
           <p className="mt-10">
-            <Link href="/Blog" className="font-medium text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
+            <Link href="/Blog" className="font-medium text-[var(--gold-link)] no-underline hover:text-[var(--gold)]">
               ← Back to blog
             </Link>
           </p>
@@ -269,7 +269,7 @@ export default async function BlogArticlePage({ params }: PageProps) {
                 href="https://www.policestationagent.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-[var(--gold-hover)] underline underline-offset-2 hover:text-[var(--gold)]"
+                className="font-semibold text-[var(--gold-link)] underline underline-offset-2 hover:text-[var(--gold)]"
               >
                 policestationagent.com
               </a>{' '}

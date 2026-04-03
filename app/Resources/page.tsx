@@ -188,7 +188,7 @@ function ResourceCard({ item }: { item: ResourceItem }) {
 
   const inner = (
     <>
-      <p className="font-medium text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
+      <p className="font-medium text-[var(--navy)] group-hover:text-[var(--gold-link)]">
         {item.title}
         {isExternal && <span className="ml-1 text-xs text-[var(--muted)]">↗</span>}
       </p>

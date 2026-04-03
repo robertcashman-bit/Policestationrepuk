@@ -109,7 +109,7 @@ export function FilterSidebar({
             <button
               type="button"
               onClick={onReset}
-              className="text-xs font-semibold text-[var(--gold-hover)] transition-colors hover:text-[var(--gold)]"
+              className="text-xs font-semibold text-[var(--gold-link)] transition-colors hover:text-[var(--gold)]"
             >
               Clear all
             </button>

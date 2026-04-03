@@ -93,7 +93,7 @@ export function WikiArticleIndex({ articles, variant = 'list' }: WikiArticleInde
                   href={`/Wiki/${article.slug}`}
                   className="group flex flex-col rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-4 no-underline shadow-[var(--card-shadow)] transition-all hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
                 >
-                  <p className="flex-1 font-medium text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
+                  <p className="flex-1 font-medium text-[var(--navy)] group-hover:text-[var(--gold-link)]">
                     {article.title}
                   </p>
                   <span
@@ -126,7 +126,7 @@ export function WikiArticleIndex({ articles, variant = 'list' }: WikiArticleInde
                 {category.icon}
               </span>
               {category.name}
-              <span className="ml-auto rounded-full bg-[var(--gold-pale)] px-2 py-0.5 text-xs font-bold text-[var(--gold-hover)]">
+              <span className="ml-auto rounded-full bg-[var(--gold-pale)] px-2 py-0.5 text-xs font-bold text-[var(--gold-link)]">
                 {category.articles.length}
               </span>
             </h2>

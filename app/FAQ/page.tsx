@@ -94,7 +94,7 @@ export default function FAQPage() {
               endorsements. For inaccuracies, contact us at{' '}
               <a
                 href="mailto:robertcashman@defencelegalservices.co.uk"
-                className="text-[var(--gold-hover)] hover:underline"
+                className="text-[var(--gold-link)] hover:underline"
               >
                 robertcashman@defencelegalservices.co.uk
               </a>
@@ -145,14 +145,14 @@ export default function FAQPage() {
       <div className="mt-10 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 text-center shadow-[var(--card-shadow)]">
         <p className="text-sm text-[var(--muted)]">
           Still have questions?{' '}
-          <Link href="/Contact" className="font-medium text-[var(--gold-hover)] hover:underline">
+          <Link href="/Contact" className="font-medium text-[var(--gold-link)] hover:underline">
             Get in touch with us
           </Link>{' '}
           and we&apos;ll respond within 24 hours.
         </p>
         <p className="mt-3 text-sm text-[var(--muted)]">
           Need a solicitor at the police station?{' '}
-          <a href="https://www.policestationagent.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--gold-hover)] underline">
+          <a href="https://www.policestationagent.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--gold-link)] underline">
             Visit policestationagent.com
           </a>
         </p>

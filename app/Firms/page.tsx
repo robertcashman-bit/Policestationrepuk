@@ -53,7 +53,7 @@ export default async function FirmsPage() {
               key={stat.label}
               className="rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 text-center shadow-[var(--card-shadow)]"
             >
-              <p className="text-3xl font-bold text-[var(--gold-hover)]">{stat.value}</p>
+              <p className="text-3xl font-bold text-[var(--gold-link)]">{stat.value}</p>
               <p className="mt-1 text-sm text-[var(--muted)]">{stat.label}</p>
             </div>
           ))}

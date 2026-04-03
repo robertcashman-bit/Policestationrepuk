@@ -118,7 +118,7 @@ export default async function LegalUpdateArticlePage({ params }: PageProps) {
         <div className="mx-auto mt-12 max-w-3xl border-t border-[var(--border)] pt-8">
           <Link
             href="/LegalUpdates"
-            className="text-sm font-medium text-[var(--gold-hover)] no-underline hover:underline"
+            className="text-sm font-medium text-[var(--gold-link)] no-underline hover:underline"
           >
             ← Back to all Legal Updates
           </Link>

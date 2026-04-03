@@ -79,7 +79,7 @@ export default async function LegalUpdatesPage() {
               <p className="mt-2 flex-1 text-sm leading-relaxed text-[var(--muted)]">
                 {update.excerpt}
               </p>
-              <span className="mt-4 text-xs font-medium text-[var(--gold-hover)]">
+              <span className="mt-4 text-xs font-medium text-[var(--gold-link)]">
                 Read full article →
               </span>
             </Link>

@@ -74,14 +74,14 @@ export default function ComplaintsPage() {
                 <span className="font-semibold text-[var(--navy)]">Email:</span>{' '}
                 <a
                   href="mailto:robertcashman@defencelegalservices.co.uk"
-                  className="text-[var(--gold-hover)] hover:underline"
+                  className="text-[var(--gold-link)] hover:underline"
                 >
                   robertcashman@defencelegalservices.co.uk
                 </a>
               </li>
               <li>
                 <span className="font-semibold text-[var(--navy)]">Phone:</span>{' '}
-                <a href="tel:07535494446" className="text-[var(--gold-hover)] hover:underline">
+                <a href="tel:07535494446" className="text-[var(--gold-link)] hover:underline">
                   07535 494446
                 </a>
               </li>
@@ -112,13 +112,13 @@ export default function ComplaintsPage() {
             {/* Step 1 */}
             <div className="relative flex gap-6 pb-8">
               <div className="absolute left-[1.1875rem] top-10 h-full w-px bg-[var(--border)]" />
-              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[var(--gold-hover)] bg-[var(--card-bg)] text-sm font-bold text-[var(--gold-hover)]">
+              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[var(--gold-hover)] bg-[var(--card-bg)] text-sm font-bold text-[var(--gold-link)]">
                 1
               </div>
               <div className="pt-1.5">
                 <p className="font-semibold text-[var(--navy)]">
                   Acknowledgement{' '}
-                  <span className="font-normal text-[var(--gold-hover)]">
+                  <span className="font-normal text-[var(--gold-link)]">
                     (within 2 working days)
                   </span>
                 </p>
@@ -131,13 +131,13 @@ export default function ComplaintsPage() {
             {/* Step 2 */}
             <div className="relative flex gap-6 pb-8">
               <div className="absolute left-[1.1875rem] top-10 h-full w-px bg-[var(--border)]" />
-              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[var(--gold-hover)] bg-[var(--card-bg)] text-sm font-bold text-[var(--gold-hover)]">
+              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[var(--gold-hover)] bg-[var(--card-bg)] text-sm font-bold text-[var(--gold-link)]">
                 2
               </div>
               <div className="pt-1.5">
                 <p className="font-semibold text-[var(--navy)]">
                   Investigation{' '}
-                  <span className="font-normal text-[var(--gold-hover)]">
+                  <span className="font-normal text-[var(--gold-link)]">
                     (within 7 working days)
                   </span>
                 </p>
@@ -149,13 +149,13 @@ export default function ComplaintsPage() {
 
             {/* Step 3 */}
             <div className="relative flex gap-6">
-              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[var(--gold-hover)] bg-[var(--card-bg)] text-sm font-bold text-[var(--gold-hover)]">
+              <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[var(--gold-hover)] bg-[var(--card-bg)] text-sm font-bold text-[var(--gold-link)]">
                 3
               </div>
               <div className="pt-1.5">
                 <p className="font-semibold text-[var(--navy)]">
                   Resolution{' '}
-                  <span className="font-normal text-[var(--gold-hover)]">
+                  <span className="font-normal text-[var(--gold-link)]">
                     (within 14 working days)
                   </span>
                 </p>
@@ -216,7 +216,7 @@ export default function ComplaintsPage() {
                   href="https://ico.org.uk/make-a-complaint/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[var(--gold-hover)] hover:underline"
+                  className="text-[var(--gold-link)] hover:underline"
                 >
                   ico.org.uk/make-a-complaint
                 </a>

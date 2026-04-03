@@ -64,7 +64,7 @@ export default async function StationsDirectoryPage({ searchParams }: PageProps)
           </p>
           <Link
             href="/UpdateStation"
-            className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)] hover:underline"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)] hover:underline"
           >
             Open the station update form &rarr;
           </Link>

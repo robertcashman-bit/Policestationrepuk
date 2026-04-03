@@ -165,7 +165,7 @@ export default function PACEPage() {
             <div key={item.label} className="border-b border-[var(--border)] pb-5 last:border-0 last:pb-0">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-3">
                 <span className="text-sm font-bold text-[var(--navy)]">{item.label}</span>
-                <span className="text-sm font-semibold text-[var(--gold-hover)]">{item.value}</span>
+                <span className="text-sm font-semibold text-[var(--gold-link)]">{item.value}</span>
               </div>
               <p className="mt-1 text-sm leading-relaxed text-[var(--muted)]">{item.detail}</p>
             </div>
@@ -183,7 +183,7 @@ export default function PACEPage() {
               className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 shadow-[var(--card-shadow)] sm:p-8"
             >
               <div className="mb-3 flex items-baseline gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--gold)]/10 text-sm font-bold text-[var(--gold-hover)]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--gold)]/10 text-sm font-bold text-[var(--gold-link)]">
                   {code.code}
                 </span>
                 <h3 className="text-lg font-bold text-[var(--navy)]">
@@ -212,7 +212,7 @@ export default function PACEPage() {
             href="https://www.gov.uk/guidance/police-and-criminal-evidence-act-1984-pace-codes-of-practice"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-[var(--gold-hover)] hover:underline"
+            className="font-medium text-[var(--gold-link)] hover:underline"
           >
             GOV.UK — PACE Codes of Practice
           </a>

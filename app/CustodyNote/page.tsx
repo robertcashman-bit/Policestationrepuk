@@ -322,7 +322,7 @@ export default function CustodyNotePage() {
             >
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-[var(--navy)]">{rt.name}</h3>
-                <span className="rounded-full bg-[var(--gold)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--gold-hover)]">
+                <span className="rounded-full bg-[var(--gold)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--gold-link)]">
                   {rt.detail}
                 </span>
               </div>
@@ -371,7 +371,7 @@ export default function CustodyNotePage() {
                 key={section}
                 className="flex items-start gap-3 rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--background)] p-3"
               >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--gold)]/10 text-xs font-bold text-[var(--gold-hover)]">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--gold)]/10 text-xs font-bold text-[var(--gold-link)]">
                   {i + 1}
                 </span>
                 <span className="text-sm font-medium text-[var(--navy)]">{section}</span>
@@ -456,7 +456,7 @@ export default function CustodyNotePage() {
           </p>
           <div className="mx-auto mt-8 max-w-md">
             <div className="rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/40 bg-[var(--gold)]/5 p-6">
-              <p className="mb-1 text-center text-xs font-bold uppercase tracking-wider text-[var(--gold-hover)]">
+              <p className="mb-1 text-center text-xs font-bold uppercase tracking-wider text-[var(--gold-link)]">
                 Early Adopter Price
               </p>
               <p className="text-center text-2xl font-bold text-[var(--navy)]">

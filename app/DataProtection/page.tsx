@@ -49,11 +49,11 @@ export default function DataProtectionPage() {
           </p>
           <p className="text-sm leading-relaxed text-[var(--muted)]">
             This policy supplements our{' '}
-            <Link href="/Privacy" className="text-[var(--gold-hover)] hover:underline">
+            <Link href="/Privacy" className="text-[var(--gold-link)] hover:underline">
               Privacy Policy
             </Link>{' '}
             and{' '}
-            <Link href="/GDPR" className="text-[var(--gold-hover)] hover:underline">
+            <Link href="/GDPR" className="text-[var(--gold-link)] hover:underline">
               GDPR Policy
             </Link>
             .
@@ -435,7 +435,7 @@ export default function DataProtectionPage() {
               <span className="font-semibold text-[var(--navy)]">Email:</span>{' '}
               <a
                 href="mailto:robertcashman@defencelegalservices.co.uk?subject=Data%20Protection%20Enquiry"
-                className="text-[var(--gold-hover)] hover:underline"
+                className="text-[var(--gold-link)] hover:underline"
               >
                 robertcashman@defencelegalservices.co.uk
               </a>
@@ -451,7 +451,7 @@ export default function DataProtectionPage() {
               href="https://ico.org.uk/make-a-complaint/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[var(--gold-hover)] hover:underline"
+              className="text-[var(--gold-link)] hover:underline"
             >
               ico.org.uk/make-a-complaint
             </a>
@@ -463,7 +463,7 @@ export default function DataProtectionPage() {
         <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 text-center shadow-[var(--card-shadow)]">
           <p className="text-sm text-[var(--muted)]">
             Have a data protection concern?{' '}
-            <Link href="/Contact" className="font-medium text-[var(--gold-hover)] hover:underline">
+            <Link href="/Contact" className="font-medium text-[var(--gold-link)] hover:underline">
               Contact us
             </Link>{' '}
             and we&apos;ll respond promptly.

@@ -13,7 +13,7 @@ export function BlogAuthorBio() {
         England and Wales — not legal advice and not a substitute for your own supervision and insurer requirements.
       </p>
       <p className="mt-4">
-        <Link href="/AboutFounder" className="text-sm font-medium text-[var(--gold-hover)] no-underline hover:underline">
+        <Link href="/AboutFounder" className="text-sm font-medium text-[var(--gold-link)] no-underline hover:underline">
           Read more on the founder page
         </Link>
       </p>

@@ -342,7 +342,7 @@ export default function CookiesPage() {
             For questions about cookies or data privacy, email{' '}
             <a
               href="mailto:robertcashman@defencelegalservices.co.uk?subject=Cookies%20Enquiry"
-              className="text-[var(--gold-hover)] hover:underline"
+              className="text-[var(--gold-link)] hover:underline"
             >
               robertcashman@defencelegalservices.co.uk
             </a>{' '}
@@ -350,11 +350,11 @@ export default function CookiesPage() {
           </p>
           <p className="mb-4 text-sm text-[var(--muted)]">
             For more information about how we handle your data, see our{' '}
-            <Link href="/Privacy" className="text-[var(--gold-hover)] hover:underline">
+            <Link href="/Privacy" className="text-[var(--gold-link)] hover:underline">
               Privacy Policy
             </Link>{' '}
             and{' '}
-            <Link href="/GDPR" className="text-[var(--gold-hover)] hover:underline">
+            <Link href="/GDPR" className="text-[var(--gold-link)] hover:underline">
               GDPR Policy
             </Link>
             .
@@ -365,7 +365,7 @@ export default function CookiesPage() {
         <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 text-center shadow-[var(--card-shadow)]">
           <p className="text-sm text-[var(--muted)]">
             Have a question about our use of cookies?{' '}
-            <Link href="/Contact" className="font-medium text-[var(--gold-hover)] hover:underline">
+            <Link href="/Contact" className="font-medium text-[var(--gold-link)] hover:underline">
               Get in touch
             </Link>{' '}
             and we&apos;ll be happy to help.

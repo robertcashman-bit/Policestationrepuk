@@ -55,13 +55,13 @@ export default async function DirectoryCountiesPage() {
                   className="group flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-4 shadow-[var(--card-shadow)] no-underline transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
                 >
                   <div>
-                    <span className="font-bold text-[var(--navy)] group-hover:text-[var(--gold-hover)]">{c.name}</span>
+                    <span className="font-bold text-[var(--navy)] group-hover:text-[var(--gold-link)]">{c.name}</span>
                     <span className="mt-0.5 block text-xs text-[var(--muted)]">
                       {c.repCount} rep{c.repCount !== 1 ? 's' : ''}
                     </span>
                   </div>
                   {c.repCount > 0 && (
-                    <span className="rounded-full bg-[var(--gold-pale)] px-2.5 py-0.5 text-xs font-bold text-[var(--gold-hover)]">
+                    <span className="rounded-full bg-[var(--gold-pale)] px-2.5 py-0.5 text-xs font-bold text-[var(--gold-link)]">
                       {c.repCount}
                     </span>
                   )}
@@ -70,7 +70,7 @@ export default async function DirectoryCountiesPage() {
             ))}
           </ul>
           <p className="mt-10">
-            <Link href="/directory" className="font-medium text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]">
+            <Link href="/directory" className="font-medium text-[var(--gold-link)] no-underline hover:text-[var(--gold)]">
               ← Back to full directory
             </Link>
           </p>

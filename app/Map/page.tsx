@@ -182,13 +182,13 @@ export default function MapPage() {
                   <h2 className="text-lg font-bold text-[var(--navy)]">
                     {selectedStation.name}
                   </h2>
-                  <p className="mt-1 text-sm text-[var(--gold-hover)]">{selectedStation.county}</p>
+                  <p className="mt-1 text-sm text-[var(--gold-link)]">{selectedStation.county}</p>
                   <p className="mt-2 text-sm text-[var(--muted)]">{selectedStation.address}</p>
                   {selectedStation.phone && (
                     <p className="mt-2">
                       <a
                         href={phoneToTelHref(selectedStation.phone)}
-                        className="text-sm font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)]"
+                        className="text-sm font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
                       >
                         📞 {selectedStation.phone}
                       </a>

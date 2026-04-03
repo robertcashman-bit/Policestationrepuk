@@ -44,14 +44,14 @@ export default function PrivacyPage() {
                 <span className="font-semibold text-[var(--navy)]">Email:</span>{' '}
                 <a
                   href="mailto:robertcashman@defencelegalservices.co.uk"
-                  className="text-[var(--gold-hover)] hover:underline"
+                  className="text-[var(--gold-link)] hover:underline"
                 >
                   robertcashman@defencelegalservices.co.uk
                 </a>
               </li>
               <li>
                 <span className="font-semibold text-[var(--navy)]">Phone:</span>{' '}
-                <a href="tel:07535494446" className="text-[var(--gold-hover)] hover:underline">
+                <a href="tel:07535494446" className="text-[var(--gold-link)] hover:underline">
                   07535 494446
                 </a>
               </li>
@@ -59,7 +59,7 @@ export default function PrivacyPage() {
                 <span className="font-semibold text-[var(--navy)]">Website:</span>{' '}
                 <a
                   href={SITE_URL}
-                  className="text-[var(--gold-hover)] hover:underline"
+                  className="text-[var(--gold-link)] hover:underline"
                   rel="noopener noreferrer"
                 >
                   {SITE_URL.replace(/^https?:\/\//, '')}
@@ -130,7 +130,7 @@ export default function PrivacyPage() {
             <li className="flex gap-2">
               <span className="mt-0.5 text-emerald-600">&#x2022;</span>Cookies for website
               functionality (see our{' '}
-              <Link href="/Cookies" className="text-[var(--gold-hover)] hover:underline">
+              <Link href="/Cookies" className="text-[var(--gold-link)] hover:underline">
                 Cookies Policy
               </Link>
               )
@@ -287,7 +287,7 @@ export default function PrivacyPage() {
               Email us at{' '}
               <a
                 href="mailto:robertcashman@defencelegalservices.co.uk"
-                className="text-[var(--gold-hover)] hover:underline"
+                className="text-[var(--gold-link)] hover:underline"
               >
                 robertcashman@defencelegalservices.co.uk
               </a>{' '}

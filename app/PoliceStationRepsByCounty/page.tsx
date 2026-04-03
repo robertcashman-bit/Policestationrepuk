@@ -63,11 +63,11 @@ export default async function PoliceStationRepsByCountyPage() {
                 className="group relative flex flex-col rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-5 shadow-[var(--card-shadow)] no-underline transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
               >
                 {county.popular && (
-                  <span className="absolute top-3 right-3 rounded-full bg-[var(--gold-pale)] px-2.5 py-0.5 text-xs font-bold text-[var(--gold-hover)]">
+                  <span className="absolute top-3 right-3 rounded-full bg-[var(--gold-pale)] px-2.5 py-0.5 text-xs font-bold text-[var(--gold-link)]">
                     Popular
                   </span>
                 )}
-                <h2 className="text-lg font-bold text-[var(--navy)] group-hover:text-[var(--gold-hover)]">
+                <h2 className="text-lg font-bold text-[var(--navy)] group-hover:text-[var(--gold-link)]">
                   {county.name}
                 </h2>
                 <p className="mt-1 text-sm text-[var(--muted)]">
@@ -75,7 +75,7 @@ export default async function PoliceStationRepsByCountyPage() {
                     ? `${county.repCount} registered rep${county.repCount !== 1 ? 's' : ''}`
                     : 'View available reps'}
                 </p>
-                <span className="mt-3 text-sm font-semibold text-[var(--gold-hover)]">View reps →</span>
+                <span className="mt-3 text-sm font-semibold text-[var(--gold-link)]">View reps →</span>
               </Link>
             ))}
           </div>

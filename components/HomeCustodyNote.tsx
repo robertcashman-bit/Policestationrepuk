@@ -72,7 +72,7 @@ export function HomeCustodyNote() {
                 href="/CustodyNote"
                 className="btn-outline w-full !border-white/40 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)] sm:w-auto"
               >
-                Learn more →
+                About CustodyNote →
               </Link>
               <Link
                 href="https://custodynote.com/pricing"

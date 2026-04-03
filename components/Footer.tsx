@@ -90,7 +90,7 @@ export function Footer() {
                 href="/CustodyNote"
                 className="inline-flex min-h-[44px] items-center justify-center rounded-lg border-2 border-white/30 px-5 py-2.5 text-sm font-semibold text-white no-underline hover:bg-white/10"
               >
-                Learn more
+                About CustodyNote
               </Link>
             </div>
           </div>
@@ -144,7 +144,7 @@ export function Footer() {
               href="/CustodyNote"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
             >
-              Learn more →
+              About CustodyNote →
             </Link>
           </div>
           <div>

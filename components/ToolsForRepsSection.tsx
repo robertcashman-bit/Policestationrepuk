@@ -54,7 +54,7 @@ export function ToolsForRepsSection() {
                   href="/CustodyNote"
                   className="inline-flex min-h-[44px] items-center justify-center rounded-xl border-2 border-white/30 px-5 py-3 text-sm font-semibold text-white no-underline hover:bg-white/10"
                 >
-                  Learn more
+                  About CustodyNote
                 </Link>
               </div>
               <p className="mt-4 text-xs text-slate-400">Advertisement — see our disclosure.</p>

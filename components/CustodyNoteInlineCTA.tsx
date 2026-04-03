@@ -36,7 +36,7 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
             href="/CustodyNote"
             className="inline-flex items-center justify-center rounded-lg border border-white/30 px-3 py-2 text-xs font-semibold text-white no-underline hover:bg-white/10"
           >
-            Learn more
+            About CustodyNote
           </Link>
         </div>
       </aside>

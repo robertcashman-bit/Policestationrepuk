@@ -9,7 +9,7 @@ import {
 const STORAGE_KEY = 'cn-top-banner-dismissed';
 
 export function CustodyNoteTopBanner() {
-  const [dismissed, setDismissed] = useState(true);
+  const [dismissed, setDismissed] = useState<boolean | null>(null);
 
   useEffect(() => {
     try {
@@ -19,10 +19,12 @@ export function CustodyNoteTopBanner() {
     }
   }, []);
 
-  if (dismissed) return null;
+  const hidden = dismissed === true;
 
   return (
-    <div className="relative z-[100] border-b border-[#0a1633] bg-gradient-to-r from-[#0f1d45] via-[#152e6e] to-[#0f1d45] px-3 py-2.5 text-center sm:px-4">
+    <div
+      className={`relative z-[100] border-b border-[#0a1633] bg-gradient-to-r from-[#0f1d45] via-[#152e6e] to-[#0f1d45] px-3 text-center transition-all duration-200 sm:px-4 ${hidden ? 'invisible h-0 overflow-hidden py-0' : 'visible py-2.5'}`}
+    >
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-2 sm:gap-4">
         <a
           href={CUSTODYNOTE_TRIAL_HREF}
@@ -51,7 +53,7 @@ export function CustodyNoteTopBanner() {
             }
             setDismissed(true);
           }}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white sm:right-4"
+          className={`absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-white/70 transition-colors hover:bg-white/10 hover:text-white sm:right-4 ${hidden ? 'pointer-events-none' : ''}`}
           aria-label="Dismiss banner"
         >
           <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden>

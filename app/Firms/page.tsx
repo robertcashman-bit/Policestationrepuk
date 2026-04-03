@@ -1,7 +1,9 @@
+import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { FirmDirectory } from '@/components/FirmDirectory';
 import { buildMetadata } from '@/lib/seo';
 import { getAllLawFirms } from '@/lib/data';
+import { FACEBOOK_GROUP_URL } from '@/lib/site-navigation';
 
 export const metadata = buildMetadata({
   title: 'Criminal Defence Firms Directory — Rep Reviews & Ratings',
@@ -103,6 +105,47 @@ export default async function FirmsPage() {
                 Enquire About Ads
               </a>
             </div>
+          </div>
+        </section>
+
+        {/* Join the Community */}
+        <section className="mb-12 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8">
+          <h2 className="text-h2 mb-4 text-white">Join the Community</h2>
+          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-slate-300">
+            Whether you&apos;re a firm looking to post cover requests or want to stay connected
+            with the criminal defence community, join our groups to network, share updates, and
+            find work.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Link
+              href="/FirmsWhatsAppGroup"
+              className="rounded-[var(--radius)] border border-white/10 bg-white/5 p-5 no-underline transition-colors hover:bg-white/10"
+            >
+              <p className="font-semibold text-white">Firms WhatsApp Group</p>
+              <p className="mt-1 text-sm text-slate-300">
+                Post cover requests directly to accredited reps — free and verified.
+              </p>
+            </Link>
+            <Link
+              href="/WhatsApp"
+              className="rounded-[var(--radius)] border border-white/10 bg-white/5 p-5 no-underline transition-colors hover:bg-white/10"
+            >
+              <p className="font-semibold text-white">Reps WhatsApp Group</p>
+              <p className="mt-1 text-sm text-slate-300">
+                For accredited reps — receive jobs, network, and get peer support.
+              </p>
+            </Link>
+            <a
+              href={FACEBOOK_GROUP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-[var(--radius)] border border-white/10 bg-white/5 p-5 no-underline transition-colors hover:bg-white/10"
+            >
+              <p className="font-semibold text-white">Facebook Group</p>
+              <p className="mt-1 text-sm text-slate-300">
+                Open to all — discuss industry news and connect with colleagues.
+              </p>
+            </a>
           </div>
         </section>
 

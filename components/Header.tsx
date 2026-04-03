@@ -14,8 +14,9 @@ import {
   HEADER_LOGIN_HREF,
 } from '@/lib/site-navigation';
 
-const DESKTOP_NAV_PRIMARY = PRIMARY_NAV.slice(0, 7);
-const DESKTOP_NAV_MORE = PRIMARY_NAV.slice(7);
+/** Fewer inline links between lg and xl (1280px) so the bar does not need horizontal scroll. */
+const DESKTOP_NAV_COMPACT_PRIMARY = 5;
+const DESKTOP_NAV_FULL_PRIMARY = 7;
 
 function NavItem({
   href,
@@ -63,7 +64,7 @@ function MoreDropdown({ links, linkClass }: { links: ReadonlyArray<{ href: strin
   }, [open]);
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative shrink-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -97,6 +98,22 @@ function MoreDropdown({ links, linkClass }: { links: ReadonlyArray<{ href: strin
 export function Header() {
   const [open, setOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  /** false until mounted = SSR + first paint match; then xl+ uses full primary count. */
+  const [wideDesktopNav, setWideDesktopNav] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1280px)');
+    const sync = () => setWideDesktopNav(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+
+  const desktopPrimaryCount = wideDesktopNav
+    ? DESKTOP_NAV_FULL_PRIMARY
+    : DESKTOP_NAV_COMPACT_PRIMARY;
+  const desktopNavPrimary = PRIMARY_NAV.slice(0, desktopPrimaryCount);
+  const desktopNavMore = PRIMARY_NAV.slice(desktopPrimaryCount);
 
   const handleShare = async () => {
     const url = typeof window !== 'undefined' ? window.location.href : SITE_URL;
@@ -114,13 +131,13 @@ export function Header() {
   };
 
   const desktopNavLinkClass =
-    'inline-flex min-h-[44px] items-center rounded-lg px-2.5 py-2 text-[13px] font-semibold leading-snug !text-white no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--gold)] xl:px-3 xl:text-sm whitespace-nowrap';
+    'inline-flex shrink-0 min-h-[44px] items-center rounded-lg px-2.5 py-2 text-[13px] font-semibold leading-snug !text-white no-underline transition-colors hover:bg-[var(--navy-light)] hover:!text-[var(--gold)] xl:px-3 xl:text-sm whitespace-nowrap';
 
   return (
     <>
       <header className="relative z-30 border-b border-[var(--navy-light)] bg-[var(--navy)] shadow-lg">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2.5 sm:px-6 lg:px-8">
-          <div className="flex min-w-0 items-center gap-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2.5 sm:px-6 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center lg:justify-normal lg:gap-x-3 lg:px-8">
+          <div className="flex min-w-0 items-center gap-3 lg:min-w-0">
             <button
               type="button"
               onClick={() => setOpen((v) => !v)}
@@ -157,21 +174,23 @@ export function Header() {
             </Link>
           </div>
 
-          <nav
-            className="hidden min-w-0 items-center gap-0.5 lg:flex"
-            aria-label="Main navigation"
-          >
-            {DESKTOP_NAV_PRIMARY.map((link) => (
-              <NavItem key={`${link.href}-${link.text}`} href={link.href} className={desktopNavLinkClass}>
-                {link.text}
-              </NavItem>
-            ))}
-            {DESKTOP_NAV_MORE.length > 0 && (
-              <MoreDropdown links={DESKTOP_NAV_MORE} linkClass={desktopNavLinkClass} />
-            )}
-          </nav>
+          <div className="hidden min-w-0 justify-center px-1 lg:flex">
+            <nav
+              className="flex min-w-0 max-w-full items-center gap-0.5"
+              aria-label="Main navigation"
+            >
+              {desktopNavPrimary.map((link) => (
+                <NavItem key={`${link.href}-${link.text}`} href={link.href} className={desktopNavLinkClass}>
+                  {link.text}
+                </NavItem>
+              ))}
+              {desktopNavMore.length > 0 && (
+                <MoreDropdown links={desktopNavMore} linkClass={desktopNavLinkClass} />
+              )}
+            </nav>
+          </div>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2 lg:justify-self-end">
             <Link
               href={HEADER_HELP_HREF}
               className="hidden min-h-[44px] items-center px-2 text-sm font-medium !text-white/80 no-underline transition-colors hover:!text-[var(--gold)] lg:inline-flex"

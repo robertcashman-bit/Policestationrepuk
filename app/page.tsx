@@ -92,22 +92,19 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <div className="cv-auto">
+      <div className="cv-auto bg-[var(--navy)]">
         <HomeSeoConversionHub />
       </div>
 
       <div className="cv-auto">
         <HomeQuickSearch
-          stations={stations.map((s) => s.name)}
           counties={counties.map((c) => c.name)}
         />
       </div>
 
       <HomeRecentlyJoined reps={reps} />
 
-      <div className="cv-auto">
-        <HomeFeaturedCarousel featuredReps={featuredReps} />
-      </div>
+      <HomeFeaturedCarousel featuredReps={featuredReps} />
 
       <div className="cv-auto">
         <HomeWhyChoose />

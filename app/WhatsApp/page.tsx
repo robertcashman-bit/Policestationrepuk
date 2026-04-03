@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
+import {
+  WHATSAPP_JOIN_URL,
+  WHATSAPP_JOIN_PHONE,
+  FACEBOOK_GROUP_URL,
+} from '@/lib/site-navigation';
 
 export const metadata = buildMetadata({
   title: 'WhatsApp Group for Police Station Reps',
@@ -32,11 +37,52 @@ const FEATURES = [
   },
 ];
 
+const JOIN_STEPS = [
+  {
+    step: 1,
+    title: 'Send a text message',
+    desc: (
+      <>
+        Text <strong>{WHATSAPP_JOIN_PHONE}</strong> (or tap the button below)
+        with your <strong>name</strong>,{' '}
+        <strong>accreditation details</strong>, and the{' '}
+        <strong>areas you cover</strong>.
+      </>
+    ),
+  },
+  {
+    step: 2,
+    title: 'Provide proof of accreditation',
+    desc: 'You may be asked to share your LCCSA, CLSA, or Law Society accreditation number or certificate.',
+  },
+  {
+    step: 3,
+    title: 'Get added to the group',
+    desc: "Once verified, you'll receive a WhatsApp invitation. Accept it and start receiving cover requests immediately.",
+  },
+];
+
 const RESOURCE_LINKS = [
-  { href: '/directory', label: 'Reps Directory', desc: 'Get listed so firms can find you' },
-  { href: '/register', label: 'Register Your Profile', desc: 'Create your free directory listing' },
-  { href: '/GetWork', label: 'Get Work Guide', desc: 'Complete career strategy guide' },
-  { href: '/FormsLibrary', label: 'Forms Library', desc: 'CRM1, CRM2 & legal aid forms' },
+  {
+    href: '/directory',
+    label: 'Reps Directory',
+    desc: 'Get listed so firms can find you',
+  },
+  {
+    href: '/register',
+    label: 'Register Your Profile',
+    desc: 'Create your free directory listing',
+  },
+  {
+    href: '/GetWork',
+    label: 'Get Work Guide',
+    desc: 'Complete career strategy guide',
+  },
+  {
+    href: '/FormsLibrary',
+    label: 'Forms Library',
+    desc: 'CRM1, CRM2 & legal aid forms',
+  },
 ];
 
 export default function WhatsAppPage() {
@@ -55,91 +101,139 @@ export default function WhatsAppPage() {
             Join the Police Station Reps WhatsApp Group
           </h1>
           <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
-            The fastest way to receive police station cover requests from solicitor firms across
-            England &amp; Wales. Free, instant, and exclusively for accredited representatives.
+            The fastest way to receive police station cover requests from
+            solicitor firms across England &amp; Wales. Free, instant, and
+            exclusively for accredited representatives.
           </p>
         </div>
       </section>
 
       <div className="page-container">
-
-      {/* Features */}
-      <div className="mb-14 grid gap-5 sm:grid-cols-2">
-        {FEATURES.map((f) => (
-          <div
-            key={f.title}
-            className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 shadow-[var(--card-shadow)]"
-          >
-            <div className="mb-3 text-2xl">{f.icon}</div>
-            <h2 className="font-semibold text-[var(--navy)]">{f.title}</h2>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{f.desc}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* How to Join CTA */}
-      <section className="mb-14 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
-        <h2 className="text-h2 text-white">How to Join</h2>
-        <p className="mx-auto mt-4 max-w-lg text-slate-300">
-          To request access to the WhatsApp group, send a text message with your name,
-          accreditation details, and the areas you cover to:
-        </p>
-        <p className="mt-6 text-3xl font-bold text-white">(07535) 494446</p>
-        <p className="mt-2 text-sm text-slate-300">
-          You will be asked to provide proof of accreditation before being added.
-        </p>
-        <div className="mt-6">
-          <a
-            href="https://wa.me/447535494446?text=Hi%2C%20I%27d%20like%20to%20join%20the%20Police%20Station%20Reps%20WhatsApp%20Group.%20My%20name%20is%20"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-gold inline-block no-underline"
-          >
-            Text to Join on WhatsApp
-          </a>
-        </div>
-      </section>
-
-      {/* What to expect */}
-      <section className="mb-14 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-8 shadow-[var(--card-shadow)]">
-        <h2 className="text-h2 mb-4 text-[var(--navy)]">What to Expect</h2>
-        <ul className="space-y-3 text-sm text-[var(--muted)]">
-          <li className="flex gap-2">
-            <span className="mt-0.5 shrink-0 text-[var(--gold)]">✓</span>
-            Cover requests from solicitor firms posted in real time — respond instantly to secure work
-          </li>
-          <li className="flex gap-2">
-            <span className="mt-0.5 shrink-0 text-[var(--gold)]">✓</span>
-            Professional environment — group rules are enforced to maintain quality and relevance
-          </li>
-          <li className="flex gap-2">
-            <span className="mt-0.5 shrink-0 text-[var(--gold)]">✓</span>
-            Networking opportunities with fellow reps and criminal solicitors nationwide
-          </li>
-          <li className="flex gap-2">
-            <span className="mt-0.5 shrink-0 text-[var(--gold)]">✓</span>
-            Industry updates, rate changes, and PACE developments shared by the community
-          </li>
-        </ul>
-      </section>
-
-      {/* Resources */}
-      <section>
-        <h2 className="text-h2 mb-6 text-[var(--navy)]">More Resources</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {RESOURCE_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="block rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 no-underline shadow-[var(--card-shadow)] transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
+        {/* Features */}
+        <div className="mb-14 grid gap-5 sm:grid-cols-2">
+          {FEATURES.map((f) => (
+            <div
+              key={f.title}
+              className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-6 shadow-[var(--card-shadow)]"
             >
-              <p className="font-medium text-[var(--navy)]">{link.label}</p>
-              <p className="mt-1 text-sm text-[var(--muted)]">{link.desc}</p>
-            </Link>
+              <div className="mb-3 text-2xl">{f.icon}</div>
+              <h2 className="font-semibold text-[var(--navy)]">{f.title}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+                {f.desc}
+              </p>
+            </div>
           ))}
         </div>
-      </section>
-    </div>
+
+        {/* How to Join — numbered steps */}
+        <section className="mb-14 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8">
+          <h2 className="text-h2 mb-6 text-center text-white">
+            How to Join — 3 Simple Steps
+          </h2>
+          <ol className="mx-auto max-w-xl space-y-6">
+            {JOIN_STEPS.map((s) => (
+              <li key={s.step} className="flex gap-4">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--gold)] text-sm font-bold text-[var(--navy)]">
+                  {s.step}
+                </span>
+                <div>
+                  <p className="font-semibold text-white">{s.title}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-300">
+                    {s.desc}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-8 text-center">
+            <a
+              href={WHATSAPP_JOIN_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-gold inline-block no-underline"
+            >
+              Text to Join on WhatsApp
+            </a>
+            <p className="mt-4 text-3xl font-bold text-white">
+              {WHATSAPP_JOIN_PHONE}
+            </p>
+          </div>
+        </section>
+
+        {/* What to expect */}
+        <section className="mb-14 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-8 shadow-[var(--card-shadow)]">
+          <h2 className="text-h2 mb-4 text-[var(--navy)]">What to Expect</h2>
+          <ul className="space-y-3 text-sm text-[var(--muted)]">
+            {[
+              'Cover requests from solicitor firms posted in real time — respond instantly to secure work',
+              'Professional environment — group rules are enforced to maintain quality and relevance',
+              'Networking opportunities with fellow reps and criminal solicitors nationwide',
+              'Industry updates, rate changes, and PACE developments shared by the community',
+            ].map((item) => (
+              <li key={item} className="flex gap-2">
+                <span className="mt-0.5 shrink-0 text-[var(--gold)]">✓</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Are you a firm? */}
+        <section className="mb-14 rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/30 bg-[var(--gold)]/5 p-8 text-center">
+          <h2 className="text-h2 text-[var(--navy)]">
+            Are You a Solicitor Firm?
+          </h2>
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-[var(--muted)]">
+            There is a separate WhatsApp group for criminal defence firms to
+            post cover requests directly to accredited reps. It&apos;s free,
+            verified, and monitored.
+          </p>
+          <Link
+            href="/FirmsWhatsAppGroup"
+            className="btn-outline mt-5 inline-block no-underline"
+          >
+            Firms WhatsApp Group &rarr;
+          </Link>
+        </section>
+
+        {/* Facebook group CTA */}
+        <section className="mb-14 rounded-[var(--radius-lg)] border-2 border-blue-200 bg-blue-50 p-8 text-center">
+          <h2 className="text-h2 text-[var(--navy)]">
+            Join Our Facebook Group
+          </h2>
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-[var(--muted)]">
+            Our Facebook group is a complementary community space for police
+            station reps and criminal defence professionals. Share articles,
+            discuss industry news, and connect with colleagues across the
+            country.
+          </p>
+          <a
+            href={FACEBOOK_GROUP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-outline mt-5 inline-block no-underline"
+          >
+            Join the Facebook Group
+          </a>
+        </section>
+
+        {/* Resources */}
+        <section>
+          <h2 className="text-h2 mb-6 text-[var(--navy)]">More Resources</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {RESOURCE_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="block rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 no-underline shadow-[var(--card-shadow)] transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
+              >
+                <p className="font-medium text-[var(--navy)]">{link.label}</p>
+                <p className="mt-1 text-sm text-[var(--muted)]">{link.desc}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </div>
     </>
   );
 }

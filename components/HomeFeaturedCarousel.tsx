@@ -114,8 +114,8 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
           </div>
 
           <p className="mt-6 text-center">
-            <Link href="/directory" className="text-sm font-semibold text-[var(--gold)] no-underline hover:text-[var(--gold-hover)]">
-              View all representatives
+            <Link href="/directory" className="text-sm font-semibold text-white underline decoration-white/40 underline-offset-2 hover:decoration-white">
+              View all representatives →
             </Link>
           </p>
         </div>

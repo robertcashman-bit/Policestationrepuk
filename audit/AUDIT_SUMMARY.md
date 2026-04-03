@@ -1,9 +1,9 @@
 # Audit summary
 
-**Generated:** 2026-03-25T23:05:06.032Z  
+**Generated:** 2026-04-03T11:17:18.440Z  
 **Framework:** Next.js 15 App Router  
 **Static app routes:** 94  
-**Internal `href` occurrences scanned:** 262  
+**Internal `href` occurrences scanned:** 294  
 **Defects (missing route):** 0
 
 ## Phase 1 — Discovery

@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
+import { FACEBOOK_GROUP_URL } from '@/lib/site-navigation';
 
 export const metadata = buildMetadata({
   title: 'Community Forum for Police Station Representatives',
   description:
-    'Connect with fellow police station representatives, share experiences, and get advice. Join the UK\'s most active community for accredited reps and criminal defence professionals.',
+    "Connect with fellow police station representatives, share experiences, and get advice. Join the UK's most active community for accredited reps and criminal defence professionals.",
   path: '/Forum',
 });
 
@@ -58,84 +59,173 @@ export default function ForumPage() {
       </section>
 
       <div className="page-container">
-
-      {/* Main community channel */}
-      <section className="mb-14 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8">
-        <h2 className="text-h2 mb-4 text-white">
-          Our Community Lives on WhatsApp
-        </h2>
-        <p className="mb-4 text-sm leading-relaxed text-slate-300">
-          The PoliceStationRepUK community group on WhatsApp is the primary forum for UK police
-          station representatives. It is the most active and responsive channel for professional
-          discussion, urgent cover requests, and peer support in the criminal defence sector.
-        </p>
-        <p className="mb-6 text-sm leading-relaxed text-slate-300">
-          Membership is restricted to accredited police station representatives only. You will
-          need to provide proof of accreditation (LCCSA or CLSA membership, or Law Society
-          accreditation) to join.
-        </p>
-        <Link
-          href="/WhatsApp"
-          className="btn-gold inline-flex min-h-[44px] items-center no-underline"
-        >
-          Join the WhatsApp Group &rarr;
-        </Link>
-      </section>
-
-      {/* What you get */}
-      <section className="mb-14">
-        <h2 className="text-h2 mb-8 text-[var(--navy)]">What the Community Offers</h2>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {COMMUNITY_FEATURES.map((f) => (
-            <div
-              key={f.title}
-              className="rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--card-shadow)]"
-            >
-              <h3 className="font-semibold text-[var(--navy)]">{f.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Not yet registered */}
-      <section className="mb-14 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card-bg)] p-8 shadow-[var(--card-shadow)]">
-        <h2 className="text-h2 mb-4 text-[var(--navy)]">Not Yet Registered?</h2>
-        <p className="mb-4 text-sm leading-relaxed text-[var(--muted)]">
-          If you&apos;re an accredited police station representative but haven&apos;t yet
-          registered on our directory, start there. Registration is completely free and gives you
-          a public profile that solicitor firms can find when searching for cover.
-        </p>
-        <Link
-          href="/register"
-          className="btn-outline inline-flex min-h-[44px] items-center no-underline"
-        >
-          Register as Rep &rarr;
-        </Link>
-      </section>
-
-      {/* Related Links */}
-      <section>
-        <h2 className="text-h2 mb-6 text-[var(--navy)]">Related Resources</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { href: '/WhatsApp', label: 'WhatsApp Group', desc: 'Join the community' },
-            { href: '/directory', label: 'Reps Directory', desc: 'Find accredited reps' },
-            { href: '/GetWork', label: 'Get Work Guide', desc: 'Grow your practice' },
-            { href: '/LegalUpdates', label: 'Legal Updates', desc: 'Latest news & changes' },
-          ].map((link) => (
+        {/* Two community channels side by side */}
+        <section className="mb-14 grid gap-6 lg:grid-cols-2">
+          {/* WhatsApp */}
+          <div className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8">
+            <h2 className="text-h2 mb-4 text-white">WhatsApp Group</h2>
+            <p className="mb-4 text-sm leading-relaxed text-slate-300">
+              The PoliceStationRepUK WhatsApp group is the primary community for
+              UK police station representatives. It is the most active channel
+              for professional discussion, urgent cover requests, and peer
+              support.
+            </p>
+            <p className="mb-6 text-sm leading-relaxed text-slate-300">
+              Membership is restricted to <strong>accredited reps only</strong>.
+              You will need to provide proof of accreditation (LCCSA, CLSA, or
+              Law Society) to join.
+            </p>
             <Link
-              key={link.href}
-              href={link.href}
-              className="block rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 no-underline shadow-[var(--card-shadow)] transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
+              href="/WhatsApp"
+              className="btn-gold inline-flex min-h-[44px] items-center no-underline"
             >
-              <p className="font-medium text-[var(--navy)]">{link.label}</p>
-              <p className="mt-1 text-sm text-[var(--muted)]">{link.desc}</p>
+              Join the WhatsApp Group &rarr;
             </Link>
-          ))}
-        </div>
-      </section>
-    </div>
+          </div>
+
+          {/* Facebook */}
+          <div className="rounded-[var(--radius-lg)] border-2 border-blue-200 bg-blue-50 p-8">
+            <h2 className="text-h2 mb-4 text-[var(--navy)]">Facebook Group</h2>
+            <p className="mb-4 text-sm leading-relaxed text-[var(--muted)]">
+              Our Facebook group is a complementary community space for reps,
+              solicitors, and criminal defence professionals. Share articles,
+              discuss industry news, and connect with colleagues across the
+              country.
+            </p>
+            <p className="mb-6 text-sm leading-relaxed text-[var(--muted)]">
+              The Facebook group is <strong>open to all professionals</strong>{' '}
+              in the criminal defence sector — reps and firms alike.
+            </p>
+            <a
+              href={FACEBOOK_GROUP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline inline-flex min-h-[44px] items-center no-underline"
+            >
+              Join the Facebook Group &rarr;
+            </a>
+          </div>
+        </section>
+
+        {/* Firms callout */}
+        <section className="mb-14 rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/30 bg-[var(--gold)]/5 p-8 text-center">
+          <h2 className="text-h2 text-[var(--navy)]">
+            Are You a Solicitor Firm?
+          </h2>
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-[var(--muted)]">
+            There is a separate WhatsApp group exclusively for criminal defence
+            firms to post cover requests. It&apos;s free, verified, and
+            monitored by a practising solicitor.
+          </p>
+          <Link
+            href="/FirmsWhatsAppGroup"
+            className="btn-gold mt-5 inline-block no-underline"
+          >
+            Firms WhatsApp Group &rarr;
+          </Link>
+        </section>
+
+        {/* What you get */}
+        <section className="mb-14">
+          <h2 className="text-h2 mb-8 text-[var(--navy)]">
+            What the Community Offers
+          </h2>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {COMMUNITY_FEATURES.map((f) => (
+              <div
+                key={f.title}
+                className="rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--card-shadow)]"
+              >
+                <h3 className="font-semibold text-[var(--navy)]">{f.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+                  {f.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Not yet registered */}
+        <section className="mb-14 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--card-bg)] p-8 shadow-[var(--card-shadow)]">
+          <h2 className="text-h2 mb-4 text-[var(--navy)]">
+            Not Yet Registered?
+          </h2>
+          <p className="mb-4 text-sm leading-relaxed text-[var(--muted)]">
+            If you&apos;re an accredited police station representative but
+            haven&apos;t yet registered on our directory, start there.
+            Registration is completely free and gives you a public profile that
+            solicitor firms can find when searching for cover.
+          </p>
+          <Link
+            href="/register"
+            className="btn-outline inline-flex min-h-[44px] items-center no-underline"
+          >
+            Register as Rep &rarr;
+          </Link>
+        </section>
+
+        {/* Related Links */}
+        <section>
+          <h2 className="text-h2 mb-6 text-[var(--navy)]">
+            Related Resources
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                href: '/WhatsApp',
+                label: 'WhatsApp Group',
+                desc: 'Join the reps community',
+              },
+              {
+                href: FACEBOOK_GROUP_URL,
+                label: 'Facebook Group',
+                desc: 'Join the discussion',
+                external: true,
+              },
+              {
+                href: '/directory',
+                label: 'Reps Directory',
+                desc: 'Find accredited reps',
+              },
+              {
+                href: '/LegalUpdates',
+                label: 'Legal Updates',
+                desc: 'Latest news & changes',
+              },
+            ].map((link) =>
+              'external' in link ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 no-underline shadow-[var(--card-shadow)] transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
+                >
+                  <p className="font-medium text-[var(--navy)]">
+                    {link.label}
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--muted)]">
+                    {link.desc}
+                  </p>
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="block rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 no-underline shadow-[var(--card-shadow)] transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
+                >
+                  <p className="font-medium text-[var(--navy)]">
+                    {link.label}
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--muted)]">
+                    {link.desc}
+                  </p>
+                </Link>
+              ),
+            )}
+          </div>
+        </section>
+      </div>
     </>
   );
 }

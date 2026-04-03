@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-03-25T23:05:06.032Z",
+  "generatedAt": "2026-04-03T11:17:18.440Z",
   "framework": "Next.js 15 App Router",
   "staticRouteCount": 94,
-  "internalHrefOccurrences": 262,
+  "internalHrefOccurrences": 294,
   "defects": [],
   "crawlMap": [
     "/",
@@ -26,7 +26,6 @@
     "/DSCCRegistrationGuide",
     "/DataProtection",
     "/DutySolicitorVsRep",
-    "/EmergencyCover",
     "/EscapeFeeCalculator",
     "/FAQ",
     "/Firms",
@@ -76,6 +75,7 @@
     "/SwanleyPoliceStationReps",
     "/Terms",
     "/TonbridgePoliceStationReps",
+    "/UpdateStation",
     "/WhatDoesRepDo",
     "/WhatsApp",
     "/Wiki",
@@ -183,10 +183,6 @@
     },
     {
       "path": "/DutySolicitorVsRep",
-      "type": "static"
-    },
-    {
-      "path": "/EmergencyCover",
       "type": "static"
     },
     {
@@ -383,6 +379,10 @@
     },
     {
       "path": "/TonbridgePoliceStationReps",
+      "type": "static"
+    },
+    {
+      "path": "/UpdateStation",
       "type": "static"
     },
     {

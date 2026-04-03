@@ -65,7 +65,7 @@ export default async function DirectoryPage() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-[var(--navy)]">
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--navy)] via-[#0f1d45] to-[#0a1633]" />
-        <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03]" />
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
         <div className="relative mx-auto max-w-7xl px-4 pb-10 pt-8 sm:px-6 sm:pb-14 sm:pt-10 lg:px-8">
           <Breadcrumbs
             light
@@ -150,7 +150,7 @@ export default async function DirectoryPage() {
                   href="/AccreditedRepresentativeGuide"
                   className="font-semibold text-yellow-800 no-underline hover:text-yellow-600"
                 >
-                  Learn more &rarr;
+                  Accreditation requirements &rarr;
                 </Link>
               </p>
             </div>

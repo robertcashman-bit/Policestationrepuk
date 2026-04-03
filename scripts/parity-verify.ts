@@ -10,6 +10,7 @@ import path from 'path';
 import nextConfig from '../next.config';
 import { normalizeUrlPath, isCrawlNoise } from '../lib/parity-crawl-noise';
 import { LEGACY_EXACT_REDIRECTS } from '../lib/legacy-exact-redirects';
+import { getAllBlogArticles } from '../lib/blog/registry';
 
 type Class = 'MATCH' | 'MISSING' | 'REDIRECT_EXTERNAL' | 'SKIP';
 
@@ -130,6 +131,15 @@ function loadCountySeoSlugs(root: string): Set<string> {
   }
 }
 
+function loadBlogSlugs(): Set<string> {
+  try {
+    const items = getAllBlogArticles();
+    return new Set(items.map((a) => String(a.slug || '').toLowerCase()).filter(Boolean));
+  } catch {
+    return new Set();
+  }
+}
+
 function applyInternalRewrites(pathname: string, countySlugs: Set<string>): string {
   const p = normalizeUrlPath(pathname);
   const pm = p.match(/^\/police-station-representatives-([^/]+)$/i);
@@ -226,10 +236,12 @@ function strictMatch(
     countySeoSlugs: Set<string>;
     wikiSlugs: Set<string>;
     legalSlugs: Set<string>;
+    blogSlugs: Set<string>;
   },
 ): boolean {
   const n = normalizeUrlPath(cur);
   if (n === '/') return true;
+  if (n === '/rss.xml' || n === '/sitemap.xml' || n === '/robots.txt') return true;
 
   if (matchers.staticExact.has(n) || [...matchers.staticExact].some((s) => s.toLowerCase() === n.toLowerCase())) {
     return true;
@@ -248,6 +260,7 @@ function strictMatch(
     if (a === 'county-seo' && ctx.countySeoSlugs.has(bl)) return true;
     if (a === 'Wiki' && ctx.wikiSlugs.has(bl)) return true;
     if (a === 'LegalUpdates' && ctx.legalSlugs.has(bl)) return true;
+    if (a === 'Blog' && ctx.blogSlugs.has(bl)) return true;
   }
 
   if (parts.length === 1) {
@@ -298,6 +311,7 @@ async function main() {
   const countySeoSlugs = loadCountySeoSlugs(root);
   const wikiSlugs = loadWikiSlugs(root);
   const legalSlugs = loadLegalSlugs(root);
+  const blogSlugs = loadBlogSlugs();
 
   const appDir = path.join(root, 'app');
   const routes = findAppRoutes(appDir);
@@ -380,6 +394,7 @@ async function main() {
       countySeoSlugs,
       wikiSlugs,
       legalSlugs,
+        blogSlugs,
     });
 
     if (ok) {

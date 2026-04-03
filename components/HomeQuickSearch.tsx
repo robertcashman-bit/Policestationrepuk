@@ -9,17 +9,15 @@ interface QuickSearchProps {
   counties?: string[];
 }
 
-export function HomeQuickSearch({ stations = [], counties = [] }: QuickSearchProps) {
+export function HomeQuickSearch({ counties = [] }: QuickSearchProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [station, setStation] = useState('');
   const [county, setCounty] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
     if (query.trim()) params.set('q', query.trim());
-    if (station) params.set('station', station);
     if (county) params.set('county', county);
     const qs = params.toString();
     router.push(qs ? `/directory?${qs}` : '/directory');
@@ -46,32 +44,21 @@ export function HomeQuickSearch({ stations = [], counties = [] }: QuickSearchPro
             </p>
 
             <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by name..."
-                className="w-full rounded-[var(--radius)] border border-[var(--border)] px-4 py-2.5 text-sm outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
-              />
               <div className="grid gap-3 sm:grid-cols-2">
-                <select
-                  value={station}
-                  onChange={(e) => setStation(e.target.value)}
-                  aria-label="Filter by station"
-                  className="rounded-[var(--radius)] border border-[var(--border)] px-4 py-2.5 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
-                >
-                  <option value="">Filter by station</option>
-                  {stations.map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search by name or station…"
+                  className="w-full rounded-[var(--radius)] border border-[var(--border)] px-4 py-2.5 text-sm outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
+                />
                 <select
                   value={county}
                   onChange={(e) => setCounty(e.target.value)}
                   aria-label="Filter by county"
                   className="rounded-[var(--radius)] border border-[var(--border)] px-4 py-2.5 text-sm text-[var(--foreground)] outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
                 >
-                  <option value="">Filter by county</option>
+                  <option value="">All counties</option>
                   {counties.map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-25T23:05:06.032Z",
+  "generatedAt": "2026-04-03T11:17:18.440Z",
   "routes": [
     "/",
     "/About",
@@ -22,7 +22,6 @@
     "/DSCCRegistrationGuide",
     "/DataProtection",
     "/DutySolicitorVsRep",
-    "/EmergencyCover",
     "/EscapeFeeCalculator",
     "/FAQ",
     "/Firms",
@@ -72,6 +71,7 @@
     "/SwanleyPoliceStationReps",
     "/Terms",
     "/TonbridgePoliceStationReps",
+    "/UpdateStation",
     "/WhatDoesRepDo",
     "/WhatsApp",
     "/Wiki",

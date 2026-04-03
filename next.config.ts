@@ -87,7 +87,7 @@ const nextConfig: NextConfig = {
       { source: "/PoliceStationRepsNorfolk", destination: "/directory/norfolk", permanent: true },
       { source: "/PoliceStationRepsSuffolk", destination: "/directory/suffolk", permanent: true },
       { source: "/PoliceStationRepsBerkshire", destination: "/directory/berkshire", permanent: true },
-      { source: "/PoliceStationRepsHertfordshire", destination: "/directory/hertfordshire", permanent: true },
+      { source: "/PoliceStationRepsHertfordshire", destination: "/directory", permanent: true },
       {
         source: "/police-station-representatives",
         destination: "/directory",
@@ -137,6 +137,10 @@ const nextConfig: NextConfig = {
       // NOTE: /blog/:slug → /Blog/:slug case redirect moved to middleware.ts
       // next.config redirects match case-insensitively on Vercel, creating a loop for /Blog/* URLs.
       // Duplicate blog slugs → canonical versions
+      { source: "/blog/police-station-representation", destination: "/Blog/what-does-a-freelance-police-station-representative-do", permanent: true },
+      { source: "/blog/nofurtheractionafterpoliceinterview", destination: "/Blog/best-practice-handover-notes-after-police-station-attendance", permanent: true },
+      { source: "/blog/whats-a-duty-solicitor", destination: "/Blog/freelance-police-station-representative-vs-duty-solicitor", permanent: true },
+      { source: "/blog/what-is-a-duty-solicitor-4", destination: "/Blog/freelance-police-station-representative-vs-duty-solicitor", permanent: true },
       { source: "/Blog/what-is-a-duty-solicitor-4", destination: "/Blog/freelance-police-station-representative-vs-duty-solicitor", permanent: true },
       { source: "/Blog/whats-a-duty-solicitor", destination: "/Blog/freelance-police-station-representative-vs-duty-solicitor", permanent: true },
       { source: "/Blog/nofurtheractionafterpoliceinterview", destination: "/Blog/best-practice-handover-notes-after-police-station-attendance", permanent: true },
@@ -411,6 +415,14 @@ const nextConfig: NextConfig = {
         destination: "/Blog/best-practice-handover-notes-after-police-station-attendance",
         permanent: true,
       },
+      { source: "/directory/thames-valley-police", destination: "/StationsDirectory?q=Thames%20Valley%20Police", permanent: true },
+      { source: "/directory/british-transport-police", destination: "/StationsDirectory?q=British%20Transport%20Police", permanent: true },
+      { source: "/directory/suffolk-constabulary", destination: "/StationsDirectory?q=Suffolk%20Constabulary", permanent: true },
+      { source: "/directory/metropolitan-police", destination: "/StationsDirectory?q=Metropolitan%20Police", permanent: true },
+      { source: "/directory/south-wales-police", destination: "/StationsDirectory?q=South%20Wales%20Police", permanent: true },
+      { source: "/directory/lancashire-constabulary", destination: "/StationsDirectory?q=Lancashire%20Constabulary", permanent: true },
+      { source: "/Not%20available", destination: "/Firms", permanent: true },
+      { source: "/Not%20publicly%20available", destination: "/Firms", permanent: true },
       { source: "/what-to-do-if-a-loved-one-is-arrested", destination: "/PACE", permanent: true },
       { source: "/arrestednow", destination: "/PACE", permanent: true },
       { source: "/arrested-what-to-do", destination: "/PACE", permanent: true },

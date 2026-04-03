@@ -210,6 +210,63 @@ export async function sendLeadMagnetNotification(data: {
   }
 }
 
+interface ProfileUpdateData {
+  repName: string;
+  repEmail: string;
+  repSlug: string;
+  changes: Record<string, { from: string; to: string }>;
+}
+
+export async function sendProfileUpdateNotification(data: ProfileUpdateData): Promise<boolean> {
+  const client = getResend();
+  if (!client) {
+    console.info('[Profile update — no RESEND_API_KEY]', { rep: data.repName, email: data.repEmail });
+    return false;
+  }
+
+  const rows = Object.entries(data.changes)
+    .map(
+      ([field, { from, to }]) => `
+        <tr>
+          <td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;width:160px">${escapeHtml(field)}</td>
+          <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#6b7280;text-decoration:line-through">${escapeHtml(from || '(empty)')}</td>
+          <td style="padding:8px;border-bottom:1px solid #e5e7eb;font-weight:bold;color:#059669">${escapeHtml(to || '(empty)')}</td>
+        </tr>`,
+    )
+    .join('');
+
+  try {
+    await client.emails.send({
+      from: FROM_EMAIL,
+      to: ADMIN_EMAIL,
+      replyTo: data.repEmail,
+      subject: `[Profile Update] ${data.repName} updated their listing`,
+      html: `
+        <h2>Self-Service Profile Update</h2>
+        <p><strong>${escapeHtml(data.repName)}</strong> (&lt;<a href="mailto:${escapeHtml(data.repEmail)}">${escapeHtml(data.repEmail)}</a>&gt;) updated their directory profile.</p>
+        <p><a href="https://policestationrepuk.org/rep/${escapeHtml(data.repSlug)}">View public profile</a></p>
+        <table style="border-collapse:collapse;width:100%;max-width:700px;">
+          <thead>
+            <tr style="background:#f9fafb">
+              <th style="padding:8px;text-align:left;border-bottom:2px solid #e5e7eb">Field</th>
+              <th style="padding:8px;text-align:left;border-bottom:2px solid #e5e7eb">Before</th>
+              <th style="padding:8px;text-align:left;border-bottom:2px solid #e5e7eb">After</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <p style="margin-top:16px;color:#6b7280;font-size:12px;">
+          Changed via the self-service portal. A site rebuild may be needed for the public pages to reflect these changes.
+        </p>
+      `,
+    });
+    return true;
+  } catch (err) {
+    console.error('[Profile update email failed]', err);
+    return false;
+  }
+}
+
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, '&amp;')

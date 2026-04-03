@@ -8,6 +8,7 @@ import {
   finalizeRepresentative,
 } from './rep-merge';
 import { repMatchesCountyName } from './county-matching';
+import { supabase, isSupabaseConfigured } from './supabase';
 
 type FileData = {
   counties: County[];
@@ -193,22 +194,64 @@ export async function getStationsByCounty(county: string): Promise<PoliceStation
 }
 
 export async function getRepsByCounty(county: string): Promise<Representative[]> {
-  const file = loadDataFromFiles();
-  if (!file) return [];
-  return file.reps.filter((r) => repMatchesCountyName(r.county, county));
+  const reps = await getAllReps();
+  return reps.filter((r) => repMatchesCountyName(r.county, county));
 }
 
 export async function getRepBySlug(slug: string): Promise<Representative | undefined> {
-  const file = loadDataFromFiles();
-  if (!file) return undefined;
+  const reps = await getAllReps();
   const canonical = resolveRepSlug(slug);
   const lower = canonical.toLowerCase();
-  return file.reps.find((r) => r.slug.toLowerCase() === lower);
+  return reps.find((r) => r.slug.toLowerCase() === lower);
+}
+
+let _profileOverrides: Map<string, Record<string, unknown>> | null = null;
+
+async function loadProfileOverrides(): Promise<Map<string, Record<string, unknown>>> {
+  if (_profileOverrides) return _profileOverrides;
+  _profileOverrides = new Map();
+  if (!isSupabaseConfigured || !supabase) return _profileOverrides;
+  try {
+    const { data, error } = await supabase.from('rep_profiles').select('*');
+    if (error) throw error;
+    for (const row of data ?? []) {
+      if (row.email) _profileOverrides.set(row.email.toLowerCase(), row);
+    }
+  } catch (err) {
+    console.error('[data] Failed to load profile overrides from Supabase:', err);
+  }
+  return _profileOverrides;
+}
+
+function applyOverrides(rep: Representative, overrides: Record<string, unknown>): Representative {
+  return {
+    ...rep,
+    name: (overrides.name as string) || rep.name,
+    phone: (overrides.phone as string) || rep.phone,
+    availability: (overrides.availability as string) || rep.availability,
+    accreditation: (overrides.accreditation as string) || rep.accreditation,
+    postcode: (overrides.postcode as string) || rep.postcode,
+    stationsCovered: (overrides.stations_covered as string[]) || rep.stationsCovered,
+    notes: (overrides.notes as string) || rep.notes,
+    websiteUrl: (overrides.website_url as string) || rep.websiteUrl,
+    whatsappLink: (overrides.whatsapp_link as string) || rep.whatsappLink,
+    dsccPin: (overrides.dscc_pin as string) || rep.dsccPin,
+    holidayAvailability: (overrides.holiday_availability as string[]) || rep.holidayAvailability,
+    languages: (overrides.languages as string[]) || rep.languages,
+    specialisms: (overrides.specialisms as string[]) || rep.specialisms,
+    yearsExperience: (overrides.years_experience as number) ?? rep.yearsExperience,
+  };
 }
 
 export async function getAllReps(): Promise<Representative[]> {
   const file = loadDataFromFiles();
-  return file?.reps ?? [];
+  const reps = file?.reps ?? [];
+  const overrides = await loadProfileOverrides();
+  if (overrides.size === 0) return reps;
+  return reps.map((r) => {
+    const o = overrides.get(r.email.toLowerCase());
+    return o ? applyOverrides(r, o) : r;
+  });
 }
 
 export async function getStationBySlug(slug: string): Promise<PoliceStation | undefined> {
@@ -229,6 +272,7 @@ export async function getAllStations(): Promise<PoliceStation[]> {
 export async function getRepsByStation(stationName: string): Promise<Representative[]> {
   const file = loadDataFromFiles();
   if (!file) return [];
+  const reps = await getAllReps();
   const normalizedInput = stationName.toLowerCase().trim();
   const stationMeta = file.stations.find(
     (s) =>
@@ -242,7 +286,7 @@ export async function getRepsByStation(stationName: string): Promise<Representat
     const short = stationMeta.name.toLowerCase().replace(/\s*police station\s*$/i, '').trim();
     if (short.length >= 5) nameKeys.add(short);
   }
-  return file.reps.filter((r) =>
+  return reps.filter((r) =>
     (r.stations || []).some((label) => {
       const sl = label.toLowerCase();
       for (const key of nameKeys) {

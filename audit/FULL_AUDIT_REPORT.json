@@ -1,0 +1,89 @@
+{
+  "generatedAt": "2026-04-03T11:20:10.412Z",
+  "base": "https://policestationrepuk.org",
+  "sitemap": {
+    "totalInSitemap": 1620,
+    "checked": 1620,
+    "failures": [
+      {
+        "url": "https://policestationrepuk.org/PoliceStationRepsHertfordshire",
+        "status": 404
+      },
+      {
+        "url": "https://policestationrepuk.org/Not%20available",
+        "status": 404
+      },
+      {
+        "url": "https://policestationrepuk.org/Not%20publicly%20available",
+        "status": 404
+      }
+    ]
+  },
+  "internalLinksFromSample": {
+    "pagesSampled": 35,
+    "uniqueInternalPaths": 311,
+    "pathsChecked": 311,
+    "failures": [
+      {
+        "url": "https://policestationrepuk.org/directory/thames-valley-police",
+        "status": 404
+      },
+      {
+        "url": "https://policestationrepuk.org/directory/british-transport-police",
+        "status": 404
+      },
+      {
+        "url": "https://policestationrepuk.org/directory/suffolk-constabulary",
+        "status": 404
+      },
+      {
+        "url": "https://policestationrepuk.org/directory/metropolitan-police",
+        "status": 404
+      },
+      {
+        "url": "https://policestationrepuk.org/directory/south-wales-police",
+        "status": 404
+      },
+      {
+        "url": "https://policestationrepuk.org/directory/lancashire-constabulary",
+        "status": 404
+      }
+    ],
+    "pageFetchErrors": []
+  },
+  "forms": {
+    "register": {
+      "status": 200,
+      "json": {
+        "ok": true,
+        "id": "registration-2026-04-03T11-20-09-449Z-lvbw01"
+      },
+      "verdict": "PASS"
+    },
+    "contact": {
+      "status": 200,
+      "json": {
+        "ok": true,
+        "id": "contact-2026-04-03T11-20-09-651Z-cg1ts6",
+        "message": "Thank you — your enquiry has been received."
+      },
+      "verdict": "PASS"
+    },
+    "leadMagnet": {
+      "status": 200,
+      "json": {
+        "ok": true,
+        "id": "lead-magnet-2026-04-03T11-20-09-900Z-7v4l8v",
+        "message": "Thank you — check your inbox."
+      },
+      "verdict": "PASS"
+    },
+    "stationUpdate": {
+      "status": 429,
+      "json": {
+        "error": "Too many submissions recently. Please wait a few minutes and try again."
+      },
+      "verdict": "RATE_LIMIT (retry later)"
+    }
+  }
+}

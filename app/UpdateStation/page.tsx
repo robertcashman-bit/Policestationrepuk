@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { getAllStations } from '@/lib/data';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { StationUpdateForm } from '@/components/StationUpdateForm';
@@ -64,7 +65,15 @@ export default async function UpdateStationPage() {
           </div>
         </div>
 
-        <StationUpdateForm stations={stubs} />
+        <Suspense
+          fallback={
+            <div className="mx-auto max-w-2xl py-12 text-center text-sm text-[var(--muted)]">
+              Loading form…
+            </div>
+          }
+        >
+          <StationUpdateForm stations={stubs} />
+        </Suspense>
       </div>
     </>
   );

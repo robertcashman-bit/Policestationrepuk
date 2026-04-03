@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 export interface StationStub {
   id: string;
@@ -22,6 +23,9 @@ const INPUT_CLS =
 const LABEL_CLS = 'block text-sm font-bold text-slate-800';
 
 export function StationUpdateForm({ stations }: Props) {
+  const searchParams = useSearchParams();
+  const urlStationApplied = useRef(false);
+
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [submissionRef, setSubmissionRef] = useState<string | null>(null);
@@ -66,6 +70,16 @@ export function StationUpdateForm({ stations }: Props) {
     setSearchQuery(station.name);
     setShowDropdown(false);
   }, []);
+
+  useEffect(() => {
+    if (urlStationApplied.current) return;
+    const id = searchParams.get('station');
+    if (!id) return;
+    const stub = stations.find((s) => s.id === id);
+    if (!stub) return;
+    urlStationApplied.current = true;
+    selectStation(stub);
+  }, [searchParams, stations, selectStation]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

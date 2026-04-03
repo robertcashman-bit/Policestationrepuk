@@ -40,6 +40,16 @@ export default async function StationsDirectoryPage({ searchParams }: PageProps)
             Contact details and representative coverage for police stations across England &amp;
             Wales. {stations.length > 0 ? `${stations.length} stations listed.` : ''}
           </p>
+          <p className="mt-3 max-w-2xl text-sm text-slate-300">
+            If a telephone number or address is wrong, use{' '}
+            <Link
+              href="/UpdateStation"
+              className="font-semibold text-[var(--gold)] no-underline hover:underline"
+            >
+              Suggest a station update
+            </Link>{' '}
+            — or the &ldquo;Correct phone, address…&rdquo; link on each station card below.
+          </p>
         </div>
       </section>
 
@@ -49,11 +59,14 @@ export default async function StationsDirectoryPage({ searchParams }: PageProps)
         <div className="mt-10 rounded-xl border border-slate-200 bg-slate-50 p-6">
           <h2 className="text-lg font-bold text-[var(--navy)]">Spotted incorrect information?</h2>
           <p className="mt-1.5 text-sm text-[var(--muted)]">
-            If an address or phone number is wrong, you can suggest a correction. We review all
-            submissions before publishing.
+            Wrong address, main line, custody suite number, or non-emergency contact? Tell us what
+            should change. We review every suggestion before updating the directory.
           </p>
-          <Link href="/UpdateStation" className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold-hover)] hover:text-[var(--gold)]">
-            Suggest a station update &rarr;
+          <Link
+            href="/UpdateStation"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold-hover)] no-underline hover:text-[var(--gold)] hover:underline"
+          >
+            Open the station update form &rarr;
           </Link>
         </div>
 

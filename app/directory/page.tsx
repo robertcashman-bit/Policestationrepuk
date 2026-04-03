@@ -116,6 +116,21 @@ export default async function DirectoryPage() {
               Stations Directory
             </Link>
           </div>
+          <p className="mt-3 max-w-2xl text-xs text-slate-400">
+            Wrong details for a custody site?{' '}
+            <Link
+              href="/UpdateStation"
+              className="font-semibold text-[var(--gold)] no-underline hover:underline"
+            >
+              Correct a station phone number or address
+            </Link>
+            {' '}
+            (via{' '}
+            <Link href="/StationsDirectory" className="font-semibold text-white/90 no-underline hover:underline">
+              Stations Directory
+            </Link>
+            ).
+          </p>
         </div>
       </section>
 

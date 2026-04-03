@@ -160,6 +160,12 @@ export default async function PoliceStationPage({ params }: PageProps) {
                 >
                   Get Directions
                 </a>
+                <Link
+                  href={`/UpdateStation?station=${encodeURIComponent(station.id)}`}
+                  className="btn-outline mt-2 w-full !text-sm"
+                >
+                  Suggest a correction (phone or address)
+                </Link>
               </section>
 
               <section className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-6 text-center">

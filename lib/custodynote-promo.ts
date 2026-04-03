@@ -10,5 +10,4 @@ export const TOP_BANNER_TEXT = 'Write perfect custody notes in 3 minutes — Try
 export const INLINE_CTA_HEADLINE = 'Still writing custody notes manually?';
 export const INLINE_CTA_BULLETS = ['Structured notes', 'Works offline', 'Instant PDF output'] as const;
 
-export const EXIT_POPUP_TITLE = 'Before you go — get a free custody note template';
 export const LEAD_MAGNET_TITLE = 'Free custody note template (UK compliant)';

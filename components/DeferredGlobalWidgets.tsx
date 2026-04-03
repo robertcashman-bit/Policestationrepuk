@@ -14,17 +14,12 @@ const FloatingDirectoryActions = dynamic(
   () => import('@/components/FloatingDirectoryActions').then((m) => ({ default: m.FloatingDirectoryActions })),
   { ssr: false }
 );
-const CustodyNoteExitIntent = dynamic(
-  () => import('@/components/CustodyNoteExitIntent').then((m) => ({ default: m.CustodyNoteExitIntent })),
-  { ssr: false }
-);
 
 /** Loads cookie UI, help chat, and floating CTAs after hydration to trim main-thread work on first paint. */
 export function DeferredGlobalWidgets() {
   return (
     <>
       <FloatingDirectoryActions />
-      <CustodyNoteExitIntent />
       <HelpChatButton />
       <CookieBanner />
     </>

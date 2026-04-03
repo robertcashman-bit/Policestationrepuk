@@ -12,19 +12,19 @@ export const metadata: Metadata = buildMetadata({
 });
 
 const COUNTY_PAGES: { name: string; slug: string; href: string; popular?: boolean }[] = [
-  { name: 'Kent', slug: 'kent', href: '/PoliceStationRepsKent', popular: true },
-  { name: 'Greater London', slug: 'london', href: '/PoliceStationRepsLondon', popular: true },
-  { name: 'Essex', slug: 'essex', href: '/PoliceStationRepsEssex', popular: true },
-  { name: 'Greater Manchester', slug: 'manchester', href: '/PoliceStationRepsManchester' },
-  { name: 'West Midlands', slug: 'west-midlands', href: '/PoliceStationRepsWestMidlands' },
-  { name: 'West Yorkshire', slug: 'west-yorkshire', href: '/PoliceStationRepsWestYorkshire' },
-  { name: 'Surrey', slug: 'surrey', href: '/PoliceStationRepsSurrey' },
-  { name: 'Sussex', slug: 'sussex', href: '/PoliceStationRepsSussex' },
-  { name: 'Hampshire', slug: 'hampshire', href: '/PoliceStationRepsHampshire' },
-  { name: 'Norfolk', slug: 'norfolk', href: '/PoliceStationRepsNorfolk' },
-  { name: 'Suffolk', slug: 'suffolk', href: '/PoliceStationRepsSuffolk' },
-  { name: 'Berkshire', slug: 'berkshire', href: '/PoliceStationRepsBerkshire' },
-  { name: 'Hertfordshire', slug: 'hertfordshire', href: '/PoliceStationRepsHertfordshire' },
+  { name: 'Kent', slug: 'kent', href: '/directory/kent', popular: true },
+  { name: 'Greater London', slug: 'london', href: '/directory/london', popular: true },
+  { name: 'Essex', slug: 'essex', href: '/directory/essex', popular: true },
+  { name: 'Greater Manchester', slug: 'manchester', href: '/directory/greater-manchester' },
+  { name: 'West Midlands', slug: 'west-midlands', href: '/directory/west-midlands' },
+  { name: 'West Yorkshire', slug: 'west-yorkshire', href: '/directory/west-yorkshire' },
+  { name: 'Surrey', slug: 'surrey', href: '/directory/surrey' },
+  { name: 'Sussex', slug: 'sussex', href: '/directory/sussex' },
+  { name: 'Hampshire', slug: 'hampshire', href: '/directory/hampshire' },
+  { name: 'Norfolk', slug: 'norfolk', href: '/directory/norfolk' },
+  { name: 'Suffolk', slug: 'suffolk', href: '/directory/suffolk' },
+  { name: 'Berkshire', slug: 'berkshire', href: '/directory/berkshire' },
+  { name: 'Hertfordshire', slug: 'hertfordshire', href: '/directory/hertfordshire' },
 ];
 
 export default async function PoliceStationRepsByCountyPage() {

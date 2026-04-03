@@ -79,3 +79,41 @@ export function getMirrorNavLinks(): { href: string; text: string }[] {
 export function hasMirrorData(): boolean {
   return !!loadMirror();
 }
+
+/** Legacy county landing URLs — canonical /directory/{slug} is already in sitemap. */
+const OMIT_SITEMAP_LEGACY_COUNTY_PATHS = new Set([
+  'PoliceStationRepsKent',
+  'PoliceStationRepsLondon',
+  'PoliceStationRepsEssex',
+  'PoliceStationRepsManchester',
+  'PoliceStationRepsWestMidlands',
+  'PoliceStationRepsWestYorkshire',
+  'PoliceStationRepsSurrey',
+  'PoliceStationRepsSussex',
+  'PoliceStationRepsHampshire',
+  'PoliceStationRepsNorfolk',
+  'PoliceStationRepsSuffolk',
+  'PoliceStationRepsBerkshire',
+  'PoliceStationRepsHertfordshire',
+]);
+
+/**
+ * Exclude junk crawl paths and duplicate legacy county URLs from sitemap (mirror mode).
+ * `path` is without leading slash, as returned by getMirrorPaths().
+ */
+export function shouldIncludeMirrorPathInSitemap(path: string): boolean {
+  if (!path || path === '/') return false;
+  if (OMIT_SITEMAP_LEGACY_COUNTY_PATHS.has(path)) return false;
+
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(path.replace(/\+/g, ' '));
+  } catch {
+    return false;
+  }
+  const lower = decoded.toLowerCase().trim();
+  if (lower === 'not available' || lower === 'not publicly available') return false;
+  if (/^not\s+available$/i.test(decoded.trim())) return false;
+  if (/^not\s+publicly\s+available$/i.test(decoded.trim())) return false;
+  return true;
+}

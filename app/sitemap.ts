@@ -7,7 +7,7 @@ import {
   getAllLegalUpdates,
 } from '@/lib/data';
 import { getAllBlogArticles } from '@/lib/blog/registry';
-import { getMirrorPaths, hasMirrorData } from '@/lib/mirror-data';
+import { getMirrorPaths, hasMirrorData, shouldIncludeMirrorPathInSitemap } from '@/lib/mirror-data';
 import { SITEMAP_PATHS } from '@/lib/sitemap-paths';
 import { COUNTY_SEO_PAGES } from '@/lib/county-seo-pages';
 import { SITE_URL as BASE } from '@/lib/seo-layer/config';
@@ -119,7 +119,7 @@ async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
 
   if (hasMirrorData()) {
     const paths = getMirrorPaths().filter(
-      (p) => p !== '/' && !HIGH_PRIORITY_SET.has(p)
+      (p) => p !== '/' && !HIGH_PRIORITY_SET.has(p) && shouldIncludeMirrorPathInSitemap(p)
     );
     for (const p of paths) {
       entries.push({

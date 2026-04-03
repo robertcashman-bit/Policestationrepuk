@@ -5,6 +5,7 @@ import { getMirrorPage, getMirrorPaths, hasMirrorData } from '@/lib/mirror-data'
 import { getLiveSiteSingleSegmentPaths } from '@/lib/live-site-paths';
 import { pathToTitle } from '@/lib/sitemap-paths';
 import { getCountySlugSet } from '@/lib/county-slugs';
+import { normalizeMirrorNavHref } from '@/lib/internal-link-normalize';
 import { buildMetadata } from '@/lib/seo';
 
 const SITE_TITLE = 'PoliceStationRepUK';
@@ -218,7 +219,10 @@ export default async function SlugPage({ params }: PageProps) {
   if (countySlugs.has(slug) || !allowedSlugs.includes(slug)) notFound();
 
   const page = mirror && !mirror.error ? mirror : null;
-  const links = page?.links ?? MAIN_LINKS.map((l) => ({ href: l.href, text: l.text }));
+  const links = (page?.links ?? MAIN_LINKS.map((l) => ({ href: l.href, text: l.text }))).map((l) => ({
+    href: normalizeMirrorNavHref(l.href),
+    text: l.text || l.href,
+  }));
 
   if (page && !('error' in page && page.error)) {
     const h1 = page.headings?.find((h) => h.level === 1)?.text ?? title;

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { getMirrorPage, getMirrorPaths, hasMirrorData } from '@/lib/mirror-data';
 import { getLiveSiteMultiSegmentPaths } from '@/lib/live-site-paths';
 import { isUsableBlogMirror, resolveBlogArticle } from '@/lib/blog-article-resolve';
+import { normalizeDirectoryNavPath } from '@/lib/internal-link-normalize';
 
 const SITE_TITLE = 'PoliceStationRepUK';
 
@@ -102,12 +103,13 @@ function sanitizeSiteLink(href: string): string | null {
   try {
     if (href.startsWith('http')) {
       const u = new URL(href);
-      return u.pathname + (u.search || '');
+      return normalizeDirectoryNavPath(u.pathname + (u.search || ''));
     }
   } catch {
     return null;
   }
-  return href.startsWith('/') ? href : `/${href}`;
+  const raw = href.startsWith('/') ? href : `/${href}`;
+  return normalizeDirectoryNavPath(raw.split('#')[0]);
 }
 
 const INTERNAL_NAV = [

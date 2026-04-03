@@ -33,6 +33,7 @@
     "parity:full": "npx tsx scripts/final-parity-suite.ts",
     "audit:links": "node scripts/audit/internal-link-audit.mjs",
     "audit:crawl": "node scripts/audit/sitemap-crawl.mjs",
+    "audit:full": "node scripts/audit/full-site-audit.mjs",
     "audit:blog-seo": "npx tsx scripts/audit/blog-seo.ts",
     "validate:schema": "npx tsx scripts/audit/validate-blog-schema.ts",
     "test:directory-search": "npx tsx scripts/directory-search-selftest.ts",

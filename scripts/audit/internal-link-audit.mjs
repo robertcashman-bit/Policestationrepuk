@@ -119,6 +119,9 @@ function routeExists(pathname, staticRoutes, wikiSlugs, countySlugs) {
   const parts = p.split('/').filter(Boolean);
   if (parts.length === 0) return true;
 
+  /** Route handlers (no page.tsx) — still valid internal URLs */
+  if (p === '/rss.xml') return true;
+
   const first = parts[0];
   const rest = parts.slice(1);
 

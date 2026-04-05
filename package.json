@@ -2,12 +2,21 @@
   "name": "policestationrepuk",
   "version": "1.0.0",
   "private": true,
-  "browserslist": [
-    "chrome >= 93",
-    "edge >= 93",
-    "firefox >= 92",
-    "safari >= 15.4"
-  ],
+  "browserslist": {
+    "production": [
+      "chrome >= 93",
+      "edge >= 93",
+      "firefox >= 92",
+      "safari >= 15.4",
+      "ios_saf >= 15.4",
+      "not dead"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
   "scripts": {
     "dev": "next dev",
     "prebuild": "node scripts/blog/build-blog-hero-webp.mjs",

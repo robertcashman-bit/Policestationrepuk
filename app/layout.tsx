@@ -83,6 +83,18 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en-GB" className={inter.variable}>
+      {/* RSS autodiscovery tag — allows browsers and tools such as Buffer, Publer,
+          Zapier, and Make to detect the feed without guessing the URL.
+          The <link> element is placed here because Next.js metadata API does not
+          expose a 'title' attribute on alternates.types entries. */}
+      <head>
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="PoliceStationRepUK RSS Feed"
+          href="/rss.xml"
+        />
+      </head>
       <body className="flex min-h-screen flex-col bg-[var(--background)] font-sans text-[var(--foreground)] antialiased">
         <JsonLd data={platformLegalServiceSchema()} />
         <a href="#main-content" className="skip-link">

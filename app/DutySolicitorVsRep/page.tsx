@@ -4,8 +4,9 @@ import { CrawlContent } from '@/components/CrawlContent';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Rota Duty Scheme vs Freelance Police Station Rep | Comparison',
-  description: 'Compare the rota duty scheme with freelance accredited police station representatives — qualifications, roles, custody attendance, and how firms use rep cover alongside rota arrangements.',
+  title: 'Duty Solicitor vs Freelance Police Station Rep',
+  description:
+    'Compare rota duty scheme with freelance accredited reps: qualifications, custody attendance, and how firms blend rep cover with rota.',
   path: '/DutySolicitorVsRep',
 });
 

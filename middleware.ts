@@ -12,6 +12,9 @@ import {
 const PS_REP_PREFIX = '/police-station-representatives-';
 const PS_REP_SINGULAR_PREFIX = '/police-station-rep-';
 
+/** Regions with dedicated SEO landing pages — bypass the /directory redirect. */
+const DEDICATED_REP_SLUGS = new Set(['london', 'kent', 'essex']);
+
 const CITY_TO_DIRECTORY_SLUG: Record<string, string> = {
   manchester: 'greater-manchester',
   birmingham: 'west-midlands',
@@ -143,16 +146,18 @@ export async function middleware(request: NextRequest) {
 
   if (path.toLowerCase().startsWith(PS_REP_SINGULAR_PREFIX) && !path.slice(PS_REP_SINGULAR_PREFIX.length).includes('/')) {
     const slug = path.slice(PS_REP_SINGULAR_PREFIX.length).toLowerCase();
-    const cityTarget = CITY_TO_DIRECTORY_SLUG[slug];
-    if (cityTarget) {
-      const url = request.nextUrl.clone();
-      url.pathname = `/directory/${cityTarget}`;
-      return NextResponse.redirect(url, 301);
-    }
-    if (COUNTY_SLUG_SET.has(slug)) {
-      const url = request.nextUrl.clone();
-      url.pathname = `/directory/${slug}`;
-      return NextResponse.redirect(url, 301);
+    if (!DEDICATED_REP_SLUGS.has(slug)) {
+      const cityTarget = CITY_TO_DIRECTORY_SLUG[slug];
+      if (cityTarget) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/directory/${cityTarget}`;
+        return NextResponse.redirect(url, 301);
+      }
+      if (COUNTY_SLUG_SET.has(slug)) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/directory/${slug}`;
+        return NextResponse.redirect(url, 301);
+      }
     }
   }
 

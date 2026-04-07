@@ -10,6 +10,7 @@ import { getAllBlogArticles } from '@/lib/blog/registry';
 import { getMirrorPaths, hasMirrorData, shouldIncludeMirrorPathInSitemap } from '@/lib/mirror-data';
 import { SITEMAP_PATHS } from '@/lib/sitemap-paths';
 import { COUNTY_SEO_PAGES } from '@/lib/county-seo-pages';
+import { LEGACY_EXACT_REDIRECTS } from '@/lib/legacy-exact-redirects';
 import { SITE_URL as BASE } from '@/lib/seo-layer/config';
 
 const now = new Date();
@@ -94,6 +95,12 @@ const HIGH_PRIORITY_PAGES = [
 ];
 
 const HIGH_PRIORITY_SET = new Set(HIGH_PRIORITY_PAGES.map((p) => p.path));
+const HIGH_PRIORITY_LOWER = new Set(HIGH_PRIORITY_PAGES.map((p) => p.path.toLowerCase()));
+
+/** Paths that are redirect sources — should never appear in sitemap. */
+const REDIRECT_SOURCES = new Set(
+  Object.keys(LEGACY_EXACT_REDIRECTS).map((k) => k.replace(/^\//, '')),
+);
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
@@ -119,7 +126,12 @@ async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
 
   if (hasMirrorData()) {
     const paths = getMirrorPaths().filter(
-      (p) => p !== '/' && !HIGH_PRIORITY_SET.has(p) && shouldIncludeMirrorPathInSitemap(p)
+      (p) =>
+        p !== '/' &&
+        !HIGH_PRIORITY_SET.has(p) &&
+        !HIGH_PRIORITY_LOWER.has(p.toLowerCase()) &&
+        !REDIRECT_SOURCES.has(p.toLowerCase()) &&
+        shouldIncludeMirrorPathInSitemap(p),
     );
     for (const p of paths) {
       entries.push({

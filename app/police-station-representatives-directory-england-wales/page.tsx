@@ -3,8 +3,9 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Police Station Representatives Directory for Criminal Defence Firms | PoliceStationRepUK',
-  description: 'Police Station Representatives Directory for Criminal Defence Firms in England & WalesPoliceStationRepUK is a national directory used by criminal defence f',
+  title: 'Police Station Rep Directory — England & Wales',
+  description:
+    'National directory of accredited police station reps for criminal defence firms in England and Wales. Free to search by county and station.',
   path: '/police-station-representatives-directory-england-wales',
 });
 

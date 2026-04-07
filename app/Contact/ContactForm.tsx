@@ -57,10 +57,12 @@ export function ContactForm() {
           aria-live="polite"
           className="rounded-lg border border-green-200 bg-green-50 p-5 text-green-900"
         >
-          <p className="font-semibold text-green-950">Message received — thank you</p>
+          <p className="font-semibold text-green-950">Message received by the directory team — thank you</p>
           <p className="mt-2 text-sm leading-relaxed">
-            We have your enquiry and usually reply within <strong>24 hours</strong> (often sooner). If your matter is
-            urgent, use SMS as shown above.
+            The <strong>PoliceStationRepUK directory team</strong> has your enquiry and usually replies
+            within <strong>24 hours</strong> (often sooner). If your matter is urgent, use SMS as shown
+            above. Please note we are not the police and cannot help with criminal matters or custody
+            queries.
           </p>
           <p className="mt-3 text-sm">
             <span className="font-medium">Reference:</span>{' '}
@@ -90,31 +92,33 @@ export function ContactForm() {
         </div>
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-[var(--foreground)]">
-            Name
+            Your name
           </label>
           <input
             id="name"
             type="text"
             required
+            placeholder="e.g. Jane Smith"
             value={formData.name}
             onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
             autoComplete="name"
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
+            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] placeholder:text-gray-400 sm:text-sm"
           />
         </div>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-[var(--foreground)]">
-            Email
+            Your email
           </label>
           <input
             id="email"
             type="email"
             required
+            placeholder="you@example.com"
             inputMode="email"
             autoComplete="email"
             value={formData.email}
             onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
+            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] placeholder:text-gray-400 sm:text-sm"
           />
         </div>
         <div>
@@ -124,9 +128,10 @@ export function ContactForm() {
           <input
             id="subject"
             type="text"
+            placeholder="e.g. Directory listing query"
             value={formData.subject}
             onChange={(e) => setFormData((p) => ({ ...p, subject: e.target.value }))}
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
+            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] placeholder:text-gray-400 sm:text-sm"
           />
         </div>
         <div>
@@ -137,9 +142,10 @@ export function ContactForm() {
             id="message"
             required
             rows={5}
+            placeholder="Please describe your directory-related enquiry here. We cannot help with police matters, active cases, or custody queries."
             value={formData.message}
             onChange={(e) => setFormData((p) => ({ ...p, message: e.target.value }))}
-            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
+            className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] placeholder:text-gray-400 sm:text-sm"
           />
         </div>
         <button

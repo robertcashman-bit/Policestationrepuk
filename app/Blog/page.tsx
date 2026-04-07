@@ -10,9 +10,9 @@ import { BLOG_CATEGORIES, categoryLabel } from '@/lib/blog/categories';
 import type { BlogCategoryId } from '@/lib/blog/types';
 
 export const metadata = buildMetadata({
-  title: 'Blog — Freelance Police Station Reps & Criminal Defence Firms | PoliceStationRepUK',
+  title: 'Blog — Police Station Reps & Criminal Defence',
   description:
-    'Practical articles for freelance accredited police station representatives and criminal defence firms: briefing, attendance, handovers, out-of-hours cover, accreditation, and communication.',
+    'Practical articles for freelance police station reps and criminal defence firms: briefing, attendance, out-of-hours cover, and accreditation.',
   path: '/Blog',
 });
 

@@ -3,9 +3,9 @@ import { buildMetadata } from '@/lib/seo';
 import { PillarSeoLayout } from '@/components/PillarSeoLayout';
 
 export const metadata = buildMetadata({
-  title: 'Police Station Rep London — Custody Cover & Criminal Solicitor Directory',
+  title: 'Police Station Rep London — Custody Cover',
   description:
-    'Accredited police station representatives for London custody suites — fast search for criminal solicitor firms. Free directory: Borough, Met, City, and surrounding areas.',
+    'Accredited reps for London custody suites. Free directory for criminal firms: Borough, Met, City, and surrounding areas.',
   path: '/police-station-rep-london',
 });
 

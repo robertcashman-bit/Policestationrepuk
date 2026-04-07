@@ -14,8 +14,17 @@ export interface MetadataInput {
   ogImage?: { url: string; width?: number; height?: number; alt?: string };
 }
 
+const MAX_DESC = 155;
+
+function capDescription(raw: string): string {
+  if (raw.length <= MAX_DESC) return raw;
+  const cut = raw.lastIndexOf(' ', MAX_DESC - 1);
+  return (cut > 80 ? raw.slice(0, cut) : raw.slice(0, MAX_DESC - 1)) + '…';
+}
+
 export function buildMetadata(opts: MetadataInput): Metadata {
   const url = `${SITE_URL}${opts.path}`;
+  const description = capDescription(opts.description);
   const ogType = opts.ogType ?? 'website';
 
   const defaultOgImage = {
@@ -41,7 +50,7 @@ export function buildMetadata(opts: MetadataInput): Metadata {
     ogType === 'article'
       ? {
           title: opts.title,
-          description: opts.description,
+          description,
           url,
           siteName: SITE_NAME,
           type: 'article',
@@ -52,7 +61,7 @@ export function buildMetadata(opts: MetadataInput): Metadata {
         }
       : {
           title: opts.title,
-          description: opts.description,
+          description,
           url,
           siteName: SITE_NAME,
           type: 'website',
@@ -64,13 +73,13 @@ export function buildMetadata(opts: MetadataInput): Metadata {
 
   return {
     title: opts.title,
-    description: opts.description,
+    description,
     alternates: { canonical: url },
     openGraph,
     twitter: {
       card: 'summary_large_image',
       title: opts.title,
-      description: opts.description,
+      description,
       images: [cardImageUrl],
     },
     robots: opts.noIndex ? { index: false, follow: true } : undefined,

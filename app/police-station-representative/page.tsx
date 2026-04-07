@@ -3,9 +3,9 @@ import { buildMetadata } from '@/lib/seo';
 import { PillarSeoLayout } from '@/components/PillarSeoLayout';
 
 export const metadata = buildMetadata({
-  title: 'Police Station Representative UK — Definition, Role & Accreditation',
+  title: 'Police Station Representative UK — Role & Guide',
   description:
-    'What a police station representative is, how they work with criminal solicitors, PACE custody attendance, and how firms find accredited reps across England and Wales.',
+    'What a police station representative is, PACE custody work with solicitors, and how firms find accredited reps across England and Wales.',
   path: '/police-station-representative',
 });
 

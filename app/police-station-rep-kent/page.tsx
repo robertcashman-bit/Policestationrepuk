@@ -3,9 +3,9 @@ import { buildMetadata } from '@/lib/seo';
 import { PillarSeoLayout } from '@/components/PillarSeoLayout';
 
 export const metadata = buildMetadata({
-  title: 'Police Station Rep Kent — Accredited Representatives & Custody Cover',
+  title: 'Police Station Rep Kent — Accredited Directory',
   description:
-    'Find accredited police station representatives covering Kent custody suites — Maidstone, Medway, North Kent, and more. Free directory for criminal solicitor firms.',
+    'Accredited reps covering Kent custody—Maidstone, Medway, North Kent. Free directory for criminal solicitor firms.',
   path: '/police-station-rep-kent',
 });
 

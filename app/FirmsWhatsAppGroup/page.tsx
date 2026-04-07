@@ -9,9 +9,9 @@ import {
 } from '@/lib/site-navigation';
 
 export const metadata = buildMetadata({
-  title: 'WhatsApp Job Group for Criminal Defence Firms | PoliceStationRepUK',
+  title: 'WhatsApp Job Group for Criminal Defence Firms',
   description:
-    'For criminal defence firms and solicitors to post urgent and planned police station cover jobs directly to accredited representatives across England & Wales.',
+    'Criminal defence firms post urgent and planned police station jobs to accredited reps across England and Wales.',
   path: '/FirmsWhatsAppGroup',
 });
 

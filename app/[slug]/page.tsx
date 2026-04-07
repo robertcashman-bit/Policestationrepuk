@@ -159,9 +159,12 @@ export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const mirror = getMirrorPage(slug);
   const title = mirror?.title?.replace(/\s*\|\s*.*$/, '').trim() || pathToTitle(slug);
-  const description =
-    mirror?.content?.slice(0, 160) ||
+  const rawDesc =
+    mirror?.content?.slice(0, 150) ||
     `${title} — ${SITE_TITLE}. Police station representatives directory.`;
+  const description = rawDesc.length > 155
+    ? (rawDesc.lastIndexOf(' ', 154) > 80 ? rawDesc.slice(0, rawDesc.lastIndexOf(' ', 154)) : rawDesc.slice(0, 154)) + '…'
+    : rawDesc;
   return buildMetadata({
     title: mirror?.title || `${title} | ${SITE_TITLE}`,
     description,

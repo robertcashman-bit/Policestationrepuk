@@ -4,9 +4,9 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Custody Note — Desktop Software for Police Station Attendance Notes',
+  title: 'Custody Note — Police Station Attendance Software',
   description:
-    'Custody Note is Windows desktop software for criminal defence solicitors and accredited reps: structured attendance notes, telephone and voluntary interview records, offline-first workflows, PDF export, and LAA-oriented billing with a free 30-day trial.',
+    'Custody Note: Windows software for solicitors and reps—structured police station notes, PDF export, LAA billing, offline use, 30-day trial.',
   path: '/CustodyNote',
 });
 

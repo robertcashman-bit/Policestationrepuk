@@ -3,9 +3,9 @@ import { buildMetadata } from '@/lib/seo';
 import { PillarSeoLayout } from '@/components/PillarSeoLayout';
 
 export const metadata = buildMetadata({
-  title: 'Police Station Rights UK — PACE, Caution & Interview (England & Wales)',
+  title: 'Police Station Rights UK — PACE & Caution Guide',
   description:
-    'Overview of police station rights in the UK: legal advice, detention, cautions, and interviews — educational summary for solicitors and the public (not legal advice).',
+    'UK police station rights: legal advice, detention, cautions, interviews. Educational overview for solicitors and public—not legal advice.',
   path: '/police-station-rights-uk',
 });
 

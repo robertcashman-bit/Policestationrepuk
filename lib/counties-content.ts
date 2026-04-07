@@ -2,8 +2,7 @@ import type { CountyContent } from './types';
 
 const countyContentMap: Record<string, CountyContent> = {
   kent: {
-    metaTitle:
-      'Police Station Representatives Kent | Accredited Rep Directory',
+    metaTitle: 'Police Station Reps Kent — Accredited Directory',
     metaDescription:
       'Find accredited police station representatives in Kent. Experienced reps available for custody attendance at Maidstone, Canterbury, Medway, Folkestone, and all Kent custody suites.',
     h1: 'Police Station Representatives in Kent',
@@ -33,8 +32,7 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   london: {
-    metaTitle:
-      'Police Station Representatives London | Metropolitan Police Cover',
+    metaTitle: 'Police Station Reps London — Met Police Cover',
     metaDescription:
       'Find accredited police station representatives in London. Experienced reps covering all Metropolitan Police custody suites including Charing Cross, Brixton, Hackney, and more.',
     h1: 'Police Station Representatives in London',
@@ -64,8 +62,7 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   essex: {
-    metaTitle:
-      'Police Station Representatives Essex | Custody Suite Cover 24/7',
+    metaTitle: 'Police Station Reps Essex — Custody Suite Cover',
     metaDescription:
       'Find accredited police station representatives in Essex. Professional reps available at Chelmsford, Southend, Basildon, Colchester, and all Essex custody suites.',
     h1: 'Police Station Representatives in Essex',
@@ -117,7 +114,7 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'lancashire': {
-    metaTitle: 'Police Station Representatives Lancashire | Duty Solicitor Cover',
+    metaTitle: 'Police Station Reps Lancashire — Solicitor Cover',
     metaDescription:
       'Find accredited police station representatives in Lancashire. Professional reps covering custody suites at Preston, Blackpool, Burnley, Lancaster, and across Lancashire Constabulary.',
     h1: 'Police Station Representatives in Lancashire',
@@ -157,7 +154,7 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'sussex': {
-    metaTitle: 'Police Station Representatives Sussex | Brighton & East/West Cover',
+    metaTitle: 'Police Station Reps Sussex — Brighton & Cover',
     metaDescription:
       'Find accredited police station representatives in Sussex. Reps covering Brighton, Worthing, Eastbourne, Hastings, and all Sussex Police custody suites across East and West Sussex.',
     h1: 'Police Station Representatives in Sussex',
@@ -175,7 +172,7 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'hampshire': {
-    metaTitle: 'Police Station Representatives Hampshire | Southampton & Ports',
+    metaTitle: 'Police Station Reps Hampshire — Custody Cover',
     metaDescription:
       'Find accredited police station representatives in Hampshire. Duty solicitor cover at Southampton, Portsmouth, Basingstoke, and all Hampshire Constabulary custody suites.',
     h1: 'Police Station Representatives in Hampshire',
@@ -193,7 +190,7 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'west-midlands': {
-    metaTitle: 'Police Station Representatives West Midlands | Birmingham Cover',
+    metaTitle: 'Police Station Reps West Midlands — Birmingham',
     metaDescription:
       'Find accredited police station representatives in the West Midlands. Professional reps for duty solicitor cover at all WMP custody suites including Birmingham, Coventry, and Wolverhampton.',
     h1: 'Police Station Representatives in the West Midlands',
@@ -233,7 +230,7 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'west-yorkshire': {
-    metaTitle: 'Police Station Representatives West Yorkshire | Leeds & Bradford',
+    metaTitle: 'Police Station Reps West Yorkshire — Leeds',
     metaDescription:
       'Find accredited police station representatives in West Yorkshire. Professional reps for custody attendance at Leeds, Bradford, Wakefield, Huddersfield, and all WYP custody suites.',
     h1: 'Police Station Representatives in West Yorkshire',
@@ -258,8 +255,8 @@ export function getCountyContent(slug: string, countyName: string): CountyConten
   }
 
   return {
-    metaTitle: `Police Station Representatives ${countyName} | Accredited Rep Cover`,
-    metaDescription: `Find accredited police station representatives in ${countyName}. Experienced reps available for custody attendance at all ${countyName} custody suites. 24/7 availability.`,
+    metaTitle: `Police Station Reps ${countyName} — Directory`,
+    metaDescription: `Find accredited police station reps in ${countyName}. Reps available for custody attendance at all ${countyName} suites.`,
     h1: `Police Station Representatives in ${countyName}`,
     intro: `${countyName} has a strong demand for qualified police station representatives. Criminal solicitors throughout ${countyName} rely on accredited representatives to attend custody suites on their behalf, providing expert legal advice to detained persons and ensuring full compliance with PACE and the Codes of Practice. Our directory connects you with experienced, vetted police station representatives covering all major custody suites in ${countyName}.`,
     sections: [

@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     template: '%s',
   },
   description:
-    'Free directory of accredited police station representatives across England & Wales. Find reps by county, station, or name. 100% free for firms and reps. No fees ever.',
+    'Free directory of accredited police station representatives across England & Wales. Find reps by county, station, or name. 100% free.',
   metadataBase: new URL(SITE_URL),
   manifest: '/manifest.json',
   alternates: { canonical: SITE_URL },

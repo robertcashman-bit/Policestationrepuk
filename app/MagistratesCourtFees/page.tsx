@@ -3,8 +3,9 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Magistrates\' Court Legal Aid Fee Rates | PoliceStationRepUK',
-  description: 'Magistrates\' Court Legal Aid standard fee rates for criminal defence. Current payment bands, higher and lower standard fees, and fee categories under the Criminal Legal Aid Regulations.',
+  title: 'Magistrates\' Court Legal Aid Fee Rates',
+  description:
+    'Magistrates\' Court legal aid standard fees for criminal defence: payment bands, higher and lower fees, Criminal Legal Aid Regulations.',
   path: '/MagistratesCourtFees',
 });
 

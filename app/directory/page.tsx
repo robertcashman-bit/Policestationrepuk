@@ -12,9 +12,9 @@ import { breadcrumbSchema, directoryItemListSchema } from '@/lib/seo';
 import { ResultsGridSkeleton } from '@/components/directory/ResultsGrid';
 import { JoinCTA } from '@/components/directory/JoinCTA';
 
-const directoryTitle = 'Police Station Rep Directory — Search by County & Station';
+const directoryTitle = 'Police Station Rep Directory — County & Station';
 const directoryDescription =
-  'Free directory of accredited police station representatives across England and Wales. Search by name, county, police force, station, postcode, availability, and accreditation. No fees for solicitors or reps.';
+  'Accredited police station reps across England and Wales. Search by county, force, station, postcode, and availability. Free for firms and reps.';
 
 export const metadata: Metadata = {
   title: directoryTitle,

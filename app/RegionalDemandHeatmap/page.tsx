@@ -4,9 +4,8 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Regional Demand Heatmap — Police Station Rep Coverage',
-  description: 'Visual heatmap of police station representative demand across England and Wales. See which regions have the most solicitor cover requests and where rep capacity is needed most.',
+  description: 'Visual heatmap of police station representative demand across England and Wales. See which regions need rep capacity most.',
   path: '/RegionalDemandHeatmap',
-  noIndex: true,
 });
 
 export default function RegionalDemandHeatmapPage() {

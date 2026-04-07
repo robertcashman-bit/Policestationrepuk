@@ -64,15 +64,20 @@ export async function generateMetadata({ params }: PageProps) {
     mirror?.title?.replace(/\s*\|\s*.*$/, '').trim() ||
     multiPathToTitle(pathNorm);
   let description =
-    (mirror && isUsableBlogMirror(mirror) ? mirror.content?.slice(0, 160) : null) ||
+    (mirror && isUsableBlogMirror(mirror) ? mirror.content?.slice(0, 150) : null) ||
     `${title} — ${SITE_TITLE}. Police station representatives directory.`;
 
   if (isBlog && blogKey && (!mirror || !isUsableBlogMirror(mirror))) {
     const fb = resolveBlogArticle(pathStr, blogKey);
     if (fb.kind === 'fallback') {
       title = fb.data.title;
-      description = `${fb.data.intro.slice(0, 155)}…`;
+      description = `${fb.data.intro.slice(0, 150)}…`;
     }
+  }
+
+  if (description.length > 155) {
+    const cut = description.lastIndexOf(' ', 154);
+    description = (cut > 80 ? description.slice(0, cut) : description.slice(0, 154)) + '…';
   }
 
   return {

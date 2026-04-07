@@ -3,7 +3,7 @@ import { buildMetadata } from '@/lib/seo';
 import { PillarSeoLayout } from '@/components/PillarSeoLayout';
 
 export const metadata = buildMetadata({
-  title: 'Police Station Rep Essex — Custody Suites & Criminal Defence Cover',
+  title: 'Police Station Rep Essex — Custody Suite Cover',
   description:
     'Find police station representatives covering Essex — Chelmsford, Basildon, Harlow, Southend areas. Free directory for criminal solicitor firms in England.',
   path: '/police-station-rep-essex',

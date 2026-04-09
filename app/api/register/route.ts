@@ -11,14 +11,6 @@ function toStr(val: unknown): string {
 
 export async function POST(request: Request) {
   try {
-    const ip = getClientIp(request);
-    if (!contactRateLimitOk(ip)) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please wait a few minutes and try again.' },
-        { status: 429 },
-      );
-    }
-
     const body = await request.json();
     const { name, email, phone, accreditation, counties, stations, availability, message, _hp } = body;
 
@@ -46,6 +38,14 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: 'Field exceeds maximum length' },
         { status: 400 }
+      );
+    }
+
+    const ip = getClientIp(request);
+    if (!contactRateLimitOk(ip)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please wait a few minutes and try again.' },
+        { status: 429 },
       );
     }
 

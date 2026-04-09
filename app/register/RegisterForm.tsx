@@ -66,8 +66,13 @@ export function RegisterForm() {
   return (
     <>
       {status === 'success' && (
-        <div role="alert" className="rounded-lg border border-green-200 bg-green-50 p-4 text-green-800">
-          Thank you. Your registration request has been received. We will be in touch.
+        <div role="alert" className="rounded-lg border border-green-200 bg-green-50 p-5 text-green-800">
+          <p className="font-semibold">Registration received — thank you</p>
+          <p className="mt-2 text-sm leading-relaxed">
+            We have sent a <strong>confirmation email</strong> to the address you provided. Our team
+            will review your details and your profile should be live within <strong>24 hours</strong>{' '}
+            (often sooner). If you don&rsquo;t see the email, please check your spam folder.
+          </p>
         </div>
       )}
       {status === 'error' && (

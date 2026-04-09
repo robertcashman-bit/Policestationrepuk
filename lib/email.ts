@@ -70,27 +70,60 @@ export async function sendRegistrationNotification(data: RegistrationSubmission)
     return false;
   }
 
+  const detailRows = `
+    <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Name</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.name)}</td></tr>
+    <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Email</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><a href="mailto:${escapeHtml(data.email)}">${escapeHtml(data.email)}</a></td></tr>
+    ${data.phone ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Phone</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><a href="${escapeHtml(phoneToTelHref(data.phone))}">${escapeHtml(data.phone)}</a></td></tr>` : ''}
+    ${data.accreditation ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Accreditation</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.accreditation)}</td></tr>` : ''}
+    ${data.counties ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Counties</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.counties)}</td></tr>` : ''}
+    ${data.stations ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Stations</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.stations)}</td></tr>` : ''}
+    ${data.availability ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Availability</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.availability)}</td></tr>` : ''}
+    ${data.message ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Message</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.message).replace(/\n/g, '<br>')}</td></tr>` : ''}
+  `;
+
   try {
-    await client.emails.send({
-      from: FROM_EMAIL,
-      to: ADMIN_EMAIL,
-      replyTo: data.email,
-      subject: `[New Rep Registration] ${data.name}`,
-      html: `
-        <h2>New Representative Registration</h2>
-        <table style="border-collapse:collapse;width:100%;max-width:600px;">
-          <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Name</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.name)}</td></tr>
-          <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Email</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><a href="mailto:${escapeHtml(data.email)}">${escapeHtml(data.email)}</a></td></tr>
-          ${data.phone ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Phone</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><a href="${escapeHtml(phoneToTelHref(data.phone))}">${escapeHtml(data.phone)}</a></td></tr>` : ''}
-          ${data.accreditation ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Accreditation</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.accreditation)}</td></tr>` : ''}
-          ${data.counties ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Counties</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.counties)}</td></tr>` : ''}
-          ${data.stations ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Stations</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.stations)}</td></tr>` : ''}
-          ${data.availability ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Availability</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.availability)}</td></tr>` : ''}
-          ${data.message ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Message</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.message).replace(/\n/g, '<br>')}</td></tr>` : ''}
-        </table>
-        <p style="margin-top:16px;color:#6b7280;font-size:12px;">Sent via PoliceStationRepUK registration form</p>
-      `,
-    });
+    await Promise.all([
+      client.emails.send({
+        from: FROM_EMAIL,
+        to: ADMIN_EMAIL,
+        replyTo: data.email,
+        subject: `[New Rep Registration] ${data.name}`,
+        html: `
+          <h2>New Representative Registration</h2>
+          <table style="border-collapse:collapse;width:100%;max-width:600px;">${detailRows}</table>
+          <p style="margin-top:16px;color:#6b7280;font-size:12px;">Sent via PoliceStationRepUK registration form</p>
+        `,
+      }),
+      client.emails.send({
+        from: FROM_EMAIL,
+        to: data.email,
+        subject: 'Your PoliceStationRepUK registration has been received',
+        html: `
+          <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px">
+            <h2 style="color:#0f172a">Thanks for registering, ${escapeHtml(data.name)}</h2>
+            <p style="color:#475569;font-size:14px;line-height:1.6">
+              We have received your registration to join the <strong>PoliceStationRepUK</strong> directory.
+              Our team will review your details and you should hear from us within <strong>24 hours</strong>
+              (often sooner).
+            </p>
+            <p style="color:#475569;font-size:14px;line-height:1.6">
+              Once approved your profile will be published and criminal defence firms will be able to find
+              and instruct you directly through the directory.
+            </p>
+            <h3 style="color:#0f172a;margin-top:24px;font-size:15px">What you submitted</h3>
+            <table style="border-collapse:collapse;width:100%;max-width:600px;">${detailRows}</table>
+            <p style="margin-top:24px;color:#475569;font-size:14px">
+              If anything above looks wrong, just reply to this email and let us know.
+            </p>
+            <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb">
+            <p style="color:#94a3b8;font-size:12px">
+              PoliceStationRepUK &mdash; Free directory for accredited police station representatives.<br>
+              <a href="https://policestationrepuk.org" style="color:#94a3b8">policestationrepuk.org</a>
+            </p>
+          </div>
+        `,
+      }),
+    ]);
     return true;
   } catch (err) {
     console.error('[Registration email failed]', err);

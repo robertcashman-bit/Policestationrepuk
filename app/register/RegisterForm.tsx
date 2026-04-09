@@ -40,12 +40,7 @@ export function RegisterForm() {
         error?: string;
       };
 
-      if (res.ok && data.id === 'noop') {
-        setStatus('idle');
-        return;
-      }
-
-      if (res.ok && data.ok && data.id && data.id !== 'noop') {
+      if (res.ok && (data.ok || data.id === 'noop')) {
         setStatus('success');
         setFormData({
           name: '',

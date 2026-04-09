@@ -26,8 +26,8 @@ interface RegistrationSubmission {
   email: string;
   phone?: string;
   accreditation?: string;
-  counties?: string;
-  stations?: string;
+  counties?: string | string[];
+  stations?: string | string[];
   availability?: string;
   message?: string;
 }
@@ -301,7 +301,8 @@ export async function sendProfileUpdateNotification(data: ProfileUpdateData): Pr
   }
 }
 
-function escapeHtml(str: string): string {
+function escapeHtml(val: unknown): string {
+  const str = typeof val === 'string' ? val : Array.isArray(val) ? val.join(', ') : String(val ?? '');
   return str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

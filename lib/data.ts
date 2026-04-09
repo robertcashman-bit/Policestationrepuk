@@ -230,6 +230,98 @@ async function loadProfileOverrides(): Promise<Map<string, Record<string, unknow
   return _profileOverrides;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Registered reps — written to KV by /api/register, loaded here     */
+/* ------------------------------------------------------------------ */
+
+let _registeredReps: Representative[] | null = null;
+let _registeredRepsAt = 0;
+const REGISTERED_CACHE_MS = 60_000;
+
+function registrationToRep(row: Record<string, unknown>): Representative | null {
+  const name = trimField(row.name);
+  const email = typeof row.email === 'string' ? row.email.trim().toLowerCase() : '';
+  if (!name || !email) return null;
+
+  const countiesRaw = trimField(row.counties);
+  const stationsRaw = trimField(row.stations);
+  const stationList = stationsRaw ? stationsRaw.split(/[,;]+/).map((s) => s.trim()).filter(Boolean) : [];
+  const county = countiesRaw ? countiesRaw.split(/[,;]+/).map((s) => s.trim()).filter(Boolean)[0] || '' : '';
+
+  const baseSlug = name
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'rep';
+  const shortId = email.replace(/[^a-z0-9]/gi, '').slice(0, 8);
+
+  return {
+    id: `newrep:${email}`,
+    slug: `${baseSlug}-${shortId}`,
+    name,
+    email,
+    phone: trimField(row.phone),
+    county,
+    addressCounty: county,
+    stations: stationList,
+    stationsCovered: stationList.length ? stationList : undefined,
+    availability: trimField(row.availability),
+    accreditation: trimField(row.accreditation) || 'Accredited Representative',
+    notes: trimField(row.message),
+  };
+}
+
+async function loadRegisteredReps(): Promise<Representative[]> {
+  const now = Date.now();
+  if (_registeredReps && now - _registeredRepsAt < REGISTERED_CACHE_MS) {
+    return _registeredReps;
+  }
+  const kv = getKV();
+  if (!kv) { _registeredReps = []; _registeredRepsAt = now; return []; }
+  try {
+    const keys = await kv.keys('newrep:*');
+    if (keys.length === 0) { _registeredReps = []; _registeredRepsAt = now; return []; }
+    const pipeline = kv.pipeline();
+    for (const key of keys) pipeline.get(key);
+    const results = await pipeline.exec<(Record<string, unknown> | null)[]>();
+    const reps: Representative[] = [];
+    const stations = loadDataFromFiles()?.stations ?? [];
+    for (const row of results) {
+      if (!row || typeof row !== 'object') continue;
+      const rep = registrationToRep(row);
+      if (rep) {
+        const enriched = enrichRepCountyFromStations(rep, stations);
+        reps.push(finalizeRepresentative(enriched));
+      }
+    }
+    _registeredReps = reps;
+    _registeredRepsAt = now;
+    return reps;
+  } catch (err) {
+    console.error('[data] Failed to load registered reps from KV:', err);
+    _registeredReps = [];
+    _registeredRepsAt = now;
+    return [];
+  }
+}
+
+/** Look up a single registered rep by email (O(1) KV read). */
+export async function getRegisteredRepByEmail(email: string): Promise<Representative | null> {
+  const kv = getKV();
+  if (!kv) return null;
+  try {
+    const row = await kv.get<Record<string, unknown>>(`newrep:${email.toLowerCase()}`);
+    if (!row) return null;
+    const rep = registrationToRep(row);
+    if (!rep) return null;
+    const stations = loadDataFromFiles()?.stations ?? [];
+    return finalizeRepresentative(enrichRepCountyFromStations(rep, stations));
+  } catch {
+    return null;
+  }
+}
+
 export function applyOverrides(rep: Representative, overrides: Record<string, unknown>): Representative {
   return {
     ...rep,
@@ -258,12 +350,27 @@ export function getRawReps(): Representative[] {
 
 export async function getAllReps(): Promise<Representative[]> {
   const reps = getRawReps();
-  const overrides = await loadProfileOverrides();
-  if (overrides.size === 0) return reps;
-  return reps.map((r) => {
+  const [overrides, registered] = await Promise.all([
+    loadProfileOverrides(),
+    loadRegisteredReps(),
+  ]);
+
+  const withOverrides = reps.map((r) => {
     const o = overrides.get(r.email.toLowerCase());
     return o ? applyOverrides(r, o) : r;
   });
+
+  if (registered.length === 0) return withOverrides;
+
+  const existingEmails = new Set(withOverrides.map((r) => r.email.toLowerCase()));
+  const newReps = registered
+    .filter((r) => !existingEmails.has(r.email.toLowerCase()))
+    .map((r) => {
+      const o = overrides.get(r.email.toLowerCase());
+      return o ? applyOverrides(r, o) : r;
+    });
+
+  return [...withOverrides, ...newReps];
 }
 
 export async function getStationBySlug(slug: string): Promise<PoliceStation | undefined> {

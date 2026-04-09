@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { sendRegistrationNotification } from '@/lib/email';
 import { saveSubmission } from '@/lib/submissions';
 import { contactRateLimitOk, getClientIp } from '@/lib/contact-guards';
+import { getKV } from '@/lib/kv';
 
 function toStr(val: unknown): string {
   if (Array.isArray(val)) return val.join(', ');
@@ -60,9 +61,19 @@ export async function POST(request: Request) {
       message: toStr(message),
     };
 
+    const kvWrite = (async () => {
+      const kv = getKV();
+      if (!kv) return;
+      await kv.set(`newrep:${normalised.email}`, {
+        ...normalised,
+        registeredAt: new Date().toISOString(),
+      });
+    })().catch((err) => console.warn('[register] KV directory write failed:', err));
+
     const [submissionId, emailSent] = await Promise.all([
       saveSubmission('registration', normalised),
       sendRegistrationNotification(normalised),
+      kvWrite,
     ]);
 
     if (!emailSent) {

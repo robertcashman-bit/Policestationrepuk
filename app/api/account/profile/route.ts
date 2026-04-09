@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getKV } from '@/lib/kv';
-import { getRawReps } from '@/lib/data';
+import { getRawReps, getRegisteredRepByEmail } from '@/lib/data';
+import type { Representative } from '@/lib/types';
 import { sendProfileUpdateNotification } from '@/lib/email';
 
 const ALLOWED_FIELDS = new Set([
@@ -21,14 +22,20 @@ const ALLOWED_FIELDS = new Set([
   'years_experience',
 ]);
 
+async function findRep(email: string): Promise<Representative | null> {
+  const reps = getRawReps();
+  const staticRep = reps.find((r) => r.email.toLowerCase() === email);
+  if (staticRep) return staticRep;
+  return getRegisteredRepByEmail(email);
+}
+
 export async function GET() {
   const email = await getSession();
   if (!email) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
-  const reps = getRawReps();
-  const rep = reps.find((r) => r.email.toLowerCase() === email);
+  const rep = await findRep(email);
   if (!rep) {
     return NextResponse.json({ error: 'No listing found for this email' }, { status: 404 });
   }
@@ -72,8 +79,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: 'Storage not configured' }, { status: 503 });
   }
 
-  const reps = getRawReps();
-  const rep = reps.find((r) => r.email.toLowerCase() === email);
+  const rep = await findRep(email);
   if (!rep) {
     return NextResponse.json({ error: 'No listing found for this email' }, { status: 404 });
   }
@@ -127,10 +133,7 @@ export async function PUT(request: Request) {
   return NextResponse.json({ ok: true, updated_at: now });
 }
 
-function getOldValue(
-  rep: ReturnType<typeof getRawReps>[number],
-  key: string,
-): unknown {
+function getOldValue(rep: Representative, key: string): unknown {
   const map: Record<string, unknown> = {
     name: rep.name,
     phone: rep.phone,

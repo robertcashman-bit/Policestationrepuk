@@ -83,9 +83,9 @@ export function RegisterForm() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div aria-hidden="true" className="absolute -left-[9999px] -top-[9999px]">
+        <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', top: '-9999px', height: 0, width: 0, overflow: 'hidden', opacity: 0 }}>
           <label htmlFor="reg-website">Website</label>
-          <input id="reg-website" name="website" type="text" tabIndex={-1} autoComplete="off" value={hp} onChange={(e) => setHp(e.target.value)} />
+          <input id="reg-website" name="website" type="text" tabIndex={-1} autoComplete="nope" value={hp} onChange={(e) => setHp(e.target.value)} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>

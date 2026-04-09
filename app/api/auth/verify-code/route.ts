@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getRawReps } from '@/lib/data';
+import { getRawReps, getRegisteredRepByEmail } from '@/lib/data';
 import { verifyMagicCode, createSession, getSessionCookieName } from '@/lib/auth';
 
 export async function POST(request: Request) {
@@ -19,7 +19,9 @@ export async function POST(request: Request) {
 
   const reps = getRawReps();
   const rep = reps.find((r) => r.email.toLowerCase() === email);
-  if (!rep) {
+  const registeredRep = !rep ? await getRegisteredRepByEmail(email) : null;
+
+  if (!rep && !registeredRep) {
     return NextResponse.json({ error: 'Invalid code' }, { status: 401 });
   }
 
@@ -37,7 +39,7 @@ export async function POST(request: Request) {
     secure: isProduction,
     sameSite: 'lax',
     path: '/',
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: 60 * 60 * 24 * 7,
   });
 
   return response;

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getRawReps } from '@/lib/data';
+import { getRawReps, getRegisteredRepByEmail } from '@/lib/data';
 import { storeMagicCode } from '@/lib/auth';
 import { sendMagicCode } from '@/lib/email';
 import { getKV } from '@/lib/kv';
@@ -27,8 +27,9 @@ export async function POST(request: Request) {
 
   const reps = getRawReps();
   const rep = reps.find((r) => r.email.toLowerCase() === email);
-  if (!rep) {
-    // Don't reveal whether the email exists — return success either way
+  const registeredRep = !rep ? await getRegisteredRepByEmail(email) : null;
+
+  if (!rep && !registeredRep) {
     return NextResponse.json({ ok: true });
   }
 

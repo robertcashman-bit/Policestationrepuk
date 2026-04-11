@@ -8,8 +8,7 @@ import { RepTrustBadges } from '@/components/RepTrustBadges';
 import { phoneToTelHref } from '@/lib/phone';
 import { availabilityBucket, isUrgentCoverCapable, profileCompleteness } from '@/lib/directory-ranking';
 
-export const dynamic = 'force-static';
-export const revalidate = false;
+export const revalidate = 60;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -168,22 +167,7 @@ export default async function RepPage({ params }: PageProps) {
               ) : null}
 
               {rep.stations && rep.stations.length > 0 ? (
-                <section className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_8px_30px_-10px_rgba(15,23,42,0.12)] sm:p-8">
-                  <h2 className="text-lg font-bold text-[var(--navy)]">Station coverage</h2>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Stations the rep has listed — confirm current cover before instructing.
-                  </p>
-                  <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                    {rep.stations.map((s) => (
-                      <li
-                        key={s}
-                        className="rounded-lg border border-slate-100 bg-[var(--gold-pale)]/50 px-3 py-2 text-sm font-medium text-[var(--navy)]"
-                      >
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
+                <StationCoverageSection stations={rep.stations} />
               ) : null}
 
               {rep.specialisms && rep.specialisms.length > 0 && (
@@ -306,5 +290,104 @@ export default async function RepPage({ params }: PageProps) {
         </div>
       </div>
     </>
+  );
+}
+
+interface StationGroup {
+  force: string;
+  stations: string[];
+}
+
+function groupStationsByForce(stations: string[]): StationGroup[] {
+  const forcePatterns = [
+    /^([\w\s&]+Police)\s*\((.+)\)$/,
+    /^([\w\s&]+Constabulary)\s*\((.+)\)$/,
+    /^(Metropolitan Police Service)\s*\((.+)\)$/,
+  ];
+
+  const groups = new Map<string, string[]>();
+  const ungrouped: string[] = [];
+
+  for (const station of stations) {
+    let matched = false;
+    for (const pat of forcePatterns) {
+      const m = station.match(pat);
+      if (m) {
+        const force = m[1].trim();
+        const sub = m[2].trim();
+        if (!groups.has(force)) groups.set(force, []);
+        groups.get(force)!.push(sub);
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) ungrouped.push(station);
+  }
+
+  const result: StationGroup[] = [];
+  for (const [force, subs] of groups) {
+    result.push({ force, stations: subs.sort((a, b) => a.localeCompare(b)) });
+  }
+  result.sort((a, b) => b.stations.length - a.stations.length);
+
+  if (ungrouped.length > 0) {
+    result.push({ force: '', stations: ungrouped.sort((a, b) => a.localeCompare(b)) });
+  }
+
+  return result;
+}
+
+function StationCoverageSection({ stations }: { stations: string[] }) {
+  const groups = groupStationsByForce(stations);
+  const hasGroups = groups.some((g) => g.force);
+
+  return (
+    <section className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_8px_30px_-10px_rgba(15,23,42,0.12)] sm:p-8">
+      <h2 className="text-lg font-bold text-[var(--navy)]">Station Coverage</h2>
+      <p className="mt-1 text-sm text-slate-500">
+        Stations covered by this representative — confirm availability before instruction.
+      </p>
+
+      <div className="mt-5 space-y-5">
+        {hasGroups ? (
+          groups.map((group) => (
+            <div key={group.force || '_other'}>
+              {group.force ? (
+                <h3 className="mb-2 flex items-center gap-2 text-sm font-bold text-[var(--navy)]">
+                  <svg className="h-4 w-4 shrink-0 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                  </svg>
+                  {group.force}
+                  <span className="ml-1 text-xs font-normal text-slate-400">({group.stations.length})</span>
+                </h3>
+              ) : (
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Other stations
+                </h3>
+              )}
+              <ul className="divide-y divide-slate-100 rounded-lg border border-slate-100 bg-slate-50/50">
+                {group.stations.map((s) => (
+                  <li key={s} className="px-4 py-2.5 text-sm text-slate-700 transition-colors hover:bg-[var(--gold-pale)]/40">
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        ) : (
+          <ul className="divide-y divide-slate-100 rounded-lg border border-slate-100 bg-slate-50/50">
+            {stations.map((s) => (
+              <li key={s} className="px-4 py-2.5 text-sm text-slate-700 transition-colors hover:bg-[var(--gold-pale)]/40">
+                {s}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <p className="mt-4 text-xs text-slate-400">
+        {stations.length} station{stations.length !== 1 ? 's' : ''} listed
+      </p>
+    </section>
   );
 }

@@ -9,6 +9,7 @@ import {
 } from './rep-merge';
 import { repMatchesCountyName } from './county-matching';
 import { getKV } from './kv';
+import { loadFeaturedFlags, applyFeaturedFlags, sortFeaturedReps } from './featured';
 
 type FileData = {
   counties: County[];
@@ -206,10 +207,16 @@ export async function getRepBySlug(slug: string): Promise<Representative | undef
 }
 
 let _profileOverrides: Map<string, Record<string, unknown>> | null = null;
+let _profileOverridesAt = 0;
+const PROFILE_OVERRIDES_CACHE_MS = 60_000;
 
 async function loadProfileOverrides(): Promise<Map<string, Record<string, unknown>>> {
-  if (_profileOverrides) return _profileOverrides;
+  const now = Date.now();
+  if (_profileOverrides && now - _profileOverridesAt < PROFILE_OVERRIDES_CACHE_MS) {
+    return _profileOverrides;
+  }
   _profileOverrides = new Map();
+  _profileOverridesAt = now;
   const kv = getKV();
   if (!kv) return _profileOverrides;
   try {
@@ -228,6 +235,12 @@ async function loadProfileOverrides(): Promise<Map<string, Record<string, unknow
     console.error('[data] Failed to load profile overrides from KV:', err);
   }
   return _profileOverrides;
+}
+
+/** Bust the in-process profile-overrides cache so the next call re-fetches from KV. */
+export function invalidateProfileCache(): void {
+  _profileOverrides = null;
+  _profileOverridesAt = 0;
 }
 
 /* ------------------------------------------------------------------ */
@@ -322,23 +335,30 @@ export async function getRegisteredRepByEmail(email: string): Promise<Representa
   }
 }
 
+function ov<T>(overrides: Record<string, unknown>, key: string, fallback: T): T {
+  return key in overrides ? (overrides[key] as T) : fallback;
+}
+
 export function applyOverrides(rep: Representative, overrides: Record<string, unknown>): Representative {
+  const notesVal = ov(overrides, 'notes', rep.notes);
   return {
     ...rep,
-    name: (overrides.name as string | null) ?? rep.name,
-    phone: (overrides.phone as string | null) ?? rep.phone,
-    availability: (overrides.availability as string | null) ?? rep.availability,
-    accreditation: (overrides.accreditation as string | null) ?? rep.accreditation,
-    postcode: (overrides.postcode as string | null) ?? rep.postcode,
-    stationsCovered: (overrides.stations_covered as string[] | null) ?? rep.stationsCovered,
-    notes: (overrides.notes as string | null) ?? rep.notes,
-    websiteUrl: (overrides.website_url as string | null) ?? rep.websiteUrl,
-    whatsappLink: (overrides.whatsapp_link as string | null) ?? rep.whatsappLink,
-    dsccPin: (overrides.dscc_pin as string | null) ?? rep.dsccPin,
-    holidayAvailability: (overrides.holiday_availability as string[] | null) ?? rep.holidayAvailability,
-    languages: (overrides.languages as string[] | null) ?? rep.languages,
-    specialisms: (overrides.specialisms as string[] | null) ?? rep.specialisms,
-    yearsExperience: (overrides.years_experience as number | null) ?? rep.yearsExperience,
+    name: ov(overrides, 'name', rep.name),
+    phone: ov(overrides, 'phone', rep.phone),
+    availability: ov(overrides, 'availability', rep.availability),
+    accreditation: ov(overrides, 'accreditation', rep.accreditation),
+    postcode: ov(overrides, 'postcode', rep.postcode),
+    stations: ov(overrides, 'stations_covered', rep.stations),
+    stationsCovered: ov(overrides, 'stations_covered', rep.stationsCovered),
+    notes: notesVal,
+    bio: 'notes' in overrides ? notesVal : rep.bio,
+    websiteUrl: ov(overrides, 'website_url', rep.websiteUrl),
+    whatsappLink: ov(overrides, 'whatsapp_link', rep.whatsappLink),
+    dsccPin: ov(overrides, 'dscc_pin', rep.dsccPin),
+    holidayAvailability: ov(overrides, 'holiday_availability', rep.holidayAvailability),
+    languages: ov(overrides, 'languages', rep.languages),
+    specialisms: ov(overrides, 'specialisms', rep.specialisms),
+    yearsExperience: ov(overrides, 'years_experience', rep.yearsExperience),
   };
 }
 
@@ -350,9 +370,10 @@ export function getRawReps(): Representative[] {
 
 export async function getAllReps(): Promise<Representative[]> {
   const reps = getRawReps();
-  const [overrides, registered] = await Promise.all([
+  const [overrides, registered, featuredFlags] = await Promise.all([
     loadProfileOverrides(),
     loadRegisteredReps(),
+    loadFeaturedFlags(),
   ]);
 
   const withOverrides = reps.map((r) => {
@@ -360,17 +381,31 @@ export async function getAllReps(): Promise<Representative[]> {
     return o ? applyOverrides(r, o) : r;
   });
 
-  if (registered.length === 0) return withOverrides;
+  let all: Representative[];
+  if (registered.length === 0) {
+    all = withOverrides;
+  } else {
+    const existingEmails = new Set(withOverrides.map((r) => r.email.toLowerCase()));
+    const newReps = registered
+      .filter((r) => !existingEmails.has(r.email.toLowerCase()))
+      .map((r) => {
+        const o = overrides.get(r.email.toLowerCase());
+        return o ? applyOverrides(r, o) : r;
+      });
+    all = [...withOverrides, ...newReps];
+  }
 
-  const existingEmails = new Set(withOverrides.map((r) => r.email.toLowerCase()));
-  const newReps = registered
-    .filter((r) => !existingEmails.has(r.email.toLowerCase()))
-    .map((r) => {
-      const o = overrides.get(r.email.toLowerCase());
-      return o ? applyOverrides(r, o) : r;
-    });
+  return applyFeaturedFlags(all, featuredFlags);
+}
 
-  return [...withOverrides, ...newReps];
+/**
+ * Returns featured reps in the correct deterministic order:
+ * Robert first, then by activation date, then by name.
+ */
+export async function getFeaturedRepsSorted(): Promise<Representative[]> {
+  const [reps, flags] = await Promise.all([getAllReps(), loadFeaturedFlags()]);
+  const featured = reps.filter((r) => r.featured);
+  return sortFeaturedReps(featured, flags);
 }
 
 export async function getStationBySlug(slug: string): Promise<PoliceStation | undefined> {

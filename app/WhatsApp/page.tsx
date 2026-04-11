@@ -8,32 +8,32 @@ import {
 } from '@/lib/site-navigation';
 
 export const metadata = buildMetadata({
-  title: 'WhatsApp Group for Police Station Reps',
+  title: 'WhatsApp Group — Reps & Criminal Defence Firms',
   description:
-    'Join the Police Station Reps WhatsApp Group — instant job notifications, direct communication with solicitor firms, and real-time cover requests. Free to join for accredited reps.',
+    'Join the PoliceStationRepUK WhatsApp group — one community for accredited police station reps and verified criminal defence firms. Real-time cover requests, networking, and peer support. Free to join.',
   path: '/WhatsApp',
 });
 
 const FEATURES = [
   {
     icon: '🔒',
-    title: 'Closed Group — Accredited Reps Only',
-    desc: 'This is a professional, closed group. You must provide proof of accreditation (PSRAS, LCCSA, or CLSA membership) before being admitted. This keeps the group trusted and relevant.',
+    title: 'Verified members — reps and firms',
+    desc: 'Accredited reps show PSRAS / LCCSA / CLSA or equivalent; criminal defence firms are verified (e.g. against public SRA records). One professional group — trusted and relevant.',
   },
   {
     icon: '⚡',
-    title: 'Instant Job Notifications',
-    desc: 'Receive real-time police station cover requests posted directly by solicitor firms. Jobs are posted 24/7 including evenings, weekends, and bank holidays — when demand is highest.',
+    title: 'Instant job notifications',
+    desc: 'Firms post police station cover requests; reps respond in real time — including evenings, weekends, and bank holidays.',
   },
   {
     icon: '💬',
-    title: 'Direct Communication',
-    desc: 'Chat directly with solicitor firms and other representatives. No middlemen, no delays. Respond to cover requests instantly and confirm attendance in seconds.',
+    title: 'Direct communication',
+    desc: 'Reps and firms message in the same thread — no middleman. Confirm cover and details quickly.',
   },
   {
     icon: '🆓',
-    title: 'Free to Join',
-    desc: 'There is no charge to join the WhatsApp group. It is a free resource provided by PoliceStationRepUK to support the police station representative community.',
+    title: 'Free to join',
+    desc: 'No charge to join or use the group. A free resource from PoliceStationRepUK for the police station representation community.',
   },
 ];
 
@@ -43,22 +43,21 @@ const JOIN_STEPS = [
     title: 'Send a text message',
     desc: (
       <>
-        Text <strong>{WHATSAPP_JOIN_PHONE}</strong> (or tap the button below)
-        with your <strong>name</strong>,{' '}
-        <strong>accreditation details</strong>, and the{' '}
-        <strong>areas you cover</strong>.
+        Text <strong>{WHATSAPP_JOIN_PHONE}</strong> (or tap the button below). Say whether you are a{' '}
+        <strong>rep</strong> or a <strong>firm</strong>. Reps: include name, accreditation details, and areas you
+        cover. Firms: include your name, firm name, and firm email.
       </>
     ),
   },
   {
     step: 2,
-    title: 'Provide proof of accreditation',
-    desc: 'You may be asked to share your LCCSA, CLSA, or Law Society accreditation number or certificate.',
+    title: 'We verify you',
+    desc: 'Reps may be asked for accreditation proof. Firms may be checked against public records. We may follow up by email if needed.',
   },
   {
     step: 3,
     title: 'Get added to the group',
-    desc: "Once verified, you'll receive a WhatsApp invitation. Accept it and start receiving cover requests immediately.",
+    desc: "Once verified, you'll receive a WhatsApp invitation. Accept it — then you're in the same group as reps and firms.",
   },
 ];
 
@@ -98,12 +97,12 @@ export default function WhatsAppPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">
-            Join the Police Station Reps WhatsApp Group
+            PoliceStationRepUK WhatsApp group
           </h1>
           <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
-            The fastest way to receive police station cover requests from
-            solicitor firms across England &amp; Wales. Free, instant, and
-            exclusively for accredited representatives.
+            One WhatsApp community for <strong className="text-white">accredited police station reps</strong> and{' '}
+            <strong className="text-white">criminal defence firms</strong> across England &amp; Wales — cover requests,
+            networking, and peer support. Free; members are verified before being added.
           </p>
         </div>
       </section>
@@ -176,24 +175,6 @@ export default function WhatsAppPage() {
               </li>
             ))}
           </ul>
-        </section>
-
-        {/* Are you a firm? */}
-        <section className="mb-14 rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/30 bg-[var(--gold)]/5 p-8 text-center">
-          <h2 className="text-h2 text-[var(--navy)]">
-            Are You a Solicitor Firm?
-          </h2>
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-[var(--muted)]">
-            There is a separate WhatsApp group for criminal defence firms to
-            post cover requests directly to accredited reps. It&apos;s free,
-            verified, and monitored.
-          </p>
-          <Link
-            href="/FirmsWhatsAppGroup"
-            className="btn-outline mt-5 inline-block no-underline"
-          >
-            Firms WhatsApp Group &rarr;
-          </Link>
         </section>
 
         {/* Facebook group CTA */}

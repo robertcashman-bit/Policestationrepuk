@@ -193,18 +193,15 @@ export default function GoFeaturedPage() {
       <div className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
         <h2 className="text-h2 text-white">Ready to Go Featured?</h2>
         <p className="mt-3 text-slate-300">
-          Already registered? Contact us to activate your free Spotlight Listing. Not registered yet?
-          Create your free profile first.
+          Already registered? Sign in and upgrade from your Account dashboard — it&apos;s instant and free.
+          Not registered yet? Create your free profile first.
         </p>
         <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <Link href="/register" className="btn-gold">
-            Register Free
+          <Link href="/Account" className="btn-gold">
+            Sign In &amp; Upgrade
           </Link>
-          <Link
-            href="/Contact"
-            className="btn-outline !border-slate-500 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)]"
-          >
-            Contact Us to Activate
+          <Link href="/register" className="btn-outline !border-slate-500 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)]">
+            Register Free
           </Link>
         </div>
       </div>

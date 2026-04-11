@@ -135,5 +135,25 @@
     "isFeatured": true,
     "publishedDate": "2024-01-10T09:00:00Z",
     "views": 1
+  },
+  {
+    "id": "6917777ba4d60d2041e02c3a",
+    "title": "Sentencing Act 2026: Key Changes for Criminal Defence",
+    "slug": "sentencing-act-2026-key-changes",
+    "excerpt": "The Sentencing Act 2026 is in force from 22 March 2026. Courts must now suspend sentences of 12 months or less unless exceptional circumstances apply. Here are the key changes for reps and firms.",
+    "content": "# Sentencing Act 2026: Key Changes for Criminal Defence\n\n## Overview\n\nThe **Sentencing Act 2026** received Royal Assent on **22 January 2026** and its main provisions came into force on **22 March 2026**.\n\nThe Act operates within the existing Sentencing Code framework and introduces targeted reforms affecting suspended sentences, community supervision, and release.\n\n## Headline Changes\n\n### 1. Presumption to Suspend Sentences of 12 Months or Less\n\nFor offenders aged 18+ convicted from 22 March 2026, courts **must** suspend all custodial sentences of 12 months or less — **unless** the court finds **exceptional circumstances** relating to the offence or the offender.\n\n**Exceptions** (presumption does not apply):\n- Offender already in custody\n- Consecutive sentences totalling more than 12 months\n- Re-sentencing for breach\n- Offence committed while subject to supervision order\n\n### 2. Three-Year Suspended Sentences\n\nCourts can now impose up to **3 years custody suspended for 3 years** (previously 2 years). The operational period may only exceed 2 years where the custodial term itself exceeds 2 years. The supervision period remains capped at 2 years.\n\n### 3. Strengthened Community Sentences\n\n- Intensive probation requirements\n- Electronic monitoring and GPS tagging\n- Alcohol abstinence monitoring\n- Restriction zones\n- Stronger enforcement of suspended sentence conditions\n\n### 4. Early Release Changes (Autumn 2026)\n\nNew provisions for release, recall, and post-custody supervision are scheduled for Autumn 2026 (exact date TBC by statutory instrument).\n\n## Impact at the Police Station\n\nThe Act does not change PACE procedure, but it changes the **advice context**:\n\n- **Likely outcome** for many common offences (assault, theft, public order, driving) is now suspension if custody arises — useful context for pre-interview consultations.\n- **Mitigation starts at the station** — noting client circumstances (employment, family, mental health) feeds into eventual pre-sentence reports.\n- **Bail representations** — a likely suspended sentence weakens the prosecution case for remand.\n- **Charging decisions** — CPS public interest calculus may shift when the likely sentence is suspension.\n\n## Offences Most Affected\n\n- Common assault, low-level theft, criminal damage\n- Drug possession (personal use)\n- Public order offences\n- Driving offences (no death/serious injury)\n- Low-level domestic violence (watch the exceptions)\n\n## Key Dates\n\n- **Royal Assent**: 22 January 2026\n- **Main provisions in force**: 22 March 2026\n- **Early release provisions**: Autumn 2026 (TBC)\n\n## Further Reading\n\n- [Sentencing Act 2026 (legislation.gov.uk)](https://legislation.gov.uk/ukpga/2026/2/data.html)\n- [Sentencing Council](https://www.sentencingcouncil.org.uk/)\n- [MoJ reoffending statistics](https://www.gov.uk/government/collections/proven-reoffending-statistics)\n\n---\n\n*General information only — not legal advice.*",
+    "category": "Legal Updates",
+    "tags": [
+      "sentencing",
+      "Sentencing Act 2026",
+      "suspended sentences",
+      "community sentences",
+      "criminal defence"
+    ],
+    "author": "PoliceStationRepUK",
+    "featuredImageUrl": null,
+    "isFeatured": true,
+    "publishedDate": "2026-04-11T09:00:00Z",
+    "views": 0
   }
 ]

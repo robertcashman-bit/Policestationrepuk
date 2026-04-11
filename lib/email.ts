@@ -334,6 +334,93 @@ export async function sendProfileUpdateNotification(data: ProfileUpdateData): Pr
   }
 }
 
+export async function sendFeaturedConfirmationToRep(data: {
+  name: string;
+  email: string;
+  activatedAt: string;
+}): Promise<boolean> {
+  const client = getResend();
+  if (!client) {
+    console.info('[Featured rep email — no RESEND_API_KEY]', { name: data.name, email: data.email });
+    return false;
+  }
+
+  try {
+    await client.emails.send({
+      from: FROM_EMAIL,
+      to: data.email,
+      subject: 'Your Featured Listing is now live — PoliceStationRepUK',
+      html: `
+        <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px">
+          <h2 style="color:#0f172a">Congratulations, ${escapeHtml(data.name)}!</h2>
+          <p style="color:#475569;font-size:14px;line-height:1.6">
+            Your listing on <strong>PoliceStationRepUK</strong> has been upgraded to a
+            <strong style="color:#b8860b">Featured Listing</strong>.
+          </p>
+          <p style="color:#475569;font-size:14px;line-height:1.6">
+            Your profile will now appear in the <strong>Featured Representatives</strong> section
+            on the homepage and at the top of directory search results, giving you maximum
+            visibility to instructing solicitor firms.
+          </p>
+          <div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:16px;margin:20px 0">
+            <p style="margin:0;font-size:14px;color:#854d0e"><strong>Activated:</strong> ${escapeHtml(new Date(data.activatedAt).toLocaleString('en-GB', { dateStyle: 'full', timeStyle: 'short' }))}</p>
+          </div>
+          <p style="color:#475569;font-size:14px;line-height:1.6">
+            You can manage your profile at any time by signing in to your account.
+          </p>
+          <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb">
+          <p style="color:#94a3b8;font-size:12px">
+            PoliceStationRepUK &mdash; Free directory for accredited police station representatives.<br>
+            <a href="https://policestationrepuk.org" style="color:#94a3b8">policestationrepuk.org</a>
+          </p>
+        </div>
+      `,
+    });
+    return true;
+  } catch (err) {
+    console.error('[Featured rep email failed]', err);
+    return false;
+  }
+}
+
+export async function sendFeaturedOwnerNotification(data: {
+  name: string;
+  email: string;
+  repSlug: string;
+  activatedAt: string;
+}): Promise<boolean> {
+  const client = getResend();
+  if (!client) {
+    console.info('[Featured owner email — no RESEND_API_KEY]', { name: data.name, email: data.email });
+    return false;
+  }
+
+  try {
+    await client.emails.send({
+      from: FROM_EMAIL,
+      to: ADMIN_EMAIL,
+      replyTo: data.email,
+      subject: `[Featured Upgrade] ${data.name} is now a Featured Representative`,
+      html: `
+        <h2>New Featured Representative</h2>
+        <table style="border-collapse:collapse;width:100%;max-width:600px;">
+          <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Name</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.name)}</td></tr>
+          <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Email</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><a href="mailto:${escapeHtml(data.email)}">${escapeHtml(data.email)}</a></td></tr>
+          <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Profile</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><a href="https://policestationrepuk.org/rep/${escapeHtml(data.repSlug)}">View profile</a></td></tr>
+          <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Activated</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.activatedAt)}</td></tr>
+        </table>
+        <p style="margin-top:16px;color:#6b7280;font-size:12px;">
+          This rep upgraded to Featured via the self-service portal on PoliceStationRepUK.
+        </p>
+      `,
+    });
+    return true;
+  } catch (err) {
+    console.error('[Featured owner email failed]', err);
+    return false;
+  }
+}
+
 function escapeHtml(val: unknown): string {
   const str = typeof val === 'string' ? val : Array.isArray(val) ? val.join(', ') : String(val ?? '');
   return str

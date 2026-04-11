@@ -12,11 +12,14 @@ import { HomeTestimonials } from '@/components/HomeTestimonials';
 import { HomeBlogPreview } from '@/components/HomeBlogPreview';
 import { HomeRegisterCta } from '@/components/HomeRegisterCta';
 import { HomeQuickSearch } from '@/components/HomeQuickSearch';
+import { HomeTopLocations } from '@/components/HomeTopLocations';
+import { HomeCommunityWhatsAppPromo } from '@/components/HomeCommunityWhatsAppPromo';
+import { HomeKentSpotlight } from '@/components/HomeKentSpotlight';
 import { HomePhoneNumbers } from '@/components/HomePhoneNumbers';
 import { HomeAIAssistant } from '@/components/HomeAIAssistant';
 import { HomeSeoConversionHub } from '@/components/HomeSeoConversionHub';
 import { HomeHomepageFaq } from '@/components/HomeHomepageFaq';
-import { getAllReps, getAllStations, getAllCounties } from '@/lib/data';
+import { getAllReps, getAllStations, getAllCounties, getFeaturedRepsSorted } from '@/lib/data';
 import {
   organizationSchema,
   webSiteSchema,
@@ -24,6 +27,7 @@ import {
   directoryServiceLocalBusinessSchema,
 } from '@/lib/seo';
 import { HOMEPAGE_FAQS } from '@/lib/homepage-faqs';
+import { selectTopCountiesForHomepage } from '@/lib/home-top-locations';
 import { SITE_NAME, SITE_URL, socialPreviewImageUrl } from '@/lib/seo-layer/config';
 
 export const metadata: Metadata = {
@@ -61,8 +65,13 @@ const MARKETING_REPS_DISPLAY = 300;
 const MARKETING_STATIONS_DISPLAY = 500;
 
 export default async function HomePage() {
-  const [reps, stations, counties] = await Promise.all([getAllReps(), getAllStations(), getAllCounties()]);
-  const featuredReps = reps.filter((r) => r.featured).sort((a, b) => a.name.localeCompare(b.name));
+  const [reps, stations, counties, featuredReps] = await Promise.all([
+    getAllReps(),
+    getAllStations(),
+    getAllCounties(),
+    getFeaturedRepsSorted(),
+  ]);
+  const topCountiesForLinks = selectTopCountiesForHomepage(counties, reps, 12);
 
   return (
     <>
@@ -102,9 +111,15 @@ export default async function HomePage() {
         />
       </div>
 
+      <HomeTopLocations counties={topCountiesForLinks} />
+
+      <HomeCommunityWhatsAppPromo />
+
       <HomeRecentlyJoined reps={reps} />
 
       <HomeFeaturedCarousel featuredReps={featuredReps} />
+
+      <HomeKentSpotlight />
 
       <div className="cv-auto">
         <HomeWhyChoose />

@@ -87,12 +87,6 @@ export default function TermsPage() {
                   robertcashman@defencelegalservices.co.uk
                 </a>
               </li>
-              <li>
-                <span className="font-semibold text-[var(--navy)]">Phone:</span>{' '}
-                <a href="tel:07535494446" className="text-[var(--gold-link)] hover:underline">
-                  07535 494446
-                </a>
-              </li>
             </ul>
           </div>
         </section>
@@ -288,12 +282,6 @@ export default function TermsPage() {
             <li className="flex gap-2">
               <span className="text-emerald-600">&#x2022;</span>Use the &ldquo;Suggest Edit&rdquo;
               feature on station pages
-            </li>
-            <li className="flex gap-2">
-              <span className="text-emerald-600">&#x2022;</span>Call{' '}
-              <a href="tel:07535494446" className="text-[var(--gold-link)] hover:underline">
-                07535 494446
-              </a>
             </li>
           </ul>
           <p className="text-sm text-[var(--muted)]">

@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import { getStationBySlug, getRepsByStation } from '@/lib/data';
+import { getAllCounties, getAllReps, getAllStations, getStationBySlug, getRepsByStation } from '@/lib/data';
 import type { PoliceStation } from '@/lib/types';
 import { buildMetadata, localBusinessSchema, breadcrumbSchema } from '@/lib/seo';
 import { JsonLd } from '@/components/JsonLd';
@@ -8,9 +8,12 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { RepCard } from '@/components/RepCard';
 import { phoneToTelHref } from '@/lib/phone';
 import { classifyPhone, displayPhoneNumber } from '@/lib/station-search';
+import { countRepsForStation, shouldIndexPoliceStationPage } from '@/lib/station-indexing';
+import { directoryHrefForAreaName } from '@/lib/county-links';
 
 export const dynamic = 'force-static';
-export const revalidate = false;
+/** ISR: refresh station pages periodically so rep counts and index flags stay fresh. */
+export const revalidate = 86_400;
 
 interface PageProps {
   params: Promise<{ station: string }>;
@@ -26,10 +29,15 @@ export async function generateMetadata({ params }: PageProps) {
   const { station } = await params;
   const stationData = await getStationBySlug(station);
   if (!stationData) return {};
+  const [allReps, allStations] = await Promise.all([getAllReps(), getAllStations()]);
+  const repCount = countRepsForStation(stationData, allReps, allStations);
+  const indexable = shouldIndexPoliceStationPage(stationData, repCount);
+  const area = stationData.forceName || stationData.county || 'England & Wales';
   return buildMetadata({
     title: `${stationData.name} Police Station | Representatives`,
-    description: `Police station representatives covering ${stationData.name}, ${stationData.forceName || stationData.county || ''}. Find accredited reps for custody suite attendance and freelance cover.`,
+    description: `Accredited police station representatives for ${stationData.name} (${area}). ${repCount > 0 ? `${repCount} rep${repCount === 1 ? '' : 's'} listed. ` : ''}Custody advice, PACE interviews, and DSCC-aligned cover — directory only, not a law firm.`,
     path: `/police-station/${stationData.slug}`,
+    noIndex: !indexable,
   });
 }
 
@@ -42,13 +50,24 @@ export default async function PoliceStationPage({ params }: PageProps) {
     redirect(`/police-station/${station.slug}`);
   }
 
-  const reps = await getRepsByStation(station.name);
+  const [reps, counties, allReps, allStations] = await Promise.all([
+    getRepsByStation(station.name),
+    getAllCounties(),
+    getAllReps(),
+    getAllStations(),
+  ]);
+  const countyDirHref =
+    directoryHrefForAreaName(station.county, counties) ??
+    directoryHrefForAreaName(station.forceName, counties);
+  const repCount = countRepsForStation(station, allReps, allStations);
+  const indexable = shouldIndexPoliceStationPage(station, repCount);
   const schema = localBusinessSchema({ name: station.name, slug: station.slug, address: station.address, county: station.forceName || station.county || '' });
   const bc = breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Directory', url: '/directory' }, { name: `${station.name} Police Station`, url: `/police-station/${station.slug}` }]);
+  const areaLabel = station.county || station.forceName || '';
 
   return (
     <>
-      <JsonLd data={schema} />
+      {indexable && <JsonLd data={schema} />}
       <JsonLd data={bc} />
 
       {/* Navy header */}
@@ -79,6 +98,45 @@ export default async function PoliceStationPage({ params }: PageProps) {
           <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
             {/* Main content */}
             <div className="space-y-6">
+              <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)] sm:p-8">
+                <h2 className="text-lg font-bold text-[var(--navy)] sm:text-xl">
+                  Police station representation at {station.name}
+                </h2>
+                <div className="mt-4 space-y-4 text-sm leading-relaxed text-[var(--muted)] sm:text-base">
+                  <p>
+                    {station.name} sits within {areaLabel ? `the ${areaLabel} policing area` : 'its local force area'}.
+                    Defence solicitors and duty firms often need an accredited{' '}
+                    <Link href="/WhatDoesRepDo" className="font-medium text-[var(--gold-link)] hover:underline">
+                      police station representative
+                    </Link>{' '}
+                    to attend quickly when a client is booked into custody — especially for evenings, weekends, or
+                    multi-site firms covering several custody suites.
+                  </p>
+                  <p>
+                    This page lists representatives who have told us they cover {station.name} (or matching custody
+                    routes). Availability is between you and the representative; PoliceStationRepUK is a{' '}
+                    <Link href="/About" className="font-medium text-[var(--gold-link)] hover:underline">
+                      directory
+                    </Link>
+                    , not a law firm. For wider cover in the same region, use{' '}
+                    {countyDirHref ? (
+                      <Link href={countyDirHref} className="font-medium text-[var(--gold-link)] hover:underline">
+                        the {areaLabel || 'county'} directory hub
+                      </Link>
+                    ) : (
+                      <Link href="/directory/counties" className="font-medium text-[var(--gold-link)] hover:underline">
+                        county hubs
+                      </Link>
+                    )}{' '}
+                    or the main{' '}
+                    <Link href="/directory" className="font-medium text-[var(--gold-link)] hover:underline">
+                      search directory
+                    </Link>
+                    .
+                  </p>
+                </div>
+              </section>
+
               <section>
                 <h2 className="text-h2 text-[var(--navy)]">Representatives covering {station.name}</h2>
                 {reps.length === 0 ? (
@@ -190,17 +248,32 @@ export default async function PoliceStationPage({ params }: PageProps) {
             </div>
           </div>
 
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Link
-              href={`/directory/${(station.county || station.forceName || '').toLowerCase().replace(/\s+/g, '-')}`}
-              className="font-medium text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
-            >
-              View all reps in {station.forceName || station.county || 'this area'} →
+          <nav className="mt-10 flex flex-wrap gap-4" aria-label="Related directory links">
+            {countyDirHref ? (
+              <Link
+                href={countyDirHref}
+                className="font-medium text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
+              >
+                View all reps in {station.county || station.forceName || 'this area'} →
+              </Link>
+            ) : (
+              <Link
+                href="/directory/counties"
+                className="font-medium text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
+              >
+                Browse county hubs →
+              </Link>
+            )}
+            <Link href="/search" className="font-medium text-[var(--muted)] no-underline hover:text-[var(--gold-hover)]">
+              Search directory
+            </Link>
+            <Link href="/StationsDirectory" className="font-medium text-[var(--muted)] no-underline hover:text-[var(--gold-hover)]">
+              Station A–Z
             </Link>
             <Link href="/directory" className="font-medium text-[var(--muted)] no-underline hover:text-[var(--gold-hover)]">
-              ← Back to directory
+              ← Full directory
             </Link>
-          </div>
+          </nav>
         </div>
       </div>
     </>

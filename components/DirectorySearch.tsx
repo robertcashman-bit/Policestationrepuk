@@ -298,7 +298,12 @@ export function DirectorySearch({
     urgentOnly, completeOnly, stations, counties, hasTextQuery, sort,
   ]);
 
-  const featuredReps = filtered.filter((r) => r.featured);
+  const featuredReps = filtered.filter((r) => r.featured).sort((a, b) => {
+    const ROBERT = 'robert-cashman';
+    if (a.slug === ROBERT && b.slug !== ROBERT) return -1;
+    if (b.slug === ROBERT && a.slug !== ROBERT) return 1;
+    return 0;
+  });
   const nonFeaturedReps = filtered.filter((r) => !r.featured);
   const pagedNonFeatured = nonFeaturedReps.slice(0, page * PAGE_SIZE);
   const hasMoreNonFeatured = pagedNonFeatured.length < nonFeaturedReps.length;

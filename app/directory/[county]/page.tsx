@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCountyBySlug, getRepsByCounty, getStationsByCounty } from '@/lib/data';
 import { getCountyContent } from '@/lib/counties-content';
-import { buildMetadata, legalServiceSchema, breadcrumbSchema, placeSchema, directoryItemListSchema } from '@/lib/seo';
+import { buildMetadata, breadcrumbSchema, placeSchema, directoryItemListSchema } from '@/lib/seo';
 import { JsonLd } from '@/components/JsonLd';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DirectoryCard } from '@/components/DirectoryCard';
@@ -10,7 +10,8 @@ import { StationCard } from '@/components/StationCard';
 import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotice';
 
 export const dynamic = 'force-static';
-export const revalidate = false;
+/** ISR so rep/station counts refresh without a full redeploy. */
+export const revalidate = 86_400;
 
 interface PageProps {
   params: Promise<{ county: string }>;
@@ -59,23 +60,12 @@ export default async function DirectoryCountyPage({ params }: PageProps) {
       <JsonLd data={placeSchemaData} />
       <JsonLd data={breadcrumbSchemaData} />
       {reps.length > 0 && (
-        <>
-          <JsonLd
-            data={legalServiceSchema({
-              name: reps[0].name,
-              slug: reps[0].slug,
-              counties: [reps[0].county].filter(Boolean),
-              accreditation: reps[0].accreditation,
-              phone: reps[0].phone,
-            })}
-          />
-          <JsonLd
-            data={directoryItemListSchema(
-              reps.map((r) => ({ name: r.name, slug: r.slug })),
-              county.name
-            )}
-          />
-        </>
+        <JsonLd
+          data={directoryItemListSchema(
+            reps.map((r) => ({ name: r.name, slug: r.slug })),
+            county.name
+          )}
+        />
       )}
 
       {/* Hero */}
@@ -152,6 +142,41 @@ export default async function DirectoryCountyPage({ params }: PageProps) {
               ))}
             </div>
           )}
+        </section>
+
+        <section className="mt-10 rounded-2xl border border-slate-200 bg-slate-50/90 p-6 sm:p-8">
+          <h2 className="text-lg font-bold text-[var(--navy)]">More ways to search {county.name}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+            Station pages link back to this county hub; use search or the station index when you need a different force
+            or custody suite name.
+          </p>
+          <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold">
+            <li>
+              <Link href="/search" className="text-[var(--gold-link)] no-underline hover:underline">
+                Directory keyword search
+              </Link>
+            </li>
+            <li>
+              <Link href="/directory/counties" className="text-[var(--gold-link)] no-underline hover:underline">
+                All counties
+              </Link>
+            </li>
+            <li>
+              <Link href="/StationsDirectory" className="text-[var(--gold-link)] no-underline hover:underline">
+                All stations (A–Z)
+              </Link>
+            </li>
+            <li>
+              <Link href="/Map" className="text-[var(--gold-link)] no-underline hover:underline">
+                Map view
+              </Link>
+            </li>
+            <li>
+              <Link href="/directory" className="text-[var(--gold-link)] no-underline hover:underline">
+                National directory
+              </Link>
+            </li>
+          </ul>
         </section>
 
         <p className="mt-10 max-w-3xl text-xs leading-relaxed text-[var(--muted)]">

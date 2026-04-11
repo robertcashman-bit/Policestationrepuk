@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { CONTACT_WHATSAPP_HREF } from '@/lib/contact-constants';
 import { SUPPORT_MAILTO_HREF } from '@/lib/site-contact';
 
 export function HelpChatButton() {
@@ -56,22 +57,14 @@ export function HelpChatButton() {
               Contact Us
             </Link>
             {!isHome && (
-              <>
-                <a
-                  href="https://wa.me/447535494446?text=Hi%20-%20I%20need%20police%20station%20cover"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-center text-sm font-medium text-emerald-800 no-underline transition-colors hover:bg-emerald-100"
-                >
-                  💬 WhatsApp Us
-                </a>
-                <a
-                  href="tel:07535494446"
-                  className="rounded-lg border border-[var(--border)] px-4 py-2.5 text-center text-sm font-medium text-[var(--navy)] no-underline transition-colors hover:border-[var(--gold)]"
-                >
-                  📞 07535 494446
-                </a>
-              </>
+              <a
+                href={CONTACT_WHATSAPP_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-center text-sm font-medium text-emerald-800 no-underline transition-colors hover:bg-emerald-100"
+              >
+                💬 WhatsApp
+              </a>
             )}
             <Link
               href="/FAQ"

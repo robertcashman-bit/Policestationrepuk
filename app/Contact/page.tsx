@@ -80,8 +80,8 @@ export default function ContactPage() {
             </ul>
           </div>
 
-          {/* Direct contact cards */}
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {/* Website / directory support — email only (no SMS; WhatsApp & mobile stay on rep profiles e.g. /rep/robert-cashman) */}
+          <div className="mt-6">
             <a
               href={SUPPORT_MAILTO_HREF}
               className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-5 no-underline shadow-[var(--card-shadow)] transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
@@ -89,23 +89,11 @@ export default function ContactPage() {
               <span className="mt-0.5 text-xl" aria-hidden="true">📧</span>
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
-                  Directory support email
+                  Directory &amp; website support email
                 </p>
                 <p className="mt-1 text-sm font-semibold text-[var(--gold-link)] break-all">
                   {SUPPORT_EMAIL}
                 </p>
-              </div>
-            </a>
-            <a
-              href="sms:07535494446"
-              className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-5 no-underline shadow-[var(--card-shadow)] transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
-            >
-              <span className="mt-0.5 text-xl" aria-hidden="true">💬</span>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
-                  SMS (directory queries only)
-                </p>
-                <p className="mt-1 text-sm font-semibold text-[var(--navy)]">07535 494446</p>
               </div>
             </a>
           </div>

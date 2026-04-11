@@ -12,6 +12,10 @@ import { SITEMAP_PATHS } from '@/lib/sitemap-paths';
 import { COUNTY_SEO_PAGES } from '@/lib/county-seo-pages';
 import { LEGACY_EXACT_REDIRECTS } from '@/lib/legacy-exact-redirects';
 import { SITE_URL as BASE } from '@/lib/seo-layer/config';
+import {
+  countRepsForStation,
+  shouldIncludePoliceStationInSitemap,
+} from '@/lib/station-indexing';
 
 const now = new Date();
 
@@ -206,14 +210,19 @@ async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     }));
-  const stationUrls = stations
-    .filter((s) => s.slug && String(s.slug).trim())
-    .map((s) => ({
+  /** Omit thin station URLs (no reps + not custody) — reduces "Discovered – not indexed" noise. */
+  const stationUrls: MetadataRoute.Sitemap = [];
+  for (const s of stations) {
+    if (!s.slug || !String(s.slug).trim()) continue;
+    const repCount = countRepsForStation(s, reps, stations);
+    if (!shouldIncludePoliceStationInSitemap(s, repCount)) continue;
+    stationUrls.push({
       url: `${BASE}/police-station/${s.slug}`,
       lastModified: now,
       changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    }));
+      priority: repCount > 0 ? 0.64 : 0.52,
+    });
+  }
   const wikiUrls = wikiArticles
     .filter((a) => a.slug && String(a.slug).trim())
     .map((a) => ({

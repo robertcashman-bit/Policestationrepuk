@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { Header } from '@/components/Header';
 import { CustodyNoteTopBanner } from '@/components/CustodyNoteTopBanner';
 import { Footer } from '@/components/Footer';
+import { SiteWidePromoStrip } from '@/components/SiteWidePromoStrip';
 import { DeferredGlobalWidgets } from '@/components/DeferredGlobalWidgets';
 import { JsonLd } from '@/components/JsonLd';
 import './globals.css';
@@ -105,6 +106,7 @@ export default function RootLayout({
           <Header />
         </div>
         <main id="main-content" className="site-shell-main flex-1 w-full min-w-0">{children}</main>
+        <SiteWidePromoStrip />
         <Footer />
         <DeferredGlobalWidgets />
       </body>

@@ -1,0 +1,2217 @@
+[
+  {
+    "url": "https://policestationrepuk.org",
+    "path": "/",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Find a Police Station Rep — UK Representative Directory",
+      "length": 55
+    },
+    "metaDescription": {
+      "value": "Free directory of accredited police station representatives in England &amp; Wales. Search by county, station, or name. 300+ reps, 894 stations. Join free.",
+      "length": 155
+    },
+    "h1": "Find a Police Station Representative — UK Directory",
+    "h1Count": 1,
+    "wordCount": 2247,
+    "ogTitle": "Find a Police Station Rep — UK Representative Directory",
+    "ogDescription": "Free UK directory of accredited police station representatives. Search by county, station, or name. 300+ reps, 894 stations listed.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org",
+    "issues": [],
+    "fixes": [],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/register",
+    "path": "/register",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Register as a Police Station Representative",
+      "length": 43
+    },
+    "metaDescription": {
+      "value": "Register with the PoliceStationRepUK directory. Free for accredited police station representatives. Connect with criminal solicitors seeking cover across England and Wales.",
+      "length": 172
+    },
+    "h1": "Register as a Police Station Representative",
+    "h1Count": 1,
+    "wordCount": 344,
+    "ogTitle": "Register as a Police Station Representative",
+    "ogDescription": "Register with the PoliceStationRepUK directory. Free for accredited police station representatives. Connect with criminal solicitors seeking cover across England and Wales.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/register",
+    "issues": [
+      {
+        "label": "Meta description too long (172 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (172 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Register with the PoliceStationRepUK directory. Free for accredited police station representatives. Connect with criminal solicitors seeking cover acros…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/CustodyNote",
+    "path": "/CustodyNote",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Custody Note — Desktop Software for Police Station Attendance Notes",
+      "length": 67
+    },
+    "metaDescription": {
+      "value": "Custody Note is Windows desktop software for criminal defence solicitors and accredited reps: structured attendance notes, telephone and voluntary interview records, offline-first workflows, PDF export, and LAA-oriented billing with a free 30-day trial.",
+      "length": 253
+    },
+    "h1": "Desktop software for police station attendance notes",
+    "h1Count": 1,
+    "wordCount": 974,
+    "ogTitle": "Custody Note — Desktop Software for Police Station Attendance Notes",
+    "ogDescription": "Custody Note is Windows desktop software for criminal defence solicitors and accredited reps: structured attendance notes, telephone and voluntary interview records, offline-first workflows, PDF export, and LAA-oriented billing with a free 30-day trial.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/CustodyNote",
+    "issues": [
+      {
+        "label": "Title too long (67 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Meta description too long (253 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title too long (67 chars)",
+        "fixType": "Shorten title (aim for 30–60 chars)",
+        "suggestion": "Custody Note — Desktop Software for Police Station Attend…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Meta description too long (253 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Custody Note is Windows desktop software for criminal defence solicitors and accredited reps: structured attendance notes, telephone and voluntary inter…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/FAQ",
+    "path": "/FAQ",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "FAQ — Police Station Representation Questions Answered",
+      "length": 54
+    },
+    "metaDescription": {
+      "value": "Common questions about police station representation, how to register as a rep, our free directory, and more — answered by PoliceStationRepUK.",
+      "length": 142
+    },
+    "h1": "Frequently Asked Questions",
+    "h1Count": 1,
+    "wordCount": 482,
+    "ogTitle": "FAQ — Police Station Representation Questions Answered",
+    "ogDescription": "Common questions about police station representation, how to register as a rep, our free directory, and more — answered by PoliceStationRepUK.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/FAQ",
+    "issues": [],
+    "fixes": [],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/Blog",
+    "path": "/Blog",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Blog — Freelance Police Station Reps &amp; Criminal Defence Firms | PoliceStationRepUK",
+      "length": 86
+    },
+    "metaDescription": {
+      "value": "Practical articles for freelance accredited police station representatives and criminal defence firms: briefing, attendance, handovers, out-of-hours cover, accreditation, and communication.",
+      "length": 189
+    },
+    "h1": "Police station representation — professional blog",
+    "h1Count": 1,
+    "wordCount": 1242,
+    "ogTitle": "Blog — Freelance Police Station Reps &amp; Criminal Defence Firms | PoliceStationRepUK",
+    "ogDescription": "Practical articles for freelance accredited police station representatives and criminal defence firms: briefing, attendance, handovers, out-of-hours cover, accreditation, and communication.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/Blog",
+    "issues": [
+      {
+        "label": "Title too long (86 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Meta description too long (189 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title too long (86 chars)",
+        "fixType": "Shorten title (aim for 30–60 chars)",
+        "suggestion": "Blog — Freelance Police Station Reps &amp; Criminal Defen…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Meta description too long (189 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Practical articles for freelance accredited police station representatives and criminal defence firms: briefing, attendance, handovers, out-of-hours cov…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/directory",
+    "path": "/directory",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Rep Directory — Search by County &amp; Station",
+      "length": 61
+    },
+    "metaDescription": {
+      "value": "Free directory of accredited police station representatives across England and Wales. Search by name, county, police force, station, postcode, availability, and accreditation. No fees for solicitors or reps.",
+      "length": 207
+    },
+    "h1": "Find a Police Station Rep",
+    "h1Count": 1,
+    "wordCount": 2088,
+    "ogTitle": "Police Station Rep Directory — Search by County &amp; Station",
+    "ogDescription": "Free directory of accredited police station representatives across England and Wales. Search by name, county, police force, station, postcode, availability, and accreditation. No fees for solicitors or reps.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/directory",
+    "issues": [
+      {
+        "label": "Title too long (61 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Meta description too long (207 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title too long (61 chars)",
+        "fixType": "Shorten title (aim for 30–60 chars)",
+        "suggestion": "Police Station Rep Directory — Search by County &amp; Sta…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Meta description too long (207 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Free directory of accredited police station representatives across England and Wales. Search by name, county, police force, station, postcode, availabil…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/police-station-representative",
+    "path": "/police-station-representative",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Representative UK — Definition, Role &amp; Accreditation",
+      "length": 71
+    },
+    "metaDescription": {
+      "value": "What a police station representative is, how they work with criminal solicitors, PACE custody attendance, and how firms find accredited reps across England and Wales.",
+      "length": 166
+    },
+    "h1": "Police station representative in the UK",
+    "h1Count": 1,
+    "wordCount": 452,
+    "ogTitle": "Police Station Representative UK — Definition, Role &amp; Accreditation",
+    "ogDescription": "What a police station representative is, how they work with criminal solicitors, PACE custody attendance, and how firms find accredited reps across England and Wales.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/police-station-representative",
+    "issues": [
+      {
+        "label": "Title too long (71 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Meta description too long (166 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title too long (71 chars)",
+        "fixType": "Shorten title (aim for 30–60 chars)",
+        "suggestion": "Police Station Representative UK — Definition, Role &amp;…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Meta description too long (166 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "What a police station representative is, how they work with criminal solicitors, PACE custody attendance, and how firms find accredited reps across Engl…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/Account",
+    "path": "/Account",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Account — Manage Your PoliceStationRepUK Profile",
+      "length": 48
+    },
+    "metaDescription": {
+      "value": "Sign in to manage your directory listing. Update your availability, contact details, stations, and more.",
+      "length": 104
+    },
+    "h1": "Account",
+    "h1Count": 1,
+    "wordCount": 69,
+    "ogTitle": "Account — Manage Your PoliceStationRepUK Profile",
+    "ogDescription": "Sign in to manage your directory listing. Update your availability, contact details, stations, and more.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/Account",
+    "issues": [
+      {
+        "label": "Thin content (69 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Thin content (69 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 69 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/FormsLibrary",
+    "path": "/FormsLibrary",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "PDF Forms Library for Police Station Representatives",
+      "length": 52
+    },
+    "metaDescription": {
+      "value": "Access all CRM criminal legal aid forms and LAA billing forms. We link directly to official GOV.UK sources so you always get the latest versions.",
+      "length": 145
+    },
+    "h1": "Criminal Legal Aid Forms",
+    "h1Count": 1,
+    "wordCount": 484,
+    "ogTitle": "PDF Forms Library for Police Station Representatives",
+    "ogDescription": "Access all CRM criminal legal aid forms and LAA billing forms. We link directly to official GOV.UK sources so you always get the latest versions.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/FormsLibrary",
+    "issues": [],
+    "fixes": [],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/Wiki",
+    "path": "/Wiki",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Rep Knowledge Base | PoliceStationRepUK",
+      "length": 39
+    },
+    "metaDescription": {
+      "value": "Free knowledge base for police station representatives. 45+ articles on interview techniques, PACE codes, client management, legal aid claiming, and professional development.",
+      "length": 174
+    },
+    "h1": "Rep Knowledge Base",
+    "h1Count": 1,
+    "wordCount": 444,
+    "ogTitle": "Rep Knowledge Base | PoliceStationRepUK",
+    "ogDescription": "Free knowledge base for police station representatives. 45+ articles on interview techniques, PACE codes, client management, legal aid claiming, and professional development.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/Wiki",
+    "issues": [
+      {
+        "label": "Meta description too long (174 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (174 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Free knowledge base for police station representatives. 45+ articles on interview techniques, PACE codes, client management, legal aid claiming, and pro…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/StationsDirectory",
+    "path": "/StationsDirectory",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "UK Police Station Directory — Custody Suites &amp; Contacts",
+      "length": 59
+    },
+    "metaDescription": {
+      "value": "Browse and search the UK police station directory by name, force, or county. Find contact details, addresses and accredited representatives covering each station across England &amp; Wales.",
+      "length": 189
+    },
+    "h1": "Police Stations &amp; Forces Directory",
+    "h1Count": 1,
+    "wordCount": 20663,
+    "ogTitle": "UK Police Station Directory — Custody Suites &amp; Contacts",
+    "ogDescription": "Browse and search the UK police station directory by name, force, or county. Find contact details, addresses and accredited representatives covering each station across England &amp; Wales.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/StationsDirectory",
+    "issues": [
+      {
+        "label": "Meta description too long (189 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (189 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Browse and search the UK police station directory by name, force, or county. Find contact details, addresses and accredited representatives covering eac…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/Resources",
+    "path": "/Resources",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Representative Resources",
+      "length": 39
+    },
+    "metaDescription": {
+      "value": "Essential legal resources for police station representatives and criminal defence solicitors: PACE codes, legislation, legal aid guidance, career resources, and more.",
+      "length": 166
+    },
+    "h1": "Knowledge Centre &amp; Resources",
+    "h1Count": 1,
+    "wordCount": 589,
+    "ogTitle": "Police Station Representative Resources",
+    "ogDescription": "Essential legal resources for police station representatives and criminal defence solicitors: PACE codes, legislation, legal aid guidance, career resources, and more.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/Resources",
+    "issues": [
+      {
+        "label": "Meta description too long (166 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (166 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Essential legal resources for police station representatives and criminal defence solicitors: PACE codes, legislation, legal aid guidance, career resour…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/AboutFounder",
+    "path": "/AboutFounder",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "About the Founder — Robert Cashman | PoliceStationRepUK",
+      "length": 55
+    },
+    "metaDescription": {
+      "value": "Meet Robert Cashman — duty solicitor, higher rights advocate, and founder of PoliceStationRepUK. Learn about the vision behind the UK’s free police station representative directory.",
+      "length": 181
+    },
+    "h1": "Robert Cashman",
+    "h1Count": 1,
+    "wordCount": 433,
+    "ogTitle": "About the Founder — Robert Cashman | PoliceStationRepUK",
+    "ogDescription": "Meet Robert Cashman — duty solicitor, higher rights advocate, and founder of PoliceStationRepUK. Learn about the vision behind the UK’s free police station representative directory.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/AboutFounder",
+    "issues": [
+      {
+        "label": "Meta description too long (181 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (181 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Meet Robert Cashman — duty solicitor, higher rights advocate, and founder of PoliceStationRepUK. Learn about the vision behind the UK’s free police stat…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/About",
+    "path": "/About",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "About PoliceStationRepUK — Free Rep Directory Since 2016",
+      "length": 56
+    },
+    "metaDescription": {
+      "value": "PoliceStationRepUK connects criminal defence firms with accredited police station representatives across England &amp; Wales. Free to join and search — 100% independent directory since 2016.",
+      "length": 190
+    },
+    "h1": "About PoliceStationRepUK",
+    "h1Count": 1,
+    "wordCount": 542,
+    "ogTitle": "About PoliceStationRepUK — Free Rep Directory Since 2016",
+    "ogDescription": "PoliceStationRepUK connects criminal defence firms with accredited police station representatives across England &amp; Wales. Free to join and search — 100% independent directory since 2016.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/About",
+    "issues": [
+      {
+        "label": "Meta description too long (190 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (190 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "PoliceStationRepUK connects criminal defence firms with accredited police station representatives across England &amp; Wales. Free to join and search — …",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/PACE",
+    "path": "/PACE",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "PACE Codes of Practice — Quick Reference Guide",
+      "length": 46
+    },
+    "metaDescription": {
+      "value": "Quick reference guide to the Police and Criminal Evidence Act 1984 (PACE) Codes of Practice — detention times, review periods, caution wording, and key provisions for police station representatives.",
+      "length": 198
+    },
+    "h1": "PACE Codes Reference",
+    "h1Count": 1,
+    "wordCount": 798,
+    "ogTitle": "PACE Codes of Practice — Quick Reference Guide",
+    "ogDescription": "Quick reference guide to the Police and Criminal Evidence Act 1984 (PACE) Codes of Practice — detention times, review periods, caution wording, and key provisions for police station representatives.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/PACE",
+    "issues": [
+      {
+        "label": "Meta description too long (198 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (198 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Quick reference guide to the Police and Criminal Evidence Act 1984 (PACE) Codes of Practice — detention times, review periods, caution wording, and key …",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/WhatDoesRepDo",
+    "path": "/WhatDoesRepDo",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "What Does a Police Station Representative Do? — Guide",
+      "length": 53
+    },
+    "metaDescription": {
+      "value": "A comprehensive guide to the role, responsibilities, and daily work of accredited police station representatives in England and Wales.",
+      "length": 134
+    },
+    "h1": "What Does a Police Station Representative Actually Do?",
+    "h1Count": 1,
+    "wordCount": 741,
+    "ogTitle": "What Does a Police Station Representative Do? — Guide",
+    "ogDescription": "A comprehensive guide to the role, responsibilities, and daily work of accredited police station representatives in England and Wales.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/WhatDoesRepDo",
+    "issues": [],
+    "fixes": [],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/search",
+    "path": "/search",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Search Police Station Representatives | PoliceStationRepUK",
+      "length": 58
+    },
+    "metaDescription": {
+      "value": "Advanced search: filter the same live PoliceStationRepUK listings by county, police force, station, accreditation type, availability, postcode-aware text search, and sort order. Use this page for extra filters; use Find a Rep for the full directory hub.",
+      "length": 253
+    },
+    "h1": "Search representatives",
+    "h1Count": 1,
+    "wordCount": 100,
+    "ogTitle": "Search Police Station Representatives | PoliceStationRepUK",
+    "ogDescription": "Advanced search: filter the same live PoliceStationRepUK listings by county, police force, station, accreditation type, availability, postcode-aware text search, and sort order. Use this page for extra filters; use Find a Rep for the full directory hub.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/search",
+    "issues": [
+      {
+        "label": "Meta description too long (253 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (100 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (253 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Advanced search: filter the same live PoliceStationRepUK listings by county, police force, station, accreditation type, availability, postcode-aware tex…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (100 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 100 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/police-station-rep-kent",
+    "path": "/police-station-rep-kent",
+    "status": 200,
+    "indexable": false,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Representatives Kent | Accredited Rep Directory",
+      "length": 62
+    },
+    "metaDescription": {
+      "value": "Find accredited police station representatives in Kent. Experienced reps available for custody attendance at Maidstone, Canterbury, Medway, Folkestone, and all Kent custody suites.",
+      "length": 180
+    },
+    "h1": "Police Station Representatives in Kent",
+    "h1Count": 1,
+    "wordCount": 952,
+    "ogTitle": "Police Station Representatives Kent | Accredited Rep Directory",
+    "ogDescription": "Find accredited police station representatives in Kent. Experienced reps available for custody attendance at Maidstone, Canterbury, Medway, Folkestone, and all Kent custody suites.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/directory/kent",
+    "issues": [
+      {
+        "label": "Title too long (62 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Meta description too long (180 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Canonical URL mismatch",
+        "priority": "high",
+        "category": "critical"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title too long (62 chars)",
+        "fixType": "Shorten title (aim for 30–60 chars)",
+        "suggestion": "Police Station Representatives Kent | Accredited Rep Dire…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Meta description too long (180 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Find accredited police station representatives in Kent. Experienced reps available for custody attendance at Maidstone, Canterbury, Medway, Folkestone, …",
+        "priority": "medium"
+      },
+      {
+        "issue": "Canonical URL mismatch",
+        "fixType": "Fix canonical URL",
+        "suggestion": "Set canonical to: https://policestationrepuk.org/police-station-rep-kent\n<link rel=\"canonical\" href=\"https://policestationrepuk.org/police-station-rep-kent\" />",
+        "priority": "high"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/police-station-rep-essex",
+    "path": "/police-station-rep-essex",
+    "status": 200,
+    "indexable": false,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Representatives Essex | Custody Suite Cover 24/7",
+      "length": 63
+    },
+    "metaDescription": {
+      "value": "Find accredited police station representatives in Essex. Professional reps available at Chelmsford, Southend, Basildon, Colchester, and all Essex custody suites.",
+      "length": 161
+    },
+    "h1": "Police Station Representatives in Essex",
+    "h1Count": 1,
+    "wordCount": 1145,
+    "ogTitle": "Police Station Representatives Essex | Custody Suite Cover 24/7",
+    "ogDescription": "Find accredited police station representatives in Essex. Professional reps available at Chelmsford, Southend, Basildon, Colchester, and all Essex custody suites.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/directory/essex",
+    "issues": [
+      {
+        "label": "Title too long (63 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Meta description too long (161 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Canonical URL mismatch",
+        "priority": "high",
+        "category": "critical"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title too long (63 chars)",
+        "fixType": "Shorten title (aim for 30–60 chars)",
+        "suggestion": "Police Station Representatives Essex | Custody Suite Cove…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Meta description too long (161 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Find accredited police station representatives in Essex. Professional reps available at Chelmsford, Southend, Basildon, Colchester, and all Essex custod…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Canonical URL mismatch",
+        "fixType": "Fix canonical URL",
+        "suggestion": "Set canonical to: https://policestationrepuk.org/police-station-rep-essex\n<link rel=\"canonical\" href=\"https://policestationrepuk.org/police-station-rep-essex\" />",
+        "priority": "high"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/directory/greater-manchester",
+    "path": "/directory/greater-manchester",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Representatives Manchester | 24/7 GMP Cover",
+      "length": 58
+    },
+    "metaDescription": {
+      "value": "Find accredited police station representatives covering Greater Manchester. Reps available for duty solicitor cover at all GMP custody suites including Longsight, Pendleton, and Cheadle Heath.",
+      "length": 192
+    },
+    "h1": "Police Station Representatives in Greater Manchester",
+    "h1Count": 1,
+    "wordCount": 849,
+    "ogTitle": "Police Station Representatives Manchester | 24/7 GMP Cover",
+    "ogDescription": "Find accredited police station representatives covering Greater Manchester. Reps available for duty solicitor cover at all GMP custody suites including Longsight, Pendleton, and Cheadle Heath.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/directory/greater-manchester",
+    "issues": [
+      {
+        "label": "Meta description too long (192 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (192 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Find accredited police station representatives covering Greater Manchester. Reps available for duty solicitor cover at all GMP custody suites including …",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/police-station-rep-london",
+    "path": "/police-station-rep-london",
+    "status": 200,
+    "indexable": false,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Representatives London | Metropolitan Police Cover",
+      "length": 65
+    },
+    "metaDescription": {
+      "value": "Find accredited police station representatives in London. Experienced reps covering all Metropolitan Police custody suites including Charing Cross, Brixton, Hackney, and more.",
+      "length": 175
+    },
+    "h1": "Police Station Representatives in London",
+    "h1Count": 1,
+    "wordCount": 917,
+    "ogTitle": "Police Station Representatives London | Metropolitan Police Cover",
+    "ogDescription": "Find accredited police station representatives in London. Experienced reps covering all Metropolitan Police custody suites including Charing Cross, Brixton, Hackney, and more.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/directory/london",
+    "issues": [
+      {
+        "label": "Title too long (65 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Meta description too long (175 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Canonical URL mismatch",
+        "priority": "high",
+        "category": "critical"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title too long (65 chars)",
+        "fixType": "Shorten title (aim for 30–60 chars)",
+        "suggestion": "Police Station Representatives London | Metropolitan Poli…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Meta description too long (175 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Find accredited police station representatives in London. Experienced reps covering all Metropolitan Police custody suites including Charing Cross, Brix…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Canonical URL mismatch",
+        "fixType": "Fix canonical URL",
+        "suggestion": "Set canonical to: https://policestationrepuk.org/police-station-rep-london\n<link rel=\"canonical\" href=\"https://policestationrepuk.org/police-station-rep-london\" />",
+        "priority": "high"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/directory/west-midlands",
+    "path": "/directory/west-midlands",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Representatives West Midlands | Birmingham Cover",
+      "length": 63
+    },
+    "metaDescription": {
+      "value": "Find accredited police station representatives in the West Midlands. Professional reps for duty solicitor cover at all WMP custody suites including Birmingham, Coventry, and Wolverhampton.",
+      "length": 188
+    },
+    "h1": "Police Station Representatives in the West Midlands",
+    "h1Count": 1,
+    "wordCount": 892,
+    "ogTitle": "Police Station Representatives West Midlands | Birmingham Cover",
+    "ogDescription": "Find accredited police station representatives in the West Midlands. Professional reps for duty solicitor cover at all WMP custody suites including Birmingham, Coventry, and Wolverhampton.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/directory/west-midlands",
+    "issues": [
+      {
+        "label": "Title too long (63 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Meta description too long (188 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title too long (63 chars)",
+        "fixType": "Shorten title (aim for 30–60 chars)",
+        "suggestion": "Police Station Representatives West Midlands | Birmingham…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Meta description too long (188 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Find accredited police station representatives in the West Midlands. Professional reps for duty solicitor cover at all WMP custody suites including Birm…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/directory/merseyside",
+    "path": "/directory/merseyside",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Representatives Merseyside | Liverpool Cover",
+      "length": 59
+    },
+    "metaDescription": {
+      "value": "Find accredited police station representatives in Merseyside. Experienced reps for custody attendance at all Merseyside Police custody suites including Liverpool, Wirral, and St Helens.",
+      "length": 185
+    },
+    "h1": "Police Station Representatives in Merseyside",
+    "h1Count": 1,
+    "wordCount": 518,
+    "ogTitle": "Police Station Representatives Merseyside | Liverpool Cover",
+    "ogDescription": "Find accredited police station representatives in Merseyside. Experienced reps for custody attendance at all Merseyside Police custody suites including Liverpool, Wirral, and St Helens.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/directory/merseyside",
+    "issues": [
+      {
+        "label": "Meta description too long (185 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (185 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Find accredited police station representatives in Merseyside. Experienced reps for custody attendance at all Merseyside Police custody suites including …",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/directory/west-yorkshire",
+    "path": "/directory/west-yorkshire",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Representatives West Yorkshire | Leeds &amp; Bradford",
+      "length": 68
+    },
+    "metaDescription": {
+      "value": "Find accredited police station representatives in West Yorkshire. Professional reps for custody attendance at Leeds, Bradford, Wakefield, Huddersfield, and all WYP custody suites.",
+      "length": 179
+    },
+    "h1": "Police Station Representatives in West Yorkshire",
+    "h1Count": 1,
+    "wordCount": 943,
+    "ogTitle": "Police Station Representatives West Yorkshire | Leeds &amp; Bradford",
+    "ogDescription": "Find accredited police station representatives in West Yorkshire. Professional reps for custody attendance at Leeds, Bradford, Wakefield, Huddersfield, and all WYP custody suites.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/directory/west-yorkshire",
+    "issues": [
+      {
+        "label": "Title too long (68 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Meta description too long (179 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title too long (68 chars)",
+        "fixType": "Shorten title (aim for 30–60 chars)",
+        "suggestion": "Police Station Representatives West Yorkshire | Leeds &am…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Meta description too long (179 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Find accredited police station representatives in West Yorkshire. Professional reps for custody attendance at Leeds, Bradford, Wakefield, Huddersfield, …",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/criminal-solicitor-police-station",
+    "path": "/criminal-solicitor-police-station",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Rep Cover for Firms | How Firms Source Reps",
+      "length": 58
+    },
+    "metaDescription": {
+      "value": "How law firms source police station rep cover using accredited representatives, DSCC, WhatsApp groups, and the PoliceStationRepUK directory — free rep directory across England and Wales.",
+      "length": 186
+    },
+    "h1": "Criminal solicitor police station cover",
+    "h1Count": 1,
+    "wordCount": 353,
+    "ogTitle": "Police Station Rep Cover for Firms | How Firms Source Reps",
+    "ogDescription": "How law firms source police station rep cover using accredited representatives, DSCC, WhatsApp groups, and the PoliceStationRepUK directory — free rep directory across England and Wales.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/criminal-solicitor-police-station",
+    "issues": [
+      {
+        "label": "Meta description too long (186 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (186 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "How law firms source police station rep cover using accredited representatives, DSCC, WhatsApp groups, and the PoliceStationRepUK directory — free rep d…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/PoliceStationRepsByCounty",
+    "path": "/PoliceStationRepsByCounty",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Reps by County | PoliceStationRepUK",
+      "length": 50
+    },
+    "metaDescription": {
+      "value": "Find accredited police station representatives by county across England &amp; Wales. Browse our free directory organised by region.",
+      "length": 131
+    },
+    "h1": "Police Station Reps by County",
+    "h1Count": 1,
+    "wordCount": 147,
+    "ogTitle": "Police Station Reps by County | PoliceStationRepUK",
+    "ogDescription": "Find accredited police station representatives by county across England &amp; Wales. Browse our free directory organised by region.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/PoliceStationRepsByCounty",
+    "issues": [
+      {
+        "label": "Thin content (147 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Thin content (147 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 147 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/directory/hampshire",
+    "path": "/directory/hampshire",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Representatives Hampshire | Southampton &amp; Ports",
+      "length": 66
+    },
+    "metaDescription": {
+      "value": "Find accredited police station representatives in Hampshire. Duty solicitor cover at Southampton, Portsmouth, Basingstoke, and all Hampshire Constabulary custody suites.",
+      "length": 169
+    },
+    "h1": "Police Station Representatives in Hampshire",
+    "h1Count": 1,
+    "wordCount": 492,
+    "ogTitle": "Police Station Representatives Hampshire | Southampton &amp; Ports",
+    "ogDescription": "Find accredited police station representatives in Hampshire. Duty solicitor cover at Southampton, Portsmouth, Basingstoke, and all Hampshire Constabulary custody suites.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/directory/hampshire",
+    "issues": [
+      {
+        "label": "Title too long (66 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Meta description too long (169 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title too long (66 chars)",
+        "fixType": "Shorten title (aim for 30–60 chars)",
+        "suggestion": "Police Station Representatives Hampshire | Southampton &a…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Meta description too long (169 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Find accredited police station representatives in Hampshire. Duty solicitor cover at Southampton, Portsmouth, Basingstoke, and all Hampshire Constabular…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/free-legal-advice-police-station",
+    "path": "/free-legal-advice-police-station",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Your Rights at the Police Station (UK) | PACE Guide",
+      "length": 51
+    },
+    "metaDescription": {
+      "value": "PACE custody rights explained: what happens when you are arrested, your right to legal advice, custody procedures, and the role of accredited police station representatives in England and Wales.",
+      "length": 194
+    },
+    "h1": "Free legal advice at the police station",
+    "h1Count": 1,
+    "wordCount": 380,
+    "ogTitle": "Your Rights at the Police Station (UK) | PACE Guide",
+    "ogDescription": "PACE custody rights explained: what happens when you are arrested, your right to legal advice, custody procedures, and the role of accredited police station representatives in England and Wales.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/free-legal-advice-police-station",
+    "issues": [
+      {
+        "label": "Meta description too long (194 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (194 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "PACE custody rights explained: what happens when you are arrested, your right to legal advice, custody procedures, and the role of accredited police sta…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/police-station-rights-uk",
+    "path": "/police-station-rights-uk",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Rights UK — PACE, Caution &amp; Interview (England &amp; Wales)",
+      "length": 78
+    },
+    "metaDescription": {
+      "value": "Overview of police station rights in the UK: legal advice, detention, cautions, and interviews — educational summary for solicitors and the public (not legal advice).",
+      "length": 166
+    },
+    "h1": "Police station rights in the UK",
+    "h1Count": 1,
+    "wordCount": 340,
+    "ogTitle": "Police Station Rights UK — PACE, Caution &amp; Interview (England &amp; Wales)",
+    "ogDescription": "Overview of police station rights in the UK: legal advice, detention, cautions, and interviews — educational summary for solicitors and the public (not legal advice).",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/police-station-rights-uk",
+    "issues": [
+      {
+        "label": "Title too long (78 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Meta description too long (166 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title too long (78 chars)",
+        "fixType": "Shorten title (aim for 30–60 chars)",
+        "suggestion": "Police Station Rights UK — PACE, Caution &amp; Interview …",
+        "priority": "medium"
+      },
+      {
+        "issue": "Meta description too long (166 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Overview of police station rights in the UK: legal advice, detention, cautions, and interviews — educational summary for solicitors and the public (not …",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/Forces",
+    "path": "/Forces",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "UK Police Forces Directory — Stations by Force Area",
+      "length": 51
+    },
+    "metaDescription": {
+      "value": "Browse UK police forces and their custody suites organised by region. Find station contact details, addresses, and accredited representatives covering each force area across England and Wales.",
+      "length": 192
+    },
+    "h1": "UK Police Forces Directory",
+    "h1Count": 1,
+    "wordCount": 403,
+    "ogTitle": "UK Police Forces Directory — Stations by Force Area",
+    "ogDescription": "Browse UK police forces and their custody suites organised by region. Find station contact details, addresses, and accredited representatives covering each force area across England and Wales.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/Forces",
+    "issues": [
+      {
+        "label": "Meta description too long (192 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (192 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Browse UK police forces and their custody suites organised by region. Find station contact details, addresses, and accredited representatives covering e…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/rep/zaneta-wojciechowska-lapaj",
+    "path": "/rep/zaneta-wojciechowska-lapaj",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Zaneta Wojciechowska-Lapaj | Police Station Representative",
+      "length": 58
+    },
+    "metaDescription": {
+      "value": "Accredited police station representative Zaneta Wojciechowska-Lapaj. Covers Lincolnshire. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+      "length": 222
+    },
+    "h1": "Zaneta Wojciechowska-Lapaj",
+    "h1Count": 1,
+    "wordCount": 153,
+    "ogTitle": "Zaneta Wojciechowska-Lapaj | Police Station Representative",
+    "ogDescription": "Accredited police station representative Zaneta Wojciechowska-Lapaj. Covers Lincolnshire. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/rep/zaneta-wojciechowska-lapaj",
+    "issues": [
+      {
+        "label": "Meta description too long (222 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (153 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (222 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Accredited police station representative Zaneta Wojciechowska-Lapaj. Covers Lincolnshire. Accredited Police Station Rep. Contact direct for attendance a…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (153 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 153 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/rep/joe-winson",
+    "path": "/rep/joe-winson",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Joe Winson | Police Station Representative",
+      "length": 42
+    },
+    "metaDescription": {
+      "value": "Accredited police station representative Joe Winson. Covers Essex. Accredited Representative. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+      "length": 195
+    },
+    "h1": "Joe Winson",
+    "h1Count": 1,
+    "wordCount": 184,
+    "ogTitle": "Joe Winson | Police Station Representative",
+    "ogDescription": "Accredited police station representative Joe Winson. Covers Essex. Accredited Representative. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/rep/joe-winson",
+    "issues": [
+      {
+        "label": "Meta description too long (195 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (184 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (195 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Accredited police station representative Joe Winson. Covers Essex. Accredited Representative. Contact direct for attendance and availability — operates …",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (184 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 184 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/rep/sarah-wilkinson",
+    "path": "/rep/sarah-wilkinson",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Sarah Wilkinson | Police Station Representative",
+      "length": 47
+    },
+    "metaDescription": {
+      "value": "Accredited police station representative Sarah Wilkinson. Covers Not specified. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+      "length": 212
+    },
+    "h1": "Sarah Wilkinson",
+    "h1Count": 1,
+    "wordCount": 154,
+    "ogTitle": "Sarah Wilkinson | Police Station Representative",
+    "ogDescription": "Accredited police station representative Sarah Wilkinson. Covers Not specified. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/rep/sarah-wilkinson",
+    "issues": [
+      {
+        "label": "Meta description too long (212 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (154 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (212 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Accredited police station representative Sarah Wilkinson. Covers Not specified. Accredited Police Station Rep. Contact direct for attendance and availab…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (154 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 154 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/rep/donna-wilde",
+    "path": "/rep/donna-wilde",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Donna Wilde | Police Station Representative",
+      "length": 43
+    },
+    "metaDescription": {
+      "value": "Accredited police station representative Donna Wilde. Covers Kent. DUTY SOLICITOR. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+      "length": 184
+    },
+    "h1": "Donna Wilde",
+    "h1Count": 1,
+    "wordCount": 148,
+    "ogTitle": "Donna Wilde | Police Station Representative",
+    "ogDescription": "Accredited police station representative Donna Wilde. Covers Kent. DUTY SOLICITOR. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/rep/donna-wilde",
+    "issues": [
+      {
+        "label": "Meta description too long (184 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (148 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (184 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Accredited police station representative Donna Wilde. Covers Kent. DUTY SOLICITOR. Contact direct for attendance and availability — operates under solic…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (148 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 148 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/rep/verity-watson",
+    "path": "/rep/verity-watson",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Verity Watson | Police Station Representative",
+      "length": 45
+    },
+    "metaDescription": {
+      "value": "Accredited police station representative Verity Watson. Covers Essex. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+      "length": 202
+    },
+    "h1": "Verity Watson",
+    "h1Count": 1,
+    "wordCount": 154,
+    "ogTitle": "Verity Watson | Police Station Representative",
+    "ogDescription": "Accredited police station representative Verity Watson. Covers Essex. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/rep/verity-watson",
+    "issues": [
+      {
+        "label": "Meta description too long (202 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (154 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (202 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Accredited police station representative Verity Watson. Covers Essex. Accredited Police Station Rep. Contact direct for attendance and availability — op…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (154 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 154 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/rep/joanne-wayne",
+    "path": "/rep/joanne-wayne",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Joanne Wayne | Police Station Representative",
+      "length": 44
+    },
+    "metaDescription": {
+      "value": "Accredited police station representative Joanne Wayne. Covers London. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+      "length": 202
+    },
+    "h1": "Joanne Wayne",
+    "h1Count": 1,
+    "wordCount": 145,
+    "ogTitle": "Joanne Wayne | Police Station Representative",
+    "ogDescription": "Accredited police station representative Joanne Wayne. Covers London. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/rep/joanne-wayne",
+    "issues": [
+      {
+        "label": "Meta description too long (202 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (145 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (202 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Accredited police station representative Joanne Wayne. Covers London. Accredited Police Station Rep. Contact direct for attendance and availability — op…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (145 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 145 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/rep/stephanie-waters",
+    "path": "/rep/stephanie-waters",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Stephanie Waters | Police Station Representative",
+      "length": 48
+    },
+    "metaDescription": {
+      "value": "Accredited police station representative Stephanie Waters. Covers Not specified. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+      "length": 213
+    },
+    "h1": "Stephanie Waters",
+    "h1Count": 1,
+    "wordCount": 150,
+    "ogTitle": "Stephanie Waters | Police Station Representative",
+    "ogDescription": "Accredited police station representative Stephanie Waters. Covers Not specified. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/rep/stephanie-waters",
+    "issues": [
+      {
+        "label": "Meta description too long (213 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (150 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (213 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Accredited police station representative Stephanie Waters. Covers Not specified. Accredited Police Station Rep. Contact direct for attendance and availa…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (150 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 150 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/rep/eleanor-vance",
+    "path": "/rep/eleanor-vance",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Eleanor Vance | Police Station Representative",
+      "length": 45
+    },
+    "metaDescription": {
+      "value": "Accredited police station representative Eleanor Vance. Covers Greater London. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+      "length": 211
+    },
+    "h1": "Eleanor Vance",
+    "h1Count": 1,
+    "wordCount": 125,
+    "ogTitle": "Eleanor Vance | Police Station Representative",
+    "ogDescription": "Accredited police station representative Eleanor Vance. Covers Greater London. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/rep/eleanor-vance",
+    "issues": [
+      {
+        "label": "Meta description too long (211 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (125 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (211 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Accredited police station representative Eleanor Vance. Covers Greater London. Accredited Police Station Rep. Contact direct for attendance and availabi…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (125 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 125 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/rep/inwar-ulhaque",
+    "path": "/rep/inwar-ulhaque",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Inwar Ulhaque | Police Station Representative",
+      "length": 45
+    },
+    "metaDescription": {
+      "value": "Accredited police station representative Inwar Ulhaque. Covers Staffordshire. Accredited Representative. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+      "length": 206
+    },
+    "h1": "Inwar Ulhaque",
+    "h1Count": 1,
+    "wordCount": 151,
+    "ogTitle": "Inwar Ulhaque | Police Station Representative",
+    "ogDescription": "Accredited police station representative Inwar Ulhaque. Covers Staffordshire. Accredited Representative. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/rep/inwar-ulhaque",
+    "issues": [
+      {
+        "label": "Meta description too long (206 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (151 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (206 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Accredited police station representative Inwar Ulhaque. Covers Staffordshire. Accredited Representative. Contact direct for attendance and availability …",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (151 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 151 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/rep/usmaan-ulhaq",
+    "path": "/rep/usmaan-ulhaq",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Usmaan Ulhaq | Police Station Representative",
+      "length": 44
+    },
+    "metaDescription": {
+      "value": "Accredited police station representative Usmaan Ulhaq. Covers South Yorkshire. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+      "length": 211
+    },
+    "h1": "Usmaan Ulhaq",
+    "h1Count": 1,
+    "wordCount": 155,
+    "ogTitle": "Usmaan Ulhaq | Police Station Representative",
+    "ogDescription": "Accredited police station representative Usmaan Ulhaq. Covers South Yorkshire. Accredited Police Station Rep. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/rep/usmaan-ulhaq",
+    "issues": [
+      {
+        "label": "Meta description too long (211 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (155 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (211 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Accredited police station representative Usmaan Ulhaq. Covers South Yorkshire. Accredited Police Station Rep. Contact direct for attendance and availabi…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (155 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 155 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/rep/robert-cashman",
+    "path": "/rep/robert-cashman",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Robert Cashman | Police Station Representative",
+      "length": 46
+    },
+    "metaDescription": {
+      "value": "Accredited police station representative Robert Cashman. Covers Kent. DUTY SOLICITOR. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+      "length": 187
+    },
+    "h1": "Robert Cashman",
+    "h1Count": 1,
+    "wordCount": 206,
+    "ogTitle": "Robert Cashman | Police Station Representative",
+    "ogDescription": "Accredited police station representative Robert Cashman. Covers Kent. DUTY SOLICITOR. Contact direct for attendance and availability — operates under solicitor instruction where required.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/rep/robert-cashman",
+    "issues": [
+      {
+        "label": "Meta description too long (187 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (206 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (187 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Accredited police station representative Robert Cashman. Covers Kent. DUTY SOLICITOR. Contact direct for attendance and availability — operates under so…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (206 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 206 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/Blog/why-firms-need-rep-directory",
+    "path": "/Blog/why-firms-need-rep-directory",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Rep Directory UK — Why Firms Need One",
+      "length": 52
+    },
+    "metaDescription": {
+      "value": "Why a police station rep directory matters for criminal defence firms: speed, conflict checks, geography, and how to use PoliceStationRepUK alongside your panel.",
+      "length": 161
+    },
+    "h1": "Why Every Criminal Defence Firm Needs a Reliable Police Station Rep Directory",
+    "h1Count": 1,
+    "wordCount": 860,
+    "ogTitle": "Police Station Rep Directory UK — Why Firms Need One",
+    "ogDescription": "Why a police station rep directory matters for criminal defence firms: speed, conflict checks, geography, and how to use PoliceStationRepUK alongside your panel.",
+    "ogImage": "https://policestationrepuk.org/images/blog/raster/why-firms-need-rep-directory.webp",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/Blog/why-firms-need-rep-directory",
+    "issues": [
+      {
+        "label": "Meta description too long (161 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (161 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Why a police station rep directory matters for criminal defence firms: speed, conflict checks, geography, and how to use PoliceStationRepUK alongside yo…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/PoliceStationRates",
+    "path": "/PoliceStationRates",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Police Station Legal Aid Rates 2025/26",
+      "length": 38
+    },
+    "metaDescription": {
+      "value": "Current police station legal aid rates for 2025/26 including the new harmonised fee of £320.00, escape threshold of £650.00, and guidance on claiming multiple fees.",
+      "length": 164
+    },
+    "h1": "Police Station Legal Aid Rates 2025/26",
+    "h1Count": 1,
+    "wordCount": 413,
+    "ogTitle": "Police Station Legal Aid Rates 2025/26",
+    "ogDescription": "Current police station legal aid rates for 2025/26 including the new harmonised fee of £320.00, escape threshold of £650.00, and guidance on claiming multiple fees.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/PoliceStationRates",
+    "issues": [
+      {
+        "label": "Meta description too long (164 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (164 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Current police station legal aid rates for 2025/26 including the new harmonised fee of £320.00, escape threshold of £650.00, and guidance on claiming mu…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/Blog/how-firms-source-emergency-rep-cover",
+    "path": "/Blog/how-firms-source-emergency-rep-cover",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Emergency Police Station Rep Cover — How Firms Source It",
+      "length": 56
+    },
+    "metaDescription": {
+      "value": "How criminal defence firms source emergency police station rep cover at short notice: rota discipline, directory search, conflict checks, and clear handovers.",
+      "length": 158
+    },
+    "h1": "How Firms Source Emergency Police Station Rep Cover at Short Notice",
+    "h1Count": 1,
+    "wordCount": 794,
+    "ogTitle": "Emergency Police Station Rep Cover — How Firms Source It",
+    "ogDescription": "How criminal defence firms source emergency police station rep cover at short notice: rota discipline, directory search, conflict checks, and clear handovers.",
+    "ogImage": "https://policestationrepuk.org/images/blog/raster/how-firms-source-emergency-rep-cover.webp",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/Blog/how-firms-source-emergency-rep-cover",
+    "issues": [],
+    "fixes": [],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/LegalUpdates",
+    "path": "/LegalUpdates",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Legal Updates &amp; PACE News for Police Station Reps UK",
+      "length": 56
+    },
+    "metaDescription": {
+      "value": "Latest legal updates, PACE code changes, practice directions, and billing guidance for police station representatives and criminal defence solicitors. Updated regularly with case law and regulatory news.",
+      "length": 203
+    },
+    "h1": "Legal Updates &amp; News",
+    "h1Count": 1,
+    "wordCount": 334,
+    "ogTitle": "Legal Updates &amp; PACE News for Police Station Reps UK",
+    "ogDescription": "Latest legal updates, PACE code changes, practice directions, and billing guidance for police station representatives and criminal defence solicitors. Updated regularly with case law and regulatory news.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/LegalUpdates",
+    "issues": [
+      {
+        "label": "Meta description too long (203 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (203 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Latest legal updates, PACE code changes, practice directions, and billing guidance for police station representatives and criminal defence solicitors. U…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/GetWork",
+    "path": "/GetWork",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "How to Get Work as a Police Station Rep",
+      "length": 39
+    },
+    "metaDescription": {
+      "value": "Complete guide to getting work as a police station representative — from initial setup to scaling your freelance career. Free career resource from PoliceStationRepUK.",
+      "length": 166
+    },
+    "h1": "Complete Guide: How to Get Work as a Police Station Representative",
+    "h1Count": 1,
+    "wordCount": 655,
+    "ogTitle": "How to Get Work as a Police Station Rep",
+    "ogDescription": "Complete guide to getting work as a police station representative — from initial setup to scaling your freelance career. Free career resource from PoliceStationRepUK.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/GetWork",
+    "issues": [
+      {
+        "label": "Meta description too long (166 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (166 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Complete guide to getting work as a police station representative — from initial setup to scaling your freelance career. Free career resource from Polic…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/Firms",
+    "path": "/Firms",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Criminal Defence Firms Directory — Rep Reviews &amp; Ratings",
+      "length": 60
+    },
+    "metaDescription": {
+      "value": "Browse criminal defence law firms with verified representative reviews and ratings. Find firms that pay on time, treat reps fairly, and provide consistent police station cover instructions.",
+      "length": 189
+    },
+    "h1": "Criminal Defence Law Firms Directory",
+    "h1Count": 1,
+    "wordCount": 885,
+    "ogTitle": "Criminal Defence Firms Directory — Rep Reviews &amp; Ratings",
+    "ogDescription": "Browse criminal defence law firms with verified representative reviews and ratings. Find firms that pay on time, treat reps fairly, and provide consistent police station cover instructions.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/Firms",
+    "issues": [
+      {
+        "label": "Meta description too long (189 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (189 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Browse criminal defence law firms with verified representative reviews and ratings. Find firms that pay on time, treat reps fairly, and provide consiste…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/HowToBecomePoliceStationRep",
+    "path": "/HowToBecomePoliceStationRep",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "How to Become a Police Station Rep — PSRAS Guide",
+      "length": 48
+    },
+    "metaDescription": {
+      "value": "Complete guide to becoming an accredited police station representative through the PSRAS scheme. Covers training, costs, the Critical Incident Test (CIT), and career paths.",
+      "length": 172
+    },
+    "h1": "How to Become a Police Station Representative",
+    "h1Count": 1,
+    "wordCount": 535,
+    "ogTitle": "How to Become a Police Station Rep — PSRAS Guide",
+    "ogDescription": "Complete guide to becoming an accredited police station representative through the PSRAS scheme. Covers training, costs, the Critical Incident Test (CIT), and career paths.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/HowToBecomePoliceStationRep",
+    "issues": [
+      {
+        "label": "Meta description too long (172 chars)",
+        "priority": "medium",
+        "category": "warning"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (172 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Complete guide to becoming an accredited police station representative through the PSRAS scheme. Covers training, costs, the Critical Incident Test (CIT…",
+        "priority": "medium"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/Map",
+    "path": "/Map",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": true,
+    "title": {
+      "value": "Interactive Police Station Map | PoliceStationRepUK",
+      "length": 51
+    },
+    "metaDescription": {
+      "value": "Explore an interactive map of UK police stations and custody suites. Locate stations by region, view contact details, and find accredited representatives covering each area.",
+      "length": 173
+    },
+    "h1": "Interactive Station Map",
+    "h1Count": 1,
+    "wordCount": 45,
+    "ogTitle": "Interactive Police Station Map | PoliceStationRepUK",
+    "ogDescription": "Explore an interactive map of UK police stations and custody suites. Locate stations by region, view contact details, and find accredited representatives covering each area.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/Map",
+    "issues": [
+      {
+        "label": "Meta description too long (173 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (45 words)",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Meta description too long (173 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Explore an interactive map of UK police stations and custody suites. Locate stations by region, view contact details, and find accredited representative…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (45 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 45 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  },
+  {
+    "url": "https://policestationrepuk.org/UpdateStation",
+    "path": "/UpdateStation",
+    "status": 200,
+    "indexable": true,
+    "inSitemap": false,
+    "title": {
+      "value": "Suggest a Station Update — Help Keep Data Accurate | PoliceStationRepUK",
+      "length": 71
+    },
+    "metaDescription": {
+      "value": "Spotted an incorrect address or phone number for a UK police station? Submit a correction and help us keep our directory accurate. All suggestions are reviewed before publishing.",
+      "length": 178
+    },
+    "h1": "Suggest a Station Update",
+    "h1Count": 1,
+    "wordCount": 173,
+    "ogTitle": "Suggest a Station Update — Help Keep Data Accurate | PoliceStationRepUK",
+    "ogDescription": "Spotted an incorrect address or phone number for a UK police station? Submit a correction and help us keep our directory accurate. All suggestions are reviewed before publishing.",
+    "ogImage": "https://policestationrepuk.org/social-preview.jpg",
+    "hasJsonLd": true,
+    "canonical": "https://policestationrepuk.org/UpdateStation",
+    "issues": [
+      {
+        "label": "Title too long (71 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Meta description too long (178 chars)",
+        "priority": "medium",
+        "category": "warning"
+      },
+      {
+        "label": "Thin content (173 words)",
+        "priority": "low",
+        "category": "info"
+      },
+      {
+        "label": "Not in sitemap.xml",
+        "priority": "low",
+        "category": "info"
+      }
+    ],
+    "fixes": [
+      {
+        "issue": "Title too long (71 chars)",
+        "fixType": "Shorten title (aim for 30–60 chars)",
+        "suggestion": "Suggest a Station Update — Help Keep Data Accurate | Poli…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Meta description too long (178 chars)",
+        "fixType": "Shorten meta description (aim for 120–155 chars)",
+        "suggestion": "Spotted an incorrect address or phone number for a UK police station? Submit a correction and help us keep our directory accurate. All suggestions are r…",
+        "priority": "medium"
+      },
+      {
+        "issue": "Thin content (173 words)",
+        "fixType": "Expand content (aim for 300+ words)",
+        "suggestion": "Page has only 173 words. Add:\n  1. Expanded service/topic explanation (2–3 paragraphs)\n  2. FAQ section (3–5 questions)\n  3. Clear call-to-action",
+        "priority": "low"
+      },
+      {
+        "issue": "Not in sitemap.xml",
+        "fixType": "Add to sitemap.xml",
+        "suggestion": "Add to app/sitemap.ts or lib/sitemap-paths.ts:\n  { url: 'https://policestationrepuk.org/UpdateStation', changeFrequency: 'weekly', priority: 0.7 }",
+        "priority": "low"
+      }
+    ],
+    "error": null
+  }
+]

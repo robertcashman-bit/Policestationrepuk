@@ -116,23 +116,14 @@ export default async function FirmsPage() {
             with the criminal defence community, join our groups to network, share updates, and
             find work.
           </p>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Link
-              href="/FirmsWhatsAppGroup"
-              className="rounded-[var(--radius)] border border-white/10 bg-white/5 p-5 no-underline transition-colors hover:bg-white/10"
-            >
-              <p className="font-semibold text-white">Firms WhatsApp Group</p>
-              <p className="mt-1 text-sm text-slate-300">
-                Post cover requests directly to accredited reps — free and verified.
-              </p>
-            </Link>
+          <div className="grid gap-4 sm:grid-cols-2">
             <Link
               href="/WhatsApp"
               className="rounded-[var(--radius)] border border-white/10 bg-white/5 p-5 no-underline transition-colors hover:bg-white/10"
             >
-              <p className="font-semibold text-white">Reps WhatsApp Group</p>
+              <p className="font-semibold text-white">WhatsApp group (reps &amp; firms)</p>
               <p className="mt-1 text-sm text-slate-300">
-                For accredited reps — receive jobs, network, and get peer support.
+                One community — firms post cover; accredited reps respond. Verified before joining.
               </p>
             </Link>
             <a

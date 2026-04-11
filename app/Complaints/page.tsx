@@ -79,12 +79,6 @@ export default function ComplaintsPage() {
                   robertcashman@defencelegalservices.co.uk
                 </a>
               </li>
-              <li>
-                <span className="font-semibold text-[var(--navy)]">Phone:</span>{' '}
-                <a href="tel:07535494446" className="text-[var(--gold-link)] hover:underline">
-                  07535 494446
-                </a>
-              </li>
             </ul>
           </div>
           <p className="mb-3 text-sm font-semibold text-[var(--navy)]">Please include:</p>

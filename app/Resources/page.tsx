@@ -64,6 +64,17 @@ const LEGISLATION = [
 
 const STATUTES = [
   {
+    title: 'Sentencing Act 2026 — Key Changes',
+    href: '/Blog/sentencing-act-2026-key-changes',
+    desc: 'Presumption to suspend sentences of 12 months or less, three-year suspended sentences, strengthened community sentences, and what it means for reps.',
+    external: false,
+  },
+  {
+    title: 'Sentencing Act 2026 (legislation.gov.uk)',
+    url: 'https://legislation.gov.uk/ukpga/2026/2/data.html',
+    desc: 'Full text of the Sentencing Act 2026 on legislation.gov.uk.',
+  },
+  {
     title: 'Legislation.gov.uk',
     url: 'https://www.legislation.gov.uk/',
     desc: 'Official database of all UK legislation, including primary and secondary law.',
@@ -290,7 +301,7 @@ export default function ResourcesPage() {
         <p className="mb-6 text-sm text-[var(--muted)]">Primary legislation most relevant to police station representation work.</p>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {STATUTES.map((item) => (
-            <ResourceCard key={item.url} item={item} />
+            <ResourceCard key={item.href ?? item.url} item={item} />
           ))}
         </div>
       </section>

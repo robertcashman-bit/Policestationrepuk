@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getKV } from '@/lib/kv';
-import { getRawReps, getRegisteredRepByEmail } from '@/lib/data';
+import { getRawReps, getRegisteredRepByEmail, invalidateProfileCache } from '@/lib/data';
 import type { Representative } from '@/lib/types';
 import { sendProfileUpdateNotification } from '@/lib/email';
 
@@ -45,24 +45,28 @@ export async function GET() {
     ? (await kv.get<Record<string, unknown>>(`profile:${email}`)) ?? {}
     : {};
 
+  function pick<T>(key: string, fallback: T): T {
+    return key in overrides ? (overrides[key] as T) : fallback;
+  }
+
   const merged = {
     slug: rep.slug,
-    name: (overrides.name as string | undefined) ?? rep.name,
+    name: pick('name', rep.name),
     email: rep.email,
-    phone: (overrides.phone as string | undefined) ?? rep.phone,
-    accreditation: (overrides.accreditation as string | undefined) ?? rep.accreditation,
-    availability: (overrides.availability as string | undefined) ?? rep.availability,
-    postcode: (overrides.postcode as string | undefined) ?? rep.postcode ?? '',
-    stations_covered: (overrides.stations_covered as string[] | undefined) ?? rep.stationsCovered ?? rep.stations ?? [],
-    notes: (overrides.notes as string | undefined) ?? rep.notes ?? rep.bio ?? '',
-    website_url: (overrides.website_url as string | undefined) ?? rep.websiteUrl ?? '',
-    whatsapp_link: (overrides.whatsapp_link as string | undefined) ?? rep.whatsappLink ?? '',
-    dscc_pin: (overrides.dscc_pin as string | undefined) ?? rep.dsccPin ?? '',
-    holiday_availability: (overrides.holiday_availability as string[] | undefined) ?? rep.holidayAvailability ?? [],
-    languages: (overrides.languages as string[] | undefined) ?? rep.languages ?? [],
-    specialisms: (overrides.specialisms as string[] | undefined) ?? rep.specialisms ?? [],
-    years_experience: (overrides.years_experience as number | undefined) ?? rep.yearsExperience ?? null,
-    updated_at: (overrides.updated_at as string | undefined) ?? null,
+    phone: pick('phone', rep.phone),
+    accreditation: pick('accreditation', rep.accreditation),
+    availability: pick('availability', rep.availability),
+    postcode: pick('postcode', rep.postcode ?? ''),
+    stations_covered: pick('stations_covered', rep.stationsCovered ?? rep.stations ?? []),
+    notes: pick('notes', rep.notes ?? rep.bio ?? ''),
+    website_url: pick('website_url', rep.websiteUrl ?? ''),
+    whatsapp_link: pick('whatsapp_link', rep.whatsappLink ?? ''),
+    dscc_pin: pick('dscc_pin', rep.dsccPin ?? ''),
+    holiday_availability: pick('holiday_availability', rep.holidayAvailability ?? []),
+    languages: pick('languages', rep.languages ?? []),
+    specialisms: pick('specialisms', rep.specialisms ?? []),
+    years_experience: pick('years_experience', rep.yearsExperience ?? null),
+    updated_at: pick('updated_at', null as string | null),
   };
 
   return NextResponse.json(merged);
@@ -105,9 +109,25 @@ export async function PUT(request: Request) {
   }
 
   const now = new Date().toISOString();
-  const existing = (await kv.get<Record<string, unknown>>(`profile:${email}`)) ?? {};
+
+  let existing: Record<string, unknown>;
+  try {
+    existing = (await kv.get<Record<string, unknown>>(`profile:${email}`)) ?? {};
+  } catch (err) {
+    console.error('[profile PUT] Failed to read existing profile from KV:', err);
+    return NextResponse.json({ error: 'Could not read existing profile data' }, { status: 502 });
+  }
+
   const merged = { ...existing, ...update, updated_at: now, email, rep_slug: rep.slug };
-  await kv.set(`profile:${email}`, merged);
+
+  try {
+    await kv.set(`profile:${email}`, merged);
+  } catch (err) {
+    console.error('[profile PUT] Failed to write profile to KV:', err);
+    return NextResponse.json({ error: 'Could not save your profile. Please try again.' }, { status: 502 });
+  }
+
+  invalidateProfileCache();
 
   const changes: Record<string, { from: string; to: string }> = {};
   for (const key of ALLOWED_FIELDS) {

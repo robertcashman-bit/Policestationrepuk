@@ -1,12 +1,9 @@
 import {
   CONTACT_PHONE_TEL,
   CONTACT_PHONE_DISPLAY,
-  CONTACT_SMS_TEL,
-  CONTACT_SMS_DISPLAY,
   CONTACT_WHATSAPP_HREF,
 } from '@/lib/contact-constants';
 import { AdvertisementLabel } from './AdvertisementLabel';
-
 export function HomeKentSpotlight() {
   return (
     <section className="section-pad relative border-y-2 border-[var(--gold)]/30 bg-gradient-to-br from-[var(--gold-pale)] via-white to-[var(--gold-pale)]" aria-labelledby="kent-agency-heading">
@@ -43,9 +40,6 @@ export function HomeKentSpotlight() {
               className="btn-outline !text-sm"
             >
               WhatsApp
-            </a>
-            <a href={CONTACT_SMS_TEL} className="btn-outline !text-sm">
-              SMS {CONTACT_SMS_DISPLAY}
             </a>
           </div>
         </div>

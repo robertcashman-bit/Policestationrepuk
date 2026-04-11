@@ -30,8 +30,8 @@ export function RegisterForm() {
         body: JSON.stringify({
           ...formData,
           _hp: hp,
-          counties: formData.counties ? formData.counties.split(/[\s,]+/).filter(Boolean) : [],
-          stations: formData.stations ? formData.stations.split(/[\s,]+/).filter(Boolean) : [],
+          counties: formData.counties ? formData.counties.split(',').map((s) => s.trim()).filter(Boolean) : [],
+          stations: formData.stations ? formData.stations.split(',').map((s) => s.trim()).filter(Boolean) : [],
         }),
       });
       const data = (await res.json().catch(() => ({}))) as {
@@ -168,7 +168,7 @@ export function RegisterForm() {
           <input
             id="stations"
             type="text"
-            placeholder="e.g. Maidstone, Canterbury"
+            placeholder="e.g. Maidstone Police Station, Canterbury Police Station"
             value={formData.stations}
             onChange={(e) => setFormData((p) => ({ ...p, stations: e.target.value }))}
             className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"

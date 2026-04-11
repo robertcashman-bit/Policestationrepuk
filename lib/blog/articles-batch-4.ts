@@ -694,4 +694,183 @@ If someone landed here as a member of the public, they need a solicitor — [Nee
 *Educational outline — not case-specific legal advice.*
 `.trim(),
   },
+  {
+    slug: 'sentencing-act-2026-key-changes',
+    title: 'Sentencing Act 2026: Key Changes for Police Station Reps and Criminal Defence',
+    metaTitle: 'Sentencing Act 2026 — Key Changes for Reps & Criminal Defence',
+    metaDescription:
+      'What the Sentencing Act 2026 means for police station representatives and criminal defence firms: suspended sentences, the presumption under 12 months, community sentences, and early release reforms.',
+    primaryKeyword: 'Sentencing Act 2026',
+    categories: ['best-practice', 'law-firms'],
+    published: '2026-04-11T09:00:00.000Z',
+    modified: '2026-04-11T09:00:00.000Z',
+    excerpt:
+      'The Sentencing Act 2026 received Royal Assent on 22 January 2026 and is in force from 22 March 2026. Here is what police station reps and criminal defence firms need to know.',
+    summary:
+      'Breaks down the Sentencing Act 2026 for criminal defence practitioners: the new presumption to suspend sentences of 12 months or less, three-year suspended sentence powers, strengthened community sentences, early release changes, and what it all means at the police station.',
+    image: IMG(
+      'sentencing-act-2026-key-changes',
+      'Sentencing Act 2026 — key changes for police station reps and criminal defence'
+    ),
+    relatedSlugs: [
+      'adverse-inference-no-comment-rep-guide',
+      'police-station-attendance-checklist',
+      'freelance-police-station-rep-career',
+    ],
+    faqs: [
+      {
+        q: 'When does the Sentencing Act 2026 come into force?',
+        a: 'The Act received Royal Assent on 22 January 2026. The main provisions — including the presumption to suspend sentences of 12 months or less and the three-year suspended sentence power — came into force on 22 March 2026. Early release changes are scheduled for Autumn 2026.',
+      },
+      {
+        q: 'Does the Sentencing Act 2026 replace the Sentencing Code?',
+        a: 'No. The 2026 Act operates within the existing Sentencing Code framework. Courts continue to apply the Code alongside Sentencing Council guidelines; the 2026 Act adds new statutory provisions on suspended sentences, community supervision, and release.',
+      },
+      {
+        q: 'How does this affect police station work?',
+        a: 'It changes the sentencing landscape for clients you advise at the police station. A client charged with an offence likely to attract 12 months or less can now expect a suspended sentence unless the court finds exceptional circumstances. This changes the practical advice reps give during pre-interview consultations.',
+      },
+      {
+        q: 'What are the exceptions to the presumption to suspend?',
+        a: 'The presumption does not apply where the offender is already in custody, where consecutive sentences would exceed 12 months in total, where the offender is being re-sentenced, or where the offence was committed while subject to a supervision order. Other exceptions may apply — always check the current statutory text.',
+      },
+    ],
+    bodyMarkdown: `
+## Key takeaways
+
+- The **Sentencing Act 2026** received Royal Assent on **22 January 2026** and its main provisions are in force from **22 March 2026**.
+- Courts must now **suspend all custodial sentences of 12 months or less** unless exceptional circumstances justify immediate custody.
+- The maximum **suspended sentence** increases to **three years** custody suspended for three years.
+- **Community sentences** are strengthened with expanded supervision, electronic monitoring, and restriction zones.
+- **Early release** changes are expected in **Autumn 2026**.
+
+## What the Act does
+
+The Sentencing Act 2026 does not replace the [Sentencing Code](https://www.legislation.gov.uk/ukpga/2020/17/contents) introduced in 2020. Instead it adds targeted reforms within that framework, focusing on four areas:
+
+1. Reducing reliance on short custodial sentences
+2. Strengthening community sentences and post-release supervision
+3. Improving transparency in sentencing decisions
+4. Enhancing victims' rights in the sentencing process
+
+## The presumption to suspend: sentences of 12 months or less
+
+This is the headline change. For offenders aged 18 or over convicted on or after 22 March 2026, courts **must** impose a suspended sentence order when the custodial term is 12 months or less — **unless** the court determines there are **exceptional circumstances** relating to the offence or the offender.
+
+### What counts as exceptional circumstances?
+
+The Act does not exhaustively define "exceptional", but the provision is clearly intended to be a high bar. Courts will assess:
+
+- The seriousness pattern of the offending
+- Risk to the public
+- Compliance history with previous court orders
+- Whether the offender is already subject to supervision
+
+### Statutory exceptions
+
+The presumption **does not apply** where:
+
+- The offender is **already serving a custodial sentence**
+- **Consecutive sentences** would produce an aggregate exceeding 12 months
+- The court is **re-sentencing** for breach of a previous order
+- The offence was committed while the offender was subject to a **supervision order**
+
+### Practical impact
+
+For the majority of offences attracting sentences at or below 12 months — common assault, low-level theft, many driving offences, minor drug possession, public order — the default outcome is now a suspended sentence. This shifts the advocacy landscape: defence teams should be prepared with structured proposals for suspension conditions rather than mitigation aimed only at reducing the custodial term.
+
+## Three-year suspended sentences
+
+Courts can now impose up to **three years' custody suspended for three years**. Previously the maximum was two years on both counts. The operational period (the time during which breach could activate the sentence) may only exceed two years where the custodial element itself exceeds two years. The maximum **supervision period** remains two years.
+
+This gives courts a wider sentencing toolkit for more serious matters that still fall short of immediate custody — for example, serious fraud, repeated domestic violence, or complex drug supply where rehabilitation prospects are genuine.
+
+## Community sentences and supervision
+
+The Act strengthens the community sentencing framework:
+
+- **Intensive probation** requirements with more structured programmes
+- **Electronic monitoring** — GPS tagging, alcohol abstinence monitoring, curfew enforcement
+- **Restriction zones** — geographical exclusions enforceable via electronic monitoring
+- **Suspended sentence conditions** that are more prescriptive and enforceable
+
+The policy rationale is that [Ministry of Justice reoffending data](https://www.gov.uk/government/collections/proven-reoffending-statistics) consistently shows short custodial sentences produce **reoffending rates above 55%**, while well-supervised community disposals achieve better outcomes. The Act converts that evidence into statutory machinery.
+
+## Early release changes
+
+Early release reforms are scheduled for **Autumn 2026** (exact commencement date to be confirmed by statutory instrument). The changes focus on:
+
+- Strengthened post-release supervision in the community
+- More targeted recall for higher-risk offenders
+- Clearer rules distinguishing standard and enhanced licence conditions
+
+These provisions are driven by sustained pressure on the prison estate — the population in England and Wales has remained above 87,000 — and aim to manage the transition from custody to community more effectively.
+
+## Victims' rights
+
+The Act places greater emphasis on:
+
+- **Victim impact** being clearly considered and articulated at sentencing
+- Improved **access to sentencing information** for victims
+- Greater availability of **sentencing remarks and transcripts**
+
+This does not change the fundamental sentencing exercise, but it increases the transparency expected of courts — and, indirectly, the quality of defence submissions that must engage with victim impact material.
+
+## What this means at the police station
+
+The Sentencing Act 2026 does not directly change PACE or police station procedure. But it significantly changes the **advice context** for reps and solicitors during pre-interview consultations:
+
+### Advising on likely outcomes
+
+When a client asks "am I going to prison?", the answer for a wide range of offences is now more clearly "probably not — unless exceptional circumstances apply". This can:
+
+- Reduce client anxiety (enabling better participation in interview)
+- Change the calculus around prepared statements vs no comment
+- Inform bail representations (a suspended sentence outcome weakens the remand argument)
+
+### Mitigation from day one
+
+If the likely outcome is a suspended sentence, **conditions matter**. Representatives should start thinking about what a realistic suspension package looks like — employment, accommodation, mental health support, family ties — even at the police station stage. Notes made at custody about the client's personal circumstances feed directly into the eventual pre-sentence report.
+
+### Threshold test and charging decisions
+
+CPS charging decisions may be influenced by the new sentencing landscape. Where the likely sentence is suspension, the public interest calculus shifts. Reps should be alert to this in representations about charge vs NFA.
+
+## Offences most affected
+
+The practical impact is greatest for offences near the custody threshold:
+
+| Offence category | Typical range | Likely effect |
+|---|---|---|
+| Common assault (s.39 CJA 1988) | Community order – 6 months | Suspension now presumed if custody imposed |
+| Theft (low value, repeat) | Fine – 12 months | Suspension presumed |
+| Criminal damage | Conditional discharge – 6 months | Suspension presumed where custody arises |
+| Drug possession (Class A, personal) | Fine – 6 months | Rarely custody, but suspended if so |
+| Driving offences (no death/serious injury) | Fine – 12 months | Suspension presumed |
+| Public order (s.4/4A POA 1986) | Fine – 6 months | Suspension presumed where custody arises |
+| Low-level domestic violence | Community order – 12 months | Suspension presumed, but watch the exceptions |
+
+For **serious offences** (GBH, robbery, sexual offences, serious drug supply), sentences typically exceed 12 months and the presumption does not apply. But the expanded three-year suspended sentence power gives courts a new option for mid-range cases.
+
+## Key dates
+
+| Event | Date |
+|---|---|
+| Royal Assent | 22 January 2026 |
+| Main provisions in force | 22 March 2026 |
+| Early release provisions | Autumn 2026 (TBC) |
+
+## Further reading
+
+- [Sentencing Act 2026 (legislation.gov.uk)](https://legislation.gov.uk/ukpga/2026/2/data.html)
+- [Sentencing Council for England and Wales](https://www.sentencingcouncil.org.uk/)
+- [Ministry of Justice reoffending statistics](https://www.gov.uk/government/collections/proven-reoffending-statistics)
+- [PACE Codes of Practice](/PACE)
+- [Legal Updates](/LegalUpdates)
+
+---
+
+*General information only — not legal advice. Always check the current statute and Sentencing Council guidelines for live cases.*
+`.trim(),
+  },
 ];

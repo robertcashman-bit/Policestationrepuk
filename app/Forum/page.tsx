@@ -65,15 +65,13 @@ export default function ForumPage() {
           <div className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8">
             <h2 className="text-h2 mb-4 text-white">WhatsApp Group</h2>
             <p className="mb-4 text-sm leading-relaxed text-slate-300">
-              The PoliceStationRepUK WhatsApp group is the primary community for
-              UK police station representatives. It is the most active channel
-              for professional discussion, urgent cover requests, and peer
-              support.
+              The PoliceStationRepUK WhatsApp group is the primary community channel —{' '}
+              <strong className="text-white">accredited reps</strong> and{' '}
+              <strong className="text-white">criminal defence firms</strong> use the{' '}
+              <strong className="text-white">same group</strong> for cover requests, discussion, and peer support.
             </p>
             <p className="mb-6 text-sm leading-relaxed text-slate-300">
-              Membership is restricted to <strong>accredited reps only</strong>.
-              You will need to provide proof of accreditation (LCCSA, CLSA, or
-              Law Society) to join.
+              Members are verified before joining (accreditation for reps; firm checks for solicitors).
             </p>
             <Link
               href="/WhatsApp"
@@ -105,24 +103,6 @@ export default function ForumPage() {
               Join the Facebook Group &rarr;
             </a>
           </div>
-        </section>
-
-        {/* Firms callout */}
-        <section className="mb-14 rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/30 bg-[var(--gold)]/5 p-8 text-center">
-          <h2 className="text-h2 text-[var(--navy)]">
-            Are You a Solicitor Firm?
-          </h2>
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-[var(--muted)]">
-            There is a separate WhatsApp group exclusively for criminal defence
-            firms to post cover requests. It&apos;s free, verified, and
-            monitored by a practising solicitor.
-          </p>
-          <Link
-            href="/FirmsWhatsAppGroup"
-            className="btn-gold mt-5 inline-block no-underline"
-          >
-            Firms WhatsApp Group &rarr;
-          </Link>
         </section>
 
         {/* What you get */}

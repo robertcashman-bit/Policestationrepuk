@@ -17,6 +17,7 @@ import {
   FOOTER_SPOTLIGHT_TRAINING_BODY,
   FOOTER_SPOTLIGHT_TRAINING_TITLE,
   FOOTER_TOOLS,
+  WHATSAPP_JOIN_PHONE,
   FOOTER_UTILITY_COOKIE_SETTINGS,
   FOOTER_UTILITY_RSS_HREF,
   FOOTER_UTILITY_RSS_LABEL,
@@ -107,8 +108,8 @@ export function Footer() {
           <FooterColumn title={FOOTER_COLUMN_TITLES.legal} links={FOOTER_LEGAL} />
         </div>
 
-        {/* Mid-footer spotlight — same section titles/copy hierarchy as homepage */}
-        <div className="mt-10 grid gap-8 border-t border-[var(--navy-light)] pt-8 sm:grid-cols-3">
+        {/* Mid-footer spotlight — CustodyNote, Kent agent, WhatsApp, training */}
+        <div className="mt-10 grid gap-8 border-t border-[var(--navy-light)] pt-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <h4 className="text-sm font-bold text-white">{FOOTER_SPOTLIGHT_KENT_TITLE}</h4>
             <p className="mt-1 text-xs text-white">{FOOTER_SPOTLIGHT_KENT_BODY}</p>
@@ -125,7 +126,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
             >
-              Need a solicitor? →
+              Police station agent (Kent) →
             </a>
           </div>
           <div>
@@ -145,6 +146,19 @@ export function Footer() {
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
             >
               About CustodyNote →
+            </Link>
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-white">WhatsApp — reps &amp; firms</h4>
+            <p className="mt-1 text-xs text-white">
+              One community group for cover requests and networking. Text {WHATSAPP_JOIN_PHONE} to join — verification
+              required.
+            </p>
+            <Link
+              href="/WhatsApp"
+              className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
+            >
+              How to join →
             </Link>
           </div>
           <div>

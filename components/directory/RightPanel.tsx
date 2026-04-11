@@ -5,6 +5,7 @@ import type { Representative } from '@/lib/types';
 import { DirectoryCard } from '@/components/DirectoryCard';
 import { JoinCTA } from '@/components/directory/JoinCTA';
 import { CustodyNoteInlineCTA } from '@/components/CustodyNoteInlineCTA';
+import { SidebarKentAgentPromo, SidebarWhatsAppPromo } from '@/components/directory/SidebarCrossPromos';
 
 interface RightPanelProps {
   featuredReps: Representative[];
@@ -41,6 +42,10 @@ export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
       </div>
 
       <CustodyNoteInlineCTA variant="compact" />
+
+      <SidebarKentAgentPromo />
+
+      <SidebarWhatsAppPromo />
 
       {/* Featured spotlight */}
       {topFeatured.length > 0 && (
@@ -80,30 +85,6 @@ export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
             </Link>
           ))}
         </div>
-      </div>
-
-      {/* Custody Note CTA */}
-      <div className="overflow-hidden rounded-xl border border-[var(--gold)]/25 bg-gradient-to-b from-[var(--navy)] to-[#152e6e] p-4 shadow-sm">
-        <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">
-          Promoted
-        </p>
-        <p className="mt-1 text-sm font-bold text-white">Custody Note</p>
-        <p className="mt-1 text-xs leading-relaxed text-white/70">
-          Police station attendance note software. 30-day free trial, then £9.99/mo early adopter price.
-        </p>
-        <p className="mt-2 text-xs text-white/60">
-          Code{' '}
-          <span className="font-mono font-semibold text-[var(--gold)]">A2MJY2NQ</span>{' '}
-          for 25% off · Price will increase
-        </p>
-        <Link
-          href="https://custodynote.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-3 block rounded-lg bg-[var(--gold)] px-3 py-2 text-center text-xs font-bold text-[var(--ink)] no-underline transition-colors hover:bg-[var(--gold-hover)]"
-        >
-          Try Free
-        </Link>
       </div>
     </div>
   );

@@ -50,12 +50,6 @@ export default function PrivacyPage() {
                 </a>
               </li>
               <li>
-                <span className="font-semibold text-[var(--navy)]">Phone:</span>{' '}
-                <a href="tel:07535494446" className="text-[var(--gold-link)] hover:underline">
-                  07535 494446
-                </a>
-              </li>
-              <li>
                 <span className="font-semibold text-[var(--navy)]">Website:</span>{' '}
                 <a
                   href={SITE_URL}
@@ -347,12 +341,6 @@ export default function PrivacyPage() {
             >
               Contact Us
             </Link>
-            <a
-              href="tel:07535494446"
-              className="rounded-lg border border-[var(--border)] bg-[var(--card-bg)] px-7 py-3 text-sm font-semibold text-[var(--navy)] no-underline hover:border-[var(--gold-hover)] hover:text-[var(--gold-hover)]"
-            >
-              Call 07535 494446
-            </a>
           </div>
         </section>
       </div>

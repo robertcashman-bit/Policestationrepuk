@@ -60,9 +60,8 @@ export function ContactForm() {
           <p className="font-semibold text-green-950">Message received by the directory team — thank you</p>
           <p className="mt-2 text-sm leading-relaxed">
             The <strong>PoliceStationRepUK directory team</strong> has your enquiry and usually replies
-            within <strong>24 hours</strong> (often sooner). If your matter is urgent, use SMS as shown
-            above. Please note we are not the police and cannot help with criminal matters or custody
-            queries.
+            within <strong>24 hours</strong> (often sooner). Please note we are not the police and cannot
+            help with criminal matters or custody queries.
           </p>
           <p className="mt-3 text-sm">
             <span className="font-medium">Reference:</span>{' '}

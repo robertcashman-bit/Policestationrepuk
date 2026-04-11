@@ -1047,5 +1047,74 @@
     "factCheckStatus": "verified",
     "publishedDate": "2025-11-13T18:14:38.754000",
     "lastImprovedDate": "2025-11-22T00:00:00Z"
+  },
+  {
+    "id": "692f5c10a1b2c3d4e5f6a001",
+    "title": "Adverse inference from silence: Section 34 and interview strategy",
+    "slug": "adverse-inference-section-34-guide",
+    "category": "Interview Techniques",
+    "difficulty": "Advanced",
+    "tags": [
+      "Section 34",
+      "CJPOA 1994",
+      "no comment",
+      "prepared statement",
+      "adverse inference",
+      "PACE"
+    ],
+    "views": 0,
+    "helpfulCount": 0,
+    "factCheckStatus": "pending",
+    "publishedDate": "2026-04-11T12:00:00.000Z",
+    "lastImprovedDate": "2026-04-11T12:00:00.000Z",
+    "excerpt": "Practical guide for reps: when courts may draw adverse inferences from silence, how special warnings work, prepared statements, and how this interacts with your interview advice — general information, not case-specific advice.",
+    "wordCount": 803,
+    "content": "# Adverse inference from silence: Section 34 and interview strategy\n\nThis article explains **why** \"no comment\" is not a free pass, how **Section 34** of the Criminal Justice and Public Order Act 1994 fits with police station interviews, and how to document advice. It is **general education** for accredited representatives — not a substitute for supervision, insurer rules, or case-specific counsel advice.\n\n---\n\n## 1. What reps need to know in one minute\n\n- In criminal proceedings, **silence can sometimes be used against a defendant** if they rely in court on a fact they could reasonably have mentioned in interview when questioned under caution.\n- That risk is often discussed using the shorthand **\"Section 34\"** (CJPOA 1994).\n- Your job in custody is to ensure the client **understands the framework**, makes an **informed choice**, and that **your advice and their decision** are recorded clearly.\n- A **prepared statement** is a common way to put a defence \"on the record\" while still answering **no comment** to questions.\n\nFor the regulatory framework, cross-read [PACE Code C](/PACE) and your firm's interview policy. For tactics, see also [No comment strategy](/Wiki/no-comment-strategy) and [Interview techniques that actually work](/Wiki/interview-techniques-work).\n\n---\n\n## 2. Legal backdrop (high level)\n\n### 2.1 Section 34 — the core idea\n\nIn outline, **Section 34** allows a court to draw such inferences as appear proper from a defendant's **failure to mention facts** when questioned under caution, where they later **rely on those facts in their defence** in court, and where it was **reasonable** to mention them earlier.\n\nThe statute is dense; the **Criminal Procedure Rules** and **judicial directions** (such as those on adverse inferences) govern how juries are directed. Representatives are **not** expected to lecture clients on appellate case law — but you **are** expected to flag that silence carries **risks as well as protections**, and to encourage **informed decisions**.\n\n### 2.2 Not the same as the \"right to silence\"\n\nClients still have a **right to silence**. Section 34 does not abolish it. It changes what **may** happen **if** they later advance a positive case at trial that they did not mention when questioned.\n\n### 2.3 Special warnings (Sections 36 and 37)\n\nSeparate provisions allow **special warnings** about failure to account for **objects, substances, marks, or presence**. These are **not identical** to Section 34, but they are part of the same tactical landscape. If officers give such warnings, note them **verbatim** in your attendance note where possible.\n\n---\n\n## 3. Practical advice stages\n\n### 3.1 Disclosure first (so far as you have it)\n\nYou cannot sensibly advise on silence vs account without knowing **what the client is said to have done** and **what material the police have disclosed** (even if summary). If disclosure is thin, say so plainly and record it.\n\nSee [Reading disclosure](/Wiki/reading-disclosure).\n\n### 3.2 Explain options in plain English\n\nMost clients need:\n\n1. **Full answers** — highest engagement, may help if the case is weak or explanation is simple; may harm if the client is confused, tired, or the account is incomplete.\n2. **No comment** — protects against inconsistent answers and fishing; carries **Section 34 risk** if they later advance facts they could reasonably have mentioned.\n3. **Prepared statement + no comment** — often used to set out a **core account** once, then refuse cross-examination style questioning in interview.\n\n### 3.3 Document the advice\n\nYour attendance note should record, at minimum:\n\n- What options were explained (in substance, not a transcript of every word).\n- What the client decided.\n- Whether they understood they could seek **further advice** before answering.\n- Any **vulnerability** factors (health, age, AA present, language).\n\nThis protects the client, the firm, and you if competence or instructions are later questioned.\n\n---\n\n## 4. Common scenarios (illustrative)\n\n### 4.1 \"I'll explain everything at court\"\n\nExplain that waiting until court can carry **inference risk** if those facts could reasonably have been mentioned under caution. It is the client's choice — but it must be an **informed** choice.\n\n### 4.2 Overwhelming evidence\n\nWhere evidence is genuinely strong, tactical discussions may include early admissions, **credit** for guilty pleas, or focusing on **mitigation**. That is **solicitor-led** strategic territory — stay within your accreditation and supervision.\n\n### 4.3 Vulnerable clients\n\nIf the client may not **fully understand** the caution or the consequences of silence, consider **fitness for interview**, appropriate adults, and whether interview should be **delayed**. A \"no comment\" interview conducted when the client cannot follow questions is a **professional risk** for everyone involved.\n\n---\n\n## 5. Links and further reading on this site\n\n- [PACE Code C — custody](/Wiki/pace-code-c-custody)\n- [Voluntary police interview guide](/Wiki/voluntary-police-interview-guide)\n- [Sentencing Act 2026 — key changes (blog)](/Blog/sentencing-act-2026-key-changes) — for **sentencing context** after charge (not interview stage)\n\n---\n\n## 6. Disclaimer\n\nInformation only. Laws and guidance change. Always follow **PACE codes**, **firm policy**, **insurer conditions**, and **supervising solicitor** instructions on live cases."
+  },
+  {
+    "id": "692f5c10a1b2c3d4e5f6a002",
+    "title": "Fitness for interview: intoxication, mental health, and delays",
+    "slug": "fitness-for-interview-custody",
+    "category": "At The Station",
+    "difficulty": "Intermediate",
+    "tags": [
+      "fitness for interview",
+      "FME",
+      "appropriate adult",
+      "mental health",
+      "PACE",
+      "vulnerability"
+    ],
+    "views": 0,
+    "helpfulCount": 0,
+    "factCheckStatus": "pending",
+    "publishedDate": "2026-04-11T12:00:00.000Z",
+    "lastImprovedDate": "2026-04-11T12:00:00.000Z",
+    "excerpt": "When to challenge interview timing: intoxication, mental crisis, learning disability, and the role of the forensic medical examiner (FME) and appropriate adult — structured wiki notes for reps.",
+    "wordCount": 427,
+    "content": "# Fitness for interview: intoxication, mental health, and delays\n\nCustody interviews should only proceed when the detainee is **fit to be interviewed** under PACE and Code C. This article gives reps a **structured checklist** and language for challenging rushed interviews — without pretending to be a doctor.\n\n---\n\n## 1. Why fitness matters\n\nIf a client answers questions while **intoxicated**, in **severe mental health crisis**, or unable to **understand** the caution, the reliability of answers is compromised and professional risk increases for the client, the firm, and police.\n\nYour role is to **raise the issue clearly**, request **medical / AA** involvement as appropriate, and **record** what you said and what happened.\n\n---\n\n## 2. Warning signs (non-exhaustive)\n\n- Slurred speech, strong smell of alcohol, unsteadiness, vomiting (intoxication).\n- Disorientation, inability to track questions, paranoia, self-harm statements (mental health crisis).\n- Known diagnosis where communication needs adjustment (learning disability, autism, brain injury).\n- Extreme fatigue after long detention — fatigue alone may not stop an interview, but **combined** with other factors it can matter.\n\n---\n\n## 3. Forensic medical examiner (FME)\n\nForces arrange medical assessment in custody. If you have concerns, **ask for an FME assessment** and record the time of the request.\n\nYou are not diagnosing — you are **flagging observable concern** that falls within Code expectations.\n\n---\n\n## 4. Appropriate adults (AA)\n\nFor **juveniles**, an AA is routinely required. For **vulnerable adults**, an AA may be required where the rules apply.\n\nReps should know **who** is present, ensure the client understands the AA's role, and avoid any suggestion that the AA is there to **pressure** the client to answer.\n\nSee [Youth suspects procedures](/Wiki/youth-suspects-procedures) and [Mental health in custody](/Wiki/mental-health-custody).\n\n---\n\n## 5. What to say (professional examples)\n\nUse calm, factual language:\n\n> \"I am not satisfied my client can follow questions safely in their current state. I am asking for medical assessment before interview.\"\n\n> \"Please record that I have raised fitness concerns based on [observations].\"\n\nAvoid diagnosing: say what you **observe** and what you **request**.\n\n---\n\n## 6. If police proceed anyway\n\n- Keep a **clear note** of your objections and the officer's response.\n- In interview, you may need to **interrupt** if questions become oppressive or the client's condition deteriorates — follow your firm's stance on interventions.\n- After attendance, **supervision** and a full **attendance note** matter.\n\n---\n\n## 7. Related wiki articles\n\n- [First attendance walkthrough](/Wiki/first-attendance-walkthrough)\n- [Dealing with police custody](/Wiki/dealing-with-police-custody)\n- [Difficult custody staff](/Wiki/difficult-custody-staff)\n\n---\n\n## Disclaimer\n\nGeneral information only. Follow current **PACE codes**, **force policies**, and your **supervising solicitor** on live cases."
+  },
+  {
+    "id": "692f5c10a1b2c3d4e5f6a003",
+    "title": "Digital evidence at the police station: downloads, passwords, and disclosure basics",
+    "slug": "digital-evidence-police-station-basics",
+    "category": "At The Station",
+    "difficulty": "Intermediate",
+    "tags": [
+      "digital evidence",
+      "mobile phones",
+      "disclosure",
+      "PACE",
+      "encryption",
+      "investigation"
+    ],
+    "views": 0,
+    "helpfulCount": 0,
+    "factCheckStatus": "pending",
+    "publishedDate": "2026-04-11T12:00:00.000Z",
+    "lastImprovedDate": "2026-04-11T12:00:00.000Z",
+    "excerpt": "Wiki-depth primer for reps: phone downloads, passwords, specimen procedures at a high level, and how disclosure issues surface early in custody — not legal advice for any specific case.",
+    "wordCount": 357,
+    "content": "# Digital evidence at the police station: downloads, passwords, and disclosure basics\n\nPolice investigations increasingly turn on **phones, messages, images, location data, and cloud accounts**. Representatives are not forensic experts — but you need enough literacy to **spot issues early**, ask sensible questions, and ensure the **client understands** what is at stake.\n\n---\n\n## 1. What \"digital\" usually means in custody\n\nOfficers may seek:\n\n- **Consent** to examine devices.\n- **Passwords / PINs** (legal frameworks apply — this is **not** a wiki for bypassing law; it is for **awareness**).\n- **Specimens** (e.g. breath, blood) in road traffic or serious cases — different legal routes apply.\n\nIf you are unsure which regime applies, **pause** and get **supervising solicitor** direction.\n\n---\n\n## 2. Disclosure at the police station\n\nEarly disclosure is often **summary**. Your questions should aim to clarify:\n\n- What **allegation** is being put?\n- What **material** do police say they already have?\n- What **further** enquiries are planned?\n\nTie this into interview strategy with [Reading disclosure](/Wiki/reading-disclosure) and [Handling disclosure — police station](/Blog/handling-disclosure-police-station) (blog).\n\n---\n\n## 3. Passwords and compulsion\n\nThe law on compulsion to disclose keys/passwords is **technical** and **fact-specific**. Representatives should **not** improvise legal conclusions.\n\n**Practical rule:** if passwords or encryption arise, treat it as a **red flag** for **solicitor advice** and record the issue precisely in your note.\n\n---\n\n## 4. Chain of continuity (why reps should care)\n\nIf you observe sloppy handling of devices or unclear seizure times, note it. It may matter later — not always, but **defence teams** need accurate facts.\n\n---\n\n## 5. Client communication tips\n\nClients often underestimate how much data phones retain. Plain-language points:\n\n- Deleted items are not always gone.\n- Messaging apps may sync across devices.\n- Location metadata can exist even when the user did not \"mean\" to share it.\n\nYou are helping the client make **informed** decisions, not scaring them — stay factual.\n\n---\n\n## 6. Related reading\n\n- [PACE codes quick reference](/Wiki/pace-codes-quick-reference)\n- [Police warrants guide](/Wiki/police-warrants-guide)\n- [Seized property guide](/Wiki/seized-property-guide)\n\n---\n\n## Disclaimer\n\nInformation only. Digital law changes quickly with legislation and case law. Escalate novel issues to a **solicitor** and follow **firm policy**."
   }
 ]

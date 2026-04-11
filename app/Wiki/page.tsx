@@ -8,7 +8,7 @@ import { getAllWikiArticles } from '@/lib/data';
 export const metadata: Metadata = buildMetadata({
   title: 'Rep Knowledge Base | PoliceStationRepUK',
   description:
-    'Free knowledge base for police station representatives. 45+ articles on interview techniques, PACE codes, client management, legal aid claiming, and professional development.',
+    'Free knowledge base for police station representatives: interview techniques, PACE codes, adverse inference, fitness for interview, digital evidence basics, client management, legal aid claiming, and professional development.',
   path: '/Wiki',
 });
 

@@ -4,7 +4,8 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Advertisers | PoliceStationRepUK',
-  description: 'Promote your legal tech, training, or professional services to our engaged community of criminal defence professionalsOur AudienceEngagedCriminal Defence P',
+  description:
+    'Promote legal tech, training, and professional services to criminal defence professionals. Banner placements, sponsored content, and partnership options.',
   path: '/Advertisers',
 });
 
@@ -20,30 +21,74 @@ export default function AdvertisersPage() {
               { label: 'Advertisers' },
             ]}
           />
-          <h1 className="mt-3 text-h1 text-white">Partner Advertising</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">Promote your legal tech, training, or professional services to our engaged community of criminal defence professionalsOur AudienceEngagedCriminal Defence ProfessionalsNationwideEngland &amp; Wales Coverage100%Legal Sector Focus*Reach figures available in</p>
+          <h1 className="mt-3 text-h1 text-white">Partner advertising</h1>
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-200">
+            Reach an engaged audience of criminal defence solicitors, duty solicitors, and accredited police station
+            representatives across England and Wales.
+          </p>
+          <ul className="mt-6 flex flex-wrap gap-3 text-sm text-slate-300">
+            <li className="rounded-full border border-white/20 px-3 py-1">Nationwide coverage</li>
+            <li className="rounded-full border border-white/20 px-3 py-1">Legal sector focus</li>
+            <li className="rounded-full border border-white/20 px-3 py-1">Analytics available</li>
+          </ul>
         </div>
       </section>
 
       <div className="page-container">
-        <div className="mx-auto max-w-4xl space-y-10">
+        <div className="mx-auto max-w-4xl space-y-10 pb-12 pt-8">
+          <section className="space-y-6">
+            <h2 className="text-h2 text-[var(--navy)]">Advertising options</h2>
+            <p className="text-[var(--muted)] leading-relaxed">
+              Formats can be combined. Exact placements and rates are confirmed when you request a media kit.
+            </p>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Advertising Options</h2>
-            <p className="text-[var(--muted)] leading-relaxed">Flexible formats to suit your marketing goalsBanner AdvertisingPremium placements on high-traffic pages including homepage, directory and resources.Header and sidebar positionsResponsive across all devicesMonthly analytics reportsSponsored ContentFeatured articles, case studies and thought leadership content for your brand.Blog integration and promotionNewsletter featuresSocial media amplificationWho Advertises With Us?Legal TechnologyCase management, billing software, practice management toolsTraining ProvidersCPD courses, accreditation programs, professional developmentProfessional ServicesExpert witnesses, translators, forensic servicesLegal PublishersLaw books, journals, research databasesReady to reach your audience?Contact us for a media kit, audience analytics, and custom pricing pa.</p>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="font-bold text-[var(--navy)]">Banner &amp; display</h3>
+                <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed">
+                  Premium positions on high-traffic pages such as the homepage, directory, and resources. Responsive
+                  layouts; monthly performance summaries available.
+                </p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="font-bold text-[var(--navy)]">Sponsored content</h3>
+                <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed">
+                  Articles, case studies, and thought leadership aligned with our editorial standards. Blog integration,
+                  newsletter mentions, and social amplification where agreed.
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-[var(--navy)]">Who advertises with us</h3>
+              <ul className="mt-3 list-disc space-y-1 pl-5 text-[var(--muted)] leading-relaxed marker:text-[var(--gold)]">
+                <li>Legal technology — case management, billing, practice tools</li>
+                <li>Training providers — CPD, accreditation pathways, professional development</li>
+                <li>Professional services — experts, translators, forensics</li>
+                <li>Publishers — law books, journals, research</li>
+              </ul>
+            </div>
+
+            <p className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-[var(--muted)]">
+              Ready to reach your audience?{' '}
+              <Link href="/Contact" className="font-semibold text-[var(--navy)] underline decoration-[var(--gold)] underline-offset-2">
+                Contact us
+              </Link>{' '}
+              for a media kit, audience analytics, and custom pricing.
+            </p>
           </section>
 
           <section className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
-            <h2 className="text-xl font-bold text-white">Need Help?</h2>
+            <h2 className="text-xl font-bold text-white">Need help?</h2>
             <p className="mt-2 text-slate-300">
               Find an accredited police station representative or get in touch with our team.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <Link href="/directory" className="btn-gold no-underline">
-                Find a Rep
+                Find a rep
               </Link>
               <Link href="/Contact" className="btn-outline no-underline">
-                Contact Us
+                Contact us
               </Link>
             </div>
           </section>

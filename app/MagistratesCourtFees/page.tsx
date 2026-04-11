@@ -3,11 +3,16 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Magistrates\' Court Legal Aid Fee Rates',
+  title: "Magistrates' Court Legal Aid Fee Rates",
   description:
-    'Magistrates\' Court legal aid standard fees for criminal defence: payment bands, higher and lower fees, Criminal Legal Aid Regulations.',
+    "Magistrates' court legal aid standard fees for criminal defence: payment bands, higher and lower fees, Criminal Legal Aid Regulations.",
   path: '/MagistratesCourtFees',
 });
+
+const tableWrap = 'overflow-x-auto rounded-lg border border-slate-200';
+const tableClass = 'w-full min-w-[520px] border-collapse text-left text-sm text-[var(--muted)]';
+const th = 'border border-slate-200 bg-slate-50 px-3 py-2 font-semibold text-[var(--navy)]';
+const td = 'border border-slate-200 px-3 py-2';
 
 export default function MagistratesCourtFeesPage() {
   return (
@@ -18,86 +23,275 @@ export default function MagistratesCourtFeesPage() {
             light
             items={[
               { label: 'Home', href: '/' },
-              { label: 'Magistrates\' Court Legal Aid Fee Rates' },
+              { label: "Magistrates' court legal aid fee rates" },
             ]}
           />
-          <h1 className="mt-3 text-h1 text-white">Magistrates&apos; Court Standard Fees</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">Legal aid payment rates for representation in the magistrates&apos; court under the Standard Fee schemeSource: The Criminal Legal Aid (Remuneration) Regulations 2013 (SI 2013/435), Schedule 4, paragraph 5, as amended by SI 2025/1251. All figures verified </p>
+          <h1 className="mt-3 text-h1 text-white">Magistrates&apos; court standard fees</h1>
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
+            Legal aid payment rates for representation in the magistrates&apos; court under the Standard Fee scheme.
+            Source: SI 2013/435 Schedule 4, paragraph 5, as amended (including SI 2025/1251 for amounts). Verify against
+            current LAA guidance before claiming.
+          </p>
         </div>
       </section>
 
       <div className="page-container">
-        <div className="mx-auto max-w-4xl space-y-10">
-
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">How the Standard Fee Scheme Works</h2>
-            <p className="text-[var(--muted)] leading-relaxed">Magistrates&apos; court representation is paid under a Standard Fee scheme.</p>
-            <p className="text-[var(--muted)] leading-relaxed">Each case falls into a category (1A, 1B, or 2) and an area type (Designated or Undesignated).</p>
-            <p className="text-[var(--muted)] leading-relaxed">For each combination, there is a Lower Standard Fee and a Higher Standard Fee, each with an associated fee limit.Step 1: Record all time at the hourly rates in the table below.Step 2: Calculate the total costs (profit costs) from your time recording.Step 3: Compare your total costs against the fee limits:If your costs are at or below the Lower Standard Fee Limit → you claim the Lower Standard FeeIf your costs exceed the Lower Standard Fee Limit but are at or below the Higher Standard Fee Limit → you claim the Higher Standard FeeIf your costs exceed the Higher Standard Fee Limit → you claim your actual assessed costs (i.e.</p>
+        <div className="mx-auto max-w-4xl space-y-10 pb-12 pt-8">
+          <section className="space-y-4">
+            <h2 className="text-h2 text-[var(--navy)]">How the standard fee scheme works</h2>
+            <p className="text-[var(--muted)] leading-relaxed">
+              Each case falls into a category (1A, 1B, or 2) and either a designated or undesignated court area. For each
+              combination there is a lower standard fee, a higher standard fee, and matching fee limits.
+            </p>
+            <ol className="list-decimal space-y-2 pl-5 text-[var(--muted)] marker:text-[var(--gold)]">
+              <li>Record all time at the hourly rates in the table below.</li>
+              <li>Calculate total profit costs from that time recording.</li>
+              <li>
+                Compare total costs to the fee limits for your category and area:
+                <ul className="mt-2 list-disc space-y-1 pl-5">
+                  <li>At or below the lower limit → claim the lower standard fee.</li>
+                  <li>Above the lower limit but at or below the higher limit → claim the higher standard fee.</li>
+                  <li>Above the higher limit → you may escape the standard fee and claim assessed profit costs (subject to the rules).</li>
+                </ul>
+              </li>
+            </ol>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Hourly Rates for Time Recording</h2>
-            <p className="text-[var(--muted)] leading-relaxed">These rates apply in all areas.</p>
-            <p className="text-[var(--muted)] leading-relaxed">They are used for recording time (to determine which standard fee band applies) and for calculating costs in cases that fall outside the standard fee scheme.Work TypeRate (All Areas)Routine letters written and telephone calls£4.50 per itemPreparation£57.37 per hourAdvocacy (including applications for bail and other applications to the court)£71.96 per hourAttendance at court where Counsel is assigned (including conferences with Counsel at court)£39.25 per hourTravelling and waitingOnly claimable where the undesignated area fees apply£30.36 per hourSource: Schedule 4, paragraph 5(1), table.</p>
+          <section className="space-y-4">
+            <h2 className="text-h2 text-[var(--navy)]">Hourly rates for time recording</h2>
+            <p className="text-[var(--muted)] leading-relaxed">These rates apply in all areas for recording time and for non-standard fee cases.</p>
+            <div className={tableWrap}>
+              <table className={tableClass}>
+                <thead>
+                  <tr>
+                    <th className={th}>Work type</th>
+                    <th className={th}>Rate (all areas)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className={td}>Routine letters and telephone calls</td>
+                    <td className={td}>£4.50 per item</td>
+                  </tr>
+                  <tr>
+                    <td className={td}>Preparation</td>
+                    <td className={td}>£57.37 per hour</td>
+                  </tr>
+                  <tr>
+                    <td className={td}>Advocacy (including bail and applications)</td>
+                    <td className={td}>£71.96 per hour</td>
+                  </tr>
+                  <tr>
+                    <td className={td}>Attendance where counsel assigned (incl. conferences at court)</td>
+                    <td className={td}>£39.25 per hour</td>
+                  </tr>
+                  <tr>
+                    <td className={td}>Travelling and waiting</td>
+                    <td className={td}>Only where undesignated area fees apply — £30.36 per hour</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-[var(--muted)]">Source: Schedule 4, paragraph 5(1), table.</p>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Standard Fees — Higher and Lower</h2>
-            <p className="text-[var(--muted)] leading-relaxed">The fee you claim depends on the category of case and whether the court is in a designated or undesignated area.Designated Area Standard FeesCategoryLower Standard FeeLower Fee LimitHigher Standard FeeHigher Fee LimitCategory 1A£314.62£344.51£596.84£596.89Category 1B£255.78£344.51£551.09£596.89Category 2£436.85£591.82£915.04£986.25Undesignated Area Standard FeesCategoryLower Standard FeeLower Fee LimitHigher Standard FeeHigher Fee LimitCategory 1A£246.27£344.51£521.57£596.89Category 1B£200.21£344.51£481.59£596.89Category 2£353.51£591.82£810.79£986.25Source: Schedule 4, paragraph 5(2), Higher and Lower Standard Fees table.Additional fee (paragraph 5(6)): For cases which fall outside the Standard Fee payment scheme, an additional fee of £229.47 may be claimed.</p>
+          <section className="space-y-4">
+            <h2 className="text-h2 text-[var(--navy)]">Standard fees — designated areas</h2>
+            <div className={tableWrap}>
+              <table className={tableClass}>
+                <thead>
+                  <tr>
+                    <th className={th}>Category</th>
+                    <th className={th}>Lower fee</th>
+                    <th className={th}>Lower limit</th>
+                    <th className={th}>Higher fee</th>
+                    <th className={th}>Higher limit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className={td}>1A</td>
+                    <td className={td}>£314.62</td>
+                    <td className={td}>£344.51</td>
+                    <td className={td}>£596.84</td>
+                    <td className={td}>£596.89</td>
+                  </tr>
+                  <tr>
+                    <td className={td}>1B</td>
+                    <td className={td}>£255.78</td>
+                    <td className={td}>£344.51</td>
+                    <td className={td}>£551.09</td>
+                    <td className={td}>£596.89</td>
+                  </tr>
+                  <tr>
+                    <td className={td}>2</td>
+                    <td className={td}>£436.85</td>
+                    <td className={td}>£591.82</td>
+                    <td className={td}>£915.04</td>
+                    <td className={td}>£986.25</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Category Definitions</h2>
-            <p className="text-[var(--muted)] leading-relaxed">Which category a case falls into depends on the nature of the proceedings (paragraph 5(3)).Category 1AEither-way (non-trial)•Either-way guilty pleas•Guilty pleas for low-value shoplifting (s.22A(3) MCA 1980)•Either-way offences discontinued, withdrawn, or where prosecution offer no evidence•Either-way offences resulting in a bind over•Deferred sentence proceedings (either-way or low-value shoplifting)Category 1BSummary (non-trial)•Summary only guilty pleas•Uncontested breach proceedings (including Crown Court community orders / suspended sentences)•Summary offences discontinued, withdrawn, or NE•Summary offences resulting in a bind over•Deferred sentence proceedings (summary offences)•Regulation 9 proceedings (unless listed and fully prepared for contested hearing)Category 2Contested / Tri.</p>
+          <section className="space-y-4">
+            <h2 className="text-h2 text-[var(--navy)]">Standard fees — undesignated areas</h2>
+            <div className={tableWrap}>
+              <table className={tableClass}>
+                <thead>
+                  <tr>
+                    <th className={th}>Category</th>
+                    <th className={th}>Lower fee</th>
+                    <th className={th}>Lower limit</th>
+                    <th className={th}>Higher fee</th>
+                    <th className={th}>Higher limit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className={td}>1A</td>
+                    <td className={td}>£246.27</td>
+                    <td className={td}>£344.51</td>
+                    <td className={td}>£521.57</td>
+                    <td className={td}>£596.89</td>
+                  </tr>
+                  <tr>
+                    <td className={td}>1B</td>
+                    <td className={td}>£200.21</td>
+                    <td className={td}>£344.51</td>
+                    <td className={td}>£481.59</td>
+                    <td className={td}>£596.89</td>
+                  </tr>
+                  <tr>
+                    <td className={td}>2</td>
+                    <td className={td}>£353.51</td>
+                    <td className={td}>£591.82</td>
+                    <td className={td}>£810.79</td>
+                    <td className={td}>£986.25</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-sm text-[var(--muted)]">
+              Additional fee (paragraph 5(6)): for cases outside the standard fee payment scheme, an additional fee of
+              £229.47 may be claimable where the rules allow.
+            </p>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Designated vs Undesignated Areas</h2>
-            <p className="text-[var(--muted)] leading-relaxed">Designated areas attract higher standard fees.</p>
-            <p className="text-[var(--muted)] leading-relaxed">They are defined in the Standard Crime Contract and generally correspond to urban areas with higher operating costs.Undesignated areas attract lower standard fees but allow travel and waiting time to be claimed at £30.36 per hour (which is not claimable in designated areas).The designated/undesignated classification of a court is set out in the 2025 Standard Crime Contract.</p>
-            <p className="text-[var(--muted)] leading-relaxed">Check your contract documentation or ask your contract manager if you are unsure which applies.</p>
+          <section className="space-y-3">
+            <h2 className="text-h2 text-[var(--navy)]">Category definitions (summary)</h2>
+            <p className="text-[var(--muted)] leading-relaxed">
+              Which category applies depends on the nature of the proceedings (paragraph 5(3)). This is a summary only —
+              always read the regulations and current LAA guidance.
+            </p>
+            <div className="space-y-4 text-sm text-[var(--muted)] leading-relaxed">
+              <div>
+                <h3 className="font-bold text-[var(--navy)]">Category 1A</h3>
+                <p className="mt-1">Either-way non-trial work — e.g. guilty pleas, offers of no evidence, bind overs, and related patterns listed in the rules.</p>
+              </div>
+              <div>
+                <h3 className="font-bold text-[var(--navy)]">Category 1B</h3>
+                <p className="mt-1">Summary non-trial work — e.g. summary-only guilty pleas, uncontested breaches, discontinued summary matters, and similar.</p>
+              </div>
+              <div>
+                <h3 className="font-bold text-[var(--navy)]">Category 2</h3>
+                <p className="mt-1">Contested hearings and trials — higher fee band reflects additional preparation and advocacy.</p>
+              </div>
+            </div>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Escaping the Standard Fee</h2>
-            <p className="text-[var(--muted)] leading-relaxed">If your assessed profit costs exceed the Higher Standard Fee Limit for the relevant category and area, you &quot;escape&quot; the standard fee scheme and claim your actual assessed costs calculated at the hourly rates above.Higher Standard Fee Limits (escape thresholds)Categories 1A and 1B:£596.89Category 2:£986.25These limits are the same for designated and undesignated areas.You must maintain detailed time records throughout every case — not just those you expect to escape.</p>
-            <p className="text-[var(--muted)] leading-relaxed">Time recording is required to determine which fee band applies.</p>
+          <section className="space-y-3">
+            <h2 className="text-h2 text-[var(--navy)]">Designated vs undesignated areas</h2>
+            <p className="text-[var(--muted)] leading-relaxed">
+              Designated areas generally reflect higher operating-cost courts under the Standard Crime Contract. Undesignated
+              areas use lower standard fee figures but may allow travel and waiting at £30.36/hour where the rules permit.
+              Confirm classification in your contract documentation or with your contract manager.
+            </p>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Important Notes</h2>
-            <p className="text-[var(--muted)] leading-relaxed">Youth Court: Representation in the youth court has its own fee scheme under paragraph 5B of Schedule 4.</p>
-            <p className="text-[var(--muted)] leading-relaxed">The hourly rates are the same, but the standard fee amounts and categories differ.</p>
-            <p className="text-[var(--muted)] leading-relaxed">See the legislation for details.VAT: All figures shown are exclusive of VAT.</p>
-            <p className="text-[var(--muted)] leading-relaxed">VAT-registered providers should add VAT at the prevailing rate.Disbursements: Reasonable disbursements (e.g.</p>
-            <p className="text-[var(--muted)] leading-relaxed">expert fees, interpreters) are claimed separately and are not included within the standard fee.</p>
-            <p className="text-[var(--muted)] leading-relaxed">Prior authority may be required for non-standard disbursements.</p>
+          <section className="space-y-3">
+            <h2 className="text-h2 text-[var(--navy)]">Escaping the standard fee</h2>
+            <p className="text-[var(--muted)] leading-relaxed">
+              If assessed profit costs exceed the higher standard fee limit for your category, you may escape the standard
+              fee and claim assessed costs at the hourly rates — subject to evidence and LAA rules.
+            </p>
+            <ul className="list-disc space-y-1 pl-5 text-[var(--muted)] marker:text-[var(--gold)]">
+              <li>Categories 1A and 1B: higher limit £596.89</li>
+              <li>Category 2: higher limit £986.25</li>
+            </ul>
+            <p className="text-[var(--muted)] leading-relaxed">Maintain time records on every file — not only when you expect to escape.</p>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Official Resources</h2>
-            <p className="text-[var(--muted)] leading-relaxed">SI 2013/435, Schedule 4, Paragraph 5The primary legislation setting out magistrates&apos; court representation fees (latest revised version).View on legislation.gov.uk SI 2025/1251 (Amendment Regulations)The 2025 amendment regulations that updated the fee amounts shown on this page.View on legislation.gov.uk.</p>
+          <section className="space-y-3">
+            <h2 className="text-h2 text-[var(--navy)]">Youth court, VAT, disbursements</h2>
+            <ul className="list-disc space-y-2 pl-5 text-[var(--muted)] marker:text-[var(--gold)]">
+              <li>Youth court has its own fee scheme under Schedule 4 — see the regulations for detail.</li>
+              <li>Figures are usually exclusive of VAT where VAT applies.</li>
+              <li>Reasonable disbursements are claimed separately; prior authority may be needed.</li>
+            </ul>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Related Pages</h2>
-            <p className="text-[var(--muted)] leading-relaxed">Police Station RatesFixed fees, escape thresholds and hourly rates for police station workView Rates →Crown Court FeesGraduated fees for Crown Court representationView Fees →Escape Fee CalculatorCalculate whether your police station case escapes the fixed feeUse Calculator →Disclaimer: This page is provided for information only and does not constitute legal or financial advice.</p>
-            <p className="text-[var(--muted)] leading-relaxed">While every effort has been made to ensure accuracy by referencing the primary legislation directly, always verify current rates with the Legal Aid Agency and your contract documentation before submitting claims.</p>
-            <p className="text-[var(--muted)] leading-relaxed">The legislation may be further amended after the date of this page.</p>
+          <section className="space-y-3">
+            <h2 className="text-h2 text-[var(--navy)]">Official resources</h2>
+            <ul className="list-disc space-y-2 pl-5 text-[var(--muted)] marker:text-[var(--gold)]">
+              <li>
+                <a
+                  href="https://www.legislation.gov.uk/uksi/2013/435/contents"
+                  className="font-semibold text-[var(--navy)] underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  SI 2013/435
+                </a>{' '}
+                — primary regulations
+              </li>
+              <li>
+                <a
+                  href="https://www.legislation.gov.uk/uksi/2025/1251/contents/made"
+                  className="font-semibold text-[var(--navy)] underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  SI 2025/1251
+                </a>{' '}
+                — recent fee updates
+              </li>
+            </ul>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-h2 text-[var(--navy)]">Related on this site</h2>
+            <ul className="space-y-2 text-[var(--muted)]">
+              <li>
+                <Link href="/PoliceStationRepPay" className="font-semibold text-[var(--navy)] underline">
+                  Police station rates and fixed fees
+                </Link>
+              </li>
+              <li>
+                <Link href="/CrownCourtFees" className="font-semibold text-[var(--navy)] underline">
+                  Crown Court fees overview
+                </Link>
+              </li>
+              <li>
+                <Link href="/EscapeFeeCalculator" className="font-semibold text-[var(--navy)] underline">
+                  Escape fee calculator
+                </Link>
+              </li>
+            </ul>
+            <p className="text-sm text-[var(--muted)]">
+              Disclaimer: information only — not legal or financial advice. Verify all figures before billing.
+            </p>
           </section>
 
           <section className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
-            <h2 className="text-xl font-bold text-white">Need Help?</h2>
-            <p className="mt-2 text-slate-300">
-              Find an accredited police station representative or get in touch with our team.
-            </p>
+            <h2 className="text-xl font-bold text-white">Need help?</h2>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <Link href="/directory" className="btn-gold no-underline">
-                Find a Rep
+                Find a rep
               </Link>
               <Link href="/Contact" className="btn-outline no-underline">
-                Contact Us
+                Contact us
               </Link>
             </div>
           </section>

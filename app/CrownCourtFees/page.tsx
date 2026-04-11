@@ -4,7 +4,8 @@ import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
   title: 'Crown Court Legal Aid Fee Rates | PoliceStationRepUK',
-  description: 'Crown Court Legal Aid fee rates including the Advocacy Graduated Fee Scheme (AGFS) and litigator graduated fees. Current rates, categories, and calculation guidance for criminal defence practitioners.',
+  description:
+    'Crown Court legal aid: litigator graduated fees (LGFS) and advocates’ graduated fee scheme (AGFS). Overview for criminal defence practitioners — use official LAA tools for live amounts.',
   path: '/CrownCourtFees',
 });
 
@@ -17,72 +18,180 @@ export default function CrownCourtFeesPage() {
             light
             items={[
               { label: 'Home', href: '/' },
-              { label: 'Crown Court Legal Aid Fee Rates' },
+              { label: 'Crown Court legal aid fee rates' },
             ]}
           />
-          <h1 className="mt-3 text-h1 text-white">Crown Court Fees</h1>
-          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">Litigator and Advocacy Graduated Fee Scheme (AGFS) for Crown Court representationComplex Fee Scheme: Crown Court fees are calculated using graduated fee tables based on case class, pages of prosecution evidence (PPE), and trial length. This page prov</p>
+          <h1 className="mt-3 text-h1 text-white">Crown Court fees (overview)</h1>
+          <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-200">
+            Crown Court criminal legal aid uses graduated fee schemes: litigator fees for firm preparation work and
+            advocacy fees (AGFS) for court work. Amounts depend on offence class, pages of prosecution evidence (PPE), trial
+            length, and outcome — use the LAA calculator for exact figures.
+          </p>
         </div>
       </section>
 
       <div className="page-container">
-        <div className="mx-auto max-w-4xl space-y-10">
-
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Understanding the Graduated Fee Scheme</h2>
-            <p className="text-[var(--muted)] leading-relaxed">Litigator FeesPaid to the solicitor firm for all case preparation work including:•Initial instructions and client conferences•Reviewing prosecution evidence (PPE)•Defence case preparation•Witness liaison and proof taking•Instructing counsel•All administrative workAdvocacy Fees (AGFS)Paid to the advocate (barrister or solicitor advocate) for court appearances:•PTPH (Plea and Trial Preparation Hearing)•Pre-trial hearings and mentions•Trial advocacy•Sentencing hearings•Appeals•Preparation for advocacyKey Point: Both litigator and advocacy fees are paid separately for the same case.</p>
-            <p className="text-[var(--muted)] leading-relaxed">If a solicitor-advocate does their own advocacy, they receive both fees.</p>
+        <div className="mx-auto max-w-4xl space-y-10 pb-12 pt-8">
+          <section className="space-y-4">
+            <h2 className="text-h2 text-[var(--navy)]">Litigator fees vs advocacy fees</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="font-bold text-[var(--navy)]">Litigator (LGFS)</h3>
+                <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed">
+                  Paid to the solicitor firm for preparation: instructions, reviewing PPE, defence preparation, witnesses,
+                  instructing counsel, and administration.
+                </p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h3 className="font-bold text-[var(--navy)]">Advocacy (AGFS)</h3>
+                <p className="mt-2 text-sm text-[var(--muted)] leading-relaxed">
+                  Paid to the advocate for hearings: PTPH, mentions, trial, sentencing, appeals, and advocacy preparation
+                  where claimable under the scheme.
+                </p>
+              </div>
+            </div>
+            <p className="text-[var(--muted)] leading-relaxed">
+              Both can apply to the same case. If a solicitor advocate does their own advocacy, fee rules still separate
+              the litigator and advocacy elements — follow current LAA guidance.
+            </p>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Offence Classification System</h2>
-            <p className="text-[var(--muted)] leading-relaxed">Crown Court offences are divided into classes A-K, with higher class letters generally attracting higher fees.</p>
-            <p className="text-[var(--muted)] leading-relaxed">The class determines the base fee and PPE rates.High Value ClassesClass AMurder and relatedMurder, manslaughter, infanticide, child destructionClass BSerious violence &amp; sexualGBH with intent, rape, aggravated burglary, robbery, kidnappingClass CLesser violenceGBH s.20, ABH with weapon, violent disorderClass DSexual offencesSexual assault, child sex offences, grooming, indecent imagesStandard ClassesClass HFraud &amp; financialFraud, money laundering, false accounting, bankruptcy offencesClass IDrugs (supply)Production, supply, PWITS Class A/BClass JSerious propertyBurglary dwelling, arson, aggravated vehicle takingClass KOther offencesTheft, handling, criminal damage, possession drugs.</p>
+          <section className="space-y-3">
+            <h2 className="text-h2 text-[var(--navy)]">Offence classes (A–K)</h2>
+            <p className="text-[var(--muted)] leading-relaxed">
+              Crown Court offences sit in classes that drive base fees and PPE parameters. High-harm classes (e.g. homicide,
+              serious sexual offending, robbery) sit in higher bands than volume summary-style offences remitted for
+              sentence or tried on indictment.
+            </p>
+            <p className="text-sm text-[var(--muted)]">
+              Use the LAA offence class tools — do not guess class from the indictment alone if unsure.
+            </p>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">How Fees Are Calculated</h2>
-            <p className="text-[var(--muted)] leading-relaxed">Case ClassOffence class (A-K) determines the base fee rate and category2.</p>
-            <p className="text-[var(--muted)] leading-relaxed">PPE CountPages of Prosecution Evidence - each page over baseline adds to the fee3.</p>
-            <p className="text-[var(--muted)] leading-relaxed">Case TypeTrial, cracked trial, guilty plea, or appeal - each has different fee structurePages of Prosecution Evidence (PPE)What Counts as PPE?✓ Statements, exhibits, interview transcripts✓ Police reports and summaries✓ Expert reports (prosecution)✓ Schedules and unused material✓ Medical records (if disclosed)What Doesn&apos;t Count?✗ Defence statements or evidence✗ Counsel&apos;s advice or notes✗ Correspondence between parties✗ Court documents (indictment, etc.)✗ Blank or cover pages.</p>
+          <section className="space-y-3">
+            <h2 className="text-h2 text-[var(--navy)]">What feeds the calculation</h2>
+            <ul className="list-disc space-y-2 pl-5 text-[var(--muted)] marker:text-[var(--gold)]">
+              <li>
+                <strong className="text-[var(--navy)]">Class</strong> — offence class and case type drive the fee structure.
+              </li>
+              <li>
+                <strong className="text-[var(--navy)]">PPE</strong> — pages of prosecution evidence counted under the rules.
+              </li>
+              <li>
+                <strong className="text-[var(--navy)]">Outcome</strong> — guilty plea, cracked trial, contested trial, appeal
+                — each follows different tables.
+              </li>
+            </ul>
+            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50/80 p-4 text-sm text-[var(--muted)]">
+              <p className="font-semibold text-[var(--navy)]">PPE — broadly</p>
+              <p className="mt-2">Usually includes prosecution statements, exhibits, interview transcripts, and schedules as defined in the rules.</p>
+              <p className="mt-2">Usually excludes defence material, counsel&apos;s working notes, and many court-generated documents — check the current definition.</p>
+            </div>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Typical Fee Examples (Approximations)</h2>
-            <p className="text-[var(--muted)] leading-relaxed">Important: These are rough estimates only.</p>
-            <p className="text-[var(--muted)] leading-relaxed">Actual fees vary significantly based on PPE, trial days, and specific circumstances.</p>
-            <p className="text-[var(--muted)] leading-relaxed">Always use the official LAA calculator for accurate amounts.Example 1: Class K Guilty PleaCase Details:• Offence: Theft from shop (Class K)• Outcome: Guilty plea at PTPH• PPE: 50 pagesLitigator Fee (approx):£400-600Advocacy Fee (PTPH):£250-350Estimated Total:£650-950Example 2: Class B Trial (5 days)Case Details:• Offence: Robbery (Class B)• Outcome: 5-day trial, conviction• PPE: 250 pagesLitigator Fee (approx):£3,500-5,000Advocacy Fee (5 days):£4,000-6,000Estimated Total:£7,500-11,000Example 3: Class D Cracked TrialCase Details:• Offence: Sexual assault (Class D)• Outcome: Guilty plea on day of trial• PPE: 150 pagesLitigator Fee (approx):£2,000-3,000Advocacy Fee (.</p>
+          <section className="space-y-3">
+            <h2 className="text-h2 text-[var(--navy)]">Examples (illustrative only)</h2>
+            <p className="text-sm text-[var(--muted)]">
+              Numbers below are rough illustrations. Always run the official LAA calculator before relying on any figure.
+            </p>
+            <div className="space-y-4 text-sm text-[var(--muted)]">
+              <div className="rounded-xl border border-slate-200 p-4">
+                <p className="font-bold text-[var(--navy)]">Example A — low class, guilty plea</p>
+                <p className="mt-2">Narrow PPE, early guilty plea at PTPH — combined litigator and advocacy totals may sit in the hundreds to low thousands depending on class and tables in force.</p>
+              </div>
+              <div className="rounded-xl border border-slate-200 p-4">
+                <p className="font-bold text-[var(--navy)]">Example B — serious class, multi-day trial</p>
+                <p className="mt-2">High PPE and several trial days — litigator and AGFS components each rise; totals can reach five figures where rules allow.</p>
+              </div>
+              <div className="rounded-xl border border-slate-200 p-4">
+                <p className="font-bold text-[var(--navy)]">Example C — cracked trial</p>
+                <p className="mt-2">Guilty plea on the day of trial — different uplift/crack rules apply than for an early plea; verify against the AGFS/LGFS tables for the relevant period.</p>
+              </div>
+            </div>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Special Fees &amp; Uplifts</h2>
-            <p className="text-[var(--muted)] leading-relaxed">Conferences &amp; ViewsAdditional fees for out-of-court conferences and site views (not included in graduated fee):Conference with counsel£52.15 per hour (prep rate)Site view£52.15 per hour + travelQC/KC Led CasesWhen a QC/KC is instructed as lead counsel, junior counsel receives a reduced advocacy fee (typically 50-70% of standard graduated fee).Wasted Preparation FeeIf a trial cracks late or is re-listed, additional preparation fees may be claimed for wasted work.</p>
-            <p className="text-[var(--muted)] leading-relaxed">Requires detailed justification and supporting evidence.</p>
+          <section className="space-y-3">
+            <h2 className="text-h2 text-[var(--navy)]">Uplifts, conferences, QC-led cases</h2>
+            <p className="text-[var(--muted)] leading-relaxed">
+              Additional fees may exist for certain conferences, views, and wasted preparation where justified. QC-led
+              cases adjust junior advocacy entitlements. These rules change with scheme updates — follow the current
+              regulations and LAA manuals.
+            </p>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Very High Cost Cases (VHCC)</h2>
-            <p className="text-[var(--muted)] leading-relaxed">Cases with estimated costs exceeding £150,000 are classified as Very High Cost Cases (VHCC) and are removed from the graduated fee scheme.</p>
-            <p className="text-[var(--muted)] leading-relaxed">These are individually negotiated contracts.VHCC Criteria• Complex fraud/conspiracy cases• Multiple defendants (5+)• Thousands of pages of evidence• International element• Lengthy trial estimate (4+ weeks)• Expert evidence complexityVHCC Process• Early identification essential• Individual case contract• Hourly rates + disbursements• Regular billing/review• LAA case manager assigned.</p>
+          <section className="space-y-3">
+            <h2 className="text-h2 text-[var(--navy)]">Very high cost cases (VHCC)</h2>
+            <p className="text-[var(--muted)] leading-relaxed">
+              Exceptionally large or complex matters may leave graduated schemes for individually negotiated contracts.
+              Early identification, LAA engagement, and realistic costing are essential.
+            </p>
           </section>
 
-          <section>
-            <h2 className="text-h2 text-[var(--navy)]">Official Resources &amp; Tools</h2>
-            <p className="text-[var(--muted)] leading-relaxed">LAA Fee CalculatorEssential tool - calculates exact graduated fees based on your case details.</p>
-            <p className="text-[var(--muted)] leading-relaxed">Use this before submitting any claim.Access Calculator 2024 AGFS SchemeThe official Advocates&apos; Graduated Fee Scheme order with all rates and fee tables.View on GOV.UK Litigators Graduated Fee SchemeThe official LGFS order detailing solicitor litigator fee calculations.View on GOV.UK Offence Class CalculatorFind the correct offence class for your case using the LAA&apos;s classification tool.View Guidance Sources &amp; DisclaimerAll information based on the Advocates&apos; Graduated Fee Scheme (AGFS) and Litigators&apos; Graduated Fee Scheme (LGFS) as set out in The Criminal Legal Aid (Remuneration) Regulations 2013 (SI 2013/435) as amended.Fee examples are approximations only - actual graduated fees vary significan.</p>
+          <section className="space-y-3">
+            <h2 className="text-h2 text-[var(--navy)]">Official resources</h2>
+            <ul className="list-disc space-y-2 pl-5 text-[var(--muted)] marker:text-[var(--gold)]">
+              <li>
+                <a
+                  href="https://www.gov.uk/government/organisations/legal-aid-agency"
+                  className="font-semibold text-[var(--navy)] underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Legal Aid Agency
+                </a>{' '}
+                — calculators and guidance
+              </li>
+              <li>
+                <a
+                  href="https://www.gov.uk/guidance/criminal-legal-aid-manual"
+                  className="font-semibold text-[var(--navy)] underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Criminal Legal Aid Manual
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.legislation.gov.uk/uksi/2013/435/contents"
+                  className="font-semibold text-[var(--navy)] underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  SI 2013/435
+                </a>{' '}
+                — remuneration regulations (as amended)
+              </li>
+            </ul>
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-h2 text-[var(--navy)]">Related</h2>
+            <ul className="text-[var(--muted)]">
+              <li>
+                <Link href="/MagistratesCourtFees" className="font-semibold text-[var(--navy)] underline">
+                  Magistrates&apos; standard fees
+                </Link>
+              </li>
+              <li>
+                <Link href="/PoliceStationRepPay" className="font-semibold text-[var(--navy)] underline">
+                  Police station fixed fees
+                </Link>
+              </li>
+            </ul>
+            <p className="text-sm text-[var(--muted)]">
+              Disclaimer: general information only — not billing advice. Schemes and rates change; verify every claim.
+            </p>
           </section>
 
           <section className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
-            <h2 className="text-xl font-bold text-white">Need Help?</h2>
-            <p className="mt-2 text-white">
-              Find an accredited police station representative or get in touch with our team.
-            </p>
+            <h2 className="text-xl font-bold text-white">Need help?</h2>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <Link href="/directory" className="btn-gold no-underline">
-                Find a Rep
+                Find a rep
               </Link>
               <Link href="/Contact" className="btn-outline no-underline">
-                Contact Us
+                Contact us
               </Link>
             </div>
           </section>

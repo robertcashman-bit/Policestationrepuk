@@ -699,7 +699,7 @@ If someone landed here as a member of the public, they need a solicitor — [Nee
     title: 'Sentencing Act 2026: Key Changes for Police Station Reps and Criminal Defence',
     metaTitle: 'Sentencing Act 2026 — Key Changes for Reps & Criminal Defence',
     metaDescription:
-      'What the Sentencing Act 2026 means for police station representatives and criminal defence firms: suspended sentences, the presumption under 12 months, community sentences, and early release reforms.',
+      'Sentencing Act 2026 for police station reps and defence firms: presumption to suspend sentences under 12 months, plus community and early release reforms.',
     primaryKeyword: 'Sentencing Act 2026',
     categories: ['best-practice', 'law-firms'],
     published: '2026-04-11T09:00:00.000Z',
@@ -825,7 +825,7 @@ The Sentencing Act 2026 does not directly change PACE or police station procedur
 When a client asks "am I going to prison?", the answer for a wide range of offences is now more clearly "probably not — unless exceptional circumstances apply". This can:
 
 - Reduce client anxiety (enabling better participation in interview)
-- Change the calculus around prepared statements vs no comment
+- Change the calculus around prepared statements vs no comment — see our [adverse inference guide](/Blog/adverse-inference-no-comment-rep-guide)
 - Inform bail representations (a suspended sentence outcome weakens the remand argument)
 
 ### Mitigation from day one

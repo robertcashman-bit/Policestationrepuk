@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { Header } from '@/components/Header';
+import { WhatsAppCommunityBanner } from '@/components/WhatsAppCommunityBanner';
 import { CustodyNoteTopBanner } from '@/components/CustodyNoteTopBanner';
 import { Footer } from '@/components/Footer';
 import { SiteWidePromoStrip } from '@/components/SiteWidePromoStrip';
@@ -102,6 +103,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <div className="sticky top-0 z-40 shadow-md">
+          <WhatsAppCommunityBanner />
           <CustodyNoteTopBanner />
           <Header />
         </div>

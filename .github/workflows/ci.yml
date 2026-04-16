@@ -15,7 +15,11 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-      - run: npm ci
+      # Use `npm install` (not `npm ci`) so CI tolerates platform-specific
+      # optional dep drift in package-lock.json (e.g. `@emnapi/*` versions
+      # resolved on Linux that differ from a Windows-generated lockfile).
+      # Matches Vercel's install behaviour.
+      - run: npm install --no-audit --no-fund --prefer-offline
       - run: npm run build
       - name: Directory search engine self-test
         run: npm run test:directory-search

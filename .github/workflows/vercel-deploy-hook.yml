@@ -1,22 +1,47 @@
-# Optional: add repository secret VERCEL_DEPLOY_HOOK = URL from Vercel → Project → Settings → Git → Deploy Hooks (Production).
-# Then each push to master/main will trigger a fresh production build after CI passes.
-name: Trigger Vercel production (deploy hook)
+# Production deploy to Vercel on every push to master.
+#
+# Replaces the previous deploy-hook approach (which produced Preview builds).
+# This workflow uses the Vercel CLI directly with VERCEL_TOKEN so the deploy
+# always lands as Production and updates policestationrepuk.org immediately.
+#
+# Required repository secrets:
+#   VERCEL_TOKEN       — access token from https://vercel.com/account/tokens
+#   VERCEL_ORG_ID      — team/account id (e.g. team_xxx)
+#   VERCEL_PROJECT_ID  — project id (e.g. prj_xxx)
+name: Deploy to Vercel (production)
 on:
   workflow_dispatch:
   push:
     branches: [master, main]
 
+# Cancel any in-flight prod deploy if a newer commit lands.
+concurrency:
+  group: vercel-prod
+  cancel-in-progress: true
+
 jobs:
-  hook:
+  deploy:
     runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
-      - name: POST deploy hook
-        env:
-          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
-        run: |
-          if [ -z "$HOOK" ]; then
-            echo "VERCEL_DEPLOY_HOOK secret not set — add a Production deploy hook URL in Vercel, then add it as this repo secret."
-            exit 0
-          fi
-          curl -fsS -X POST "$HOOK"
-          echo "Deploy hook invoked."
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel project settings (production)
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build (production)
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy prebuilt to production
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

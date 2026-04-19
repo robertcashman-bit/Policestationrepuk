@@ -19,7 +19,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/blog/build-blog-hero-webp.mjs",
+    "prebuild": "node scripts/blog/fetch-hero-images.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

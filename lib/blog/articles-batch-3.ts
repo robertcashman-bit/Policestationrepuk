@@ -24,7 +24,7 @@ export const ARTICLES_BATCH_3: BlogArticle[] = [
       'Covers what accreditation signals to instructing firms, how reps maintain CPD and supervision relationships, and how firms can verify standards without unnecessary bureaucracy.',
     image: IMG(
       'accreditation-and-standards-in-freelance-police-station-work',
-      'Graphic header: accreditation and professional standards for freelance police station work'
+      'Stack of bound legal volumes signalling professional standards'
     ),
     relatedSlugs: [
       'what-makes-a-good-police-station-representative',
@@ -110,7 +110,7 @@ See the in-site guide to [becoming a police station rep](/HowToBecomePoliceStati
       'Actionable guidance for freelance reps on building trust with instructing firms: setting expectations, delivering structured handovers, handling conflict, and staying visible without being noisy.',
     image: IMG(
       'how-freelance-police-station-reps-win-repeat-instructions',
-      'Graphic header: freelance police station representative building repeat instructions from law firms'
+      'Two professionals shaking hands outside a modern office building'
     ),
     relatedSlugs: [
       'what-makes-a-good-police-station-representative',
@@ -197,7 +197,7 @@ If you also cover magistrates mentions honestly, say so — many firms value **c
       'Sets out traits and behaviours criminal defence firms value in police station representatives: preparation, client care, PACE awareness, teamwork with officers without losing independence, and disciplined reporting.',
     image: IMG(
       'what-makes-a-good-police-station-representative',
-      'Graphic header: qualities of a good police station representative for criminal defence firms'
+      'Professional taking detailed notes at an office desk with a laptop'
     ),
     relatedSlugs: [
       'freelance-police-station-representative-vs-duty-solicitor',
@@ -280,7 +280,7 @@ Use [search filters](/search) to narrow candidates, then apply your own panel ch
       'Explains the role of fast, unambiguous communication between firms and reps around instructions, mid-attendance decisions, and handovers — with simple habits that reduce mistakes and duplicated work.',
     image: IMG(
       'why-fast-clear-communication-matters-in-police-station-representation',
-      'Graphic header: fast clear communication in police station representation'
+      'Two colleagues discussing work over a laptop in a modern office'
     ),
     relatedSlugs: [
       'how-firms-can-instruct-freelance-police-station-reps',

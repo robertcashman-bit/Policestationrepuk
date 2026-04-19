@@ -24,7 +24,7 @@ export const ARTICLES_BATCH_2: BlogArticle[] = [
       'Clarifies duty solicitor rota work versus firm-instructed freelance accredited representatives, including typical instruction paths, client expectations, and how the two roles can complement each other.',
     image: IMG(
       'freelance-police-station-representative-vs-duty-solicitor',
-      'Graphic header: freelance police station representative compared with duty solicitor role'
+      "Signage above the entrance to the City of London Magistrates' Court"
     ),
     relatedSlugs: [
       'what-does-a-freelance-police-station-representative-do',
@@ -119,7 +119,7 @@ Whether you are a firm or a rep, the [accredited representative directory](/dire
       'A practical list of operational mistakes firms make when instructing freelance accredited representatives, from missing risk flags to unclear escalation paths, with corrective habits that improve outcomes and relationships.',
     image: IMG(
       'common-mistakes-when-instructing-freelance-police-station-reps',
-      'Graphic header: avoiding common mistakes when instructing freelance police station representatives'
+      'Professional in a suit reading a thin case folder before an interview'
     ),
     relatedSlugs: [
       'how-firms-can-instruct-freelance-police-station-reps',
@@ -210,7 +210,7 @@ Combine this article with [out-of-hours network planning](/Blog/out-of-hours-pol
       'Describes a professional structure for post-attendance reporting from freelance reps to instructing solicitors: timings, disclosure, advice summary boundaries, outcomes, and explicit next actions.',
     image: IMG(
       'best-practice-handover-notes-after-police-station-attendance',
-      'Graphic header: professional handover notes after police station attendance'
+      'Hand writing structured handover notes in a paper notebook'
     ),
     relatedSlugs: [
       'police-station-attendance-checklist',
@@ -309,7 +309,7 @@ Pair this habit with the [attendance checklist](/Blog/police-station-attendance-
       'Explains how solicitors’ firms map custody demand, split geography and time bands, vet freelance reps, and run low-drama escalations so overnight police station work is predictable.',
     image: IMG(
       'out-of-hours-police-station-cover-for-law-firms',
-      'Graphic header: out of hours police station cover network for criminal defence firms'
+      'Two professionals working late under low light in an office'
     ),
     relatedSlugs: [
       'how-firms-can-instruct-freelance-police-station-reps',

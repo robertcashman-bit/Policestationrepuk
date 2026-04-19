@@ -24,7 +24,7 @@ export const ARTICLES_BATCH_4: BlogArticle[] = [
       'Explains why a national police station rep directory complements internal panels: transparency, geography, accreditation visibility, and faster shortlisting when you need someone tonight.',
     image: IMG(
       'why-firms-need-rep-directory',
-      'Graphic header: law firms using a police station representative directory'
+      'British police vehicle parked outside a UK police station in Silloth, Cumbria'
     ),
     relatedSlugs: [
       'how-firms-can-instruct-freelance-police-station-reps',
@@ -107,7 +107,7 @@ Nominate someone to refresh how your firm searches when rotas change. Pair direc
       'Operational guidance for firms on sourcing last-minute accredited representatives: who owns the search, what to send in the brief, and how to avoid predictable failure modes.',
     image: IMG(
       'how-firms-source-emergency-rep-cover',
-      'Graphic header: law firm sourcing emergency police station representative cover'
+      'Late-night office staff coordinating urgent work under low light'
     ),
     relatedSlugs: [
       'out-of-hours-police-station-cover-for-law-firms',
@@ -189,7 +189,7 @@ If the client needs a solicitor rather than rep-only attendance, [Need a solicit
       'Career-focused guidance for accredited representatives: workload planning, professional boundaries, CPD, insurance consciousness, and how firms choose who to rebook.',
     image: IMG(
       'freelance-police-station-rep-career',
-      'Graphic header: freelance police station representative career and professional growth'
+      'Professional walking to work carrying a leather briefcase'
     ),
     relatedSlugs: [
       'how-freelance-police-station-reps-win-repeat-instructions',
@@ -262,7 +262,7 @@ If you want new firms to discover you, keep your [registration](/register) profi
       'Non-exhaustive professional overview of PI insurance considerations for accredited representatives, instructing firms’ risk questions, and why “I am careful” is not a policy.',
     image: IMG(
       'professional-indemnity-insurance-reps',
-      'Graphic header: professional indemnity insurance for police station representatives'
+      'Close-up of male hands signing a policy document with a pen'
     ),
     relatedSlugs: [
       'accreditation-and-standards-in-freelance-police-station-work',
@@ -338,7 +338,7 @@ If a matter requires a solicitor’s retainer, direct clients appropriately — 
       'Sets expectations for representatives and firms on discussing fees, Legal Aid vs private contexts, and documenting call-out arrangements without quoting non-existent fixed national tariffs.',
     image: IMG(
       'police-station-rep-fee-rates-2026',
-      'Graphic header: police station representative fee rates Legal Aid and private'
+      'Calculator, pen and paperwork on an office desk for fee calculations'
     ),
     relatedSlugs: [
       'freelance-police-station-rep-career',
@@ -412,7 +412,7 @@ For broader pay context (not fee negotiation advice), see [PoliceStationRepPay](
       'Step-by-step professional guidance for accredited representatives conducting pre-interview consultations: questions, boundaries, vulnerability awareness, and communication back to the firm.',
     image: IMG(
       'pre-interview-consultation-rep-guide',
-      'Graphic header: pre-interview consultation for police station representatives'
+      'Solicitor preparing consultation notes at an office desk'
     ),
     relatedSlugs: [
       'police-station-attendance-checklist',
@@ -485,7 +485,7 @@ Members of the public needing a solicitor should be directed to [Need a solicito
       'Structured tips for representatives reviewing PACE custody records: what to scan first, common anomalies, welfare flags, and how to summarise findings for solicitors.',
     image: IMG(
       'how-to-review-custody-record',
-      'Graphic header: reviewing a police custody record as a representative'
+      'Overhead view of reviewing handwritten notes beside a keyboard'
     ),
     relatedSlugs: [
       'police-station-attendance-checklist',
@@ -562,7 +562,7 @@ Your attendance note should let a solicitor who was not there reconstruct risk. 
       'How accredited representatives should approach police disclosure in custody: preparation, questions for officers, boundaries on advice, and notes that help the instructing firm act.',
     image: IMG(
       'handling-disclosure-police-station',
-      'Graphic header: handling police disclosure at the police station'
+      'Solicitor reviewing a folder of disclosure documents in a quiet office'
     ),
     relatedSlugs: [
       'what-to-include-in-a-police-station-brief',
@@ -633,7 +633,7 @@ Tie disclosure notes into [custody record review](/Blog/how-to-review-custody-re
       'How accredited representatives should discuss no comment interviews without overstepping: general risks of adverse inference, confidentiality, escalation to instructing solicitors, and record-keeping.',
     image: IMG(
       'adverse-inference-no-comment-rep-guide',
-      'Graphic header: adverse inference and no comment police interviews for representatives'
+      'A wooden gavel resting on a dark surface representing legal weight'
     ),
     relatedSlugs: [
       'freelance-police-station-representative-vs-duty-solicitor',
@@ -710,7 +710,7 @@ If someone landed here as a member of the public, they need a solicitor — [Nee
       'Breaks down the Sentencing Act 2026 for criminal defence practitioners: the new presumption to suspend sentences of 12 months or less, three-year suspended sentence powers, strengthened community sentences, early release changes, and what it all means at the police station.',
     image: IMG(
       'sentencing-act-2026-key-changes',
-      'Sentencing Act 2026 — key changes for police station reps and criminal defence'
+      'Row of bound law books lined up along a library shelf'
     ),
     relatedSlugs: [
       'adverse-inference-no-comment-rep-guide',

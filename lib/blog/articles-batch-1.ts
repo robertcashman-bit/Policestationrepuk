@@ -24,7 +24,7 @@ export const ARTICLES_BATCH_1: BlogArticle[] = [
       'This article explains the day-to-day work of a freelance police station representative acting under instruction from a criminal defence firm: preparation, attendance, client contact, liaison with custody, and post-attendance reporting. It is general guidance for professionals, not legal advice.',
     image: IMG(
       'what-does-a-freelance-police-station-representative-do',
-      'Graphic header: freelance police station representative role — custody attendance and briefing context'
+      'Old London police station signage on a brick wall'
     ),
     relatedSlugs: [
       'freelance-police-station-representative-vs-duty-solicitor',
@@ -114,7 +114,7 @@ For **firms**, freelance cover is often about capacity: out-of-hours rotas, geog
       'Criminal defence firms use freelance accredited representatives to extend coverage and respond to demand spikes. This guide covers instruction channels, minimum brief content, escalation paths, and how to evaluate performance — so deployments are consistent rather than ad hoc.',
     image: IMG(
       'how-firms-can-instruct-freelance-police-station-reps',
-      'Graphic header: law firm instructing freelance police station representative — briefing and communication'
+      'Senior solicitor briefing colleagues during an office meeting'
     ),
     relatedSlugs: [
       'what-to-include-in-a-police-station-brief',
@@ -210,7 +210,7 @@ When you need a new name quickly, filter by county and accreditation on the [dir
       'A field checklist for accredited representatives covering pre-arrival checks, custody desk points, consultation, interview support, and post-release reporting. Adapt it to your firm’s house style and your insurer’s requirements.',
     image: IMG(
       'police-station-attendance-checklist',
-      'Graphic header: police station attendance checklist for accredited representatives'
+      'Hand ticking off items in a paper notebook checklist with a pen'
     ),
     relatedSlugs: [
       'what-to-include-in-a-police-station-brief',
@@ -315,7 +315,7 @@ Keep your [directory profile](/register) accurate on counties, hours, and accred
       'Sets out the elements solicitors’ firms should include when instructing freelance police station representatives: client and matter identifiers, allegation summary, vulnerabilities, disclosure expectations, tactical steer, and post-attendance deliverables.',
     image: IMG(
       'what-to-include-in-a-police-station-brief',
-      'Graphic header: law firm preparing police station brief for freelance representative'
+      'Solicitor preparing a case brief at a desk with a laptop and notebook'
     ),
     relatedSlugs: [
       'how-firms-can-instruct-freelance-police-station-reps',

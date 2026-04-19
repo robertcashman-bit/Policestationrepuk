@@ -1,10 +1,22 @@
 /**
- * Optional: download 16:9 heroes from Pexels when PEXELS_API_KEY is set.
- * Falls back to rasterising local SVGs (same as build-blog-hero-webp.mjs) if the key is missing.
+ * Build blog hero images for every article.
  *
- * Usage: PEXELS_API_KEY=... node scripts/blog/fetch-hero-images.mjs
+ * Default behaviour: download a curated Unsplash photo per slug
+ *   (Unsplash License — free, commercial use OK, attribution appreciated)
+ *   from images.unsplash.com, then write a 16:9 1200x675 hero plus a
+ *   768x432 narrow companion to public/images/blog/raster/{slug}.webp.
  *
- * Curated queries per slug — editorial, custody/law-adjacent stock (not case-specific).
+ * Optional Pexels fallback: if PEXELS_API_KEY is set and a slug query is
+ *   listed in PEXELS_QUERIES, the script will try Pexels first and fall back
+ *   to the curated Unsplash URL on failure.
+ *
+ * Final fallback: rasterise the local SVG placeholder if no remote image is
+ *   available.
+ *
+ * Usage:
+ *   node scripts/blog/fetch-hero-images.mjs              # Unsplash + SVG fallback
+ *   PEXELS_API_KEY=xxx node scripts/blog/fetch-hero-images.mjs  # Pexels first
+ *   node scripts/blog/fetch-hero-images.mjs --force      # ignore existing webp
  */
 import fs from 'fs/promises';
 import path from 'path';
@@ -14,41 +26,192 @@ const ROOT = process.cwd();
 const BLOG_DIR = path.join(ROOT, 'public', 'images', 'blog');
 const OUT_DIR = path.join(BLOG_DIR, 'raster');
 
-const SLUG_QUERIES = {
-  'what-does-a-freelance-police-station-representative-do': 'office teamwork professional',
-  'how-firms-can-instruct-freelance-police-station-reps': 'law office documents',
-  'police-station-attendance-checklist': 'notebook checklist professional',
-  'what-to-include-in-a-police-station-brief': 'legal documents folder',
-  'freelance-police-station-representative-vs-duty-solicitor': 'scales of justice courthouse',
-  'common-mistakes-when-instructing-freelance-police-station-reps': 'business meeting serious',
-  'best-practice-handover-notes-after-police-station-attendance': 'typing report laptop',
-  'out-of-hours-police-station-cover-for-law-firms': 'night city street lights',
-  'accreditation-and-standards-in-freelance-police-station-work': 'certificate diploma professional',
-  'how-freelance-police-station-reps-win-repeat-instructions': 'handshake business trust',
-  'what-makes-a-good-police-station-representative': 'professional interview serious',
-  'why-fast-clear-communication-matters-in-police-station-representation': 'smartphone message communication',
-};
+const FORCE = process.argv.includes('--force');
 
 const WIDE = { w: 1200, h: 675 };
 const NARROW = { w: 768, h: 432 };
 
+/**
+ * Curated Unsplash photo per article slug.
+ * Each entry is the photo's images.unsplash.com identifier (the segment
+ * between `/` and `?`).  All photos verified individually as covered by
+ * the regular (free) Unsplash License — not Unsplash+.
+ */
+const UNSPLASH_PHOTOS = {
+  'what-does-a-freelance-police-station-representative-do': {
+    id: 'photo-1610815253406-7a5887109e83',
+    credit: 'Francois Olwage / Unsplash',
+    description: 'Old London Police Station signage on a brick wall',
+  },
+  'how-firms-can-instruct-freelance-police-station-reps': {
+    id: 'photo-1758691736493-aa6d22c0f8a6',
+    credit: 'Vitaly Gariev / Unsplash',
+    description: 'Senior solicitor briefing colleagues during an office meeting',
+  },
+  'police-station-attendance-checklist': {
+    id: 'photo-1754039985008-a15410211b67',
+    credit: 'Jakub Żerdzicki / Unsplash',
+    description: 'Close-up of a hand ticking off items in a notebook checklist',
+  },
+  'what-to-include-in-a-police-station-brief': {
+    id: 'photo-1758876020200-1e19cddaf656',
+    credit: 'Vitaly Gariev / Unsplash',
+    description: 'Solicitor preparing case notes at a desk with a laptop and notebook',
+  },
+  'freelance-police-station-representative-vs-duty-solicitor': {
+    id: 'photo-1717333274767-0eed749076a4',
+    credit: 'Sue Winston / Unsplash',
+    description: "Signage above the entrance to the City of London Magistrates' Court",
+  },
+  'common-mistakes-when-instructing-freelance-police-station-reps': {
+    id: 'photo-1549923746-9507eec27243',
+    credit: 'Sebastian Herrmann / Unsplash',
+    description: 'Professional in a suit reading a thin case folder',
+  },
+  'best-practice-handover-notes-after-police-station-attendance': {
+    id: 'photo-1768055104910-8c8d213835fb',
+    credit: 'Jakub Żerdzicki / Unsplash',
+    description: 'Hand writing structured notes in a paper notebook',
+  },
+  'out-of-hours-police-station-cover-for-law-firms': {
+    id: 'photo-1758520145140-c2dd8e78fc02',
+    credit: 'Vitaly Gariev / Unsplash',
+    description: 'Two professionals working late under low light in an office',
+  },
+  'accreditation-and-standards-in-freelance-police-station-work': {
+    id: 'photo-1534580250660-88e8789d3e85',
+    credit: 'Annie Spratt / Unsplash',
+    description: 'Stack of bound legal volumes signalling professional standards',
+  },
+  'how-freelance-police-station-reps-win-repeat-instructions': {
+    id: 'photo-1758599543129-5269a8f29e68',
+    credit: 'Vitaly Gariev / Unsplash',
+    description: 'Two professionals shaking hands outside a modern office building',
+  },
+  'what-makes-a-good-police-station-representative': {
+    id: 'photo-1758876020490-ae178d769b7b',
+    credit: 'Vitaly Gariev / Unsplash',
+    description: 'Professional taking detailed notes at an office desk with a laptop',
+  },
+  'why-fast-clear-communication-matters-in-police-station-representation': {
+    id: 'photo-1758876202919-4d2fbedcf23d',
+    credit: 'Vitaly Gariev / Unsplash',
+    description: 'Two colleagues discussing work over a laptop in a modern office',
+  },
+  'why-firms-need-rep-directory': {
+    id: 'photo-1707179120160-d2c0172ec9da',
+    credit: 'Crystal Stone / Unsplash',
+    description: 'British police vehicle parked outside a UK police station (Silloth, Cumbria)',
+  },
+  'how-firms-source-emergency-rep-cover': {
+    id: 'photo-1758520145140-c2dd8e78fc02',
+    credit: 'Vitaly Gariev / Unsplash',
+    description: 'Late-night office staff coordinating urgent work',
+  },
+  'freelance-police-station-rep-career': {
+    id: 'photo-1714906472800-45d9328f08d3',
+    credit: 'Alexander London / Unsplash',
+    description: 'Professional walking to work carrying a leather briefcase',
+  },
+  'professional-indemnity-insurance-reps': {
+    id: 'photo-1763729805496-b5dbf7f00c79',
+    credit: 'Jakub Żerdzicki / Unsplash',
+    description: 'Close-up of male hands signing a policy document with a pen',
+  },
+  'police-station-rep-fee-rates-2026': {
+    id: 'photo-1772588627483-d036793569e8',
+    credit: 'Kelly Sikkema / Unsplash',
+    description: 'Calculator, pen and paperwork on an office desk for fee calculations',
+  },
+  'pre-interview-consultation-rep-guide': {
+    id: 'photo-1758876020490-ae178d769b7b',
+    credit: 'Vitaly Gariev / Unsplash',
+    description: 'Solicitor preparing consultation notes at an office desk',
+  },
+  'how-to-review-custody-record': {
+    id: 'photo-1753715613651-749ef230482c',
+    credit: 'Jakub Żerdzicki / Unsplash',
+    description: 'Overhead view of reviewing handwritten notes beside a mechanical keyboard',
+  },
+  'handling-disclosure-police-station': {
+    id: 'photo-1549923746-9507eec27243',
+    credit: 'Sebastian Herrmann / Unsplash',
+    description: 'Solicitor reviewing a folder of disclosure documents in a quiet office',
+  },
+  'adverse-inference-no-comment-rep-guide': {
+    id: 'photo-1589216532372-1c2a367900d9',
+    credit: 'Tingey Injury Law Firm / Unsplash',
+    description: 'Open law book and gavel on a desk in a quiet legal office',
+  },
+  'sentencing-act-2026-key-changes': {
+    id: 'photo-1752697589032-3717e8b24753',
+    credit: 'Krists Luhaers / Unsplash',
+    description: 'Row of law books lined up along a shelf',
+  },
+};
+
+/** Optional Pexels topical queries used only when PEXELS_API_KEY is set. */
+const PEXELS_QUERIES = {
+  'what-does-a-freelance-police-station-representative-do': 'UK police station signage',
+  'how-firms-can-instruct-freelance-police-station-reps': 'solicitor briefing meeting office UK',
+  'police-station-attendance-checklist': 'notebook checklist hand ticking off',
+  'what-to-include-in-a-police-station-brief': 'lawyer preparing notes desk laptop',
+  'freelance-police-station-representative-vs-duty-solicitor': 'magistrates court entrance UK',
+  'common-mistakes-when-instructing-freelance-police-station-reps': 'lawyer reviewing folder office serious',
+  'best-practice-handover-notes-after-police-station-attendance': 'writing notes paper notebook close up',
+  'out-of-hours-police-station-cover-for-law-firms': 'office working late night dim',
+  'accreditation-and-standards-in-freelance-police-station-work': 'stack of law books professional',
+  'how-freelance-police-station-reps-win-repeat-instructions': 'professionals handshake outside building',
+  'what-makes-a-good-police-station-representative': 'professional taking notes desk laptop',
+  'why-fast-clear-communication-matters-in-police-station-representation': 'two colleagues discussing laptop office',
+  'why-firms-need-rep-directory': 'UK police car police station',
+  'how-firms-source-emergency-rep-cover': 'late night office urgent work',
+  'freelance-police-station-rep-career': 'professional briefcase commute London',
+  'professional-indemnity-insurance-reps': 'signing legal document pen close up',
+  'police-station-rep-fee-rates-2026': 'calculator paperwork desk invoice',
+  'pre-interview-consultation-rep-guide': 'solicitor preparing notes consultation',
+  'how-to-review-custody-record': 'reviewing notes office overhead keyboard',
+  'handling-disclosure-police-station': 'lawyer reviewing folder documents office',
+  'adverse-inference-no-comment-rep-guide': 'gavel dark background close up',
+  'sentencing-act-2026-key-changes': 'law books shelf library legal',
+};
+
+function unsplashUrl(photoId, width) {
+  return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=${width}&q=80`;
+}
+
+async function downloadBuffer(url) {
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent':
+        'Mozilla/5.0 (compatible; PoliceStationRepUK/1.0; +https://policestationrepuk.org)',
+      Accept: 'image/avif,image/webp,image/*;q=0.8,*/*;q=0.5',
+    },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return Buffer.from(await res.arrayBuffer());
+}
+
 async function fetchPexelsPhoto(query) {
   const key = process.env.PEXELS_API_KEY;
-  if (!key) return null;
+  if (!key || !query) return null;
   const u = new URL('https://api.pexels.com/v1/search');
   u.searchParams.set('query', query);
   u.searchParams.set('per_page', '1');
   u.searchParams.set('orientation', 'landscape');
+  u.searchParams.set('size', 'large');
   const res = await fetch(u, { headers: { Authorization: key } });
   if (!res.ok) throw new Error(`Pexels ${res.status}: ${await res.text()}`);
   const data = await res.json();
   const p = data.photos?.[0];
   if (!p) return null;
-  const src = p.src?.large2x || p.src?.large;
+  const src = p.src?.large2x || p.src?.large || p.src?.original;
   if (!src) return null;
-  const imgRes = await fetch(src);
-  if (!imgRes.ok) throw new Error(`Image fetch ${imgRes.status}`);
-  return { buffer: Buffer.from(await imgRes.arrayBuffer()), photographer: p.photographer, url: p.url };
+  return {
+    buffer: await downloadBuffer(src),
+    photographer: p.photographer,
+    url: p.url,
+  };
 }
 
 async function toWebpFromBuffer(buf, width, height, maxBytes) {
@@ -79,40 +242,90 @@ async function fromSvgFile(svgPath, width, height, maxBytes) {
   return buf;
 }
 
+async function exists(p) {
+  try {
+    await fs.access(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function main() {
   await fs.mkdir(OUT_DIR, { recursive: true });
-  const key = process.env.PEXELS_API_KEY;
-  if (!key) {
-    console.log('PEXELS_API_KEY not set — rasterising local SVGs only.');
-  }
+  const slugs = Object.keys(UNSPLASH_PHOTOS).sort();
+  const results = [];
 
-  for (const slug of Object.keys(SLUG_QUERIES)) {
-    const svgPath = path.join(BLOG_DIR, `${slug}.svg`);
+  for (const slug of slugs) {
+    const widePath = path.join(OUT_DIR, `${slug}.webp`);
+    const narrowPath = path.join(OUT_DIR, `${slug}-768.webp`);
+    if (!FORCE && (await exists(widePath)) && (await exists(narrowPath))) {
+      // marker: already done; rerun with --force to refresh
+      const wsz = (await fs.stat(widePath)).size;
+      if (wsz > 60_000) {
+        // Photographic webp — keep.
+        results.push({ slug, source: 'cached', size: wsz });
+        continue;
+      }
+      // smaller than ~60KB → almost certainly an SVG-banner rasterisation;
+      // fall through to refresh.
+    }
+
+    const meta = UNSPLASH_PHOTOS[slug];
+    let buffer;
+    let source = 'unsplash';
+    let credit = meta.credit;
+
+    try {
+      const got = await fetchPexelsPhoto(PEXELS_QUERIES[slug]);
+      if (got) {
+        buffer = got.buffer;
+        source = 'pexels';
+        credit = `${got.photographer} / Pexels`;
+      }
+    } catch (err) {
+      console.warn(`${slug}: Pexels failed (${err.message}); falling back to Unsplash`);
+    }
+
+    if (!buffer) {
+      try {
+        buffer = await downloadBuffer(unsplashUrl(meta.id, 1600));
+      } catch (err) {
+        console.warn(`${slug}: Unsplash failed (${err.message}); falling back to local SVG`);
+      }
+    }
+
     let wideBuf;
     let narrowBuf;
-    try {
-      if (key) {
-        const query = SLUG_QUERIES[slug];
-        const got = await fetchPexelsPhoto(query);
-        if (got) {
-          console.log(`${slug}: Pexels — ${got.photographer}`);
-          wideBuf = await toWebpFromBuffer(got.buffer, WIDE.w, WIDE.h, 150 * 1024);
-          narrowBuf = await toWebpFromBuffer(got.buffer, NARROW.w, NARROW.h, 90 * 1024);
-        }
+    if (buffer) {
+      wideBuf = await toWebpFromBuffer(buffer, WIDE.w, WIDE.h, 150 * 1024);
+      narrowBuf = await toWebpFromBuffer(buffer, NARROW.w, NARROW.h, 90 * 1024);
+    } else {
+      const svgPath = path.join(BLOG_DIR, `${slug}.svg`);
+      if (!(await exists(svgPath))) {
+        throw new Error(`No remote photo and no local SVG for ${slug}`);
       }
-    } catch (e) {
-      console.warn(`${slug}: Pexels failed (${e.message}), falling back to SVG`);
-    }
-    if (!wideBuf) {
-      await fs.access(svgPath);
-      console.log(`${slug}: SVG → WebP`);
+      source = 'svg-fallback';
+      credit = '(local SVG fallback)';
       wideBuf = await fromSvgFile(svgPath, WIDE.w, WIDE.h, 150 * 1024);
       narrowBuf = await fromSvgFile(svgPath, NARROW.w, NARROW.h, 90 * 1024);
     }
-    await fs.writeFile(path.join(OUT_DIR, `${slug}.webp`), wideBuf);
-    await fs.writeFile(path.join(OUT_DIR, `${slug}-768.webp`), narrowBuf);
+
+    await fs.writeFile(widePath, wideBuf);
+    await fs.writeFile(narrowPath, narrowBuf);
+    results.push({ slug, source, credit, wide: wideBuf.length, narrow: narrowBuf.length });
+    console.log(
+      `${slug}: ${source} ${(wideBuf.length / 1024).toFixed(1)}KB / ${(
+        narrowBuf.length / 1024
+      ).toFixed(1)}KB — ${credit}`
+    );
   }
-  console.log('Done — heroes in', OUT_DIR);
+
+  console.log(`\nDone — ${slugs.length} hero images in ${OUT_DIR}`);
+  const cached = results.filter((r) => r.source === 'cached').length;
+  const fetched = results.filter((r) => r.source === 'unsplash' || r.source === 'pexels').length;
+  const svg = results.filter((r) => r.source === 'svg-fallback').length;
+  console.log(`Summary: ${fetched} fetched, ${cached} cached, ${svg} SVG fallback`);
 }
 
 main().catch((e) => {

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import {
+  CUSTODYNOTE_DISCOUNT_CODE,
+  CUSTODYNOTE_MEMBER_PRICE_GBP,
   CUSTODYNOTE_TRIAL_HREF,
   TOP_BANNER_TEXT,
 } from '@/lib/custodynote-promo';
@@ -35,13 +37,19 @@ export function CustodyNoteTopBanner() {
           {TOP_BANNER_TEXT}
         </a>
         <span className="hidden h-4 w-px bg-white/30 sm:inline-block" aria-hidden />
+        <span className="hidden text-[11px] font-medium text-white/85 sm:inline">
+          PSR UK readers £{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo · code{' '}
+          <span className="rounded bg-[var(--gold)]/20 px-1.5 py-0.5 font-mono font-bold text-[var(--gold)]">
+            {CUSTODYNOTE_DISCOUNT_CODE}
+          </span>
+        </span>
         <a
           href={CUSTODYNOTE_TRIAL_HREF}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex shrink-0 items-center rounded-full bg-[var(--gold)] px-4 py-1.5 text-xs font-bold text-[var(--navy)] no-underline shadow-sm transition-colors hover:bg-[var(--gold-hover)]"
         >
-          Start free trial
+          Start free trial →
         </a>
         <button
           type="button"

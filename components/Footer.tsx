@@ -1,7 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { CUSTODYNOTE_TRIAL_HREF } from '@/lib/custodynote-promo';
+import {
+  CUSTODYNOTE_DISCOUNT_CODE,
+  CUSTODYNOTE_MEMBER_PRICE_GBP,
+  CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_TRIAL_HREF,
+} from '@/lib/custodynote-promo';
 import { SUPPORT_EMAIL, SUPPORT_MAILTO_HREF } from '@/lib/site-contact';
 import {
   FOOTER_COLUMN_TITLES,
@@ -73,9 +78,13 @@ export function Footer() {
           </h3>
           <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-base font-bold text-white">CustodyNote — attendance note software</p>
+              <p className="text-base font-bold text-white">CustodyNote — PACE attendance note software</p>
               <p className="mt-1 text-xs text-slate-300">
-                Structured custody notes, offline-first, PDF export. 30-day free trial.
+                Structured custody notes, offline-first, PDF + LAA billing. 30-day free trial · £
+                {CUSTODYNOTE_PRICE_GBP}/mo · PSR UK readers £{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
+                <span className="rounded bg-[var(--gold)]/20 px-1.5 py-0.5 font-mono font-bold text-[var(--gold)]">
+                  {CUSTODYNOTE_DISCOUNT_CODE}
+                </span>
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -130,10 +139,18 @@ export function Footer() {
             </a>
           </div>
           <div>
-            <h4 className="text-sm font-bold text-white">Custody Note — Attendance Note Software</h4>
-            <p className="mt-1 text-xs text-white">PACE-aligned notes, offline-first, PDF export, AES-256 encryption. 30-day free trial.</p>
+            <h4 className="text-sm font-bold text-white">CustodyNote — PACE attendance note software</h4>
+            <p className="mt-1 text-xs text-white">
+              PACE-aligned notes, offline-first, PDF + LAA billing, AES-256 encryption. £
+              {CUSTODYNOTE_PRICE_GBP}/mo after a 30-day free trial. PSR UK readers £
+              {CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
+              <span className="rounded bg-[var(--gold)]/20 px-1.5 py-0.5 font-mono font-bold text-[var(--gold)]">
+                {CUSTODYNOTE_DISCOUNT_CODE}
+              </span>
+              .
+            </p>
             <a
-              href="https://custodynote.com"
+              href={CUSTODYNOTE_TRIAL_HREF}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"

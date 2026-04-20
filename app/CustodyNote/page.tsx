@@ -1,20 +1,30 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import {
+  CUSTODYNOTE_DISCOUNT_CODE,
+  CUSTODYNOTE_DISCOUNT_PCT,
+  CUSTODYNOTE_DOWNLOAD_HREF,
+  CUSTODYNOTE_MEMBER_PRICE_GBP,
+  CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_PRICING_HREF,
+  CUSTODYNOTE_VERSION,
+} from '@/lib/custodynote-promo';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Custody Note — Police Station Attendance Software',
+  title: `CustodyNote — UK Police Station Attendance Note Software (£${CUSTODYNOTE_PRICE_GBP}/mo)`,
   description:
-    'Custody Note: Windows software for solicitors and reps—structured police station notes, PDF export, LAA billing, offline use, 30-day trial.',
+    `CustodyNote: PACE-aligned Windows software for criminal solicitors and accredited police station reps — structured custody, voluntary and telephone notes, PDF export, LAA billing fields, offline-first. £${CUSTODYNOTE_PRICE_GBP}/mo (PSR UK readers £${CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code ${CUSTODYNOTE_DISCOUNT_CODE}). 30-day free trial, no credit card.`,
   path: '/CustodyNote',
 });
 
-const CUSTODYNOTE_PRICING = 'https://custodynote.com/pricing';
-const CUSTODYNOTE_DOWNLOAD =
-  'https://github.com/robertcashman-bit/custody-note-app/releases/download/v1.4.160/Custody-Note-Setup-1.4.160.exe';
-const DISCOUNT_CODE = 'A2MJY2NQ';
-const SUBSCRIPTION_GBP = '9.99';
+const CUSTODYNOTE_PRICING = CUSTODYNOTE_PRICING_HREF;
+const CUSTODYNOTE_DOWNLOAD = CUSTODYNOTE_DOWNLOAD_HREF;
+const DISCOUNT_CODE = CUSTODYNOTE_DISCOUNT_CODE;
+const SUBSCRIPTION_GBP = CUSTODYNOTE_PRICE_GBP;
+const MEMBER_GBP = CUSTODYNOTE_MEMBER_PRICE_GBP;
+const APP_VERSION = CUSTODYNOTE_VERSION;
 
 const RECORD_TYPES = [
   {
@@ -193,13 +203,14 @@ export default function CustodyNotePage() {
           </div>
 
           <h1 className="text-h1 text-white">
-            Desktop software for police station attendance notes
+            PACE attendance notes that match how UK custody work actually runs
           </h1>
 
           <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
-            Built for freelance police station representatives and criminal solicitors who need a
-            reliable, structured way to record attendances, telephone advice, voluntary interview
-            work, billing, and PDF-ready handover notes in one Windows desktop app.
+            CustodyNote is Windows software built for criminal defence solicitors and accredited
+            police station representatives. Disclosure → advice → interview → outcome in one
+            structured record — offline at the custody desk, PDF for the firm file, LAA-oriented
+            billing fields built in. No more rewriting the same facts at 2am.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -216,14 +227,21 @@ export default function CustodyNotePage() {
 
           <div className="mt-8 rounded-[var(--radius-lg)] border-2 border-[var(--gold)] bg-[var(--navy-light)] p-5">
             <p className="text-sm font-semibold uppercase tracking-wider text-[var(--gold)]">
-              Early Adopter Price
+              Simple, all-in-one pricing
             </p>
-            <p className="mt-2 text-base font-semibold text-white">
-              £{SUBSCRIPTION_GBP}/month — early access pricing that will increase as features are added.
-              Subscribe now to lock in this rate for as long as your subscription stays active.
+            <p className="mt-2 text-2xl font-extrabold text-white sm:text-3xl">
+              £{SUBSCRIPTION_GBP}
+              <span className="text-base font-medium text-white/80">/month</span>
+              <span className="mx-2 text-white/40">·</span>
+              <span className="text-[var(--gold)]">PSR UK readers £{MEMBER_GBP}/mo</span>
+            </p>
+            <p className="mt-2 text-sm text-white/85">
+              One plan, everything included — notes, billing, PDF export, AES-256 encryption and
+              optional UK cloud backup. 30-day free trial, no credit card. Cancel anytime. Save more
+              with 6-month or annual billing at checkout on custodynote.com.
             </p>
             <p className="mt-3 text-sm text-slate-300">
-              PSR UK members also get 25% off — use code{' '}
+              {CUSTODYNOTE_DISCOUNT_PCT}% off for PoliceStationRepUK readers — use code{' '}
               <span className="rounded bg-[var(--gold)] px-2.5 py-0.5 font-mono text-sm text-[var(--navy)]">
                 {DISCOUNT_CODE}
               </span>{' '}
@@ -250,7 +268,7 @@ export default function CustodyNotePage() {
             </a>
           </div>
           <p className="mt-3 text-xs text-slate-300">
-            No credit card for trial · Windows 10+ · £{SUBSCRIPTION_GBP}/mo early adopter price · Cancel any time
+            No credit card for trial · Windows 10+ · £{SUBSCRIPTION_GBP}/mo (PSR UK £{MEMBER_GBP}/mo) · Cancel any time · v{APP_VERSION}
           </p>
         </div>
       </section>
@@ -457,16 +475,19 @@ export default function CustodyNotePage() {
           <div className="mx-auto mt-8 max-w-md">
             <div className="rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/40 bg-[var(--gold)]/5 p-6">
               <p className="mb-1 text-center text-xs font-bold uppercase tracking-wider text-[var(--gold-link)]">
-                Early Adopter Price
+                One plan · everything included
               </p>
-              <p className="text-center text-2xl font-bold text-[var(--navy)]">
+              <p className="text-center text-3xl font-extrabold text-[var(--navy)]">
                 £{SUBSCRIPTION_GBP}<span className="text-base font-normal text-[var(--muted)]">/mo</span>
               </p>
-              <p className="mt-1 text-center text-sm text-[var(--muted)]">
-                30-day free trial included
+              <p className="mt-1 text-center text-sm font-semibold text-[var(--gold-link)]">
+                PSR UK readers £{MEMBER_GBP}/mo with code {DISCOUNT_CODE}
+              </p>
+              <p className="mt-2 text-center text-sm text-[var(--muted)]">
+                30-day free trial included · no credit card to try · cancel anytime
               </p>
               <p className="mt-1 text-center text-xs text-[var(--muted)]">
-                This price will increase — lock it in now. Use code {DISCOUNT_CODE} for 25% off.
+                Save more with 6-month or annual billing at checkout on custodynote.com.
               </p>
               <ul className="mt-6 space-y-3">
                 {PRICING_FEATURES.map((pf) => (
@@ -491,26 +512,35 @@ export default function CustodyNotePage() {
 
       {/* Bottom CTA */}
       <section className="mb-14 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center sm:p-10">
-        <h2 className="text-h2 text-white">Ready to try Custody Note?</h2>
+        <h2 className="text-h2 text-white">Ready to try CustodyNote?</h2>
         <p className="mx-auto mt-3 max-w-xl text-slate-300">
-          Start your 30-day free trial today. No credit card required. The current £{SUBSCRIPTION_GBP}/mo
-          early adopter price will increase — subscribe now to lock it in. PSR UK members can
-          use code{' '}
+          Start a 30-day free trial today — no credit card, all features included. £{SUBSCRIPTION_GBP}/mo
+          after the trial. PSR UK readers pay £{MEMBER_GBP}/mo with code{' '}
           <span className="rounded bg-[var(--gold)] px-2.5 py-0.5 font-mono text-sm text-[var(--navy)]">
             {DISCOUNT_CODE}
           </span>{' '}
-          for an extra 25% off.
+          ({CUSTODYNOTE_DISCOUNT_PCT}% off) at checkout on custodynote.com.
         </p>
-        <a
-          href={CUSTODYNOTE_PRICING}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-gold mt-6 inline-flex min-h-[44px] items-center no-underline"
-        >
-          View Pricing & Trial →
-        </a>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <a
+            href={CUSTODYNOTE_DOWNLOAD}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-gold inline-flex min-h-[44px] items-center no-underline"
+          >
+            Download Free 30-Day Trial →
+          </a>
+          <a
+            href={CUSTODYNOTE_PRICING}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-outline inline-flex min-h-[44px] items-center !border-white !text-white no-underline hover:!bg-white hover:!text-[var(--navy)]"
+          >
+            View pricing & trial →
+          </a>
+        </div>
         <p className="mt-3 text-xs text-[var(--muted)]">
-          No credit card for trial · Windows 10+ · £{SUBSCRIPTION_GBP}/mo early adopter price · Cancel any time
+          No credit card for trial · Windows 10+ · £{SUBSCRIPTION_GBP}/mo (PSR UK £{MEMBER_GBP}/mo) · Cancel any time · v{APP_VERSION}
         </p>
       </section>
 

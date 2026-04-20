@@ -1,31 +1,43 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import {
+  CUSTODYNOTE_DISCOUNT_CODE,
+  CUSTODYNOTE_DISCOUNT_PCT,
+  CUSTODYNOTE_MEMBER_PRICE_GBP,
+  CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_PRICING_HREF,
+  CUSTODYNOTE_TRIAL_HREF,
+} from '@/lib/custodynote-promo';
 import { AdvertisementLabel } from './AdvertisementLabel';
 
 export function HomeCustodyNote() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[var(--navy)] via-[#152e6e] to-[var(--navy)]" aria-label="Custody Note — promoted product">
+    <section
+      className="relative overflow-hidden bg-gradient-to-br from-[var(--navy)] via-[#152e6e] to-[var(--navy)]"
+      aria-label="CustodyNote — promoted product"
+    >
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(250,204,21,0.08),transparent_60%)]" />
       <div className="section-pad relative">
         <div className="page-container !py-0">
           <div className="mx-auto max-w-3xl text-center">
-            <AdvertisementLabel variant="dark" label="Featured Product" />
+            <AdvertisementLabel variant="dark" label="Featured product" />
 
-            <h2 className="text-h2 mt-4 text-white">Custody Note</h2>
+            <h2 className="text-h2 mt-4 text-white">CustodyNote</h2>
             <p className="mt-1 text-base font-medium text-[var(--gold)]">
-              Police Station Attendance Note Software
+              Police station attendance notes that match how UK custody work actually runs
             </p>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/90">
-              Desktop software built for criminal defence solicitors and accredited police station
-              representatives. Structured PACE-aligned attendance notes, offline-first at the custody
-              suite, PDF export, LAA billing support, and AES-256 encryption — all in one Windows app.
+              Disclosure → advice → interview → outcome in one structured record. Built by a
+              practising criminal solicitor for accredited reps and defence solicitors. Offline
+              at the custody desk, PDF for the firm file, LAA-oriented billing fields when you
+              are back online — all in one Windows app.
             </p>
 
             <div className="mx-auto mt-8 grid max-w-xl gap-3 sm:grid-cols-3">
               {[
-                { icon: '🔒', label: 'AES-256 Encrypted' },
-                { icon: '📴', label: 'Works Offline' },
-                { icon: '📄', label: 'PDF Export' },
+                { icon: '🔒', label: 'AES-256 encrypted' },
+                { icon: '📴', label: 'Works offline' },
+                { icon: '📄', label: 'Instant PDF + LAA fields' },
               ].map((f) => (
                 <div key={f.label} className="rounded-lg border border-white/15 bg-white/5 px-4 py-3">
                   <span className="text-lg" aria-hidden>{f.icon}</span>
@@ -34,48 +46,49 @@ export function HomeCustodyNote() {
               ))}
             </div>
 
-            <div className="mt-8 rounded-xl border-2 border-[var(--gold)]/30 bg-[var(--gold)]/10 px-6 py-4">
-              <p className="mb-1 text-xs font-bold uppercase tracking-wider text-[var(--gold)]">
-                Early Adopter Price
+            <div className="mt-8 rounded-xl border-2 border-[var(--gold)]/40 bg-[var(--gold)]/10 px-6 py-5">
+              <p className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">
+                30-day free trial · no credit card
               </p>
-              <p className="text-lg font-bold text-white">
-                30-day free trial — then <span className="text-[var(--gold)]">£9.99/month</span>
+              <p className="mt-2 text-2xl font-extrabold leading-tight text-white sm:text-3xl">
+                £{CUSTODYNOTE_PRICE_GBP}
+                <span className="text-base font-medium text-white/80">/month</span>
+                <span className="mx-2 text-white/40">·</span>
+                <span className="text-[var(--gold)]">
+                  £{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo for PSR UK readers
+                </span>
               </p>
               <p className="mt-1 text-sm text-white/80">
-                This price will increase — subscribe now to lock it in. Cancel any time.
+                Cancel anytime. Save more with 6-month or annual billing at checkout.
               </p>
             </div>
 
-            <div className="mt-6 inline-flex max-w-full flex-wrap items-center justify-center gap-2 rounded-full border-2 border-white/30 bg-black/25 px-5 py-2.5 text-sm font-semibold text-white">
+            <div className="mt-5 inline-flex max-w-full flex-wrap items-center justify-center gap-2 rounded-full border-2 border-[var(--gold)]/60 bg-black/30 px-5 py-2.5 text-sm font-semibold text-white">
               <span aria-hidden>🎁</span>
-              PSR UK members get an extra 25% off — use code A2MJY2NQ at checkout
-            </div>
-
-            <p className="mt-3 text-sm font-medium text-white">
-              Use code{' '}
-              <span className="rounded bg-[var(--navy-light)] px-2 py-0.5 font-mono font-bold text-white">
-                A2MJY2NQ
+              {CUSTODYNOTE_DISCOUNT_PCT}% off for PSR UK readers — use code{' '}
+              <span className="rounded bg-[var(--gold)] px-2 py-0.5 font-mono font-bold text-[var(--navy)]">
+                {CUSTODYNOTE_DISCOUNT_CODE}
               </span>{' '}
               at checkout on custodynote.com
-            </p>
+            </div>
 
             <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link
-                href="https://custodynote.com"
+                href={CUSTODYNOTE_TRIAL_HREF}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-gold w-full sm:w-auto"
               >
-                Start Free Trial
+                Start 30-day free trial →
               </Link>
               <Link
                 href="/CustodyNote"
                 className="btn-outline w-full !border-white/40 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)] sm:w-auto"
               >
-                About CustodyNote →
+                See how it works
               </Link>
               <Link
-                href="https://custodynote.com/pricing"
+                href={CUSTODYNOTE_PRICING_HREF}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-outline w-full !border-white/40 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)] sm:w-auto"
@@ -87,7 +100,7 @@ export function HomeCustodyNote() {
             <div className="mt-8 overflow-hidden rounded-xl border border-white/10 shadow-2xl">
               <Image
                 src="/images/custodynote/custodynote-app-dashboard.png"
-                alt="Custody Note desktop app — dashboard showing Custody Attendance, Voluntary Attendance, Telephone Advice, and Quick Capture workflows"
+                alt="CustodyNote desktop app dashboard — Custody Attendance, Voluntary Attendance, Telephone Advice and Quick Capture workflows"
                 width={1536}
                 height={960}
                 className="h-auto w-full"
@@ -95,8 +108,8 @@ export function HomeCustodyNote() {
             </div>
 
             <p className="mt-5 text-xs text-white/60">
-              Custody Note is developed by Defence Legal Services Ltd.
-              This is a promoted product — not part of the directory service.
+              CustodyNote is developed by Defence Legal Services Ltd. This is a promoted product —
+              not part of the directory service.
             </p>
           </div>
         </div>

@@ -1,5 +1,10 @@
 import Link from 'next/link';
-import { CUSTODYNOTE_TRIAL_HREF } from '@/lib/custodynote-promo';
+import {
+  CUSTODYNOTE_DISCOUNT_CODE,
+  CUSTODYNOTE_MEMBER_PRICE_GBP,
+  CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_TRIAL_HREF,
+} from '@/lib/custodynote-promo';
 import { FOOTER_TOOLS } from '@/lib/site-navigation';
 import { LeadMagnetEmailCapture } from '@/components/LeadMagnetEmailCapture';
 
@@ -28,20 +33,31 @@ export function ToolsForRepsSection() {
               <h3 className="mt-4 text-xl font-extrabold sm:text-2xl">CustodyNote</h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-200">
                 PACE-aligned custody and attendance notes — structured fields, works offline, AES-256 encryption, PDF
-                export. Built for accredited representatives.
+                export and LAA billing. Built by a practising criminal solicitor for accredited reps.
               </p>
               <ul className="mt-4 space-y-2 text-sm text-slate-200">
                 <li className="flex gap-2">
-                  <span className="text-[var(--gold)]">✓</span> Structured notes in minutes
+                  <span className="text-[var(--gold)]">✓</span> Structured notes in 3 minutes
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-[var(--gold)]">✓</span> Offline-first
+                  <span className="text-[var(--gold)]">✓</span> Offline at the custody desk
                 </li>
                 <li className="flex gap-2">
-                  <span className="text-[var(--gold)]">✓</span> Instant PDF output
+                  <span className="text-[var(--gold)]">✓</span> Instant PDF + LAA billing fields
                 </li>
               </ul>
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="mt-5 rounded-lg border border-[var(--gold)]/40 bg-black/25 px-4 py-3 text-sm">
+                <p className="text-white">
+                  <span className="font-bold">£{CUSTODYNOTE_PRICE_GBP}/mo</span> after a 30-day free trial
+                </p>
+                <p className="mt-1 text-[var(--gold)]">
+                  PSR UK readers £{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
+                  <span className="rounded bg-[var(--gold)] px-1.5 py-0.5 font-mono text-xs font-bold text-[var(--navy)]">
+                    {CUSTODYNOTE_DISCOUNT_CODE}
+                  </span>
+                </p>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-3">
                 <a
                   href={CUSTODYNOTE_TRIAL_HREF}
                   target="_blank"

@@ -2,7 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { CUSTODYNOTE_TRIAL_HREF } from '@/lib/custodynote-promo';
+import {
+  CUSTODYNOTE_DISCOUNT_CODE,
+  CUSTODYNOTE_MEMBER_PRICE_GBP,
+  CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_TRIAL_HREF,
+} from '@/lib/custodynote-promo';
 import {
   CONTACT_PHONE_TEL,
   CONTACT_PHONE_DISPLAY,
@@ -29,11 +34,20 @@ export function SiteWidePromoStrip() {
         </p>
         <div className="grid gap-5 md:grid-cols-3">
           {/* CustodyNote */}
-          <div className="flex flex-col rounded-[var(--radius-lg)] border border-[var(--navy)]/15 bg-white p-5 shadow-sm">
+          <div className="flex flex-col rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/40 bg-white p-5 shadow-sm">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--gold)]">Featured product</p>
             <h2 className="mt-1 text-base font-extrabold text-[var(--navy)]">CustodyNote</h2>
             <p className="mt-2 flex-1 text-xs leading-relaxed text-[var(--muted)]">
-              PACE-aligned custody attendance notes — offline-first, PDF export, LAA-ready. 30-day free trial.
+              PACE-aligned attendance notes — disclosure → advice → interview → outcome in one
+              structured record. Offline at the custody desk, PDF for the file, LAA billing fields
+              built in.
+            </p>
+            <p className="mt-3 text-xs font-semibold text-[var(--navy)]">
+              £{CUSTODYNOTE_PRICE_GBP}/mo after a 30-day free trial · PSR UK readers £
+              {CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
+              <span className="rounded bg-[var(--gold)]/15 px-1.5 py-0.5 font-mono font-bold text-[var(--navy)]">
+                {CUSTODYNOTE_DISCOUNT_CODE}
+              </span>
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <a
@@ -48,7 +62,7 @@ export function SiteWidePromoStrip() {
                 href="/CustodyNote"
                 className="inline-flex min-h-[40px] flex-1 items-center justify-center rounded-lg border border-slate-200 px-3 text-xs font-semibold text-[var(--navy)] no-underline hover:border-[var(--gold)]"
               >
-                About CustodyNote
+                See how it works
               </Link>
             </div>
           </div>

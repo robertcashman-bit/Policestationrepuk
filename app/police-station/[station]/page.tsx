@@ -236,13 +236,24 @@ export default async function PoliceStationPage({ params }: PageProps) {
                 </Link>
               </section>
 
-              <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--gold-pale)] p-6">
-                <h3 className="font-bold text-[var(--navy)]">CustodyNote</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/80">
-                  The professional custody note app used by police station reps. Record attendance, interviews, outcomes, and handover notes — all from your phone.
+              <section className="rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/40 bg-[var(--gold-pale)] p-6">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--gold-link)]">
+                  Featured product
                 </p>
-                <Link href="/CustodyNote" className="btn-outline mt-3 w-full !text-sm">
-                  Learn More
+                <h3 className="mt-1 font-bold text-[var(--navy)]">CustodyNote</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/85">
+                  PACE-aligned attendance note software for accredited reps and defence solicitors —
+                  structured custody, voluntary and telephone forms, offline-first, instant PDF, and
+                  LAA billing in one Windows app.
+                </p>
+                <p className="mt-2 text-xs font-semibold text-[var(--navy)]">
+                  £15.99/mo · PSR UK readers £11.99/mo with code{' '}
+                  <span className="rounded bg-white px-1.5 py-0.5 font-mono text-[var(--navy)]">
+                    A2MJY2NQ
+                  </span>
+                </p>
+                <Link href="/CustodyNote" className="btn-gold mt-3 w-full !text-sm no-underline">
+                  Start free trial →
                 </Link>
               </section>
             </div>

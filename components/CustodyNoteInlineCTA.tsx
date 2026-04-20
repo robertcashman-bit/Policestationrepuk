@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import {
+  CUSTODYNOTE_DISCOUNT_CODE,
+  CUSTODYNOTE_MEMBER_PRICE_GBP,
+  CUSTODYNOTE_PRICE_GBP,
   CUSTODYNOTE_TRIAL_HREF,
   INLINE_CTA_BULLETS,
   INLINE_CTA_HEADLINE,
@@ -23,6 +26,13 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
             </li>
           ))}
         </ul>
+        <p className="mt-3 text-[11px] text-white/85">
+          30-day free trial · then £{CUSTODYNOTE_PRICE_GBP}/mo · PSR UK readers £
+          {CUSTODYNOTE_MEMBER_PRICE_GBP} with code{' '}
+          <span className="rounded bg-[var(--gold)]/20 px-1 font-mono text-[var(--gold)]">
+            {CUSTODYNOTE_DISCOUNT_CODE}
+          </span>
+        </p>
         <div className="mt-3 flex flex-wrap gap-2">
           <a
             href={CUSTODYNOTE_TRIAL_HREF}
@@ -67,6 +77,15 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
             </li>
           ))}
         </ul>
+        <div className="mt-5 inline-flex flex-wrap items-center gap-2 rounded-lg border border-[var(--gold)]/30 bg-black/20 px-3 py-2 text-xs text-white sm:text-sm">
+          <span className="font-bold">£{CUSTODYNOTE_PRICE_GBP}/mo</span>
+          <span className="text-white/40">·</span>
+          <span className="font-bold text-[var(--gold)]">PSR UK readers £{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo</span>
+          <span className="text-slate-300">with code</span>
+          <span className="rounded bg-[var(--gold)] px-1.5 py-0.5 font-mono text-xs font-bold text-[var(--navy)]">
+            {CUSTODYNOTE_DISCOUNT_CODE}
+          </span>
+        </div>
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <a
             href={CUSTODYNOTE_TRIAL_HREF}

@@ -32,14 +32,14 @@ export function CookieBanner() {
         <div className="flex shrink-0 items-center gap-1 sm:gap-3">
           <Link
             href="/Cookies"
-            className="inline-flex min-h-[26px] items-center justify-center rounded-md border border-[var(--border)] px-2 py-0.5 text-[11px] font-medium leading-none text-[var(--navy)] no-underline transition-colors hover:border-[var(--gold)] sm:min-h-[44px] sm:rounded-lg sm:px-4 sm:py-2 sm:text-sm"
+            className="inline-flex min-h-[32px] items-center justify-center rounded-md border border-[var(--border)] px-2 py-0.5 text-[11px] font-medium leading-none text-[var(--navy)] no-underline transition-colors hover:border-[var(--gold)] sm:min-h-[44px] sm:rounded-lg sm:px-4 sm:py-2 sm:text-sm"
           >
             Manage
           </Link>
           <button
             type="button"
             onClick={accept}
-            className="inline-flex min-h-[26px] items-center justify-center rounded-md bg-[var(--navy)] px-2.5 py-0.5 text-[11px] font-semibold leading-none text-white transition-colors hover:bg-[var(--navy-light)] sm:min-h-[44px] sm:rounded-lg sm:px-4 sm:py-2 sm:text-sm"
+            className="inline-flex min-h-[32px] items-center justify-center rounded-md bg-[var(--navy)] px-2.5 py-0.5 text-[11px] font-semibold leading-none text-white transition-colors hover:bg-[var(--navy-light)] sm:min-h-[44px] sm:rounded-lg sm:px-4 sm:py-2 sm:text-sm"
           >
             Accept
           </button>

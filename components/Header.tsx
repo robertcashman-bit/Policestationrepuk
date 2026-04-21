@@ -209,16 +209,16 @@ export function Header() {
 
         {/* Share strip */}
         <div className="border-t border-[var(--navy-light)] bg-white">
-          <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-0.5 sm:px-6 sm:py-1 lg:px-8">
+          <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-px sm:px-6 sm:py-1 lg:px-8">
             <button
               type="button"
               onClick={handleShare}
-              className="flex min-h-[28px] items-center gap-1.5 rounded-lg px-1.5 text-[11px] font-medium text-[var(--navy)] transition-colors hover:bg-slate-100 sm:min-h-[36px] sm:gap-2 sm:px-2 sm:text-sm"
+              className="psr-share-mini inline-flex min-h-[28px] items-center gap-1 rounded-md px-1.5 py-0 text-[11px] font-medium leading-none text-[var(--navy)] transition-colors hover:bg-slate-100 sm:min-h-[36px] sm:gap-2 sm:rounded-lg sm:px-2 sm:py-0.5 sm:text-sm"
               aria-label={HEADER_SHARE_LABEL}
             >
               <svg
-                width="12"
-                height="12"
+                width="11"
+                height="11"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"

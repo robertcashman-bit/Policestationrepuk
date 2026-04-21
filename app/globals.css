@@ -403,23 +403,11 @@ p {
   .btn-navy,
   .btn-outline,
   header nav a,
-  header button[aria-label],
+  /* Exclude .psr-share-mini so the compact header share button is not forced
+     to the 44px tap-target floor on phones; its size is set in JSX. */
+  header button[aria-label]:not(.psr-share-mini),
   footer a {
     min-height: 44px;
-  }
-  /* Cookie bar: keep generous tap targets on tablets+, but allow a more compact
-     bar on narrow phones where screen real estate is precious. */
-  @media (min-width: 640px) {
-    .psr-cookie-bar a,
-    .psr-cookie-bar button {
-      min-height: 44px;
-    }
-  }
-  @media (max-width: 639px) {
-    .psr-cookie-bar a,
-    .psr-cookie-bar button {
-      min-height: 32px;
-    }
   }
 }
 

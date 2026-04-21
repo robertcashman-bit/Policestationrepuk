@@ -49,7 +49,8 @@
   --section-pad-y-sm: 3.5rem;
   --section-pad-compact-y: 2.375rem;
   --section-pad-compact-y-sm: 2.75rem;
-  --hero-pad-y: clamp(2.75rem, 5.75vw, 4.125rem);
+  /* Slightly tighter on narrow phones; still generous on tablet/desktop */
+  --hero-pad-y: clamp(2rem, 4.5vw, 4.125rem);
   --hero-max-inner: 40.5rem;
   --space-hero-stack: 1rem;
   --space-hero-stack-lg: 1.5rem;
@@ -150,8 +151,8 @@ footer .text-slate-600 {
 }
 
 .hero-band {
-  padding-top: var(--section-pad-compact-y-sm);
-  padding-bottom: var(--section-pad-compact-y-sm);
+  padding-top: var(--section-pad-compact-y);
+  padding-bottom: var(--section-pad-compact-y);
 }
 @media (min-width: 640px) {
   .hero-band {
@@ -204,8 +205,9 @@ footer .text-slate-600 {
   margin-right: auto;
   padding-left: var(--container-gutter);
   padding-right: var(--container-gutter);
-  padding-top: 2.5rem;
-  padding-bottom: 2.5rem;
+  /* Narrow viewports: less vertical chrome so content isn’t pushed down */
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
 }
 @media (min-width: 640px) {
   .page-container {

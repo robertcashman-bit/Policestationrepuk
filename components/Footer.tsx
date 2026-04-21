@@ -69,7 +69,7 @@ export function Footer() {
 
   return (
     <footer className="mt-auto border-t border-[var(--navy-light)] bg-[var(--navy)]">
-      <div className="mx-auto max-w-[var(--container-max)] px-[var(--container-gutter)] py-12 sm:px-6 sm:py-14 lg:px-8">
+      <div className="mx-auto max-w-[var(--container-max)] px-[var(--container-gutter)] py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
         <h2 className="sr-only">Site footer and links</h2>
 
         <div className="mb-10 rounded-xl border border-[var(--gold)]/35 bg-gradient-to-r from-[#152e6e] to-[var(--navy)] p-5 sm:p-6">

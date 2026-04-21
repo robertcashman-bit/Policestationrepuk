@@ -28,7 +28,7 @@ export function SiteWidePromoStrip() {
       className="border-t border-[var(--border)] bg-gradient-to-b from-slate-50 to-white"
       aria-label="Featured services and community"
     >
-      <div className="page-container py-8 sm:py-10">
+      <div className="page-container py-6 sm:py-8 lg:py-10">
         <p className="mb-4 text-center text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--muted)]">
           Advertisements &amp; community
         </p>

@@ -25,7 +25,7 @@ export function CustodyNoteTopBanner() {
 
   return (
     <div
-      className={`relative z-[100] border-b border-[#0a1633] bg-gradient-to-r from-[#0f1d45] via-[#152e6e] to-[#0f1d45] px-3 text-center transition-all duration-200 sm:px-4 ${hidden ? 'invisible h-0 overflow-hidden py-0' : 'visible py-2.5'}`}
+      className={`relative z-[100] border-b border-[#0a1633] bg-gradient-to-r from-[#0f1d45] via-[#152e6e] to-[#0f1d45] px-3 text-center transition-all duration-200 sm:px-4 ${hidden ? 'invisible h-0 overflow-hidden py-0' : 'visible py-1.5 sm:py-2.5'}`}
     >
       <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-2 sm:gap-4">
         <a

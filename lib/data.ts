@@ -196,7 +196,16 @@ export async function getStationsByCounty(county: string): Promise<PoliceStation
 
 export async function getRepsByCounty(county: string): Promise<Representative[]> {
   const reps = await getAllReps();
-  return reps.filter((r) => repMatchesCountyName(r.county, county));
+  return reps.filter((r) => repMatchesAnyCounty(r, county));
+}
+
+/** True if the rep covers the given county via primary `county` or any entry in `counties[]`. */
+function repMatchesAnyCounty(rep: Representative, countyName: string): boolean {
+  if (repMatchesCountyName(rep.county, countyName)) return true;
+  if (Array.isArray(rep.counties)) {
+    return rep.counties.some((c) => repMatchesCountyName(c, countyName));
+  }
+  return false;
 }
 
 export async function getRepBySlug(slug: string): Promise<Representative | undefined> {
@@ -259,7 +268,17 @@ function registrationToRep(row: Record<string, unknown>): Representative | null 
   const countiesRaw = trimField(row.counties);
   const stationsRaw = trimField(row.stations);
   const stationList = stationsRaw ? stationsRaw.split(/[,;]+/).map((s) => s.trim()).filter(Boolean) : [];
-  const county = countiesRaw ? countiesRaw.split(/[,;]+/).map((s) => s.trim()).filter(Boolean)[0] || '' : '';
+  const countyList = countiesRaw
+    ? Array.from(
+        new Set(
+          countiesRaw
+            .split(/[,;]+/)
+            .map((s) => s.trim())
+            .filter(Boolean),
+        ),
+      )
+    : [];
+  const county = countyList[0] || '';
 
   const baseSlug = name
     .toLowerCase()
@@ -276,6 +295,7 @@ function registrationToRep(row: Record<string, unknown>): Representative | null 
     email,
     phone: trimField(row.phone),
     county,
+    counties: countyList.length ? countyList : undefined,
     addressCounty: county,
     stations: stationList,
     stationsCovered: stationList.length ? stationList : undefined,
@@ -341,6 +361,18 @@ function ov<T>(overrides: Record<string, unknown>, key: string, fallback: T): T 
 
 export function applyOverrides(rep: Representative, overrides: Record<string, unknown>): Representative {
   const notesVal = ov(overrides, 'notes', rep.notes);
+  let counties = rep.counties;
+  let primaryCounty = rep.county;
+  if ('counties' in overrides) {
+    const raw = overrides.counties;
+    const list = Array.isArray(raw)
+      ? raw.map((s) => String(s).trim()).filter(Boolean)
+      : typeof raw === 'string'
+        ? raw.split(/[,;]+/).map((s) => s.trim()).filter(Boolean)
+        : [];
+    counties = list.length ? Array.from(new Set(list)) : undefined;
+    if (counties && counties.length) primaryCounty = counties[0];
+  }
   return {
     ...rep,
     name: ov(overrides, 'name', rep.name),
@@ -348,6 +380,8 @@ export function applyOverrides(rep: Representative, overrides: Record<string, un
     availability: ov(overrides, 'availability', rep.availability),
     accreditation: ov(overrides, 'accreditation', rep.accreditation),
     postcode: ov(overrides, 'postcode', rep.postcode),
+    county: primaryCounty,
+    counties,
     stations: ov(overrides, 'stations_covered', rep.stations),
     stationsCovered: ov(overrides, 'stations_covered', rep.stationsCovered),
     notes: notesVal,
@@ -463,7 +497,7 @@ export function pageSlugToCountySlug(pageSlug: string): string {
 export async function searchRepresentatives(filters: SearchFilters): Promise<Representative[]> {
   let results = await getAllReps();
   if (filters.county) {
-    results = results.filter((r) => repMatchesCountyName(r.county, filters.county!));
+    results = results.filter((r) => repMatchesAnyCounty(r, filters.county!));
   }
   if (filters.station) {
     const st = filters.station.toLowerCase();

@@ -5,6 +5,8 @@ export interface Representative {
   phone: string;
   email: string;
   county: string;
+  /** Optional list of all counties this rep covers; falls back to single `county` for older records. */
+  counties?: string[];
   addressCounty?: string;
   postcode?: string;
   stations: string[];

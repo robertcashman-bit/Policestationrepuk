@@ -110,6 +110,9 @@ export function finalizeRepresentative(rep: Representative): Representative {
     phone: trimStr(rep.phone),
     email: trimStr(rep.email),
     county: trimStr(rep.county),
+    counties: Array.isArray(rep.counties)
+      ? Array.from(new Set(rep.counties.map((s) => trimStr(s)).filter(Boolean)))
+      : undefined,
     addressCounty: trimStr(rep.addressCounty) || trimStr(rep.county),
     postcode: trimStr(rep.postcode),
     stations,

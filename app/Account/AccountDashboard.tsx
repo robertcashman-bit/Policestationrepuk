@@ -16,6 +16,7 @@ interface ProfileData {
   accreditation: string;
   availability: string;
   postcode: string;
+  counties: string;
   stations_covered: string;
   notes: string;
   website_url: string;
@@ -34,6 +35,7 @@ const EMPTY_PROFILE: ProfileData = {
   accreditation: '',
   availability: '',
   postcode: '',
+  counties: '',
   stations_covered: '',
   notes: '',
   website_url: '',
@@ -73,6 +75,9 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
         accreditation: data.accreditation ?? '',
         availability: data.availability ?? '',
         postcode: data.postcode ?? '',
+        counties: Array.isArray(data.counties)
+          ? data.counties.join(', ')
+          : data.counties ?? '',
         stations_covered: Array.isArray(data.stations_covered)
           ? data.stations_covered.join(', ')
           : data.stations_covered ?? '',
@@ -131,6 +136,10 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
         accreditation: profile.accreditation.trim(),
         availability: profile.availability.trim(),
         postcode: profile.postcode.trim(),
+        counties: profile.counties
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean),
         stations_covered: profile.stations_covered
           .split(',')
           .map((s) => s.trim())
@@ -394,6 +403,15 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
           <div className="mt-3 grid gap-4 sm:grid-cols-2">
             <Field label="Availability" value={profile.availability} onChange={(v) => set('availability', v)} placeholder="e.g. 24/7, Weekends only" />
             <Field label="Postcode" value={profile.postcode} onChange={(v) => set('postcode', v)} placeholder="e.g. SW1A 1AA" />
+            <div className="sm:col-span-2">
+              <Field
+                label="Counties covered"
+                value={profile.counties}
+                onChange={(v) => set('counties', v)}
+                placeholder="e.g. Kent, Sussex, Surrey"
+                note="Comma-separated. These are the counties your profile will appear under in directory searches."
+              />
+            </div>
             <div className="sm:col-span-2">
               <Field
                 label="Stations covered"

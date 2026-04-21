@@ -199,10 +199,10 @@ export function Header() {
             </Link>
             <Link
               href={HEADER_LOGIN_HREF}
-              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-[var(--gold)] px-3.5 py-2 text-sm font-bold text-[var(--navy)] shadow-sm no-underline transition-colors hover:bg-[var(--gold-hover)]"
+              className="inline-flex min-h-[36px] items-center gap-1 rounded-lg bg-[var(--gold)] px-2.5 py-1 text-xs font-bold text-[var(--navy)] shadow-sm no-underline transition-colors hover:bg-[var(--gold-hover)] sm:min-h-[40px] sm:gap-1.5 sm:px-3.5 sm:py-2 sm:text-sm"
             >
               Log In
-              <span aria-hidden className="text-base leading-none">→</span>
+              <span aria-hidden className="text-sm leading-none sm:text-base">→</span>
             </Link>
           </div>
         </div>
@@ -213,17 +213,18 @@ export function Header() {
             <button
               type="button"
               onClick={handleShare}
-              className="flex min-h-[36px] items-center gap-2 rounded-lg px-2 text-xs font-medium text-[var(--navy)] transition-colors hover:bg-slate-100 sm:text-sm"
+              className="flex min-h-[28px] items-center gap-1.5 rounded-lg px-1.5 text-[11px] font-medium text-[var(--navy)] transition-colors hover:bg-slate-100 sm:min-h-[36px] sm:gap-2 sm:px-2 sm:text-sm"
               aria-label={HEADER_SHARE_LABEL}
             >
               <svg
-                width="14"
-                height="14"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
                 aria-hidden
+                className="sm:h-[14px] sm:w-[14px]"
               >
                 <circle cx="18" cy="5" r="3" />
                 <circle cx="6" cy="12" r="3" />
@@ -231,7 +232,10 @@ export function Header() {
                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
               </svg>
-              {shareOpen ? HEADER_SHARE_LABEL_COPIED : HEADER_SHARE_LABEL}
+              <span className="sm:hidden">{shareOpen ? 'Copied!' : 'Share'}</span>
+              <span className="hidden sm:inline">
+                {shareOpen ? HEADER_SHARE_LABEL_COPIED : HEADER_SHARE_LABEL}
+              </span>
             </button>
           </div>
         </div>

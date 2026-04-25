@@ -44,6 +44,8 @@ export const metadata: Metadata = {
   },
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function DirectoryPage() {
   const [reps, counties, stations] = await Promise.all([
     getAllReps(),

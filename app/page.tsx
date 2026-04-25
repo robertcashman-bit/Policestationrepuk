@@ -60,6 +60,8 @@ export const metadata: Metadata = {
   },
 };
 
+export const dynamic = 'force-dynamic';
+
 const UK_FORCES_COUNT = 42;
 const MARKETING_REPS_DISPLAY = 300;
 const MARKETING_STATIONS_DISPLAY = 500;

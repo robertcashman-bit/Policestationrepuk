@@ -7,7 +7,18 @@ interface FeaturedInfo {
   featured: boolean;
   activatedAt: string | null;
   source: 'static' | 'upgraded' | null;
+  status: 'active' | 'cancelled' | 'expired' | 'grandfathered' | 'legacy' | null;
+  expiresAt: string | null;
+  renewsAt: string | null;
+  tier: string | null;
 }
+
+const PRICING_TIERS = [
+  { id: 'monthly', price: '£4.99', period: '/month', savings: null, badge: null },
+  { id: '3month', price: '£12.72', period: '/3 months', savings: '15% off', badge: null },
+  { id: '6month', price: '£22.46', period: '/6 months', savings: '25% off', badge: 'Popular' },
+  { id: 'yearly', price: '£35.93', period: '/year', savings: '40% off', badge: 'Best value' },
+] as const;
 
 interface ProfileData {
   name: string;
@@ -57,7 +68,8 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
   const [repSlug, setRepSlug] = useState('');
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [featuredInfo, setFeaturedInfo] = useState<FeaturedInfo | null>(null);
-  const [upgradeStatus, setUpgradeStatus] = useState<'idle' | 'confirming' | 'upgrading' | 'done' | 'error'>('idle');
+  const [upgradeStatus, setUpgradeStatus] = useState<'idle' | 'selecting' | 'redirecting' | 'success' | 'error'>('idle');
+  const [selectedTier, setSelectedTier] = useState<string>('6month');
 
   const loadProfile = useCallback(async () => {
     try {
@@ -118,6 +130,15 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
   }, []);
 
   useEffect(() => { loadProfile(); loadFeatured(); }, [loadProfile, loadFeatured]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('featured') === 'success') {
+      setUpgradeStatus('success');
+      loadFeatured();
+      window.history.replaceState({}, '', '/Account');
+    }
+  }, [loadFeatured]);
 
   function set(field: keyof ProfileData, value: string) {
     setProfile((prev) => ({ ...prev, [field]: value }));
@@ -188,19 +209,27 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
     }
   }
 
-  async function handleUpgradeToFeatured() {
-    setUpgradeStatus('upgrading');
+  async function handleCheckout() {
+    setUpgradeStatus('redirecting');
+    setErrorMsg('');
     try {
-      const res = await fetch('/api/account/featured', { method: 'POST' });
+      const res = await fetch('/api/checkout/featured', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier: selectedTier }),
+      });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || 'Upgrade failed');
+        throw new Error(body.error || 'Failed to start checkout');
       }
       const data = await res.json();
-      setFeaturedInfo({ featured: true, activatedAt: data.activatedAt, source: 'upgraded' });
-      setUpgradeStatus('done');
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Upgrade failed');
+      setErrorMsg(err instanceof Error ? err.message : 'Checkout failed');
       setUpgradeStatus('error');
       setTimeout(() => setUpgradeStatus('idle'), 4000);
     }
@@ -285,6 +314,20 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
       )}
 
       {/* Featured status section */}
+      {upgradeStatus === 'success' && (
+        <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-5">
+          <div className="flex items-center gap-2">
+            <svg className="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 className="font-bold text-emerald-900">Payment Successful!</h3>
+          </div>
+          <p className="mt-2 text-sm text-emerald-800">
+            Your featured listing is now active. It will appear in the spotlight section on the homepage and directory.
+          </p>
+        </div>
+      )}
+
       {featuredInfo && (
         <div className="mt-6">
           {featuredInfo.featured ? (
@@ -294,6 +337,9 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
                 <h3 className="font-bold text-amber-900">Featured Listing Active</h3>
+                {featuredInfo.status === 'grandfathered' && (
+                  <span className="rounded-full bg-amber-200 px-2 py-0.5 text-xs font-medium text-amber-800">Grandfathered</span>
+                )}
               </div>
               <p className="mt-2 text-sm text-amber-800">
                 Your listing appears in the Featured Representatives section on the homepage and directory.
@@ -303,6 +349,16 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
                   Activated: {new Date(featuredInfo.activatedAt).toLocaleString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </p>
               )}
+              {featuredInfo.status === 'cancelled' && featuredInfo.expiresAt && (
+                <p className="mt-1 text-xs text-amber-700">
+                  Subscription cancelled — active until {new Date(featuredInfo.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
+              )}
+              {featuredInfo.renewsAt && featuredInfo.status === 'active' && (
+                <p className="mt-1 text-xs text-amber-600">
+                  Renews: {new Date(featuredInfo.renewsAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
+              )}
             </div>
           ) : (
             <div className="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--card-shadow)]">
@@ -310,37 +366,63 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
                 <div>
                   <h3 className="font-bold text-[var(--navy)]">Upgrade to Featured Listing</h3>
                   <p className="mt-1 text-sm text-[var(--muted)]">
-                    Get priority placement in the directory, homepage spotlight, and more visibility to instructing firms — completely free.
+                    Get priority placement in the directory, homepage spotlight, and more visibility to instructing firms.
                   </p>
                 </div>
                 <Link href="/GoFeatured" className="shrink-0 text-xs font-semibold text-[var(--gold-link)] hover:underline">
                   Learn more
                 </Link>
               </div>
+
               {upgradeStatus === 'idle' && (
                 <button
                   type="button"
-                  onClick={() => setUpgradeStatus('confirming')}
+                  onClick={() => setUpgradeStatus('selecting')}
                   className="btn-gold mt-4 !text-sm"
                 >
-                  Upgrade to Featured
+                  Subscribe to Featured
                 </button>
               )}
-              {upgradeStatus === 'confirming' && (
-                <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
-                  <p className="text-sm font-medium text-amber-900">
-                    Confirm: Upgrade your listing to Featured?
-                  </p>
-                  <p className="mt-1 text-xs text-amber-700">
-                    Your profile will appear in the featured section on the homepage and at the top of directory results.
-                  </p>
-                  <div className="mt-3 flex gap-3">
+
+              {upgradeStatus === 'selecting' && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-[var(--navy)]">Choose your plan:</p>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {PRICING_TIERS.map((tier) => (
+                      <button
+                        key={tier.id}
+                        type="button"
+                        onClick={() => setSelectedTier(tier.id)}
+                        className={`relative rounded-lg border p-3 text-left transition-all ${
+                          selectedTier === tier.id
+                            ? 'border-[var(--gold)] bg-[var(--gold-pale)] ring-2 ring-[var(--gold)]/30'
+                            : 'border-[var(--border)] hover:border-[var(--gold)]/50'
+                        }`}
+                      >
+                        {tier.badge && (
+                          <span className="absolute -top-2 right-2 rounded-full bg-[var(--navy)] px-2 py-0.5 text-[10px] font-bold text-white">
+                            {tier.badge}
+                          </span>
+                        )}
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-lg font-bold text-[var(--navy)]">{tier.price}</span>
+                          <span className="text-xs text-[var(--muted)]">{tier.period}</span>
+                        </div>
+                        {tier.savings && (
+                          <span className="mt-1 inline-block rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
+                            {tier.savings}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex gap-3">
                     <button
                       type="button"
-                      onClick={handleUpgradeToFeatured}
+                      onClick={handleCheckout}
                       className="btn-gold !text-sm"
                     >
-                      Yes, upgrade now
+                      Continue to payment
                     </button>
                     <button
                       type="button"
@@ -352,20 +434,17 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
                   </div>
                 </div>
               )}
-              {upgradeStatus === 'upgrading' && (
+
+              {upgradeStatus === 'redirecting' && (
                 <div className="mt-4 flex items-center gap-2 text-sm text-[var(--muted)]">
                   <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Upgrading your listing…
+                  Redirecting to secure checkout…
                 </div>
               )}
-              {upgradeStatus === 'done' && (
-                <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
-                  Your listing has been upgraded to Featured! It will now appear in the spotlight section.
-                </div>
-              )}
+
               {upgradeStatus === 'error' && errorMsg && (
                 <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
                   {errorMsg}

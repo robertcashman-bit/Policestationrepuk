@@ -4,13 +4,8 @@ import { getRawReps, getRegisteredRepByEmail } from '@/lib/data';
 import type { Representative } from '@/lib/types';
 import {
   getFeaturedStatus,
-  activateFeatured,
-  markEmailsSent,
+  isFeaturedActive,
 } from '@/lib/featured';
-import {
-  sendFeaturedConfirmationToRep,
-  sendFeaturedOwnerNotification,
-} from '@/lib/email';
 
 async function findRep(email: string): Promise<Representative | null> {
   const reps = getRawReps();
@@ -32,73 +27,22 @@ export async function GET() {
 
   const alreadyFeaturedInStatic = rep.featured === true;
   const kvMeta = await getFeaturedStatus(email);
+  const isActive = alreadyFeaturedInStatic || isFeaturedActive(kvMeta);
 
   return NextResponse.json({
-    featured: alreadyFeaturedInStatic || kvMeta !== null,
+    featured: isActive,
     activatedAt: kvMeta?.activatedAt ?? null,
     source: alreadyFeaturedInStatic ? 'static' : kvMeta ? 'upgraded' : null,
+    status: alreadyFeaturedInStatic ? 'grandfathered' : kvMeta?.status ?? null,
+    expiresAt: kvMeta?.expiresAt ?? null,
+    renewsAt: kvMeta?.renewsAt ?? null,
+    tier: kvMeta?.tier ?? null,
   });
 }
 
 export async function POST() {
-  const email = await getSession();
-  if (!email) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-  }
-
-  const rep = await findRep(email);
-  if (!rep) {
-    return NextResponse.json({ error: 'No listing found for this email' }, { status: 404 });
-  }
-
-  const existing = await getFeaturedStatus(email);
-  if (rep.featured && !existing) {
-    return NextResponse.json({
-      ok: true,
-      alreadyFeatured: true,
-      message: 'Your listing is already featured.',
-    });
-  }
-  if (existing) {
-    return NextResponse.json({
-      ok: true,
-      alreadyFeatured: true,
-      activatedAt: existing.activatedAt,
-      message: 'Your listing is already featured.',
-    });
-  }
-
-  const meta = await activateFeatured(email);
-
-  const [repEmailSent, ownerEmailSent] = await Promise.all([
-    sendFeaturedConfirmationToRep({
-      name: rep.name,
-      email: rep.email,
-      activatedAt: meta.activatedAt,
-    }).catch((err) => {
-      console.error('[featured] Rep email failed:', err);
-      return false;
-    }),
-    sendFeaturedOwnerNotification({
-      name: rep.name,
-      email: rep.email,
-      repSlug: rep.slug,
-      activatedAt: meta.activatedAt,
-    }).catch((err) => {
-      console.error('[featured] Owner email failed:', err);
-      return false;
-    }),
-  ]);
-
-  await markEmailsSent(email, {
-    rep: repEmailSent,
-    owner: ownerEmailSent,
-  }).catch((err) => console.warn('[featured] markEmailsSent failed:', err));
-
-  return NextResponse.json({
-    ok: true,
-    alreadyFeatured: false,
-    activatedAt: meta.activatedAt,
-    message: 'Your listing has been upgraded to Featured!',
-  });
+  return NextResponse.json(
+    { error: 'Use /api/checkout/featured to subscribe to featured listing' },
+    { status: 400 },
+  );
 }

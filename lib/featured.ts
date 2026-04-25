@@ -4,11 +4,20 @@ import type { Representative } from './types';
 export const ROBERT_SLUG = 'robert-cashman';
 export const ROBERT_EMAIL = 'robertdavidcashman@gmail.com';
 
+export type FeaturedStatus = 'active' | 'cancelled' | 'expired' | 'grandfathered' | 'legacy';
+
 export interface FeaturedMeta {
   email: string;
   activatedAt: string;
   emailSentToRep: boolean;
   emailSentToOwner: boolean;
+  subscriptionId?: string;
+  variantId?: string;
+  customerId?: string;
+  status: FeaturedStatus;
+  expiresAt?: string;
+  renewsAt?: string;
+  tier?: string;
 }
 
 let _featuredFlags: Map<string, FeaturedMeta> | null = null;
@@ -57,7 +66,19 @@ export async function getFeaturedStatus(email: string): Promise<FeaturedMeta | n
   }
 }
 
-export async function activateFeatured(email: string): Promise<FeaturedMeta> {
+export interface ActivateFeaturedOptions {
+  subscriptionId?: string;
+  variantId?: string;
+  customerId?: string;
+  tier?: string;
+  renewsAt?: string;
+  expiresAt?: string;
+}
+
+export async function activateFeatured(
+  email: string,
+  opts: ActivateFeaturedOptions = {},
+): Promise<FeaturedMeta> {
   const kv = getKV();
   if (!kv) throw new Error('KV not configured');
   const meta: FeaturedMeta = {
@@ -65,10 +86,64 @@ export async function activateFeatured(email: string): Promise<FeaturedMeta> {
     activatedAt: new Date().toISOString(),
     emailSentToRep: false,
     emailSentToOwner: false,
+    status: 'active',
+    subscriptionId: opts.subscriptionId,
+    variantId: opts.variantId,
+    customerId: opts.customerId,
+    tier: opts.tier,
+    renewsAt: opts.renewsAt,
+    expiresAt: opts.expiresAt,
   };
   await kv.set(`featured:${email.toLowerCase()}`, meta);
   invalidateFeaturedCache();
   return meta;
+}
+
+export async function updateFeaturedSubscription(
+  email: string,
+  updates: Partial<
+    Pick<
+      FeaturedMeta,
+      'status' | 'renewsAt' | 'expiresAt' | 'subscriptionId' | 'variantId' | 'customerId' | 'tier'
+    >
+  >,
+): Promise<FeaturedMeta | null> {
+  const kv = getKV();
+  if (!kv) return null;
+  const existing = await kv.get<FeaturedMeta>(`featured:${email.toLowerCase()}`);
+  if (!existing) return null;
+  const updated: FeaturedMeta = {
+    ...existing,
+    ...updates,
+  };
+  await kv.set(`featured:${email.toLowerCase()}`, updated);
+  invalidateFeaturedCache();
+  return updated;
+}
+
+export async function cancelFeaturedSubscription(
+  email: string,
+  endsAt: string,
+): Promise<FeaturedMeta | null> {
+  return updateFeaturedSubscription(email, {
+    status: 'cancelled',
+    expiresAt: endsAt,
+  });
+}
+
+export async function expireFeaturedSubscription(email: string): Promise<FeaturedMeta | null> {
+  return updateFeaturedSubscription(email, { status: 'expired' });
+}
+
+export function isFeaturedActive(meta: FeaturedMeta | null): boolean {
+  if (!meta) return false;
+  if (meta.status === 'grandfathered' || meta.status === 'legacy') return true;
+  if (!meta.status) return true;
+  if (meta.status !== 'active' && meta.status !== 'cancelled') return false;
+  if (meta.expiresAt) {
+    return new Date(meta.expiresAt) > new Date();
+  }
+  return meta.status === 'active';
 }
 
 export async function markEmailsSent(email: string, flags: { rep?: boolean; owner?: boolean }): Promise<void> {
@@ -92,7 +167,7 @@ export function applyFeaturedFlags(
   return reps.map((r) => {
     if (r.featured) return r;
     const meta = flags.get(r.email.toLowerCase());
-    if (meta) return { ...r, featured: true };
+    if (meta && isFeaturedActive(meta)) return { ...r, featured: true };
     return r;
   });
 }

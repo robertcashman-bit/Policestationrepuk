@@ -3,9 +3,9 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Become a Featured Rep — Go Featured (Free)',
+  title: 'Become a Featured Rep — Go Featured',
   description:
-    'Boost your visibility with a free Featured Listing on PoliceStationRepUK. Get your own profile page, homepage spotlight, and priority placement — completely free.',
+    'Boost your visibility with a Featured Listing on PoliceStationRepUK. Get your own profile page, homepage spotlight, and priority placement from just £4.99/month.',
   path: '/GoFeatured',
 });
 
@@ -31,7 +31,14 @@ const STATS = [
   { value: '3x', label: 'More Profile Views' },
   { value: '24/7', label: 'Always Visible' },
   { value: 'Top', label: 'Search Placement' },
-  { value: 'Free', label: 'No Cost Ever' },
+  { value: '£4.99', label: 'From Per Month' },
+];
+
+const PRICING_TIERS = [
+  { id: 'monthly', price: '£4.99', period: '/month', savings: null, badge: null, effective: '£4.99/mo' },
+  { id: '3month', price: '£12.72', period: 'one-time', savings: '15% off', badge: null, effective: '£4.24/mo' },
+  { id: '6month', price: '£22.46', period: 'one-time', savings: '25% off', badge: 'Popular', effective: '£3.74/mo' },
+  { id: 'yearly', price: '£35.93', period: '/year', savings: '40% off', badge: 'Best value', effective: '£2.99/mo' },
 ];
 
 const WHY_FEATURED = [
@@ -45,18 +52,22 @@ const WHY_FEATURED = [
   },
   {
     title: 'Instant Activation',
-    desc: 'Your featured listing goes live within 24 hours of approval. No waiting, no delays.',
+    desc: 'Your featured listing goes live immediately after payment. No waiting, no delays.',
   },
   {
-    title: 'No Commitment',
-    desc: 'Cancel any time. No lock-in contracts, no notice periods. You stay in control.',
+    title: 'Cancel Anytime',
+    desc: 'No lock-in contracts. Cancel your subscription anytime and keep featured status until the period ends.',
   },
 ];
 
 const FAQS = [
   {
+    q: 'How much does a Featured Listing cost?',
+    a: 'Featured Listings start from just £4.99/month. Save up to 40% with longer subscription periods — the yearly plan works out to just £2.99/month.',
+  },
+  {
     q: 'How quickly is my Featured Listing activated?',
-    a: 'Your Featured Listing is typically activated within 24 hours of your request being approved. You\'ll receive email confirmation once your spotlight profile is live.',
+    a: 'Your Featured Listing is activated immediately after successful payment. You\'ll receive email confirmation once your spotlight profile is live.',
   },
   {
     q: 'What does a dedicated profile page include?',
@@ -72,11 +83,11 @@ const FAQS = [
   },
   {
     q: 'Can I cancel my Featured Listing?',
-    a: 'Absolutely. There are no lock-in contracts or notice periods. You can downgrade to a standard listing at any time by contacting us.',
+    a: 'Absolutely. You can cancel your subscription at any time from your account. Your featured status will remain active until the end of your current billing period.',
   },
   {
-    q: 'Is Go Featured really free?',
-    a: 'Yes — the Featured Listing (Spotlight Tier) is completely free. Registration, standard listings, and featured placement are all free on PoliceStationRepUK.',
+    q: 'What payment methods do you accept?',
+    a: 'We accept all major credit and debit cards. Payments are processed securely through Lemon Squeezy.',
   },
 ];
 
@@ -92,13 +103,13 @@ export default function GoFeaturedPage() {
               { label: 'Go Featured', href: '/GoFeatured' },
             ]}
           />
-          <div className="mb-3 mt-4 inline-block rounded-full border border-emerald-300 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-            COMPLETELY FREE
+          <div className="mb-3 mt-4 inline-block rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1 text-xs font-semibold text-[var(--gold)]">
+            FROM £4.99/MONTH
           </div>
           <h1 className="text-h1 text-white">Become a Featured Representative</h1>
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-slate-300">
             Stand out from the crowd. Get priority placement, your own profile page, and a homepage
-            spotlight — all free, included in the Spotlight Tier.
+            spotlight — the Spotlight Tier that gets you noticed.
           </p>
         </div>
       </div>
@@ -118,11 +129,52 @@ export default function GoFeaturedPage() {
         ))}
       </div>
 
+      {/* Pricing */}
+      <section className="mb-14">
+        <h2 className="text-h2 mb-2 text-center text-[var(--navy)]">Choose Your Plan</h2>
+        <p className="mb-8 text-center text-[var(--muted)]">
+          Save up to 40% with longer subscription periods
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {PRICING_TIERS.map((tier) => (
+            <div
+              key={tier.id}
+              className={`relative rounded-[var(--radius-lg)] border p-6 ${
+                tier.badge === 'Best value'
+                  ? 'border-[var(--gold)] bg-[var(--gold-pale)] shadow-lg'
+                  : 'border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--card-shadow)]'
+              }`}
+            >
+              {tier.badge && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[var(--navy)] px-3 py-1 text-xs font-bold text-white">
+                  {tier.badge}
+                </span>
+              )}
+              <div className="text-center">
+                <p className="text-3xl font-bold text-[var(--navy)]">{tier.price}</p>
+                <p className="text-sm text-[var(--muted)]">{tier.period}</p>
+                {tier.savings && (
+                  <span className="mt-2 inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                    {tier.savings}
+                  </span>
+                )}
+                <p className="mt-3 text-xs text-[var(--muted)]">Effective: {tier.effective}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-6 text-center">
+          <Link href="/Account" className="btn-gold">
+            Subscribe Now
+          </Link>
+        </p>
+      </section>
+
       {/* Spotlight Tier */}
       <section className="mb-14">
-        <h2 className="text-h2 mb-2 text-[var(--navy)]">Spotlight Tier</h2>
+        <h2 className="text-h2 mb-2 text-[var(--navy)]">What You Get</h2>
         <p className="mb-8 text-[var(--muted)]">
-          Everything you need to maximise your visibility and get more work — completely free.
+          Everything you need to maximise your visibility and get more work.
         </p>
         <div className="grid gap-5 sm:grid-cols-3">
           {SPOTLIGHT_FEATURES.map((f) => (
@@ -193,17 +245,20 @@ export default function GoFeaturedPage() {
       <div className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
         <h2 className="text-h2 text-white">Ready to Go Featured?</h2>
         <p className="mt-3 text-slate-300">
-          Already registered? Sign in and upgrade from your Account dashboard — it&apos;s instant and free.
+          Already registered? Sign in and subscribe from your Account dashboard.
           Not registered yet? Create your free profile first.
         </p>
         <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link href="/Account" className="btn-gold">
-            Sign In &amp; Upgrade
+            Sign In &amp; Subscribe
           </Link>
           <Link href="/register" className="btn-outline !border-slate-500 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)]">
             Register Free
           </Link>
         </div>
+        <p className="mt-4 text-xs text-slate-400">
+          Secure payment powered by Lemon Squeezy. Cancel anytime.
+        </p>
       </div>
     </div>
     </>

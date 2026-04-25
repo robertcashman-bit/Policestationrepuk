@@ -366,11 +366,11 @@ const nextConfig: NextConfig = {
       { source: "/sign-in", destination: "/Account", permanent: false },
       { source: "/admin", destination: "/", permanent: false },
 
-      // Payment / checkout (Stripe not yet integrated — redirect to GoFeatured info page)
-      { source: "/FeaturedCheckout", destination: "/GoFeatured", permanent: false },
-      { source: "/FeaturedSuccess", destination: "/GoFeatured", permanent: false },
-      { source: "/PaymentSuccess", destination: "/GoFeatured", permanent: false },
-      { source: "/PaymentCancel", destination: "/GoFeatured", permanent: false },
+      // Payment / checkout redirects (checkout handled via Lemon Squeezy)
+      { source: "/FeaturedCheckout", destination: "/Account", permanent: false },
+      { source: "/FeaturedSuccess", destination: "/Account?featured=success", permanent: false },
+      { source: "/PaymentSuccess", destination: "/Account?featured=success", permanent: false },
+      { source: "/PaymentCancel", destination: "/Account", permanent: false },
 
       // Dev/test/admin pages (internal only — not public)
       { source: "/HealthCheck", destination: "/", permanent: false },

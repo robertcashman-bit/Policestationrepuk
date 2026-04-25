@@ -2314,5 +2314,23 @@
     "bio": "",
     "slug": "zaneta-wojciechowska-lapaj",
     "websiteUrl": ""
+  },
+  {
+    "name": "Steven Gilbert",
+    "phone": "01392 285700",
+    "email": "enquiries@sdglegal.co.uk",
+    "county": "Devon",
+    "availability": "24/7",
+    "accreditation": "Accredited Representative",
+    "featured": true,
+    "stations": [
+      "Devon & Cornwall Police (Exeter Police Station)",
+      "Devon & Cornwall Police (Plymouth Charles Cross Police Station)",
+      "Devon & Cornwall Police (Plymouth Police Station)",
+      "Devon & Cornwall Police (Torquay Police Station)"
+    ],
+    "bio": "Accredited police station representation across Devon and Cornwall, including Exeter, Plymouth, and Torquay. Instructed through SDG Legal.",
+    "slug": "steven-gilbert-sdglegal",
+    "websiteUrl": "https://www.sdglegal.com"
   }
 ]

@@ -1,13 +1,11 @@
 import { test, expect } from '@playwright/test';
 
-const BASE = process.env.PW_BASE_URL || 'https://policestationrepuk.org';
-
 test.describe('Featured System — Public Display', () => {
   test('homepage loads with featured carousel', async ({ page }) => {
     await page.goto('/');
     const carousel = page.locator('section[aria-label="Sponsored representative listings"]');
     await expect(carousel).toBeVisible({ timeout: 15_000 });
-    await expect(carousel.locator('h2')).toContainText('Featured Representatives');
+    await expect(carousel.locator('h2')).toContainText('Featured Police Station Representatives');
   });
 
   test('Robert Cashman appears first in featured carousel', async ({ page }) => {
@@ -89,21 +87,21 @@ test.describe('Featured System — GoFeatured Page', () => {
 
   test('GoFeatured page shows features and FAQ', async ({ page }) => {
     await page.goto('/GoFeatured');
-    await expect(page.getByRole('heading', { name: 'Spotlight Tier' })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('heading', { name: 'What You Get' })).toBeVisible({ timeout: 10_000 });
     await expect(page.getByRole('heading', { name: 'Frequently Asked Questions' })).toBeVisible();
   });
 });
 
 test.describe('Featured System — API', () => {
   test('GET /api/account/featured returns 401 without auth', async ({ request }) => {
-    const res = await request.get(`${BASE}/api/account/featured`);
+    const res = await request.get('/api/account/featured');
     expect(res.status()).toBe(401);
     const body = await res.json();
     expect(body.error).toBe('Not authenticated');
   });
 
   test('POST /api/account/featured returns 401 without auth', async ({ request }) => {
-    const res = await request.post(`${BASE}/api/account/featured`);
+    const res = await request.post('/api/account/featured');
     expect(res.status()).toBe(401);
     const body = await res.json();
     expect(body.error).toBe('Not authenticated');

@@ -28,10 +28,10 @@ describe('Profile route — uses getSession + KV (no Supabase)', () => {
     expect(getHandler).toContain('getSession()');
   });
 
-  it('PUT handler uses getRawReps (raw data for diff)', () => {
+  it('PUT handler uses findRep (backed by getRawReps) for the listing and diffs with getOldValue', () => {
     const putHandler = extractFunctionBody(source, 'export async function PUT');
     expect(putHandler).toBeTruthy();
-    expect(putHandler).toContain('getRawReps()');
+    expect(putHandler).toContain('findRep(');
   });
 
   it('PUT handler calls getOldValue with the raw rep', () => {

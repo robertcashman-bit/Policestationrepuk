@@ -51,6 +51,7 @@
     "blog:heroes:fetch": "node scripts/blog/fetch-hero-images.mjs",
     "social:preview": "node scripts/generate-social-preview.mjs",
     "test": "vitest run",
+    "smoke:ls": "node scripts/smoke-lemonsqueezy.mjs",
     "analyze": "ANALYZE=true next build",
     "audit:validate": "node scripts/audit-validate.mjs",
     "audit:validate:fix": "node scripts/audit-validate.mjs --fix",

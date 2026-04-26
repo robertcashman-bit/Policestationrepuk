@@ -51,7 +51,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://policestationrepuk.org';
+  const baseUrl =
+    process.env.APP_BASE_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    'https://policestationrepuk.org';
 
   try {
     const checkout = await createCheckout({
@@ -60,6 +63,8 @@ export async function POST(req: NextRequest) {
       name: rep.name,
       successUrl: `${baseUrl}/Account?featured=success`,
       customData: {
+        repId: rep.id,
+        userId: email.toLowerCase(),
         email: email.toLowerCase(),
         tier,
         repSlug: rep.slug,

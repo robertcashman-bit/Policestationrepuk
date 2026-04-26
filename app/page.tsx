@@ -19,6 +19,7 @@ import { HomePhoneNumbers } from '@/components/HomePhoneNumbers';
 import { HomeAIAssistant } from '@/components/HomeAIAssistant';
 import { HomeSeoConversionHub } from '@/components/HomeSeoConversionHub';
 import { HomeHomepageFaq } from '@/components/HomeHomepageFaq';
+import { FeaturedListingAdvert } from '@/components/FeaturedListingAdvert';
 import { getAllReps, getAllStations, getAllCounties, getFeaturedRepsSorted } from '@/lib/data';
 import {
   organizationSchema,
@@ -118,6 +119,10 @@ export default async function HomePage() {
       <HomeCommunityWhatsAppPromo />
 
       <HomeRecentlyJoined reps={reps} />
+
+      <div className="page-container py-8">
+        <FeaturedListingAdvert />
+      </div>
 
       <HomeFeaturedCarousel featuredReps={featuredReps} />
 

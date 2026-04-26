@@ -33,14 +33,19 @@ export async function GET() {
     featured: isActive,
     activatedAt: kvMeta?.activatedAt ?? null,
     source: alreadyFeaturedInStatic ? 'static' : kvMeta ? 'upgraded' : null,
-    status: alreadyFeaturedInStatic ? 'grandfathered' : kvMeta?.status ?? null,
-    expiresAt: kvMeta?.expiresAt ?? null,
+    status: alreadyFeaturedInStatic ? 'legacy' : kvMeta?.status ?? null,
+    expiresAt: kvMeta?.expiresAt ?? kvMeta?.featuredExpiryDate ?? null,
     renewsAt: kvMeta?.renewsAt ?? null,
     tier: kvMeta?.tier ?? null,
+    lastWebhookEvent: kvMeta?.featuredLastWebhookEvent ?? null,
   });
 }
 
 export async function POST() {
+  const email = await getSession();
+  if (!email) {
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  }
   return NextResponse.json(
     { error: 'Use /api/checkout/featured to subscribe to featured listing' },
     { status: 400 },

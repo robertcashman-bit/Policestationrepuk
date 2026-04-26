@@ -25,15 +25,35 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
       <div className="page-container !py-0">
         <div className="text-center">
           <AdvertisementLabel variant="dark" label="Promoted Listings" />
-          <h2 className="text-h2 mt-3 text-white">Featured Representatives</h2>
+          <h2 className="text-h2 mt-3 text-white">Featured Police Station Representatives</h2>
           <p className="mt-2 text-sm text-white/80">
             These are promoted listings. Firms and reps should verify accreditation and credentials independently.
           </p>
         </div>
 
         <div className="mx-auto mt-8 max-w-2xl">
-          <div className="rounded-[var(--radius-lg)] border-2 border-white bg-[var(--navy-light)] p-6 sm:p-7">
-            <h3 className="text-xl font-bold text-white">{rep.name}</h3>
+          <div className="rounded-[var(--radius-lg)] border-2 border-[var(--gold)] bg-[var(--navy-light)] p-6 shadow-xl sm:p-7">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <span className="rounded-full bg-[var(--gold)] px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-[var(--ink)]">
+                  Featured
+                </span>
+                <h3 className="mt-3 text-xl font-bold text-white">{rep.name}</h3>
+                <p className="mt-1 text-sm text-white/75">{rep.county || 'England & Wales'}</p>
+              </div>
+              {rep.availability && (
+                <span className="rounded-full border border-white/20 px-3 py-1 text-xs font-semibold text-white">
+                  {rep.availability}
+                </span>
+              )}
+            </div>
+            {(rep.stations || []).length > 0 && (
+              <p className="mt-3 text-sm text-white/75">
+                <span className="font-semibold text-white">Stations covered:</span>{' '}
+                {(rep.stations || []).slice(0, 3).join(', ')}
+                {(rep.stations || []).length > 3 ? ` +${(rep.stations || []).length - 3} more` : ''}
+              </p>
+            )}
             {quote ? (
               <blockquote className="mt-4 border-l-4 border-[var(--gold)] pl-4 text-sm italic leading-relaxed text-white">
                 &ldquo;{quote}&rdquo;

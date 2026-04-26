@@ -356,7 +356,10 @@ export async function getRegisteredRepByEmail(email: string): Promise<Representa
 }
 
 function ov<T>(overrides: Record<string, unknown>, key: string, fallback: T): T {
-  return key in overrides ? (overrides[key] as T) : fallback;
+  if (!(key in overrides)) return fallback;
+  const v = overrides[key];
+  if (v === null || v === undefined) return fallback;
+  return v as T;
 }
 
 export function applyOverrides(rep: Representative, overrides: Record<string, unknown>): Representative {
@@ -365,13 +368,18 @@ export function applyOverrides(rep: Representative, overrides: Record<string, un
   let primaryCounty = rep.county;
   if ('counties' in overrides) {
     const raw = overrides.counties;
-    const list = Array.isArray(raw)
-      ? raw.map((s) => String(s).trim()).filter(Boolean)
-      : typeof raw === 'string'
-        ? raw.split(/[,;]+/).map((s) => s.trim()).filter(Boolean)
-        : [];
-    counties = list.length ? Array.from(new Set(list)) : undefined;
-    if (counties && counties.length) primaryCounty = counties[0];
+    if (raw === null || raw === undefined) {
+      counties = rep.counties;
+      primaryCounty = rep.county;
+    } else {
+      const list = Array.isArray(raw)
+        ? raw.map((s) => String(s).trim()).filter(Boolean)
+        : typeof raw === 'string'
+          ? raw.split(/[,;]+/).map((s) => s.trim()).filter(Boolean)
+          : [];
+      counties = list.length ? Array.from(new Set(list)) : undefined;
+      if (counties && counties.length) primaryCounty = counties[0];
+    }
   }
   return {
     ...rep,

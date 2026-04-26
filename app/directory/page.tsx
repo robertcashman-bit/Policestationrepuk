@@ -11,6 +11,7 @@ import { JsonLd } from '@/components/JsonLd';
 import { breadcrumbSchema, directoryItemListSchema } from '@/lib/seo';
 import { ResultsGridSkeleton } from '@/components/directory/ResultsGrid';
 import { JoinCTA } from '@/components/directory/JoinCTA';
+import { FeaturedListingAdvert } from '@/components/FeaturedListingAdvert';
 
 const directoryTitle = 'Police Station Rep Directory — County & Station';
 const directoryDescription =
@@ -163,6 +164,8 @@ export default async function DirectoryPage() {
       {/* Main content */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <DirectoryComplianceNotice className="mb-6" />
+
+        <FeaturedListingAdvert className="mb-6" />
 
         {/* Custody Note — promoted product */}
         <aside className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-[var(--gold)]/25 bg-gradient-to-r from-[var(--navy)] to-[#152e6e] px-5 py-3 shadow-sm">

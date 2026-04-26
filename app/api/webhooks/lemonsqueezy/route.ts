@@ -12,6 +12,7 @@ import {
   markEmailsSent,
   getFeaturedStatus,
 } from '@/lib/featured';
+import { getKV } from '@/lib/kv';
 import {
   sendFeaturedConfirmationToRep,
   sendFeaturedOwnerNotification,
@@ -29,6 +30,15 @@ async function findRep(email: string): Promise<Representative | null> {
 function hasNotExpired(meta: { expiresAt?: string }): boolean {
   if (!meta.expiresAt) return true;
   return new Date(meta.expiresAt) > new Date();
+}
+
+function addBillingPeriod(from: Date, tier?: string): string {
+  const d = new Date(from);
+  if (tier === 'yearly') d.setFullYear(d.getFullYear() + 1);
+  else if (tier === '6month') d.setMonth(d.getMonth() + 6);
+  else if (tier === '3month') d.setMonth(d.getMonth() + 3);
+  else d.setMonth(d.getMonth() + 1);
+  return d.toISOString();
 }
 
 export async function POST(req: NextRequest) {
@@ -71,14 +81,31 @@ export async function POST(req: NextRequest) {
   }
 
   const subscriptionId = event.data.id;
+  const orderId = attrs.order_id != null ? String(attrs.order_id) : undefined;
   const variantId = String(attrs.variant_id);
   const customerId = String(attrs.customer_id);
+  const productId = String(attrs.product_id);
   const renewsAt = attrs.renews_at || undefined;
-  const endsAt = attrs.ends_at || undefined;
+  const paymentAt = new Date().toISOString();
+  const endsAt = attrs.ends_at || attrs.renews_at || addBillingPeriod(new Date(), tier);
+  const webhookKey =
+    event.meta.webhook_id ||
+    `${eventName}:${event.data.id}:${attrs.updated_at || attrs.created_at || paymentAt}`;
+  const kv = getKV();
+  const processedKey = `lemonsqueezy:webhook:${webhookKey}`;
 
   try {
+    if (kv) {
+      const alreadyProcessed = await kv.get(processedKey);
+      if (alreadyProcessed) {
+        return NextResponse.json({ ok: true, duplicate: true });
+      }
+    }
+
     switch (eventName) {
+      case 'order_created':
       case 'subscription_created':
+      case 'subscription_payment_success':
       case 'subscription_resumed': {
         const existing = await getFeaturedStatus(email);
         const shouldPreserveActivation =
@@ -88,22 +115,38 @@ export async function POST(req: NextRequest) {
 
         if (shouldPreserveActivation) {
           await updateFeaturedSubscription(email, {
+            isFeatured: true,
             status: 'active',
             subscriptionId,
             variantId,
             customerId,
+            orderId,
+            productId,
             tier,
             renewsAt,
             expiresAt: endsAt,
+            featuredExpiryDate: endsAt,
+            lemonSqueezyCustomerId: customerId,
+            lemonSqueezyOrderId: orderId,
+            lemonSqueezySubscriptionId: subscriptionId,
+            lemonSqueezyVariantId: variantId,
+            lemonSqueezyProductId: productId,
+            featuredPlanName: tier,
+            featuredLastPaymentDate: paymentAt,
+            featuredLastWebhookEvent: eventName,
           });
         } else {
           const meta = await activateFeatured(email, {
             subscriptionId,
             variantId,
             customerId,
+            orderId,
+            productId,
             tier,
             renewsAt,
             expiresAt: endsAt,
+            lastPaymentAt: paymentAt,
+            lastWebhookEvent: eventName,
           });
 
           const rep = await findRep(email);
@@ -139,8 +182,22 @@ export async function POST(req: NextRequest) {
 
       case 'subscription_updated': {
         await updateFeaturedSubscription(email, {
+          subscriptionId,
+          variantId,
+          customerId,
+          orderId,
+          productId,
+          tier,
           renewsAt,
           expiresAt: endsAt,
+          featuredExpiryDate: endsAt,
+          lemonSqueezyCustomerId: customerId,
+          lemonSqueezyOrderId: orderId,
+          lemonSqueezySubscriptionId: subscriptionId,
+          lemonSqueezyVariantId: variantId,
+          lemonSqueezyProductId: productId,
+          featuredPlanName: tier,
+          featuredLastWebhookEvent: eventName,
         });
         break;
       }
@@ -148,26 +205,40 @@ export async function POST(req: NextRequest) {
       case 'subscription_cancelled': {
         const cancelEndsAt = endsAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
         await cancelFeaturedSubscription(email, cancelEndsAt);
+        await updateFeaturedSubscription(email, { featuredLastWebhookEvent: eventName });
         break;
       }
 
+      case 'subscription_payment_failed':
       case 'subscription_expired': {
         await expireFeaturedSubscription(email);
+        await updateFeaturedSubscription(email, {
+          featuredExpiryDate: paymentAt,
+          featuredLastWebhookEvent: eventName,
+        });
         break;
       }
 
       case 'subscription_paused': {
-        await updateFeaturedSubscription(email, { status: 'cancelled' });
+        await updateFeaturedSubscription(email, { status: 'cancelled', featuredLastWebhookEvent: eventName });
         break;
       }
 
       case 'subscription_unpaused': {
-        await updateFeaturedSubscription(email, { status: 'active' });
+        await updateFeaturedSubscription(email, {
+          isFeatured: true,
+          status: 'active',
+          featuredLastWebhookEvent: eventName,
+        });
         break;
       }
 
       default:
         console.log('[webhook] Unhandled subscription event:', eventName);
+    }
+
+    if (kv) {
+      await kv.set(processedKey, { eventName, processedAt: paymentAt }, { ex: 60 * 60 * 24 * 90 });
     }
 
     return NextResponse.json({ ok: true });

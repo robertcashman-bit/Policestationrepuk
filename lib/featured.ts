@@ -11,9 +11,23 @@ export interface FeaturedMeta {
   activatedAt: string;
   emailSentToRep: boolean;
   emailSentToOwner: boolean;
+  isFeatured?: boolean;
+  isLegacyFeatured?: boolean;
+  featuredStartDate?: string;
+  featuredExpiryDate?: string | null;
+  lemonSqueezyCustomerId?: string;
+  lemonSqueezyOrderId?: string;
+  lemonSqueezySubscriptionId?: string;
+  lemonSqueezyVariantId?: string;
+  lemonSqueezyProductId?: string;
+  featuredPlanName?: string;
+  featuredLastPaymentDate?: string;
+  featuredLastWebhookEvent?: string;
   subscriptionId?: string;
   variantId?: string;
   customerId?: string;
+  orderId?: string;
+  productId?: string;
   status: FeaturedStatus;
   expiresAt?: string;
   renewsAt?: string;
@@ -70,9 +84,13 @@ export interface ActivateFeaturedOptions {
   subscriptionId?: string;
   variantId?: string;
   customerId?: string;
+  orderId?: string;
+  productId?: string;
   tier?: string;
   renewsAt?: string;
   expiresAt?: string;
+  lastPaymentAt?: string;
+  lastWebhookEvent?: string;
 }
 
 export async function activateFeatured(
@@ -86,10 +104,24 @@ export async function activateFeatured(
     activatedAt: new Date().toISOString(),
     emailSentToRep: false,
     emailSentToOwner: false,
+    isFeatured: true,
+    isLegacyFeatured: false,
+    featuredStartDate: new Date().toISOString(),
+    featuredExpiryDate: opts.expiresAt ?? null,
+    lemonSqueezyCustomerId: opts.customerId,
+    lemonSqueezyOrderId: opts.orderId,
+    lemonSqueezySubscriptionId: opts.subscriptionId,
+    lemonSqueezyVariantId: opts.variantId,
+    lemonSqueezyProductId: opts.productId,
+    featuredPlanName: opts.tier,
+    featuredLastPaymentDate: opts.lastPaymentAt,
+    featuredLastWebhookEvent: opts.lastWebhookEvent,
     status: 'active',
     subscriptionId: opts.subscriptionId,
     variantId: opts.variantId,
     customerId: opts.customerId,
+    orderId: opts.orderId,
+    productId: opts.productId,
     tier: opts.tier,
     renewsAt: opts.renewsAt,
     expiresAt: opts.expiresAt,
@@ -104,7 +136,27 @@ export async function updateFeaturedSubscription(
   updates: Partial<
     Pick<
       FeaturedMeta,
-      'status' | 'renewsAt' | 'expiresAt' | 'subscriptionId' | 'variantId' | 'customerId' | 'tier'
+      | 'status'
+      | 'renewsAt'
+      | 'expiresAt'
+      | 'subscriptionId'
+      | 'variantId'
+      | 'customerId'
+      | 'orderId'
+      | 'productId'
+      | 'tier'
+      | 'isFeatured'
+      | 'isLegacyFeatured'
+      | 'featuredStartDate'
+      | 'featuredExpiryDate'
+      | 'lemonSqueezyCustomerId'
+      | 'lemonSqueezyOrderId'
+      | 'lemonSqueezySubscriptionId'
+      | 'lemonSqueezyVariantId'
+      | 'lemonSqueezyProductId'
+      | 'featuredPlanName'
+      | 'featuredLastPaymentDate'
+      | 'featuredLastWebhookEvent'
     >
   >,
 ): Promise<FeaturedMeta | null> {
@@ -126,18 +178,20 @@ export async function cancelFeaturedSubscription(
   endsAt: string,
 ): Promise<FeaturedMeta | null> {
   return updateFeaturedSubscription(email, {
+    isFeatured: true,
     status: 'cancelled',
     expiresAt: endsAt,
+    featuredExpiryDate: endsAt,
   });
 }
 
 export async function expireFeaturedSubscription(email: string): Promise<FeaturedMeta | null> {
-  return updateFeaturedSubscription(email, { status: 'expired' });
+  return updateFeaturedSubscription(email, { isFeatured: false, status: 'expired' });
 }
 
 export function isFeaturedActive(meta: FeaturedMeta | null): boolean {
   if (!meta) return false;
-  if (meta.status === 'grandfathered' || meta.status === 'legacy') return true;
+  if (meta.isLegacyFeatured || meta.status === 'grandfathered' || meta.status === 'legacy') return true;
   if (!meta.status) return true;
   if (meta.status !== 'active' && meta.status !== 'cancelled') return false;
   if (meta.expiresAt) {
@@ -157,6 +211,61 @@ export async function markEmailsSent(email: string, flags: { rep?: boolean; owne
     emailSentToOwner: flags.owner ?? existing.emailSentToOwner,
   };
   await kv.set(`featured:${email.toLowerCase()}`, updated);
+}
+
+export async function grandfatherExistingFeaturedReps(reps: Representative[]): Promise<number> {
+  const kv = getKV();
+  if (!kv) return 0;
+  let changed = 0;
+  const now = new Date().toISOString();
+  for (const rep of reps) {
+    if (!rep.featured || !rep.email) continue;
+    const key = `featured:${rep.email.toLowerCase()}`;
+    const existing = await kv.get<FeaturedMeta>(key);
+    if (existing?.isLegacyFeatured || existing?.status === 'legacy') continue;
+    const meta: FeaturedMeta = {
+      ...(existing ?? {
+        email: rep.email.toLowerCase(),
+        activatedAt: now,
+        emailSentToRep: false,
+        emailSentToOwner: false,
+      }),
+      email: rep.email.toLowerCase(),
+      isFeatured: true,
+      isLegacyFeatured: true,
+      status: 'legacy',
+      featuredStartDate: existing?.featuredStartDate ?? existing?.activatedAt ?? now,
+      featuredExpiryDate: null,
+      expiresAt: undefined,
+      featuredLastWebhookEvent: existing?.featuredLastWebhookEvent ?? 'legacy_migration',
+    };
+    await kv.set(key, meta);
+    changed++;
+  }
+  if (changed > 0) invalidateFeaturedCache();
+  return changed;
+}
+
+export async function listFeaturedDebug() {
+  const flags = await loadFeaturedFlags();
+  return [...flags.values()]
+    .map((meta) => ({
+      email: meta.email,
+      status: meta.status,
+      isLegacyFeatured: Boolean(meta.isLegacyFeatured || meta.status === 'legacy'),
+      activatedAt: meta.activatedAt,
+      expiresAt: meta.expiresAt ?? meta.featuredExpiryDate ?? null,
+      renewsAt: meta.renewsAt ?? null,
+      tier: meta.tier ?? meta.featuredPlanName ?? null,
+      subscriptionId: meta.subscriptionId ?? meta.lemonSqueezySubscriptionId ?? null,
+      lastWebhookEvent: meta.featuredLastWebhookEvent ?? null,
+    }))
+    .sort((a, b) => {
+      const aLegacy = a.isLegacyFeatured ? 1 : 0;
+      const bLegacy = b.isLegacyFeatured ? 1 : 0;
+      if (aLegacy !== bLegacy) return bLegacy - aLegacy;
+      return a.email.localeCompare(b.email);
+    });
 }
 
 export function applyFeaturedFlags(

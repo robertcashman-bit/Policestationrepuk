@@ -6,7 +6,8 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 if ([string]::IsNullOrWhiteSpace($Key)) { throw 'Key is required.' }
-foreach ($env in @('production', 'preview', 'development')) {
-  $Key | npx vercel env add LEMONSQUEEZY_API_KEY $env --sensitive --force
-}
+# Vercel does not allow --sensitive for the Development environment; use .env.local for local dev instead.
+$Key | npx vercel env add LEMONSQUEEZY_API_KEY production --sensitive --force
+$Key | npx vercel env add LEMONSQUEEZY_API_KEY preview --sensitive --force
+$Key | npx vercel env add LEMONSQUEEZY_API_KEY development --force
 Write-Host 'Done. Redeploy or run: npx vercel --prod --yes' -ForegroundColor Green

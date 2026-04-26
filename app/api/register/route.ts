@@ -3,6 +3,7 @@ import { sendRegistrationNotification } from '@/lib/email';
 import { saveSubmission } from '@/lib/submissions';
 import { contactRateLimitOk, getClientIp } from '@/lib/contact-guards';
 import { getKV } from '@/lib/kv';
+import { getRawReps } from '@/lib/data';
 
 function toStr(val: unknown): string {
   if (Array.isArray(val)) return val.join(', ');
@@ -61,8 +62,41 @@ export async function POST(request: Request) {
       message: toStr(message),
     };
 
+    // Guard against unauthenticated overwrite of an existing rep's directory
+    // listing. The registration endpoint is public; without this check, anyone
+    // could re-POST with a victim's email to rewrite their public name/phone/
+    // counties/stations and change their slug (breaking existing URLs/SEO).
+    const kv = getKV();
+    if (kv) {
+      try {
+        const existing = await kv.get(`newrep:${normalised.email}`);
+        if (existing) {
+          return NextResponse.json(
+            {
+              error:
+                'This email is already registered in our directory. Please log in via the account page to update your listing.',
+            },
+            { status: 409 },
+          );
+        }
+      } catch (err) {
+        console.warn('[register] KV duplicate-check failed:', err);
+      }
+    }
+    const staticRep = getRawReps().find(
+      (r) => r.email.toLowerCase() === normalised.email,
+    );
+    if (staticRep) {
+      return NextResponse.json(
+        {
+          error:
+            'This email is already in our directory. Please log in via the account page to update your listing.',
+        },
+        { status: 409 },
+      );
+    }
+
     const kvWrite = (async () => {
-      const kv = getKV();
       if (!kv) return;
       await kv.set(`newrep:${normalised.email}`, {
         ...normalised,

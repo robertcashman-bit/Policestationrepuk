@@ -11,6 +11,24 @@ export const PRICING = {
 
 export type PricingTier = keyof typeof PRICING;
 
+// Defensive trim: Vercel env vars sometimes contain trailing CR/LF when pasted
+// from a terminal. Any whitespace at the boundary breaks HTTP headers (Bearer
+// token), JSON payloads (variant ids), or HMAC comparison (webhook secret).
+export function readEnv(name: string): string | undefined {
+  const raw = process.env[name];
+  if (raw == null) return undefined;
+  const trimmed = raw.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+export function readEnvAny(...names: string[]): string | undefined {
+  for (const name of names) {
+    const value = readEnv(name);
+    if (value) return value;
+  }
+  return undefined;
+}
+
 export function getVariantId(tier: PricingTier): string | undefined {
   const envMap: Record<PricingTier, string> = {
     monthly: 'LEMONSQUEEZY_VARIANT_MONTHLY',
@@ -18,18 +36,25 @@ export function getVariantId(tier: PricingTier): string | undefined {
     '6month': 'LEMONSQUEEZY_VARIANT_6MONTH',
     yearly: 'LEMONSQUEEZY_VARIANT_YEARLY',
   };
-  return process.env[envMap[tier]];
+  if (tier === 'monthly') {
+    return readEnvAny(
+      'LEMON_SQUEEZY_FEATURED_VARIANT_ID',
+      'LEMONSQUEEZY_FEATURED_VARIANT_ID',
+      envMap[tier],
+    );
+  }
+  return readEnv(envMap[tier]);
 }
 
 function getApiKey(): string {
-  const key = process.env.LEMONSQUEEZY_API_KEY;
-  if (!key) throw new Error('LEMONSQUEEZY_API_KEY not configured');
+  const key = readEnvAny('LEMON_SQUEEZY_API_KEY', 'LEMONSQUEEZY_API_KEY');
+  if (!key) throw new Error('LEMON_SQUEEZY_API_KEY not configured');
   return key;
 }
 
 function getStoreId(): string {
-  const id = process.env.LEMONSQUEEZY_STORE_ID;
-  if (!id) throw new Error('LEMONSQUEEZY_STORE_ID not configured');
+  const id = readEnvAny('LEMON_SQUEEZY_STORE_ID', 'LEMONSQUEEZY_STORE_ID');
+  if (!id) throw new Error('LEMON_SQUEEZY_STORE_ID not configured');
   return id;
 }
 
@@ -115,24 +140,29 @@ export async function createCheckout(opts: CheckoutOptions): Promise<CheckoutRes
 
 export function verifyWebhookSignature(
   payload: string | Buffer,
-  signature: string,
+  signature: string | null | undefined,
 ): boolean {
-  const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
+  const secret = readEnvAny('LEMON_SQUEEZY_WEBHOOK_SECRET', 'LEMONSQUEEZY_WEBHOOK_SECRET');
   if (!secret) {
-    console.error('[lemonsqueezy] LEMONSQUEEZY_WEBHOOK_SECRET not configured');
+    console.error('[lemonsqueezy] LEMON_SQUEEZY_WEBHOOK_SECRET not configured');
     return false;
   }
+  if (!signature) return false;
 
   const hmac = crypto.createHmac('sha256', secret);
   const payloadStr = typeof payload === 'string' ? payload : payload.toString('utf8');
   const digest = hmac.update(payloadStr).digest('hex');
 
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
+  const sigBuf = Buffer.from(signature.trim(), 'utf8');
+  const digestBuf = Buffer.from(digest, 'utf8');
+  if (sigBuf.length !== digestBuf.length) return false;
+  return crypto.timingSafeEqual(sigBuf, digestBuf);
 }
 
 export interface WebhookEvent {
   meta: {
     event_name: string;
+    webhook_id?: string;
     custom_data?: Record<string, string>;
   };
   data: {
@@ -141,7 +171,7 @@ export interface WebhookEvent {
     attributes: {
       store_id: number;
       customer_id: number;
-      order_id: number;
+      order_id?: number;
       product_id: number;
       variant_id: number;
       user_email: string;
@@ -161,6 +191,7 @@ export function parseWebhookEvent(body: string): WebhookEvent {
 }
 
 export type SubscriptionEventType =
+  | 'order_created'
   | 'subscription_created'
   | 'subscription_updated'
   | 'subscription_cancelled'
@@ -172,5 +203,5 @@ export type SubscriptionEventType =
   | 'subscription_payment_failed';
 
 export function isSubscriptionEvent(eventName: string): eventName is SubscriptionEventType {
-  return eventName.startsWith('subscription_');
+  return eventName === 'order_created' || eventName.startsWith('subscription_');
 }

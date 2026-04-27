@@ -7,15 +7,37 @@ export interface FirmCardProps {
 
 export function FirmCard({ firm }: FirmCardProps) {
   const isPlaceholder = (v: string | undefined | null) =>
-    !v || /^(not available|n\/a|none|unknown|-|\.+)$/i.test(v.trim());
+    !v ||
+    /^(not\s*(available|specified|set|provided|listed)|n\/?a|none|unknown|tbd|tba|-+|\.+)$/i.test(
+      v.trim(),
+    );
 
-  const phoneHref = !isPlaceholder(firm.phone) ? phoneToTelHref(firm.phone) : null;
-  const cleanEmail = !isPlaceholder(firm.email) ? firm.email : null;
-  const websiteRaw = !isPlaceholder(firm.website) ? firm.website : null;
-  const websiteUrl =
-    websiteRaw && !websiteRaw.startsWith('http')
-      ? `https://${websiteRaw}`
-      : websiteRaw;
+  const phoneHref = (() => {
+    if (isPlaceholder(firm.phone)) return null;
+    const digits = firm.phone.replace(/\D+/g, '');
+    if (digits.length < 7) return null;
+    return phoneToTelHref(firm.phone);
+  })();
+
+  const cleanEmail = (() => {
+    if (isPlaceholder(firm.email)) return null;
+    const e = firm.email.trim();
+    return /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(e) ? e : null;
+  })();
+
+  const websiteUrl = (() => {
+    if (isPlaceholder(firm.website)) return null;
+    const raw = firm.website.trim();
+    const candidate = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+    try {
+      const u = new URL(candidate);
+      if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(u.hostname)) return null;
+      if (!/\.[a-z]{2,}$/i.test(u.hostname)) return null;
+      return u.toString();
+    } catch {
+      return null;
+    }
+  })();
 
   return (
     <article className="group flex flex-col rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white shadow-[var(--card-shadow)] transition-all duration-200 hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--gold)]/40">

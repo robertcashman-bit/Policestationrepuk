@@ -20,7 +20,7 @@ import { HomeAIAssistant } from '@/components/HomeAIAssistant';
 import { HomeSeoConversionHub } from '@/components/HomeSeoConversionHub';
 import { HomeHomepageFaq } from '@/components/HomeHomepageFaq';
 import { FeaturedListingAdvert } from '@/components/FeaturedListingAdvert';
-import { getAllReps, getAllStations, getAllCounties, getFeaturedRepsSorted } from '@/lib/data';
+import { getAllReps, getAllCounties, getFeaturedRepsSorted } from '@/lib/data';
 import {
   organizationSchema,
   webSiteSchema,
@@ -68,9 +68,8 @@ const MARKETING_REPS_DISPLAY = 300;
 const MARKETING_STATIONS_DISPLAY = 500;
 
 export default async function HomePage() {
-  const [reps, stations, counties, featuredReps] = await Promise.all([
+  const [reps, counties, featuredReps] = await Promise.all([
     getAllReps(),
-    getAllStations(),
     getAllCounties(),
     getFeaturedRepsSorted(),
   ]);

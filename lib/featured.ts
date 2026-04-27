@@ -1,4 +1,4 @@
-import { getKV } from './kv';
+import { getKV, skipKVInPrerender } from './kv';
 import type { Representative } from './types';
 
 export const ROBERT_SLUG = 'robert-cashman';
@@ -41,6 +41,13 @@ const CACHE_MS = 60_000;
 export async function loadFeaturedFlags(): Promise<Map<string, FeaturedMeta>> {
   const now = Date.now();
   if (_featuredFlags && now - _featuredFlagsAt < CACHE_MS) {
+    return _featuredFlags;
+  }
+  if (skipKVInPrerender()) {
+    if (!_featuredFlags) {
+      _featuredFlags = new Map();
+      _featuredFlagsAt = now;
+    }
     return _featuredFlags;
   }
   const map = new Map<string, FeaturedMeta>();

@@ -8,7 +8,7 @@ import {
   finalizeRepresentative,
 } from './rep-merge';
 import { repMatchesCountyName } from './county-matching';
-import { getKV } from './kv';
+import { getKV, skipKVInPrerender } from './kv';
 import { loadFeaturedFlags, applyFeaturedFlags, sortFeaturedReps } from './featured';
 
 type FileData = {
@@ -224,6 +224,13 @@ async function loadProfileOverrides(): Promise<Map<string, Record<string, unknow
   if (_profileOverrides && now - _profileOverridesAt < PROFILE_OVERRIDES_CACHE_MS) {
     return _profileOverrides;
   }
+  if (skipKVInPrerender()) {
+    if (!_profileOverrides) {
+      _profileOverrides = new Map();
+      _profileOverridesAt = now;
+    }
+    return _profileOverrides;
+  }
   _profileOverrides = new Map();
   _profileOverridesAt = now;
   const kv = getKV();
@@ -308,6 +315,13 @@ function registrationToRep(row: Record<string, unknown>): Representative | null 
 async function loadRegisteredReps(): Promise<Representative[]> {
   const now = Date.now();
   if (_registeredReps && now - _registeredRepsAt < REGISTERED_CACHE_MS) {
+    return _registeredReps;
+  }
+  if (skipKVInPrerender()) {
+    if (_registeredReps === null) {
+      _registeredReps = [];
+      _registeredRepsAt = now;
+    }
     return _registeredReps;
   }
   const kv = getKV();

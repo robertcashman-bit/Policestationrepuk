@@ -6,9 +6,9 @@ import { getAllLawFirms } from '@/lib/data';
 import { FACEBOOK_GROUP_URL } from '@/lib/site-navigation';
 
 export const metadata = buildMetadata({
-  title: 'Criminal Defence Firms Directory — Rep Reviews & Ratings',
+  title: 'Criminal Defence Law Firms Directory — England & Wales',
   description:
-    'Browse criminal defence law firms with verified representative reviews and ratings. Find firms that pay on time, treat reps fairly, and provide consistent police station cover instructions.',
+    'Searchable directory of criminal defence law firms in England and Wales. Filter by county and specialism, and find firms that take police station cover work.',
   path: '/Firms',
 });
 
@@ -39,8 +39,9 @@ export default async function FirmsPage() {
           />
           <h1 className="mt-3 text-h1 text-white">Criminal Defence Law Firms Directory</h1>
           <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
-            Browse criminal defence firms with verified rep reviews — find firms that pay on time and
-            treat reps well.
+            English and Welsh criminal defence firms — searchable by name, county and specialism.
+            Every firm listed here has been checked against the SRA register and has an active
+            website at the time of curation.
           </p>
         </div>
       </section>
@@ -60,10 +61,12 @@ export default async function FirmsPage() {
         </div>
 
         <div className="mb-6 rounded-[var(--radius)] border border-yellow-200 bg-yellow-50 p-4 text-sm leading-relaxed text-yellow-800">
-          This directory includes firms sourced from public SRA data and community submissions.
-          Some entries may not actively take police station instructions. Listings marked
+          This directory lists English &amp; Welsh criminal defence firms with active websites,
+          curated from public SRA data and community submissions. Entries marked
           &ldquo;Police Station&rdquo; have indicated they accept police station cover work.
-          Please verify details directly with the firm before relying on this information.
+          Listings here are informational — please verify details directly with the firm
+          before relying on this information. Are we missing your firm, or is something out
+          of date? <a href={`${MAILTO_BASE}?subject=Firm%20Directory%20Correction`} className="font-semibold underline">Let us know</a>.
         </div>
 
         {/* Searchable directory */}

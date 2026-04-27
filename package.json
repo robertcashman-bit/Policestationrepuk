@@ -51,6 +51,8 @@
     "blog:heroes:fetch": "node scripts/blog/fetch-hero-images.mjs",
     "social:preview": "node scripts/generate-social-preview.mjs",
     "test": "vitest run",
+    "law-firms:clean": "node scripts/clean-law-firms.mjs",
+    "test:ls:verify-checkout": "node scripts/verify-test-checkout.mjs",
     "smoke:ls": "node scripts/smoke-lemonsqueezy.mjs",
     "analyze": "ANALYZE=true next build",
     "audit:validate": "node scripts/audit-validate.mjs",

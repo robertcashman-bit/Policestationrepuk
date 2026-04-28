@@ -1,6 +1,7 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 
-const FAQS: { q: string; a: React.ReactNode }[] = [
+const FAQS: { q: string; a: ReactNode }[] = [
   {
     q: 'How do I upgrade my listing to Featured?',
     a: (

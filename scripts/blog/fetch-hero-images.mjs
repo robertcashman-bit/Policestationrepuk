@@ -252,6 +252,16 @@ async function exists(p) {
 }
 
 async function main() {
+  // GitHub Actions: skip Unsplash/Pexels downloads — heroes are committed under
+  // public/images/blog/raster and remote fetch adds flaky network + CI minutes.
+  // To force fetch on CI (e.g. refresh heroes): set CI_FETCH_BLOG_HEROES=1
+  if (process.env.GITHUB_ACTIONS === 'true' && process.env.CI_FETCH_BLOG_HEROES !== '1') {
+    console.log(
+      '[fetch-hero-images] Skipping on GitHub Actions (committed assets). Set CI_FETCH_BLOG_HEROES=1 to fetch.',
+    );
+    return;
+  }
+
   await fs.mkdir(OUT_DIR, { recursive: true });
   const slugs = Object.keys(UNSPLASH_PHOTOS).sort();
   const results = [];

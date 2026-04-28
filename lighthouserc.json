@@ -5,7 +5,10 @@
       "startServerCommand": "npm run start",
       "startServerReadyPattern": "Ready in",
       "startServerReadyTimeout": 120000,
-      "settings": { "preset": "lighthouse:default" },
+      "settings": {
+        "preset": "lighthouse:default",
+        "chromeFlags": "--no-sandbox --disable-gpu --disable-dev-shm-usage"
+      },
       "url": [
         "http://127.0.0.1:3000/",
         "http://127.0.0.1:3000/Blog",

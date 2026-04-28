@@ -20,6 +20,7 @@ import { HomeAIAssistant } from '@/components/HomeAIAssistant';
 import { HomeSeoConversionHub } from '@/components/HomeSeoConversionHub';
 import { HomeHomepageFaq } from '@/components/HomeHomepageFaq';
 import { FeaturedListingAdvert } from '@/components/FeaturedListingAdvert';
+import { FeaturedListingFaq } from '@/components/FeaturedListingFaq';
 import { getAllReps, getAllCounties, getFeaturedRepsSorted } from '@/lib/data';
 import {
   organizationSchema,
@@ -121,6 +122,7 @@ export default async function HomePage() {
 
       <div className="page-container py-8">
         <FeaturedListingAdvert />
+        <FeaturedListingFaq className="mt-6" />
       </div>
 
       <HomeFeaturedCarousel featuredReps={featuredReps} />

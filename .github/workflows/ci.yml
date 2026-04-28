@@ -33,7 +33,12 @@ jobs:
       - name: Blog JSON-LD shape check
         run: npm run validate:schema
       - name: Live sitemap crawl (sample)
+        # Tolerant of transient failures: every push also triggers a Vercel
+        # production deploy in parallel, so the live site can briefly serve
+        # 404s for paths that exist in the new sitemap but not yet in the
+        # rolled-out build. The crawl script also retries transient errors.
         env:
           CRAWL_MAX_URLS: '800'
           CRAWL_CONCURRENCY: '10'
+          CRAWL_FAIL_THRESHOLD: '25'
         run: node scripts/audit/sitemap-crawl.mjs

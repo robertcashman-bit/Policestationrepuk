@@ -45,30 +45,55 @@ const ALLOWLIST_404 = new Set(
     .filter(Boolean),
 );
 
-async function fetchHeadOrGet(url) {
+async function fetchOnce(url, method) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
-    let res = await fetch(url, {
-      method: 'HEAD',
+    const res = await fetch(url, {
+      method,
       signal: ctrl.signal,
       redirect: 'follow',
-      headers: { 'user-agent': 'PoliceStationRepUK-sitemap-audit/1.0' },
+      headers: {
+        'user-agent': 'PoliceStationRepUK-sitemap-audit/1.0',
+        ...(method === 'GET' ? { Range: 'bytes=0-0' } : {}),
+      },
     });
-    if (res.status === 405 || res.status === 501) {
-      res = await fetch(url, {
-        method: 'GET',
-        signal: ctrl.signal,
-        redirect: 'follow',
-        headers: { 'user-agent': 'PoliceStationRepUK-sitemap-audit/1.0', Range: 'bytes=0-0' },
-      });
-    }
     return { ok: res.ok, status: res.status, final: res.url };
   } catch (e) {
     return { ok: false, status: 0, error: String(e.message || e) };
   } finally {
     clearTimeout(t);
   }
+}
+
+async function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+/**
+ * Fetch a URL, retrying transient failures (timeouts, 5xx, and — when running
+ * concurrently with a Vercel deploy — short-lived 404s as the new build is
+ * rolling out). Up to 2 retries with exponential backoff.
+ */
+async function fetchHeadOrGet(url) {
+  let last;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    let r = await fetchOnce(url, 'HEAD');
+    if (r.status === 405 || r.status === 501) {
+      r = await fetchOnce(url, 'GET');
+    }
+    last = r;
+    const transient =
+      r.status === 0 ||
+      r.status === 404 ||
+      r.status === 408 ||
+      r.status === 425 ||
+      r.status === 429 ||
+      r.status >= 500;
+    if (r.ok || !transient) return r;
+    await sleep(500 * Math.pow(2, attempt)); // 500ms, 1s, 2s
+  }
+  return last;
 }
 
 function parseSitemapXml(xml) {

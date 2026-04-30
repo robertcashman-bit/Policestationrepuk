@@ -12,6 +12,7 @@ import { getKV, skipKVInPrerender } from './kv';
 import { loadFeaturedFlags, applyFeaturedFlags, sortFeaturedReps } from './featured';
 import {
   loadDirectoryBlocklistFile,
+  repIsAutomatedDirectoryTest,
   repMatchesDirectoryBlocklist,
 } from './directory-blocklist';
 
@@ -523,6 +524,7 @@ export async function getAllReps(): Promise<Representative[]> {
   const bl = loadDirectoryBlocklistFile();
   return featured.filter((r) => {
     if (hiddenEmails.has(r.email.toLowerCase())) return false;
+    if (repIsAutomatedDirectoryTest(r)) return false;
     if (repMatchesDirectoryBlocklist(r, bl)) return false;
     return true;
   });

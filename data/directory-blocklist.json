@@ -1,6 +1,6 @@
 {
   "emails": [],
   "slugs": [],
-  "slugPrefixes": ["laurie-learmont"],
+  "slugPrefixes": ["laurie-learmont", "playwright-test-", "api-test-", "dup-test-"],
   "normalizedNames": ["laurie learmont"]
 }

@@ -58,3 +58,35 @@ export function repMatchesDirectoryBlocklist(
   }
   return false;
 }
+
+/** RFC / reserved doc domains and CI registrations — never show in public directory. */
+const RESERVED_DOC_EMAIL_SUFFIXES = [
+  '@example.com',
+  '@example.org',
+  '@example.net',
+  '@example.co.uk',
+];
+
+/**
+ * E2E and API tests POST real registrations to KV; hide those listings from the live directory.
+ */
+export function repIsAutomatedDirectoryTest(rep: Representative): boolean {
+  const email = rep.email.toLowerCase();
+  if (RESERVED_DOC_EMAIL_SUFFIXES.some((s) => email.endsWith(s))) return true;
+
+  const name = rep.name.trim();
+  if (/^playwright test\b/i.test(name)) return true;
+  if (/^api test\b/i.test(name)) return true;
+  if (/^dup test\b/i.test(name)) return true;
+
+  const notes = (rep.notes ?? '').toLowerCase();
+  if (notes.includes('automated playwright test submission')) return true;
+  if (notes.includes('playwright api test')) return true;
+
+  const slug = rep.slug.toLowerCase();
+  if (slug.startsWith('playwright-test-')) return true;
+  if (slug.startsWith('api-test-')) return true;
+  if (slug.startsWith('dup-test-')) return true;
+
+  return false;
+}

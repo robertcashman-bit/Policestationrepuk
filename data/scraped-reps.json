@@ -2212,19 +2212,6 @@
     "websiteUrl": ""
   },
   {
-    "name": "Eleanor Vance",
-    "phone": "07987654321",
-    "email": "eleanor.vance@example.co.uk",
-    "county": "Greater London",
-    "availability": "Daytime Only",
-    "accreditation": "Accredited Police Station Rep",
-    "featured": false,
-    "stations": [],
-    "bio": "",
-    "slug": "eleanor-vance",
-    "websiteUrl": "https://wa.me/447987654321"
-  },
-  {
     "name": "Stephanie Waters",
     "phone": "(07791) 748772",
     "email": "",

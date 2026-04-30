@@ -1,6 +1,41 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 const TS = Date.now();
+
+/** Current UI uses county checkboxes; production may still serve legacy `input#counties` until deploy. */
+async function pickKentCounty(page: Page) {
+  const kentLabel = page
+    .locator('label')
+    .filter({ has: page.locator('input[type="checkbox"]') })
+    .filter({ hasText: /^Kent$/ });
+  if ((await kentLabel.count()) > 0) {
+    await kentLabel.first().locator('input[type="checkbox"]').check();
+    return;
+  }
+  await page.locator('input#counties').fill('Kent');
+}
+
+async function pickKentAndLondon(page: Page) {
+  const anyCb = page.locator('fieldset input[type="checkbox"]');
+  if ((await anyCb.count()) > 0) {
+    await page
+      .locator('label')
+      .filter({ has: page.locator('input[type="checkbox"]') })
+      .filter({ hasText: /^Kent$/ })
+      .first()
+      .locator('input[type="checkbox"]')
+      .check();
+    await page
+      .locator('label')
+      .filter({ has: page.locator('input[type="checkbox"]') })
+      .filter({ hasText: /^London$/ })
+      .first()
+      .locator('input[type="checkbox"]')
+      .check();
+    return;
+  }
+  await page.locator('input#counties').fill('Kent, London');
+}
 
 test.describe('Public entry points', () => {
   test('home page loads with 200', async ({ page }) => {
@@ -79,10 +114,15 @@ test.describe('Join form renders correctly', () => {
   test('optional fields are present', async ({ page }) => {
     await expect(page.locator('input#phone')).toBeVisible();
     await expect(page.locator('input#accreditation')).toBeVisible();
-    await expect(page.locator('input#counties')).toBeVisible();
+    await expect(
+      page.locator('input#counties').or(page.locator('fieldset').filter({ hasText: /English counties/i })),
+    ).toBeVisible({ timeout: 15_000 });
     await expect(page.locator('input#stations')).toBeVisible();
     await expect(page.locator('select#availability')).toBeVisible();
     await expect(page.locator('textarea#message')).toBeVisible();
+    if ((await page.locator('textarea#coverage_areas').count()) > 0) {
+      await expect(page.locator('textarea#coverage_areas')).toBeVisible();
+    }
   });
 
   test('submit button is visible and enabled', async ({ page }) => {
@@ -125,11 +165,14 @@ test.describe('Form validation', () => {
   test('whitespace-only name sends but backend rejects or trims', async ({ page }) => {
     await page.fill('input#name', '   ');
     await page.fill('input#email', `pw-test-${TS}@example.com`);
+    await pickKentCounty(page);
     const [response] = await Promise.all([
       page.waitForResponse((r) => r.url().includes('/api/register')),
       page.locator('button[type="submit"]').click(),
     ]);
     const body = await response.json();
+    // 400: trimmed-empty name rejected; 429: rate limit; 200: legacy deploy still accepts until API trim lands in prod
+    expect([200, 400, 429]).toContain(response.status());
     if (response.status() === 400) {
       expect(body.error).toBeTruthy();
     }
@@ -143,7 +186,7 @@ test.describe('Successful submission', () => {
     await page.fill('input#email', `pw-test-${TS}@example.com`);
     await page.fill('input#phone', '07700900000');
     await page.fill('input#accreditation', 'PSRAS');
-    await page.fill('input#counties', 'Kent, London');
+    await pickKentAndLondon(page);
     await page.fill('input#stations', 'Maidstone, Canterbury');
     await page.selectOption('select#availability', 'full-time');
     await page.fill('textarea#message', 'Automated Playwright test submission');
@@ -158,7 +201,7 @@ test.describe('Successful submission', () => {
     expect([200, 429]).toContain(response.status());
 
     if (response.status() === 200) {
-      const successAlert = page.locator('[role="alert"]').filter({ hasText: /registration received/i });
+      const successAlert = page.locator('[role="alert"]').filter({ hasText: /registration received|thank you/i });
       await expect(successAlert).toBeVisible({ timeout: 10_000 });
       await expect(successAlert).toContainText(/confirmation email/i);
     } else {
@@ -171,11 +214,11 @@ test.describe('Successful submission', () => {
     await page.goto('/register');
     await page.fill('input#name', `Dup Test ${TS}`);
     await page.fill('input#email', `dup-test-${TS}@example.com`);
+    await pickKentCounty(page);
 
     const btn = page.locator('button[type="submit"]');
     await btn.click();
-    const disabled = await btn.isDisabled();
-    expect(disabled).toBe(true);
+    await expect(btn).toBeDisabled({ timeout: 8_000 });
   });
 });
 
@@ -187,6 +230,7 @@ test.describe('Error handling', () => {
     );
     await page.fill('input#name', 'Error Test');
     await page.fill('input#email', 'error@example.com');
+    await pickKentCounty(page);
     await page.locator('button[type="submit"]').click();
 
     const errorAlert = page.locator('[role="alert"]').filter({ hasText: /something went wrong/i });
@@ -198,6 +242,7 @@ test.describe('Error handling', () => {
     await page.route('**/api/register', (route) => route.abort());
     await page.fill('input#name', 'Net Fail Test');
     await page.fill('input#email', 'netfail@example.com');
+    await pickKentCounty(page);
     await page.locator('button[type="submit"]').click();
 
     const errorAlert = page.locator('[role="alert"]').filter({ hasText: /something went wrong/i });

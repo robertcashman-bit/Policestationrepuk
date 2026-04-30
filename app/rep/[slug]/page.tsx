@@ -5,6 +5,7 @@ import { buildMetadata, legalServiceSchema, breadcrumbSchema, personSchema } fro
 import { JsonLd } from '@/components/JsonLd';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { RepTrustBadges } from '@/components/RepTrustBadges';
+import { DirectoryCredentialVerificationNotice } from '@/components/DirectoryCredentialVerificationNotice';
 import { phoneToTelHref } from '@/lib/phone';
 import { availabilityBucket, isUrgentCoverCapable, profileCompleteness } from '@/lib/directory-ranking';
 
@@ -147,6 +148,7 @@ export default async function RepPage({ params }: PageProps) {
         <div className="mx-auto max-w-5xl">
           <div className="-mt-6 grid gap-6 lg:grid-cols-[1fr_340px]">
             <div className="space-y-6">
+              <DirectoryCredentialVerificationNotice />
               <section className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-[0_8px_30px_-10px_rgba(15,23,42,0.12)] sm:p-8">
                 <h2 className="text-lg font-bold text-[var(--navy)]">Availability summary</h2>
                 <p className="mt-2 font-medium text-slate-800">{avail.label}</p>

@@ -29,6 +29,7 @@ import { ResultsGrid } from '@/components/directory/ResultsGrid';
 import { RightPanel } from '@/components/directory/RightPanel';
 import { QuickActions } from '@/components/directory/QuickActions';
 import { MobileFilterDrawer } from '@/components/directory/MobileFilterDrawer';
+import { DirectoryCredentialVerificationNotice } from '@/components/DirectoryCredentialVerificationNotice';
 
 type ScoredRep = Representative & { _score: number };
 
@@ -436,6 +437,7 @@ export function DirectorySearch({
 
         {/* Center — results */}
         <main className="lg:col-span-6">
+          <DirectoryCredentialVerificationNotice className="mb-5" />
           <ResultsGrid
             featuredReps={featuredReps}
             nonFeaturedReps={nonFeaturedReps}

@@ -7,6 +7,8 @@ export interface Representative {
   county: string;
   /** Optional list of all counties this rep covers; falls back to single `county` for older records. */
   counties?: string[];
+  /** Towns, boroughs, or extra locality detail beyond selected counties (e.g. specific London boroughs). */
+  coverageAreas?: string;
   addressCounty?: string;
   postcode?: string;
   stations: string[];

@@ -21,6 +21,7 @@ import { HomeSeoConversionHub } from '@/components/HomeSeoConversionHub';
 import { HomeHomepageFaq } from '@/components/HomeHomepageFaq';
 import { FeaturedListingAdvert } from '@/components/FeaturedListingAdvert';
 import { FeaturedListingFaq } from '@/components/FeaturedListingFaq';
+import { DirectoryCredentialVerificationNotice } from '@/components/DirectoryCredentialVerificationNotice';
 import { getAllReps, getAllCounties, getFeaturedRepsSorted } from '@/lib/data';
 import {
   organizationSchema,
@@ -124,6 +125,12 @@ export default async function HomePage() {
         <FeaturedListingAdvert />
         <FeaturedListingFaq className="mt-6" />
       </div>
+
+      {featuredReps.length > 0 && (
+        <div className="page-container pt-6 pb-0">
+          <DirectoryCredentialVerificationNotice />
+        </div>
+      )}
 
       <HomeFeaturedCarousel featuredReps={featuredReps} />
 

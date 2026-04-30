@@ -8,6 +8,7 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DirectoryCard } from '@/components/DirectoryCard';
 import { StationCard } from '@/components/StationCard';
 import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotice';
+import { DirectoryCredentialVerificationNotice } from '@/components/DirectoryCredentialVerificationNotice';
 
 export const dynamic = 'force-static';
 /** ISR so rep/station counts refresh without a full redeploy. */
@@ -109,6 +110,7 @@ export default async function DirectoryCountyPage({ params }: PageProps) {
           <h2 className="text-xl font-bold text-[var(--navy)] sm:text-2xl">
             Representatives in {county.name}
           </h2>
+          {reps.length > 0 && <DirectoryCredentialVerificationNotice className="mt-4" />}
           {reps.length === 0 ? (
             <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-14 text-center shadow-sm">
               <p className="text-lg font-bold text-[var(--navy)]">No reps listed yet</p>

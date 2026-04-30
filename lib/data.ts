@@ -10,6 +10,12 @@ import {
 import { repMatchesCountyName } from './county-matching';
 import { getKV, skipKVInPrerender } from './kv';
 import { loadFeaturedFlags, applyFeaturedFlags, sortFeaturedReps } from './featured';
+import {
+  loadDirectoryBlocklistFile,
+  repMatchesDirectoryBlocklist,
+} from './directory-blocklist';
+
+const KV_HIDDEN_LISTING_EMAILS = 'directory:hidden_listing_emails';
 
 type FileData = {
   counties: County[];
@@ -267,6 +273,65 @@ let _registeredReps: Representative[] | null = null;
 let _registeredRepsAt = 0;
 const REGISTERED_CACHE_MS = 60_000;
 
+let _hiddenListingEmails: Set<string> | null = null;
+let _hiddenListingEmailsAt = 0;
+
+async function loadHiddenListingEmails(): Promise<Set<string>> {
+  const now = Date.now();
+  if (_hiddenListingEmails && now - _hiddenListingEmailsAt < REGISTERED_CACHE_MS) {
+    return _hiddenListingEmails;
+  }
+  if (skipKVInPrerender()) {
+    _hiddenListingEmails = new Set();
+    _hiddenListingEmailsAt = now;
+    return _hiddenListingEmails;
+  }
+  const kv = getKV();
+  if (!kv) {
+    _hiddenListingEmails = new Set();
+    _hiddenListingEmailsAt = now;
+    return _hiddenListingEmails;
+  }
+  try {
+    const arr = await kv.get<string[]>(KV_HIDDEN_LISTING_EMAILS);
+    _hiddenListingEmails = new Set((arr ?? []).map((e) => e.toLowerCase()));
+  } catch (err) {
+    console.error('[data] Failed to load hidden listing emails from KV:', err);
+    _hiddenListingEmails = new Set();
+  }
+  _hiddenListingEmailsAt = now;
+  return _hiddenListingEmails;
+}
+
+export function invalidateHiddenListingEmailsCache(): void {
+  _hiddenListingEmails = null;
+  _hiddenListingEmailsAt = 0;
+}
+
+export function invalidateRegisteredRepsCache(): void {
+  _registeredReps = null;
+  _registeredRepsAt = 0;
+}
+
+/**
+ * Hides a static (reps.json) listing from the live directory without a redeploy.
+ * Used when the rep asks to delete their entry while signed in.
+ */
+export async function hideStaticListingEmail(email: string): Promise<void> {
+  const kv = getKV();
+  if (!kv) throw new Error('KV not configured');
+  const lower = email.toLowerCase();
+  const existing = (await kv.get<string[]>(KV_HIDDEN_LISTING_EMAILS)) ?? [];
+  const set = new Set(existing.map((e) => e.toLowerCase()));
+  if (set.has(lower)) {
+    invalidateHiddenListingEmailsCache();
+    return;
+  }
+  set.add(lower);
+  await kv.set(KV_HIDDEN_LISTING_EMAILS, [...set]);
+  invalidateHiddenListingEmailsCache();
+}
+
 function registrationToRep(row: Record<string, unknown>): Representative | null {
   const name = trimField(row.name);
   const email = typeof row.email === 'string' ? row.email.trim().toLowerCase() : '';
@@ -309,6 +374,7 @@ function registrationToRep(row: Record<string, unknown>): Representative | null 
     availability: trimField(row.availability),
     accreditation: trimField(row.accreditation) || 'Accredited Representative',
     notes: trimField(row.message),
+    coverageAreas: trimField(row.coverage_areas),
   };
 }
 
@@ -415,6 +481,7 @@ export function applyOverrides(rep: Representative, overrides: Record<string, un
     languages: ov(overrides, 'languages', rep.languages),
     specialisms: ov(overrides, 'specialisms', rep.specialisms),
     yearsExperience: ov(overrides, 'years_experience', rep.yearsExperience),
+    coverageAreas: ov(overrides, 'coverage_areas', rep.coverageAreas ?? ''),
   };
 }
 
@@ -426,10 +493,11 @@ export function getRawReps(): Representative[] {
 
 export async function getAllReps(): Promise<Representative[]> {
   const reps = getRawReps();
-  const [overrides, registered, featuredFlags] = await Promise.all([
+  const [overrides, registered, featuredFlags, hiddenEmails] = await Promise.all([
     loadProfileOverrides(),
     loadRegisteredReps(),
     loadFeaturedFlags(),
+    loadHiddenListingEmails(),
   ]);
 
   const withOverrides = reps.map((r) => {
@@ -451,7 +519,13 @@ export async function getAllReps(): Promise<Representative[]> {
     all = [...withOverrides, ...newReps];
   }
 
-  return applyFeaturedFlags(all, featuredFlags);
+  const featured = applyFeaturedFlags(all, featuredFlags);
+  const bl = loadDirectoryBlocklistFile();
+  return featured.filter((r) => {
+    if (hiddenEmails.has(r.email.toLowerCase())) return false;
+    if (repMatchesDirectoryBlocklist(r, bl)) return false;
+    return true;
+  });
 }
 
 /**

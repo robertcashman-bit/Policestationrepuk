@@ -6,6 +6,7 @@ import { buildMetadata, localBusinessSchema, breadcrumbSchema } from '@/lib/seo'
 import { JsonLd } from '@/components/JsonLd';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { RepCard } from '@/components/RepCard';
+import { DirectoryCredentialVerificationNotice } from '@/components/DirectoryCredentialVerificationNotice';
 import { phoneToTelHref } from '@/lib/phone';
 import { classifyPhone, displayPhoneNumber } from '@/lib/station-search';
 import { countRepsForStation, shouldIndexPoliceStationPage } from '@/lib/station-indexing';
@@ -139,6 +140,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
 
               <section>
                 <h2 className="text-h2 text-[var(--navy)]">Representatives covering {station.name}</h2>
+                {reps.length > 0 && <DirectoryCredentialVerificationNotice className="mt-4" />}
                 {reps.length === 0 ? (
                   <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-8 text-center shadow-[var(--card-shadow)]">
                     <p className="text-[var(--muted)]">

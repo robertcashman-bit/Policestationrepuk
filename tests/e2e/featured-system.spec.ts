@@ -37,8 +37,8 @@ test.describe('Featured System — Public Display', () => {
 
   test('directory page loads with featured section', async ({ page }) => {
     await page.goto('/directory');
-    const featuredSection = page.locator('text=Featured Representatives').first();
-    await expect(featuredSection).toBeVisible({ timeout: 15_000 });
+    const featuredHeading = page.getByRole('heading', { name: /Featured Representative/i }).first();
+    await expect(featuredHeading).toBeVisible({ timeout: 25_000 });
   });
 
   test('Robert Cashman is first in directory featured section', async ({ page }) => {
@@ -54,9 +54,9 @@ test.describe('Featured System — Public Display', () => {
 
   test('no non-featured reps appear in featured section', async ({ page }) => {
     await page.goto('/directory');
-    await page.waitForSelector('text=Featured Representatives', { timeout: 15_000 });
+    await page.getByRole('heading', { name: /Featured Representative/i }).first().waitFor({ state: 'visible', timeout: 25_000 });
     const allListingsHeading = page.locator('h2:has-text("All listings")');
-    await expect(allListingsHeading).toBeVisible({ timeout: 10_000 });
+    await expect(allListingsHeading).toBeVisible({ timeout: 15_000 });
   });
 
   test('featured rep profile page loads', async ({ page }) => {

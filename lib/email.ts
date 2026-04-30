@@ -27,6 +27,7 @@ interface RegistrationSubmission {
   phone?: string;
   accreditation?: string;
   counties?: string | string[];
+  coverage_areas?: string;
   stations?: string | string[];
   availability?: string;
   message?: string;
@@ -75,7 +76,8 @@ export async function sendRegistrationNotification(data: RegistrationSubmission)
     <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Email</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><a href="mailto:${escapeHtml(data.email)}">${escapeHtml(data.email)}</a></td></tr>
     ${data.phone ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Phone</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;"><a href="${escapeHtml(phoneToTelHref(data.phone))}">${escapeHtml(data.phone)}</a></td></tr>` : ''}
     ${data.accreditation ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Accreditation</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.accreditation)}</td></tr>` : ''}
-    ${data.counties ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Counties</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.counties)}</td></tr>` : ''}
+    ${data.counties ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Counties</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(typeof data.counties === 'string' ? data.counties : Array.isArray(data.counties) ? data.counties.join(', ') : '')}</td></tr>` : ''}
+    ${data.coverage_areas ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Towns & coverage areas</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.coverage_areas).replace(/\n/g, '<br>')}</td></tr>` : ''}
     ${data.stations ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Stations</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.stations)}</td></tr>` : ''}
     ${data.availability ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Availability</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.availability)}</td></tr>` : ''}
     ${data.message ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #e5e7eb;">Message</td><td style="padding:8px;border-bottom:1px solid #e5e7eb;">${escapeHtml(data.message).replace(/\n/g, '<br>')}</td></tr>` : ''}

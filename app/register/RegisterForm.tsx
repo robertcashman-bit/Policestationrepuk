@@ -2,27 +2,44 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { ENGLISH_COUNTIES, validateEnglishCountySelections } from '@/lib/english-counties';
 
 export function RegisterForm() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
+  const [selectedCounties, setSelectedCounties] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     accreditation: '',
-    counties: '',
     stations: '',
+    coverage_areas: '',
     availability: 'full-time',
     message: '',
   });
   const [hp, setHp] = useState('');
 
+  function toggleCounty(name: string) {
+    setSelectedCounties((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (hp) return;
-    setStatus('sending');
     setErrorDetail(null);
+    const countyValidation = validateEnglishCountySelections([...selectedCounties]);
+    if (!countyValidation.ok) {
+      setStatus('error');
+      setErrorDetail(countyValidation.error);
+      return;
+    }
+    setStatus('sending');
     try {
       const res = await fetch('/api/register', {
         method: 'POST',
@@ -30,7 +47,7 @@ export function RegisterForm() {
         body: JSON.stringify({
           ...formData,
           _hp: hp,
-          counties: formData.counties ? formData.counties.split(',').map((s) => s.trim()).filter(Boolean) : [],
+          counties: countyValidation.canonical,
           stations: formData.stations ? formData.stations.split(',').map((s) => s.trim()).filter(Boolean) : [],
         }),
       });
@@ -42,13 +59,14 @@ export function RegisterForm() {
 
       if (res.ok && (data.ok || data.id === 'noop')) {
         setStatus('success');
+        setSelectedCounties(new Set());
         setFormData({
           name: '',
           email: '',
           phone: '',
           accreditation: '',
-          counties: '',
           stations: '',
+          coverage_areas: '',
           availability: 'full-time',
           message: '',
         });
@@ -147,19 +165,42 @@ export function RegisterForm() {
             />
           </div>
         </div>
+        <fieldset>
+          <legend className="block text-sm font-medium text-[var(--foreground)]">
+            English counties you cover <span className="text-red-600">*</span>
+          </legend>
+          <p className="mt-1 text-xs text-[var(--muted)]">
+            Select every ceremonial county you cover. For London boroughs, towns, or other locality detail, use the
+            field below.
+          </p>
+          <div className="mt-2 max-h-56 overflow-y-auto rounded-lg border border-[var(--border)] bg-white p-3 sm:max-h-72">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {ENGLISH_COUNTIES.map((c) => (
+                <label key={c} className="flex cursor-pointer items-start gap-2 text-sm text-[var(--foreground)]">
+                  <input
+                    type="checkbox"
+                    checked={selectedCounties.has(c)}
+                    onChange={() => toggleCounty(c)}
+                    className="mt-0.5 shrink-0 rounded border-[var(--border)]"
+                  />
+                  <span>{c}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </fieldset>
         <div>
-          <label htmlFor="counties" className="block text-sm font-medium text-[var(--foreground)]">
-            Counties covered
+          <label htmlFor="coverage_areas" className="block text-sm font-medium text-[var(--foreground)]">
+            Towns, boroughs &amp; wider coverage (optional)
           </label>
-          <input
-            id="counties"
-            type="text"
-            placeholder="e.g. Kent, London, Essex"
-            value={formData.counties}
-            onChange={(e) => setFormData((p) => ({ ...p, counties: e.target.value }))}
+          <textarea
+            id="coverage_areas"
+            rows={3}
+            value={formData.coverage_areas}
+            onChange={(e) => setFormData((p) => ({ ...p, coverage_areas: e.target.value }))}
+            placeholder="e.g. Specific London boroughs, travel radius, cross-border cover…"
             className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-4 py-3 text-base text-[var(--foreground)] sm:text-sm"
           />
-          <p className="mt-1 text-xs text-[var(--muted)]">Separate multiple counties with commas.</p>
         </div>
         <div>
           <label htmlFor="stations" className="block text-sm font-medium text-[var(--foreground)]">

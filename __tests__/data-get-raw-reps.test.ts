@@ -17,12 +17,14 @@ describe('getRawReps — returns unmerged static data (Bug 3)', () => {
     expect(elapsed).toBeLessThan(500);
   });
 
-  it('returns the same reps as getAllReps when no Supabase overrides exist', async () => {
-    const raw = getRawReps();
+  it('getAllReps returns merged directory reps (static + optional KV registrations)', async () => {
     const all = await getAllReps();
-    // Without Supabase configured, these should be identical
-    expect(raw.length).toBe(all.length);
-    expect(raw.map((r) => r.slug).sort()).toEqual(all.map((r) => r.slug).sort());
+    expect(Array.isArray(all)).toBe(true);
+    expect(all.length).toBeGreaterThan(0);
+    for (const r of all) {
+      expect(r.slug).toBeTruthy();
+      expect(typeof r.email).toBe('string');
+    }
   });
 
   it('each rep has required fields', () => {

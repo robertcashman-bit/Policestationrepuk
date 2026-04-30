@@ -128,6 +128,7 @@ test.describe('POST /api/register', () => {
       data: {
         name: `Minimal ${TS}`,
         email: `minimal-${TS}@example.com`,
+        counties: ['Kent'],
         _hp: '',
       },
     });
@@ -143,6 +144,7 @@ test.describe('POST /api/register', () => {
       data: {
         name: `O'Brien-Smyth & Partners ${TS}`,
         email: `special-${TS}@example.com`,
+        counties: ['Kent'],
         _hp: '',
       },
     });

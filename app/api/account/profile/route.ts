@@ -4,6 +4,7 @@ import { getKV } from '@/lib/kv';
 import { getRawReps, getRegisteredRepByEmail, invalidateProfileCache } from '@/lib/data';
 import type { Representative } from '@/lib/types';
 import { sendProfileUpdateNotification } from '@/lib/email';
+import { validateEnglishCountySelections } from '@/lib/english-counties';
 
 const ALLOWED_FIELDS = new Set([
   'name',
@@ -11,6 +12,7 @@ const ALLOWED_FIELDS = new Set([
   'availability',
   'accreditation',
   'counties',
+  'coverage_areas',
   'stations_covered',
   'notes',
   'postcode',
@@ -60,6 +62,7 @@ export async function GET() {
     postcode: pick('postcode', rep.postcode ?? ''),
     counties: pick('counties', rep.counties ?? (rep.county ? [rep.county] : [])),
     stations_covered: pick('stations_covered', rep.stationsCovered ?? rep.stations ?? []),
+    coverage_areas: pick('coverage_areas', rep.coverageAreas ?? ''),
     notes: pick('notes', rep.notes ?? rep.bio ?? ''),
     website_url: pick('website_url', rep.websiteUrl ?? ''),
     whatsapp_link: pick('whatsapp_link', rep.whatsappLink ?? ''),
@@ -102,6 +105,14 @@ export async function PUT(request: Request) {
     if (ALLOWED_FIELDS.has(key)) {
       update[key] = body[key];
     }
+  }
+
+  if ('counties' in update) {
+    const v = validateEnglishCountySelections(update.counties);
+    if (!v.ok) {
+      return NextResponse.json({ error: v.error }, { status: 400 });
+    }
+    update.counties = v.canonical;
   }
 
   for (const [key, val] of Object.entries(update)) {
@@ -163,6 +174,7 @@ function getOldValue(rep: Representative, key: string): unknown {
     accreditation: rep.accreditation,
     counties: rep.counties ?? (rep.county ? [rep.county] : []),
     stations_covered: rep.stationsCovered ?? rep.stations,
+    coverage_areas: rep.coverageAreas ?? '',
     notes: rep.notes ?? rep.bio,
     postcode: rep.postcode,
     website_url: rep.websiteUrl,

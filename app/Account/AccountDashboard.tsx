@@ -71,6 +71,9 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
   const [featuredInfo, setFeaturedInfo] = useState<FeaturedInfo | null>(null);
   const [upgradeStatus, setUpgradeStatus] = useState<'idle' | 'selecting' | 'redirecting' | 'success' | 'error'>('idle');
   const [selectedTier, setSelectedTier] = useState<string>('6month');
+  const [showRemoveListing, setShowRemoveListing] = useState(false);
+  const [removeConfirmText, setRemoveConfirmText] = useState('');
+  const [removeDeleting, setRemoveDeleting] = useState(false);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -239,6 +242,24 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' });
     window.location.reload();
+  }
+
+  async function handleRemoveListing() {
+    if (removeConfirmText.trim().toUpperCase() !== 'DELETE') return;
+    setRemoveDeleting(true);
+    setErrorMsg('');
+    try {
+      const res = await fetch('/api/account/listing', { method: 'DELETE' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error((body as { error?: string }).error || 'Could not remove listing');
+      }
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/';
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Could not remove listing');
+      setRemoveDeleting(false);
+    }
   }
 
   if (status === 'loading') {
@@ -570,6 +591,69 @@ export function AccountDashboard({ userEmail }: { userEmail: string }) {
           )}
         </div>
       </form>
+
+      <section
+        className="mt-10 rounded-2xl border border-red-200 bg-red-50/60 p-5 shadow-sm sm:p-6"
+        aria-labelledby="remove-listing-heading"
+      >
+        <h3 id="remove-listing-heading" className="text-sm font-bold uppercase tracking-wide text-red-900">
+          Remove from directory
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed text-red-950/90">
+          You can delete your public listing completely. This removes your profile from search, county pages,
+          and station pages. If you have a Featured subscription, cancel or manage billing in your Lemon Squeezy
+          customer portal so you are not charged after you leave — directory removal does not automatically cancel
+          a subscription.
+        </p>
+        {!showRemoveListing ? (
+          <button
+            type="button"
+            onClick={() => {
+              setShowRemoveListing(true);
+              setRemoveConfirmText('');
+            }}
+            className="mt-4 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-800 transition-colors hover:bg-red-100"
+          >
+            Remove my listing permanently…
+          </button>
+        ) : (
+          <div className="mt-4 space-y-3">
+            <p className="text-sm font-medium text-red-900">
+              Type <span className="font-mono font-bold">DELETE</span> to confirm.
+            </p>
+            <input
+              type="text"
+              value={removeConfirmText}
+              onChange={(e) => setRemoveConfirmText(e.target.value)}
+              autoComplete="off"
+              className="w-full max-w-md rounded-[var(--radius)] border border-red-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200"
+              placeholder="DELETE"
+              aria-label="Type DELETE to confirm listing removal"
+            />
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                disabled={removeConfirmText.trim().toUpperCase() !== 'DELETE' || removeDeleting}
+                onClick={() => void handleRemoveListing()}
+                className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-800 disabled:opacity-50"
+              >
+                {removeDeleting ? 'Removing…' : 'Remove my listing'}
+              </button>
+              <button
+                type="button"
+                disabled={removeDeleting}
+                onClick={() => {
+                  setShowRemoveListing(false);
+                  setRemoveConfirmText('');
+                }}
+                className="rounded-lg border border-[var(--border)] bg-white px-4 py-2 text-sm font-medium text-[var(--muted)] hover:border-red-200"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

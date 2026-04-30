@@ -51,6 +51,7 @@
     "blog:heroes:fetch": "node scripts/blog/fetch-hero-images.mjs",
     "social:preview": "node scripts/generate-social-preview.mjs",
     "test": "vitest run",
+    "verify": "npm run lint && npx tsc --noEmit && npm test && npm run test:directory-search && npm run validate:schema && npm run audit:blog-seo",
     "law-firms:clean": "node scripts/clean-law-firms.mjs",
     "test:ls:verify-checkout": "node scripts/verify-test-checkout.mjs",
     "smoke:ls": "node scripts/smoke-lemonsqueezy.mjs",

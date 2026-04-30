@@ -162,6 +162,7 @@ async function testAPIValidation() {
     const res = await post(`${BASE}/api/register`, {
       name: 'QA Test Rep',
       email: 'qa-autotest-noreply@policestationrepuk.org',
+      counties: ['Kent'],
     });
     log(res.status === 200, 'Valid minimal submission accepted', `status=${res.status}`);
     log(res.json?.ok === true, 'Response has ok: true', JSON.stringify(res.json));

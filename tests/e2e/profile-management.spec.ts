@@ -212,16 +212,17 @@ test.describe('Full Regression — Core Pages', () => {
 });
 
 test.describe('Contact page vs Robert listing (mobile / WhatsApp)', () => {
-  test('/Contact does not display personal mobile for directory support', async ({ page }) => {
+  test('/Contact main content does not repeat WhatsApp join number as directory support', async ({ page }) => {
     await page.goto('/Contact');
-    await expect(page.locator('body')).not.toContainText('07535 494446');
+    // Site-wide header/footer may show the WhatsApp community text number; the Contact article must not use it as “support”.
+    await expect(page.locator('#main-content')).not.toContainText('07535 494446');
   });
 
   test('Robert Cashman profile shows Call + WhatsApp for directory contact', async ({ page }) => {
     await page.goto('/rep/robert-cashman');
     await expect(page.locator('h1')).toContainText('Robert Cashman', { timeout: 15_000 });
     await expect(page.getByRole('link', { name: /call 07535 494446/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /^WhatsApp$/ })).toBeVisible();
+    await expect(page.locator('#main-content').getByRole('link', { name: /^WhatsApp$/ }).first()).toBeVisible();
   });
 
   test('POST /api/contact accepts valid payload', async ({ request }) => {

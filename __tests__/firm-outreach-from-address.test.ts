@@ -82,6 +82,37 @@ describe('from-address resolution', () => {
     expect(domains.has('policestationrepuk.org')).toBe(true);
     expect(domains.has('policestationagent.com')).toBe(false);
   });
+
+  it('falls back to the verified sending domain when Resend returns an error object', async () => {
+    process.env.RESEND_API_KEY = 're_test';
+    const { fetchResendVerifiedDomains } = await import('@/lib/firm-outreach/outreach/from-address');
+    clearVerifiedDomainsCache();
+    const domains = await fetchResendVerifiedDomains(async () => ({
+      data: null,
+      error: { statusCode: 400, message: 'API key is invalid', name: 'validation_error' },
+    }));
+    expect(domains.has(VERIFIED_FALLBACK_DOMAIN)).toBe(true);
+    expect(domains.size).toBe(1);
+  });
+
+  it('does not cache an errored domain lookup', async () => {
+    process.env.RESEND_API_KEY = 're_test';
+    const { fetchResendVerifiedDomains } = await import('@/lib/firm-outreach/outreach/from-address');
+    clearVerifiedDomainsCache();
+    await fetchResendVerifiedDomains(async () => ({
+      data: null,
+      error: { message: 'API key is invalid' },
+    }));
+    // A subsequent successful call must reflect real verified domains, proving
+    // the error result was not cached.
+    const domains = await fetchResendVerifiedDomains(async () => ({
+      data: [
+        { name: 'policestationrepuk.org', status: 'verified' },
+        { name: 'policestationagent.com', status: 'verified' },
+      ],
+    }));
+    expect(domains.has('policestationagent.com')).toBe(true);
+  });
 });
 
 describe('sendOutreachEmail domain retry', () => {

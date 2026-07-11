@@ -40,6 +40,7 @@ export type ResendDomainRecord = { name: string; status: string };
 
 export type ResendDomainLister = () => Promise<{
   data?: ResendDomainRecord[] | { data?: ResendDomainRecord[] } | null;
+  error?: unknown;
 }>;
 
 function normalizeDomainRecords(
@@ -73,6 +74,13 @@ export async function fetchResendVerifiedDomains(
 
   try {
     const result = await list();
+    // The Resend SDK resolves (does not throw) with an { error } object on
+    // auth/validation failures. Treat that like a thrown error so a transient
+    // API problem never reports "zero verified domains" and blocks all sends.
+    if (result.error) {
+      console.warn('[firm-outreach] Resend domains.list returned error:', result.error);
+      return new Set([VERIFIED_FALLBACK_DOMAIN]);
+    }
     const domains = new Set<string>();
     for (const d of normalizeDomainRecords(result.data)) {
       if (d.status === 'verified') domains.add(d.name.toLowerCase());

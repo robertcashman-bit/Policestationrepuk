@@ -164,8 +164,8 @@ export function checkVercelCronConfig(vercelJson: {
   });
   const sendOnlyCronCount = paths.filter((p) => p === '/api/cron/firm-outreach-send').length;
   results.push({
-    name: 'vercel_cron_send_only_twice_daily',
-    ok: sendOnlyCronCount === 2,
+    name: 'vercel_cron_send_only_four_times_daily',
+    ok: sendOnlyCronCount === 4,
     detail: `count=${sendOnlyCronCount}`,
   });
 

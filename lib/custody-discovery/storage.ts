@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { addToIndexSet, readIndexMembers, claimKey } from '@/lib/kv-atomic';
 import { getKV, skipKVInPrerender } from '@/lib/kv';
 import type {
   ApprovedCustodyNumber,
@@ -35,20 +36,11 @@ function newId(prefix: string): string {
 }
 
 async function readStringList(key: string): Promise<string[]> {
-  const kv = getKV();
-  if (!kv) return [];
-  const raw = await kv.get<string[]>(key);
-  return Array.isArray(raw) ? raw : [];
+  return readIndexMembers(key);
 }
 
 async function appendIndex(key: string, id: string): Promise<void> {
-  const kv = getKV();
-  if (!kv) return;
-  const ids = await readStringList(key);
-  if (!ids.includes(id)) {
-    ids.push(id);
-    await kv.set(key, ids);
-  }
+  await addToIndexSet(key, id);
 }
 
 /* ------------------------------------------------------------------ */
@@ -243,6 +235,18 @@ export async function approveFinding(
   const finding = await getFinding(findingId);
   if (!finding) return null;
 
+  const lockKey = `custody:approve-lock:${finding.custodySuiteId}`;
+  const claimed = await claimKey(lockKey, 120);
+  if (!claimed) {
+    const existing = await getApprovedNumber(finding.custodySuiteId);
+    if (existing) {
+      const refreshed = await getFinding(findingId);
+      return refreshed ? { finding: refreshed, approved: existing } : null;
+    }
+    throw new Error(`Concurrent approval in progress for suite ${finding.custodySuiteId}`);
+  }
+
+  try {
   const now = new Date().toISOString();
   const verificationStatus = resolveApprovalVerificationStatus(finding, opts?.markVerified);
   const approvedFinding: CustodyNumberFinding = {
@@ -281,6 +285,10 @@ export async function approveFinding(
   await saveApprovedNumber(approved);
   invalidateApprovedCache();
   return { finding: approvedFinding, approved };
+  } finally {
+    const kv = getKV();
+    if (kv) await kv.del(lockKey);
+  }
 }
 
 export async function markApprovedAsVerified(

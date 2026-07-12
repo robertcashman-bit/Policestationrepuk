@@ -103,8 +103,6 @@ describe('from-address resolution', () => {
       data: null,
       error: { message: 'API key is invalid' },
     }));
-    // A subsequent successful call must reflect real verified domains, proving
-    // the error result was not cached.
     const domains = await fetchResendVerifiedDomains(async () => ({
       data: [
         { name: 'policestationrepuk.org', status: 'verified' },

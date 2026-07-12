@@ -18,6 +18,9 @@ export async function GET(request: Request) {
   if (!envCheck.ok) {
     return NextResponse.json({ ok: false, error: 'outreach_env_invalid', errors: envCheck.errors }, { status: 500 });
   }
+  if (envCheck.warnings.length > 0) {
+    console.warn('[firm-outreach-send] env warnings:', envCheck.warnings.join('; '));
+  }
 
   const url = new URL(request.url);
   const paramLimit = Number(url.searchParams.get('limit') || 0);

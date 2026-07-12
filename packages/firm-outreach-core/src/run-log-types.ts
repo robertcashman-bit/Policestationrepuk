@@ -9,6 +9,7 @@ export type OutreachSkipReason =
   | 'mx_invalid'
   | 'resend_quota'
   | 'daily_cap'
+  | 'concurrent_run'
   | 'send_disabled'
   | 'resend_error'
   | 'transient_resend_error'

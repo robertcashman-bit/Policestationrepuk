@@ -1,4 +1,6 @@
 import { isTransientResendError } from '@robertcashman/firm-outreach-core';
+import { getKV } from '@/lib/kv';
+import { claimKey, releaseKey } from '@/lib/kv-atomic';
 import { activeOutreachCampaignId, isCampaignProspect } from '../campaign-scope';
 import { dailySendCap, outreachSendEnabled } from '../constants';
 import { sortProspectsForSend } from '../enrichment/scorer';
@@ -37,6 +39,9 @@ const FOLLOWUP_DAY_1 = 7;
 const FOLLOWUP_DAY_2 = 21;
 const FIRM_SEND_COOLDOWN_DAYS = 90;
 const MAX_CANDIDATE_SCAN = 500;
+/** Send lock lease — longer than cron maxDuration (300s) so a crashed run auto-releases. */
+const SEND_LOCK_TTL_SECONDS = 330;
+const sendLockKey = (campaignId: string) => `firmoutreach:send-lock:${campaignId}`;
 
 /** Prospects in ready/sent were MX-checked at enrich/requalify; skip DNS on send ticks. */
 function emailPrevalidatedForSend(prospect: FirmProspect): boolean {
@@ -146,19 +151,35 @@ export async function runFirmOutreach(opts?: {
     return finish(0, 0, dailySendCap());
   }
 
+  // Restart-safe send lock: only one live send run per campaign at a time. Prevents
+  // overlapping cron ticks (a slow run still in flight, or the 12:00 enrich+send overlap)
+  // from double-sending the same prospect or overshooting caps. The lease TTL auto-releases
+  // if a run crashes. Skipped for dry runs and when KV is unavailable (tests / no protection needed).
+  const lockKey = sendLockKey(campaignId);
+  const useLock = !opts?.dryRun && Boolean(getKV());
+  if (useLock && !(await claimKey(lockKey, SEND_LOCK_TTL_SECONDS))) {
+    recordSkip(stats, 'concurrent_run');
+    return finish(0, 0, dailySendCap());
+  }
+
   const date = new Date().toISOString().slice(0, 10);
-  const cap = opts?.limit ?? dailySendCap();
+  // opts.limit is a PER-RUN batch size (how many to send this tick), NOT the daily ceiling.
+  // The daily cap is always enforced separately so successive ticks accumulate toward it.
+  const dayCap = dailySendCap();
+  const perRunLimit = opts?.limit && opts.limit > 0 ? opts.limit : dayCap;
   const alreadySent = await getDailySendCount(date, campaignId);
-  const remaining = Math.max(0, cap - alreadySent);
+  const remaining = Math.min(perRunLimit, Math.max(0, dayCap - alreadySent));
   const globalQuota = await getGlobalResendQuotaRemaining(date);
 
   if (remaining === 0) {
     recordSkip(stats, 'daily_cap');
-    return finish(globalQuota, alreadySent, cap);
+    if (useLock) await releaseKey(lockKey);
+    return finish(globalQuota, alreadySent, dayCap);
   }
   if (!opts?.dryRun && globalQuota <= 0) {
     recordSkip(stats, 'resend_quota');
-    return finish(0, alreadySent, cap);
+    if (useLock) await releaseKey(lockKey);
+    return finish(0, alreadySent, dayCap);
   }
 
   const ready = await listProspectsByRecordStatus(
@@ -324,5 +345,6 @@ export async function runFirmOutreach(opts?: {
   }
 
   const finalQuota = await getGlobalResendQuotaRemaining(date);
-  return finish(finalQuota, alreadySent, cap);
+  if (useLock) await releaseKey(lockKey);
+  return finish(finalQuota, alreadySent, dayCap);
 }

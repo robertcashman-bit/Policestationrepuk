@@ -127,20 +127,20 @@ export async function runFirmOutreachPipeline(opts?: {
 
   const counts = opts?.skipCounts ? {} : await countProspectsByStatus();
 
-  if (!opts?.skipSend && !opts?.skipCounts) {
+  // Failure alerting must run for EVERY send path — including send-only ticks that set
+  // skipCounts. Previously these were silent, so a 500ing / zero-send cron never alerted.
+  if (!opts?.skipSend) {
     const sendHealth = await getOutreachSendHealth();
-    if (!sendHealth.sendHealthy) {
-      await maybeNotifyOutreachSendFailure({
-        stats: send,
-        readyToSend: counts.ready_to_send ?? 0,
-        reason: `Outreach send config unhealthy: ${sendHealth.sendBlockers.join('; ')}.`,
-      });
-    } else {
-      await maybeNotifyOutreachSendFailure({
-        stats: send,
-        readyToSend: counts.ready_to_send ?? 0,
-      });
-    }
+    const readyToSend = opts?.skipCounts
+      ? (await countProspectsByStatus()).ready_to_send ?? 0
+      : counts.ready_to_send ?? 0;
+    await maybeNotifyOutreachSendFailure({
+      stats: send,
+      readyToSend,
+      reason: sendHealth.sendHealthy
+        ? undefined
+        : `Outreach send config unhealthy: ${sendHealth.sendBlockers.join('; ')}.`,
+    });
   }
 
   if (!opts?.skipDigest) {

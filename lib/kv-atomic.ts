@@ -12,6 +12,17 @@ export async function claimKey(
   return result === 'OK';
 }
 
+/** Release a key claimed via claimKey (best-effort DEL; lease TTL is the fallback). */
+export async function releaseKey(key: string): Promise<void> {
+  const kv = getKV();
+  if (!kv) return;
+  try {
+    await kv.del(key);
+  } catch {
+    // Lease will expire on its own TTL if DEL fails.
+  }
+}
+
 /** Increment a counter with TTL refresh (uses Redis INCR when available). */
 export async function incrementCounter(
   key: string,

@@ -1,6 +1,6 @@
 {
   "name": "@robertcashman/buffer-engine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shared Buffer scheduling engine — engagement-weighted selection, image compliance, day/night spread",
   "private": true,
   "type": "commonjs",

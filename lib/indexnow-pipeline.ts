@@ -3,6 +3,14 @@ import { SITE_URL } from '@/lib/seo-layer/config';
 import { getSitemapUrlList } from '@/lib/sitemap-build';
 
 const LIVE_SITEMAP_BASE = (process.env.SITE_URL || SITE_URL).replace(/\/$/, '');
+const LIVE_SITEMAP_FETCH_TIMEOUT_MS = 8000;
+
+function liveSitemapFetchInit(): RequestInit {
+  return {
+    headers: { 'user-agent': 'PoliceStationRepUK-indexnow/1.0' },
+    signal: AbortSignal.timeout(LIVE_SITEMAP_FETCH_TIMEOUT_MS),
+  };
+}
 
 function parseSitemapXml(xml: string): string[] {
   return [...xml.matchAll(/<loc>([^<]+)<\/loc>/gi)].map((m) => m[1].trim());
@@ -10,16 +18,14 @@ function parseSitemapXml(xml: string): string[] {
 
 /** Fetch URLs from the live `/sitemap.xml` (used by manual CLI runs). */
 export async function fetchLiveSitemapUrls(siteUrl = LIVE_SITEMAP_BASE): Promise<string[]> {
-  const res = await fetch(`${siteUrl}/sitemap.xml`, {
-    headers: { 'user-agent': 'PoliceStationRepUK-indexnow/1.0' },
-  });
+  const res = await fetch(`${siteUrl}/sitemap.xml`, liveSitemapFetchInit());
   if (!res.ok) throw new Error(`sitemap fetch failed: ${res.status}`);
   const xml = await res.text();
   const locs = parseSitemapXml(xml);
   if (/<sitemapindex/i.test(xml)) {
     const nested: string[] = [];
     for (const child of locs.slice(0, 20)) {
-      const r = await fetch(child, { headers: { 'user-agent': 'PoliceStationRepUK-indexnow/1.0' } });
+      const r = await fetch(child, liveSitemapFetchInit());
       if (r.ok) nested.push(...parseSitemapXml(await r.text()));
     }
     return nested.length ? nested : locs;

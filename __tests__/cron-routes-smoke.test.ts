@@ -1,4 +1,25 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/lib/indexnow-pipeline', () => ({
+  submitSitemapToIndexNow: vi.fn(async () => ({
+    ok: true,
+    status: 200,
+    submitted: 0,
+    batches: 0,
+    source: 'live',
+    keyLocation: 'https://policestationrepuk.org/indexnow-key.txt',
+  })),
+  fetchLiveSitemapUrls: vi.fn(async () => []),
+}));
+
+vi.mock('@/lib/bing-submit', () => ({
+  submitToBing: vi.fn(async () => ({
+    ok: true,
+    skipped: true,
+    submitted: 0,
+    batches: 0,
+  })),
+}));
 
 const ENV = process.env;
 

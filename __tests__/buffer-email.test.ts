@@ -1,10 +1,22 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   sendBufferDailyFailureEmail,
   sendBufferDailySuccessEmail,
   sendBufferSchedulerFailureEmail,
   sendBufferSchedulerSkippedEmail,
 } from '@/lib/buffer/email';
+
+// These tests exercise the "no RESEND_API_KEY" path. The vitest env can inherit a
+// real key from .env.local; clear it here so the suite never sends live emails.
+let savedResendKey: string | undefined;
+beforeEach(() => {
+  savedResendKey = process.env.RESEND_API_KEY;
+  delete process.env.RESEND_API_KEY;
+});
+afterEach(() => {
+  if (savedResendKey === undefined) delete process.env.RESEND_API_KEY;
+  else process.env.RESEND_API_KEY = savedResendKey;
+});
 
 describe('sendBufferSchedulerFailureEmail', () => {
   it('does not throw when RESEND_API_KEY is absent', async () => {

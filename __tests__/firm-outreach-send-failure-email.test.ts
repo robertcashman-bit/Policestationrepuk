@@ -2,9 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { maybeNotifyOutreachSendFailure, sendOutreachSendFailureEmail } from '@/lib/firm-outreach/outreach/send-failure-email';
 
 vi.mock('resend', () => ({
-  Resend: vi.fn().mockImplementation(() => ({
-    emails: { send: vi.fn().mockResolvedValue({ data: { id: 'x' } }) },
-  })),
+  // Use a real class so `new Resend()` works under vitest 4 (arrow fns are not constructors).
+  Resend: class {
+    emails = { send: vi.fn().mockResolvedValue({ data: { id: 'x' } }) };
+  },
 }));
 
 describe('maybeNotifyOutreachSendFailure', () => {

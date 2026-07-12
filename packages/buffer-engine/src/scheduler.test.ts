@@ -150,6 +150,23 @@ describe('runSiteBufferScheduler', () => {
     expect(result.posts?.length).toBeGreaterThanOrEqual(5);
   });
 
+  it('bypasses cooldown when exhausted and Buffer has no coverage for the day', async () => {
+    const kv = makeKV();
+    const posts = makePosts(10);
+    const adapter = makeAdapter(kv, posts);
+    const now = new Date('2026-07-04T05:00:00Z');
+
+    await kv.set(
+      'buffer-engine:recent-slugs:testsite',
+      posts.map((p) => ({ slug: p.slug, feedId: 'testsite', scheduledAt: now.toISOString() })),
+    );
+
+    const result = await runSiteBufferScheduler(adapter, { now });
+    expect(result.ok).toBe(true);
+    expect(result.posts?.length).toBeGreaterThanOrEqual(5);
+    expect(createdPosts.length).toBeGreaterThanOrEqual(5);
+  });
+
   it('reconciles when cooldown exhausted but Buffer already has enough posts', async () => {
     const kv = makeKV();
     const posts = makePosts(10);

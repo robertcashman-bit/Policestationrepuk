@@ -221,11 +221,30 @@ export async function runSiteBufferScheduler(
       );
       return reconciled;
     }
-    return {
-      ok: false,
-      reason: `No posts after cooldown (pool ${rawPosts.length}, cooldown ${feedCooldown}d)`,
-      date: localDate,
-    };
+
+    // Last resort: cooldown exhausted but the day is still uncovered — bypass cooldown
+    // and pick least-recently-scheduled posts so the cron never emails a false failure.
+    const bypassRng = mulberry32(hashSeed(`buffer-cooldown-bypass:${adapter.siteId}:${localDate}`));
+    picked = pickBanditSchedulablePosts(rawPosts, {
+      count: Math.min(targetCount, rawPosts.length),
+      excludeKeys: new Set(),
+      stats: statsMap,
+      explorationRate: 1,
+      poolCoverage,
+      random: bypassRng,
+    });
+
+    if (picked.length === 0) {
+      return {
+        ok: false,
+        reason: `No posts after cooldown (pool ${rawPosts.length}, cooldown ${feedCooldown}d)`,
+        date: localDate,
+      };
+    }
+
+    console.warn(
+      `[buffer-engine:${adapter.siteId}] Cooldown bypass for ${localDate}: picked ${picked.length} posts (pool ${rawPosts.length}, cooldown ${feedCooldown}d)`,
+    );
   }
 
   picked = await preparePostImages(adapter, picked);

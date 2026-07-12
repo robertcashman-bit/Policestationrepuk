@@ -93,18 +93,18 @@ export function checkBrochureLoadsAsAttachment(): RepoCheckResult {
 }
 
 export function checkPsaFromAddressFallback(): RepoCheckResult {
-  const unverified = new Set<string>([VERIFIED_FALLBACK_DOMAIN]);
-  const resolved = resolveFromAddressForCampaign(AGENT_COVER_KENT_CAMPAIGN_ID, unverified);
+  const verified = new Set<string>([VERIFIED_FALLBACK_DOMAIN]);
+  const resolved = resolveFromAddressForCampaign(AGENT_COVER_KENT_CAMPAIGN_ID, verified);
   const ok =
-    resolved.usedFallback &&
+    !resolved.usedFallback &&
     resolved.from === DEFAULT_PSA_FROM_FALLBACK &&
     resolved.domain === VERIFIED_FALLBACK_DOMAIN;
   return {
-    name: 'psa_from_address_verified_fallback',
+    name: 'psa_from_address_verified_repuk',
     ok,
     detail: ok
       ? resolved.from
-      : `Expected PSA fallback via ${VERIFIED_FALLBACK_DOMAIN}, got ${resolved.from}`,
+      : `Expected intentional PSA From on ${VERIFIED_FALLBACK_DOMAIN}, got ${resolved.from} (fallback=${resolved.usedFallback})`,
   };
 }
 

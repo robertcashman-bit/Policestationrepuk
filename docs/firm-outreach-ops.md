@@ -97,20 +97,29 @@ Updates the admin Send log with delivery/open/click/bounce status. Webhook match
 
 Outreach uses Resend. Only **verified** domains can send.
 
-| Campaign | Preferred from | Until PSA domain verified |
-|----------|----------------|---------------------------|
-| `whatsapp_invite_v1` | `FIRM_OUTREACH_FROM_EMAIL` or `PoliceStationRepUK <noreply@policestationrepuk.org>` | — |
-| `agent_cover_kent_v1` | `FIRM_OUTREACH_PSA_FROM_EMAIL` or `Police Station Agent <noreply@policestationagent.com>` | **Auto-fallback** to `Police Station Agent <noreply@policestationrepuk.org>` |
+| Campaign | From address |
+|----------|--------------|
+| `whatsapp_invite_v1` | `FIRM_OUTREACH_FROM_EMAIL` or `PoliceStationRepUK <noreply@policestationrepuk.org>` |
+| `agent_cover_kent_v1` | `FIRM_OUTREACH_PSA_FROM_EMAIL` or `Police Station Agent <noreply@policestationrepuk.org>` |
 
-**Permanent auto-fix:** before each batch, the send path resolves from-address against Resend verified domains. If `policestationagent.com` is not verified, PSA emails send from the verified RepUK domain automatically (content and links remain PSA). On a Resend domain error, the send retries once with the verified fallback.
+**PSA sender (intentional):** agent-cover emails send as **Police Station Agent** from the verified RepUK domain (`policestationrepuk.org`). Content and links remain PSA (`policestationagent.com`). This avoids depending on Wix DNS for the PSA apex, which is not Resend-verified.
 
-**Verify PSA domain (optional):** Resend dashboard → Domains → add `policestationagent.com` (DNS records). Then set on Vercel:
+**Optional future:** if `policestationagent.com` is verified on Resend (DNS at the Wix registrar), set:
 
 ```bash
 FIRM_OUTREACH_PSA_FROM_EMAIL=Police Station Agent <noreply@policestationagent.com>
 ```
 
-**Health check:** `GET /api/cron/firm-outreach-status` (with `CRON_SECRET`) reports `sendHealthy`, `sendBlockers`, and `campaignSendHealth` per campaign.
+Until then, prefer / leave:
+
+```bash
+FIRM_OUTREACH_PSA_FROM_EMAIL=Police Station Agent <noreply@policestationrepuk.org>
+```
+
+If an env override points at an unverified domain, the send path still auto-falls back to the verified RepUK From and retries once on a Resend domain error.
+
+**Health check:** `GET /api/cron/firm-outreach-status` (with `CRON_SECRET`) reports `sendHealthy`, `sendBlockers`, and `campaignSendHealth` per campaign. The `psa_using_repuk_from_until_…` blocker only appears when preferred From is a *different* unverified domain — not when preferred is already RepUK.
+
 
 ## Manual commands
 

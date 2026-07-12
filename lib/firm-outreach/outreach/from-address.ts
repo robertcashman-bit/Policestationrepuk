@@ -4,7 +4,9 @@ import { FIRM_OUTREACH_CAMPAIGN_ID } from '../site-config';
 export const VERIFIED_FALLBACK_DOMAIN = 'policestationrepuk.org';
 
 export const DEFAULT_REPUK_FROM = 'PoliceStationRepUK <noreply@policestationrepuk.org>';
-export const DEFAULT_PSA_FROM_PREFERRED = 'Police Station Agent <noreply@policestationagent.com>';
+/** Intentional PSA sender on the verified RepUK domain (Wix-held policestationagent.com is not Resend-verified). */
+export const DEFAULT_PSA_FROM_PREFERRED =
+  'Police Station Agent <noreply@policestationrepuk.org>';
 export const DEFAULT_PSA_FROM_FALLBACK = 'Police Station Agent <noreply@policestationrepuk.org>';
 
 const VERIFIED_DOMAINS_CACHE_MS = 5 * 60 * 1000;
@@ -107,7 +109,7 @@ export function resolveFromAddressForCampaign(
 ): ResolvedFromAddress {
   if (campaignId === AGENT_COVER_KENT_CAMPAIGN_ID) {
     const preferred = psaPreferredFromAddress();
-    const preferredDomain = parseFromAddressDomain(preferred) ?? 'policestationagent.com';
+    const preferredDomain = parseFromAddressDomain(preferred) ?? VERIFIED_FALLBACK_DOMAIN;
     if (verifiedDomains.has(preferredDomain)) {
       return {
         from: preferred,
@@ -197,11 +199,13 @@ export async function getOutreachSendHealth(): Promise<{
     if (!domainVerified) {
       blockers.push(`from_domain_not_verified:${resolved.domain}`);
     }
+    // Only nag when preferred is a *different* unverified domain (e.g. env override
+    // to policestationagent.com). Preferred already on RepUK is intentional, not a fallback.
     if (resolved.usedFallback && resolved.preferredFrom) {
       const preferredDomain = parseFromAddressDomain(resolved.preferredFrom);
-      blockers.push(
-        `psa_using_repuk_from_until_${preferredDomain ?? 'psa_domain'}_verified`,
-      );
+      if (preferredDomain && preferredDomain !== VERIFIED_FALLBACK_DOMAIN) {
+        blockers.push(`psa_using_repuk_from_until_${preferredDomain}_verified`);
+      }
     }
     campaigns.push({
       campaignId,

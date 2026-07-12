@@ -133,7 +133,7 @@ export async function runFirmOutreachPipeline(opts?: {
       await maybeNotifyOutreachSendFailure({
         stats: send,
         readyToSend: counts.ready_to_send ?? 0,
-        reason: `Outreach send config unhealthy: ${sendHealth.sendBlockers.join('; ')}. PSA may use RepUK from-address until policestationagent.com is verified on Resend.`,
+        reason: `Outreach send config unhealthy: ${sendHealth.sendBlockers.join('; ')}.`,
       });
     } else {
       await maybeNotifyOutreachSendFailure({

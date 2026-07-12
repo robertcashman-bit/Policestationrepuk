@@ -3,6 +3,8 @@ import { AGENT_COVER_KENT_CAMPAIGN_ID } from '@/lib/firm-outreach/campaign-scope
 import {
   clearVerifiedDomainsCache,
   DEFAULT_PSA_FROM_FALLBACK,
+  DEFAULT_PSA_FROM_PREFERRED,
+  getOutreachSendHealth,
   isDomainNotVerifiedError,
   parseFromAddressDomain,
   resolveFromAddressForCampaign,
@@ -38,22 +40,27 @@ describe('from-address resolution', () => {
     expect(isDomainNotVerifiedError('rate limit exceeded')).toBe(false);
   });
 
-  it('uses RepUK verified from when PSA domain is not verified', () => {
+  it('uses intentional RepUK preferred From for PSA when RepUK is verified', () => {
+    const verified = new Set([VERIFIED_FALLBACK_DOMAIN]);
+    const resolved = resolveFromAddressForCampaign(AGENT_COVER_KENT_CAMPAIGN_ID, verified);
+    expect(resolved.usedFallback).toBe(false);
+    expect(resolved.from).toBe(DEFAULT_PSA_FROM_PREFERRED);
+    expect(resolved.from).toBe(DEFAULT_PSA_FROM_FALLBACK);
+    expect(resolved.domain).toBe(VERIFIED_FALLBACK_DOMAIN);
+  });
+
+  it('falls back when FIRM_OUTREACH_PSA_FROM_EMAIL points at an unverified domain', () => {
+    process.env.FIRM_OUTREACH_PSA_FROM_EMAIL =
+      'Police Station Agent <noreply@policestationagent.com>';
     const verified = new Set([VERIFIED_FALLBACK_DOMAIN]);
     const resolved = resolveFromAddressForCampaign(AGENT_COVER_KENT_CAMPAIGN_ID, verified);
     expect(resolved.usedFallback).toBe(true);
     expect(resolved.from).toBe(DEFAULT_PSA_FROM_FALLBACK);
     expect(resolved.domain).toBe(VERIFIED_FALLBACK_DOMAIN);
+    expect(resolved.preferredFrom).toContain('policestationagent.com');
   });
 
-  it('uses PSA preferred from when policestationagent.com is verified', () => {
-    const verified = new Set(['policestationagent.com', VERIFIED_FALLBACK_DOMAIN]);
-    const resolved = resolveFromAddressForCampaign(AGENT_COVER_KENT_CAMPAIGN_ID, verified);
-    expect(resolved.usedFallback).toBe(false);
-    expect(resolved.domain).toBe('policestationagent.com');
-  });
-
-  it('respects FIRM_OUTREACH_PSA_FROM_EMAIL when domain verified', () => {
+  it('uses custom FIRM_OUTREACH_PSA_FROM_EMAIL when that domain is verified', () => {
     process.env.FIRM_OUTREACH_PSA_FROM_EMAIL = 'PSA Custom <custom@policestationagent.com>';
     const verified = new Set(['policestationagent.com']);
     const resolved = resolveFromAddressForCampaign(AGENT_COVER_KENT_CAMPAIGN_ID, verified);
@@ -66,6 +73,36 @@ describe('from-address resolution', () => {
     const resolved = resolveFromAddressForCampaign(FIRM_OUTREACH_CAMPAIGN_ID, verified);
     expect(resolved.usedFallback).toBe(false);
     expect(resolved.domain).toBe(VERIFIED_FALLBACK_DOMAIN);
+  });
+
+  it('does not health-block when PSA preferred is already the verified RepUK domain', async () => {
+    process.env.RESEND_API_KEY = 're_test';
+    clearVerifiedDomainsCache();
+    const { fetchResendVerifiedDomains } = await import('@/lib/firm-outreach/outreach/from-address');
+    await fetchResendVerifiedDomains(async () => ({
+      data: [{ name: 'policestationrepuk.org', status: 'verified' }],
+    }));
+    const health = await getOutreachSendHealth();
+    const psa = health.campaigns.find((c) => c.campaignId === AGENT_COVER_KENT_CAMPAIGN_ID);
+    expect(psa?.domain).toBe(VERIFIED_FALLBACK_DOMAIN);
+    expect(psa?.usedFallbackDefault).toBe(false);
+    expect(psa?.canSend).toBe(true);
+    expect(psa?.blockers.some((b) => b.startsWith('psa_using_repuk_from_until_'))).toBe(false);
+  });
+
+  it('health-blocks with psa_using_repuk hint only when preferred is a different unverified domain', async () => {
+    process.env.RESEND_API_KEY = 're_test';
+    process.env.FIRM_OUTREACH_PSA_FROM_EMAIL =
+      'Police Station Agent <noreply@policestationagent.com>';
+    clearVerifiedDomainsCache();
+    const { fetchResendVerifiedDomains } = await import('@/lib/firm-outreach/outreach/from-address');
+    await fetchResendVerifiedDomains(async () => ({
+      data: [{ name: 'policestationrepuk.org', status: 'verified' }],
+    }));
+    const health = await getOutreachSendHealth();
+    const psa = health.campaigns.find((c) => c.campaignId === AGENT_COVER_KENT_CAMPAIGN_ID);
+    expect(psa?.usedFallbackDefault).toBe(true);
+    expect(psa?.blockers).toContain('psa_using_repuk_from_until_policestationagent.com_verified');
   });
 
   it('normalizes nested Resend domain list payloads', async () => {
@@ -121,6 +158,7 @@ describe('sendOutreachEmail domain retry', () => {
     vi.resetModules();
     clearVerifiedDomainsCache();
     process.env = { ...ENV, RESEND_API_KEY: 're_test' };
+    delete process.env.FIRM_OUTREACH_PSA_FROM_EMAIL;
     sendMock.mockReset();
   });
 
@@ -131,6 +169,8 @@ describe('sendOutreachEmail domain retry', () => {
   });
 
   it('retries PSA send with verified RepUK from after domain-not-verified error', async () => {
+    process.env.FIRM_OUTREACH_PSA_FROM_EMAIL =
+      'Police Station Agent <noreply@policestationagent.com>';
     sendMock
       .mockResolvedValueOnce({
         error: { message: 'The policestationagent.com domain is not verified.' },

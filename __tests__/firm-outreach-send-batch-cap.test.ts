@@ -204,4 +204,20 @@ describe('runFirmOutreach send lock', () => {
     expect(r.sent).toBe(5);
     expect(state.dailyCounter).toBe(0);
   });
+
+  it('does not persist when provider returns ok without a message id', async () => {
+    seedReadyProspects(1);
+    const { sendOutreachEmail } = await import('@/lib/firm-outreach/outreach/send');
+    vi.mocked(sendOutreachEmail).mockResolvedValueOnce({
+      ok: true,
+      subject: 'Test',
+      messageId: undefined,
+    });
+
+    const r = await runFirmOutreach({ limit: 1 });
+    expect(r.sent).toBe(0);
+    expect(r.errors).toBe(1);
+    expect(state.dailyCounter).toBe(0);
+    expect(state.prospects.get('p0')?.status).toBe('ready_to_send');
+  });
 });

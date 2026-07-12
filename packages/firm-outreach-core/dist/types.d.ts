@@ -192,7 +192,7 @@ export interface OutreachRunStats {
     /** Prospects evaluated (send attempted or skipped with reason). */
     attempted?: number;
     failed?: number;
-    skipReasons?: Partial<Record<'no_step' | 'no_email' | 'not_qualified' | 'suppressed' | 'duplicate' | 'firm_cooldown' | 'mx_invalid' | 'resend_quota' | 'daily_cap' | 'send_disabled' | 'resend_error' | 'transient_resend_error' | 'permanent_resend_error' | 'no_resend', number>>;
+    skipReasons?: Partial<Record<'no_step' | 'no_email' | 'not_qualified' | 'suppressed' | 'duplicate' | 'firm_cooldown' | 'mx_invalid' | 'resend_quota' | 'daily_cap' | 'concurrent_run' | 'send_disabled' | 'resend_error' | 'transient_resend_error' | 'permanent_resend_error' | 'no_resend', number>>;
     failures?: Array<{
         email: string;
         firmName?: string;

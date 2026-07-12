@@ -269,6 +269,18 @@ export async function saveSend(send: FirmOutreachSend): Promise<void> {
   }
 }
 
+/** Remove a send record and its indexes (repair / GDPR tooling). */
+export async function deleteSendRecord(send: FirmOutreachSend): Promise<void> {
+  const kv = getKV();
+  if (!kv) throw new Error('KV not configured');
+  await kv.del(sendKey(send.id));
+  await removeFromIndex(SEND_INDEX, send.id);
+  await removeFromIndex(SEND_EMAIL_INDEX + emailHash(send.email), send.id);
+  if (send.resendMessageId) {
+    await kv.del(SEND_RESEND_INDEX + send.resendMessageId);
+  }
+}
+
 export async function getSend(id: string): Promise<FirmOutreachSend | null> {
   const kv = getKV();
   if (!kv) return null;

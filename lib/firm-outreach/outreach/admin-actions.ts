@@ -1,18 +1,16 @@
+import { isProviderAcceptedMessageId } from '@robertcashman/firm-outreach-core';
 import { dailySendCap } from '../constants';
 import { computeProspectPriority } from '../enrichment/scorer';
 import { normalizeEmail } from '../normalize';
 import { resolveStatusWithQualification } from '../qualification';
 import {
-  createSendRecord,
   excludeProspectDuplicateEmail,
   getDailySendCount,
   getProspect,
   getSuppressionsByEmails,
-  incrementDailySendCount,
   isDuplicateInitialSend,
   isSuppressed,
   saveProspect,
-  saveSend,
 } from '../storage';
 import type {
   FirmProspect,
@@ -21,6 +19,7 @@ import type {
   OutreachQueueRow,
 } from '../types';
 import { sendOutreachEmail } from './send';
+import { commitSuccessfulOutreachSend } from './commit-send';
 import { invalidateOutreachSummaryCache } from './activity-report';
 
 export type RestoreExcludedOptions = {
@@ -117,27 +116,26 @@ export async function manualSendProspect(
     };
   }
 
-  const prevStatus = prospect.status;
-  const now = new Date().toISOString();
-  prospect.sequenceStep = step;
-  prospect.lastEmailAt = now;
-  prospect.status = 'sent';
-  prospect.updatedAt = now;
-  await saveProspect(prospect, prevStatus);
+  if (!isProviderAcceptedMessageId(result.messageId)) {
+    return { ok: false, error: 'no_provider_message_id' };
+  }
 
-  const send = createSendRecord({
-    prospectId: prospect.id,
-    firmName: prospect.firmName,
-    prospectType: prospect.prospectType,
-    email,
-    campaignId: prospect.campaignId,
-    sequenceStep: step,
-    subject: result.subject,
-  });
-  send.status = 'sent';
-  send.sentAt = now;
-  send.resendMessageId = result.messageId;
-  await saveSend(send);
+  const date = new Date().toISOString().slice(0, 10);
+  try {
+    await commitSuccessfulOutreachSend({
+      prospect,
+      previousStatus: prospect.status,
+      email,
+      step,
+      subject: result.subject,
+      messageId: result.messageId!,
+      date,
+      campaignId: prospect.campaignId,
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { ok: false, error: msg };
+  }
   void invalidateOutreachSummaryCache();
 
   return {
@@ -239,7 +237,6 @@ export async function bulkSendProspects(
       result.sent++;
       if (respectDailyCap) {
         remaining--;
-        await incrementDailySendCount(date);
       }
     } else {
       result.sent++;

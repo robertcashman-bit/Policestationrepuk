@@ -8,6 +8,9 @@ import {
   tryClaimSendApproval,
 } from '@/lib/firm-outreach/outreach/send-approval-token';
 import { runFirmOutreach } from '@/lib/firm-outreach/outreach/run-outreach';
+import { mergeOutreachRunStats } from '@/lib/firm-outreach/outreach/run-log';
+import { OUTREACH_CAMPAIGN_IDS } from '@/lib/firm-outreach/site-config';
+import type { OutreachRunStats } from '@/lib/firm-outreach/types';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -67,7 +70,18 @@ export async function POST(request: Request) {
 
   try {
     const sendLimit = Math.min(dailySendCap(), cronSendBatchSize() * 2);
-    const stats = await runFirmOutreach({ limit: sendLimit });
+    let stats: OutreachRunStats = {
+      queued: 0,
+      sent: 0,
+      skipped: 0,
+      suppressed: 0,
+      errors: 0,
+      elapsedMs: 0,
+    };
+    for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
+      const campaignStats = await runFirmOutreach({ limit: sendLimit, campaignId });
+      stats = mergeOutreachRunStats(stats, campaignStats);
+    }
     const { report } = await buildOutreachActivityReport();
     const startOfUtcDay = Date.UTC(
       new Date().getUTCFullYear(),

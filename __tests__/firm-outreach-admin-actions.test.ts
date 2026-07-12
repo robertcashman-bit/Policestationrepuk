@@ -9,6 +9,7 @@ const mockSendOutreachEmail = vi.fn();
 const mockGetSuppressionsByEmails = vi.fn();
 const mockGetDailySendCount = vi.fn();
 const mockIncrementDailySendCount = vi.fn();
+const mockIncrementResendSendCount = vi.fn();
 const mockIsDuplicateInitialSend = vi.fn();
 
 vi.mock('@/lib/firm-outreach/storage', () => ({
@@ -20,6 +21,7 @@ vi.mock('@/lib/firm-outreach/storage', () => ({
   getSuppressionsByEmails: (...args: unknown[]) => mockGetSuppressionsByEmails(...args),
   getDailySendCount: (...args: unknown[]) => mockGetDailySendCount(...args),
   incrementDailySendCount: (...args: unknown[]) => mockIncrementDailySendCount(...args),
+  incrementResendSendCount: (...args: unknown[]) => mockIncrementResendSendCount(...args),
   createSendRecord: (input: Record<string, unknown>) => ({
     id: 'fos_test',
     status: 'queued',
@@ -135,6 +137,8 @@ describe('manualSendProspect', () => {
     vi.clearAllMocks();
     mockSaveProspect.mockResolvedValue(undefined);
     mockSaveSend.mockResolvedValue(undefined);
+    mockIncrementDailySendCount.mockResolvedValue(1);
+    mockIncrementResendSendCount.mockResolvedValue(1);
     mockIsSuppressed.mockResolvedValue(false);
     mockIsDuplicateInitialSend.mockResolvedValue(false);
     mockSendOutreachEmail.mockResolvedValue({
@@ -170,6 +174,25 @@ describe('manualSendProspect', () => {
       'excluded',
     );
     expect(mockSaveSend).toHaveBeenCalled();
+    expect(mockIncrementDailySendCount).toHaveBeenCalled();
+    expect(mockIncrementResendSendCount).toHaveBeenCalled();
+  });
+
+  it('refuses to persist when provider returns no message id', async () => {
+    mockGetProspect.mockResolvedValue(excludedProspect());
+    mockSendOutreachEmail.mockResolvedValue({
+      ok: true,
+      subject: 'Police station cover',
+      messageId: undefined,
+    });
+
+    const { manualSendProspect } = await import('@/lib/firm-outreach/outreach/admin-actions');
+    const result = await manualSendProspect('fop_ex1');
+
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe('no_provider_message_id');
+    expect(mockSaveProspect).not.toHaveBeenCalled();
+    expect(mockSaveSend).not.toHaveBeenCalled();
   });
 
   it('blocks suppressed recipients', async () => {
@@ -227,6 +250,8 @@ describe('bulkSendProspects', () => {
     vi.clearAllMocks();
     mockSaveProspect.mockResolvedValue(undefined);
     mockSaveSend.mockResolvedValue(undefined);
+    mockIncrementDailySendCount.mockResolvedValue(1);
+    mockIncrementResendSendCount.mockResolvedValue(1);
     mockIsSuppressed.mockResolvedValue(false);
     mockIsDuplicateInitialSend.mockResolvedValue(false);
     mockGetDailySendCount.mockResolvedValue(0);

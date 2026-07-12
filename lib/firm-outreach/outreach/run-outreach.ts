@@ -1,4 +1,4 @@
-import { isTransientResendError } from '@robertcashman/firm-outreach-core';
+import { isProviderAcceptedMessageId, isTransientResendError } from '@robertcashman/firm-outreach-core';
 import { getKV } from '@/lib/kv';
 import { claimKey, releaseKey } from '@/lib/kv-atomic';
 import { activeOutreachCampaignId, isCampaignProspect } from '../campaign-scope';
@@ -11,19 +11,15 @@ import {
 } from '../qualification';
 import {
   addSuppression,
-  createSendRecord,
   excludeProspectDuplicateEmail,
   getDailySendCount,
   getGlobalResendQuotaRemaining,
-  incrementDailySendCount,
-  incrementResendSendCount,
   isDuplicateInitialSend,
   isSuppressed,
   listProspectsByRecordStatus,
   listProspectsForFirmKey,
   saveOutreachRunLog,
   saveProspect,
-  saveSend,
 } from '../storage';
 import type { FirmProspect, OutreachRunStats } from '../types';
 import { normalizeEmail } from '../normalize';
@@ -34,6 +30,7 @@ import {
   recordSkip,
 } from './run-log';
 import { sendOutreachEmail } from './send';
+import { commitSuccessfulOutreachSend } from './commit-send';
 
 const FOLLOWUP_DAY_1 = 7;
 const FOLLOWUP_DAY_2 = 21;
@@ -319,29 +316,39 @@ export async function runFirmOutreach(opts?: {
       }
 
       if (!opts?.dryRun && process.env.FIRM_OUTREACH_DRY_RUN !== 'true') {
-        const now = new Date().toISOString();
-        prospect.sequenceStep = step;
-        prospect.lastEmailAt = now;
-        prospect.status = 'sent';
-        prospect.updatedAt = now;
-        await saveProspect(prospect);
+        if (!isProviderAcceptedMessageId(result.messageId)) {
+          recordFailure(stats, {
+            email,
+            firmName: prospect.firmName,
+            prospectId: prospect.id,
+            reason: result.error ?? 'no_provider_message_id',
+            transient: false,
+          });
+          continue;
+        }
 
-        const send = createSendRecord({
-          prospectId: prospect.id,
-          firmName: prospect.firmName,
-          prospectType: prospect.prospectType,
-          email,
-          campaignId: prospect.campaignId,
-          sequenceStep: step,
-          subject: result.subject,
-        });
-        send.status = 'sent';
-        send.sentAt = now;
-        send.resendMessageId = result.messageId;
-        await saveSend(send);
-
-        await incrementDailySendCount(date, campaignId);
-        await incrementResendSendCount(date);
+        try {
+          await commitSuccessfulOutreachSend({
+            prospect,
+            previousStatus: prospect.status,
+            email,
+            step,
+            subject: result.subject,
+            messageId: result.messageId!,
+            date,
+            campaignId,
+          });
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          recordFailure(stats, {
+            email,
+            firmName: prospect.firmName,
+            prospectId: prospect.id,
+            reason: msg,
+            transient: false,
+          });
+          continue;
+        }
         resendQuota = Math.max(0, resendQuota - 1);
       }
       emailsSentThisRun.add(normalizedEmail);

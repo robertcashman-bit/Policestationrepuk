@@ -87,8 +87,16 @@ describe('outreach send-approved route', () => {
       }),
     );
     expect(res.status).toBe(303);
-    expect(res.headers.get('location')).toContain('sent=5');
-    expect(mockRunOutreach).toHaveBeenCalledWith({ limit: 50 });
+    expect(res.headers.get('location')).toContain('sent=10');
+    expect(mockRunOutreach).toHaveBeenCalledTimes(2);
+    expect(mockRunOutreach).toHaveBeenCalledWith({
+      limit: 50,
+      campaignId: 'whatsapp_invite_v1',
+    });
+    expect(mockRunOutreach).toHaveBeenCalledWith({
+      limit: 50,
+      campaignId: 'agent_cover_kent_v1',
+    });
     expect(mockConfirmEmail).toHaveBeenCalledOnce();
     expect(mockFinalize).toHaveBeenCalledOnce();
     expect(mockRelease).not.toHaveBeenCalled();

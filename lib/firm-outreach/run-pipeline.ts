@@ -8,8 +8,10 @@ import { runFirmEnrichment } from './enrichment/run-enrich';
 import { sendDailyOutreachDigest } from './outreach/digest-email';
 import { getOutreachSendHealth } from './outreach/from-address';
 import { maybeNotifyOutreachSendFailure } from './outreach/send-failure-email';
+import { mergeOutreachRunStats } from './outreach/run-log';
 import { runFirmOutreach } from './outreach/run-outreach';
 import { requalifyAllProspects } from './requalify-prospects';
+import { OUTREACH_CAMPAIGN_IDS } from './site-config';
 import { countProspectsByStatus } from './storage';
 import type {
   DiscoveryRunStats,
@@ -123,7 +125,7 @@ export async function runFirmOutreachPipeline(opts?: {
   const send =
     opts?.skipSend || !outreachSendEnabled()
       ? emptySend()
-      : await runFirmOutreach({ limit: opts?.sendLimit });
+      : await runAllCampaignSends(opts?.sendLimit);
 
   const counts = opts?.skipCounts ? {} : await countProspectsByStatus();
 
@@ -226,4 +228,13 @@ function emptySend(): OutreachRunStats {
     errors: 0,
     elapsedMs: 0,
   };
+}
+
+async function runAllCampaignSends(sendLimit?: number): Promise<OutreachRunStats> {
+  let merged = emptySend();
+  for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
+    const stats = await runFirmOutreach({ limit: sendLimit, campaignId });
+    merged = mergeOutreachRunStats(merged, stats);
+  }
+  return merged;
 }

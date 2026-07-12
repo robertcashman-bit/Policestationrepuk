@@ -165,6 +165,13 @@ describe('lemonsqueezy: verifyWebhookSignature', () => {
   const secret = 'psruk_test_secret';
   const payload = '{"meta":{"event_name":"subscription_created"}}';
 
+  beforeEach(() => {
+    // readEnvAny prefers LEMON_SQUEEZY_WEBHOOK_SECRET; a real value in
+    // .env.local would otherwise shadow the test-controlled secret below.
+    delete process.env.LEMON_SQUEEZY_WEBHOOK_SECRET;
+    delete process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
+  });
+
   function sign(body: string, key = secret) {
     return crypto.createHmac('sha256', key).update(body).digest('hex');
   }

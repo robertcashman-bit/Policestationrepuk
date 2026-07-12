@@ -165,6 +165,10 @@
       "schedule": "30 18 * * *"
     },
     {
+      "path": "/api/cron/firm-outreach-watchdog",
+      "schedule": "*/30 * * * *"
+    },
+    {
       "path": "/api/cron/firm-outreach-digest",
       "schedule": "0 17 * * *"
     }

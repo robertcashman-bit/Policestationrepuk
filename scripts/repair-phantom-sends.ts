@@ -113,6 +113,7 @@ async function main() {
     const campaigns = campaignFilter ? [campaignFilter] : [...OUTREACH_CAMPAIGN_IDS];
     const kv = getKV()!;
     let capsFixed = 0;
+    const today = new Date().toISOString().slice(0, 10);
 
     for (const [key, count] of realCounts) {
       const [campaignId, date] = key.split(':');
@@ -125,7 +126,7 @@ async function main() {
       capsFixed++;
     }
 
-  // Zero out recent days that had phantoms but no real sends
+    // Zero out recent days that had phantoms but no real sends
     if (APPLY) {
       const phantomDays = new Set(
         phantoms.map((s) => `${s.campaignId}:${s.sentAt?.slice(0, 10) ?? ''}`).filter((k) => !k.endsWith(':')),
@@ -137,6 +138,16 @@ async function main() {
         await kv.set(dailySendKeyForCampaignId(campaignId, date), 0);
         console.log(`[repair-phantom] daily cap ${campaignId} ${date} → 0 (phantom-only day)`);
         capsFixed++;
+      }
+
+      // Reconcile today's counters even when phantom rows are already gone
+      const { findDailyCapDrift, fixDailyCapDrift } = await import(
+        '../lib/firm-outreach/outreach/phantom-send-repair-apply'
+      );
+      const drifts = await findDailyCapDrift(sendsAfterDelete, today);
+      if (drifts.length > 0) {
+        capsFixed += await fixDailyCapDrift(sendsAfterDelete, today);
+        console.log(`[repair-phantom] reconciled ${drifts.length} cap drift(s) for ${today}`);
       }
     }
 

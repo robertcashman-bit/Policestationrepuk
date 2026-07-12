@@ -120,6 +120,32 @@ If an env override points at an unverified domain, the send path still auto-fall
 
 **Health check:** `GET /api/cron/firm-outreach-status` (with `CRON_SECRET`) reports `sendHealthy`, `sendBlockers`, and `campaignSendHealth` per campaign. The `psa_using_repuk_from_until_…` blocker only appears when preferred From is a *different* unverified domain — not when preferred is already RepUK.
 
+## Safe PSA test send (operator only)
+
+`psaTestSend` on the bootstrap cron sends **one** real PSA step-0 email (with brochure) to a **configured test inbox only**. It does **not** touch the KV queue, daily cap, or suppression pipeline.
+
+Set allowlisted inboxes on Vercel:
+
+```bash
+FIRM_OUTREACH_TEST_RECIPIENTS=robertdavidcashman@gmail.com
+```
+
+Fallback allowlist (if unset above): `FIRM_OUTREACH_DIGEST_EMAIL`, `ADMIN_EMAILS`, `OWNER_EMAIL`.
+
+```bash
+# Prefer header over query string (keeps recipient out of URL access logs)
+curl -sS -H "Authorization: Bearer $CRON_SECRET" \
+  -H "x-test-recipient: robertdavidcashman@gmail.com" \
+  "https://policestationrepuk.org/api/cron/firm-outreach-bootstrap?psaTestSend=1"
+
+# Non-allowlisted address returns 403; empty allowlist in production returns 503
+```
+
+Local script (uses production Resend via `vercel env run`):
+
+```bash
+npx vercel env run --environment production -- npx tsx scripts/psa-outreach-test-send.ts
+```
 
 ## Manual commands
 

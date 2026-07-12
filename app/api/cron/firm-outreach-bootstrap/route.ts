@@ -31,9 +31,24 @@ export async function GET(request: Request) {
   }
 
   if (url.searchParams.get('psaTestSend') === '1') {
-    const email = url.searchParams.get('email')?.trim();
+    const email =
+      request.headers.get('x-test-recipient')?.trim() ||
+      url.searchParams.get('email')?.trim();
     if (!email) {
-      return NextResponse.json({ error: 'email query param required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'email query param or x-test-recipient header required' },
+        { status: 400 },
+      );
+    }
+    const {
+      isAllowedTestRecipient,
+      isTestRecipientsConfigured,
+    } = await import('@/lib/firm-outreach/outreach/test-recipients');
+    if (process.env.NODE_ENV === 'production' && !isTestRecipientsConfigured()) {
+      return NextResponse.json({ error: 'test_recipients_not_configured' }, { status: 503 });
+    }
+    if (!isAllowedTestRecipient(email)) {
+      return NextResponse.json({ error: 'test_recipient_not_allowlisted' }, { status: 403 });
     }
     const { AGENT_COVER_KENT_CAMPAIGN_ID } = await import('@/lib/firm-outreach/campaign-scope');
     const { resolveOutreachFromAddress } = await import('@/lib/firm-outreach/outreach/from-address');
@@ -58,11 +73,25 @@ export async function GET(request: Request) {
       },
       step: 0,
     });
+    if (!result.ok) {
+      return NextResponse.json(
+        {
+          ok: false,
+          mode: 'psaTestSend',
+          from: from.from,
+          domain: from.domain,
+          result,
+        },
+        { status: 502 },
+      );
+    }
     return NextResponse.json({
-      ok: result.ok,
+      ok: true,
       mode: 'psaTestSend',
       from: from.from,
       domain: from.domain,
+      subject: result.subject,
+      messageId: result.messageId,
       result,
     });
   }

@@ -39,6 +39,17 @@ async function main() {
     process.exit(1);
   }
 
+  const { isAllowedTestRecipient, listAllowedTestRecipients } = await import(
+    '../lib/firm-outreach/outreach/test-recipients'
+  );
+  if (!isAllowedTestRecipient(TEST_EMAIL)) {
+    console.error(
+      `[psa-test-send] ${TEST_EMAIL} is not allowlisted. Set FIRM_OUTREACH_TEST_RECIPIENTS or use one of:`,
+      listAllowedTestRecipients().join(', ') || '(none configured)',
+    );
+    process.exit(1);
+  }
+
   const { clearVerifiedDomainsCache, resolveOutreachFromAddress } = await import(
     '../lib/firm-outreach/outreach/from-address'
   );

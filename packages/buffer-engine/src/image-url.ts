@@ -39,8 +39,11 @@ export class BufferPostImageError extends Error {
   }
 }
 
-export function googleBusinessFeedFallbackUrl(feedId: string, siteUrl: string): string {
-  return `${siteUrl.replace(/\/$/, '')}/images/buffer/gbp/${feedId}-default.jpg`;
+const HOSTED_GBP_FALLBACK_BASE = 'https://policestationrepuk.org/images/buffer/gbp';
+
+export function googleBusinessFeedFallbackUrl(feedId: string, _siteUrl: string): string {
+  // Sibling sites may not host their own GBP defaults; shared assets live on RepUK.
+  return `${HOSTED_GBP_FALLBACK_BASE}/${feedId}-default.jpg`;
 }
 
 export function buildGoogleBusinessFeedFallbacks(siteUrl: string): Record<string, string> {

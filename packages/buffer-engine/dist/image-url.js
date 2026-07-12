@@ -44,8 +44,10 @@ class BufferPostImageError extends Error {
     }
 }
 exports.BufferPostImageError = BufferPostImageError;
-function googleBusinessFeedFallbackUrl(feedId, siteUrl) {
-    return `${siteUrl.replace(/\/$/, '')}/images/buffer/gbp/${feedId}-default.jpg`;
+const HOSTED_GBP_FALLBACK_BASE = 'https://policestationrepuk.org/images/buffer/gbp';
+function googleBusinessFeedFallbackUrl(feedId, _siteUrl) {
+    // Sibling sites may not host their own GBP defaults; shared assets live on RepUK.
+    return `${HOSTED_GBP_FALLBACK_BASE}/${feedId}-default.jpg`;
 }
 function buildGoogleBusinessFeedFallbacks(siteUrl) {
     return Object.fromEntries(exports.GBP_FEED_IDS.map((id) => [id, googleBusinessFeedFallbackUrl(id, siteUrl)]));

@@ -11,7 +11,7 @@ export interface BufferImageProbeResult {
 export declare class BufferPostImageError extends Error {
     constructor(message: string);
 }
-export declare function googleBusinessFeedFallbackUrl(feedId: string, siteUrl: string): string;
+export declare function googleBusinessFeedFallbackUrl(feedId: string, _siteUrl: string): string;
 export declare function buildGoogleBusinessFeedFallbacks(siteUrl: string): Record<string, string>;
 export declare function isGoogleBusinessImageContentType(contentType: string | null | undefined): boolean;
 export declare function probeLocalPublicImageUrl(url: string, siteUrl: string): BufferImageProbeResult | null;

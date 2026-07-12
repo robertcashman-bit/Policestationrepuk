@@ -142,7 +142,7 @@ export async function runOutreachWatchdog(opts?: {
         issues.push(`${campaignId}: no send run log for today after a send window`);
         continue;
       }
-      if (latest.sent === 0 && latest.errors === 0 && realToday === 0) {
+      if (latest.sent === 0 && latest.failed === 0 && realToday === 0) {
         issues.push(
           `${campaignId}: send window passed with ${sendableReady} sendable ready but 0 provider-confirmed sends today`,
         );

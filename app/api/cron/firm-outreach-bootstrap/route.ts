@@ -17,15 +17,54 @@ export async function GET(request: Request) {
   if (url.searchParams.get('dryRunPreview') === '1') {
     const { buildOutreachDryRunPreview } = await import('@/lib/firm-outreach/dry-run-preview');
     const limit = Number(url.searchParams.get('limit') || 25) || 25;
-    const preview = await buildOutreachDryRunPreview({ limit });
+    const campaignId = url.searchParams.get('campaignId')?.trim() || undefined;
+    const preview = await buildOutreachDryRunPreview({ limit, campaignId });
     return NextResponse.json({ ok: true, mode: 'dryRunPreview', preview });
   }
 
   if (url.searchParams.get('sendDryRun') === '1') {
     const { runFirmOutreach } = await import('@/lib/firm-outreach/outreach/run-outreach');
     const limit = Number(url.searchParams.get('limit') || 5) || 5;
-    const send = await runFirmOutreach({ dryRun: true, limit });
+    const campaignId = url.searchParams.get('campaignId')?.trim() || undefined;
+    const send = await runFirmOutreach({ dryRun: true, limit, campaignId });
     return NextResponse.json({ ok: true, mode: 'sendDryRun', send });
+  }
+
+  if (url.searchParams.get('psaTestSend') === '1') {
+    const email = url.searchParams.get('email')?.trim();
+    if (!email) {
+      return NextResponse.json({ error: 'email query param required' }, { status: 400 });
+    }
+    const { AGENT_COVER_KENT_CAMPAIGN_ID } = await import('@/lib/firm-outreach/campaign-scope');
+    const { resolveOutreachFromAddress } = await import('@/lib/firm-outreach/outreach/from-address');
+    const { sendOutreachEmail } = await import('@/lib/firm-outreach/outreach/send');
+    const from = await resolveOutreachFromAddress(AGENT_COVER_KENT_CAMPAIGN_ID);
+    const result = await sendOutreachEmail({
+      prospect: {
+        id: 'fop_psa_test_send',
+        firmKey: 'psa-test-send',
+        firmName: 'Test Criminal Defence LLP',
+        prospectType: 'firm',
+        status: 'ready_to_send',
+        sequenceStep: 0,
+        sources: ['manual'],
+        priorityScore: 0,
+        campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+        enrichAttempts: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        email,
+        county: 'Kent',
+      },
+      step: 0,
+    });
+    return NextResponse.json({
+      ok: result.ok,
+      mode: 'psaTestSend',
+      from: from.from,
+      domain: from.domain,
+      result,
+    });
   }
 
   if (url.searchParams.get('cleanupBadEmails') === '1') {

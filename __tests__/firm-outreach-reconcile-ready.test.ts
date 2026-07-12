@@ -31,6 +31,17 @@ describe('reconcileReadyProspectStatus', () => {
     expect(reconcileReadyProspectStatus(p)).toBe('sent');
   });
 
+  it('reconciles stale ready_to_send at a later sequenceStep too (follow-ups run off sent)', () => {
+    const p = {
+      ...base(),
+      sequenceStep: 1,
+      lastEmailAt: '2026-06-11T14:04:45.387Z',
+    };
+    // prospectHasInitialSend is step-0 specific, but reconcile must still fix seq>=1 stale rows.
+    expect(prospectHasInitialSend(p)).toBe(false);
+    expect(reconcileReadyProspectStatus(p)).toBe('sent');
+  });
+
   it('downgrades ready_to_send with malformed email to discovered', () => {
     expect(
       reconcileReadyProspectStatus({

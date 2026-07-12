@@ -15,13 +15,15 @@ function prospectHasInitialSend(prospect) {
     return Boolean(prospect.lastEmailAt) && prospect.sequenceStep === 0;
 }
 /**
- * ready_to_send + lastEmailAt is a stale index state: the initial send already happened
- * but status was not moved to sent. That blocks the morning cron from picking new firms.
+ * ready_to_send + lastEmailAt is a stale index state: a send already happened but status was
+ * not moved to sent. Follow-ups are scheduled off status==='sent', so a ready_to_send row that
+ * carries a lastEmailAt (at ANY sequenceStep) can never send — it just clogs the ready queue
+ * and starves genuinely-sendable step-0 prospects. Reconcile it to sent regardless of step.
  */
 function reconcileReadyProspectStatus(prospect) {
     if (prospect.status !== 'ready_to_send')
         return null;
-    if (prospectHasInitialSend(prospect)) {
+    if (prospect.lastEmailAt) {
         return 'sent';
     }
     const email = prospect.email?.trim();

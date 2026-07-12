@@ -206,6 +206,20 @@ export async function runFirmOutreach(opts?: {
     try {
       const step = nextStep(prospect);
       if (step === null) {
+        // Self-heal "stale-ready" rows: a send already happened (lastEmailAt set) but the
+        // status was never moved off ready_to_send. Follow-ups run off status==='sent', so at
+        // ANY sequenceStep these rows can never send — they clog the ready queue and starve
+        // genuinely-sendable step-0 prospects. Reconcile to sent so the queue stays truthful
+        // without waiting for the nightly scan.
+        if (
+          !opts?.dryRun &&
+          prospect.status === 'ready_to_send' &&
+          Boolean(prospect.lastEmailAt)
+        ) {
+          prospect.status = 'sent';
+          prospect.updatedAt = new Date().toISOString();
+          await saveProspect(prospect, 'ready_to_send');
+        }
         recordSkip(stats, 'no_step');
         continue;
       }

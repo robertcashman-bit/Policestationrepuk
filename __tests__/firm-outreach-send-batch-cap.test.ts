@@ -145,6 +145,56 @@ describe('runFirmOutreach send lock', () => {
     expect(state.dailyCounter).toBe(0);
   });
 
+  it('self-heals stale-ready rows (ready_to_send with lastEmailAt) to sent during a run', async () => {
+    state.prospects.clear();
+    // Two stale-ready rows (already emailed, stuck at ready_to_send) + one genuinely sendable.
+    state.prospects.set('stale0', {
+      id: 'stale0',
+      firmKey: 'f-stale0',
+      firmName: 'Stale Step0',
+      prospectType: 'firm',
+      status: 'ready_to_send',
+      sequenceStep: 0,
+      lastEmailAt: new Date().toISOString(),
+      campaignId: 'test_campaign',
+      email: 'stale0@x.example',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    state.prospects.set('stale1', {
+      id: 'stale1',
+      firmKey: 'f-stale1',
+      firmName: 'Stale Step1',
+      prospectType: 'firm',
+      status: 'ready_to_send',
+      sequenceStep: 1,
+      lastEmailAt: new Date().toISOString(),
+      campaignId: 'test_campaign',
+      email: 'stale1@x.example',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    state.prospects.set('fresh', {
+      id: 'fresh',
+      firmKey: 'f-fresh',
+      firmName: 'Fresh',
+      prospectType: 'firm',
+      status: 'ready_to_send',
+      sequenceStep: 0,
+      campaignId: 'test_campaign',
+      email: 'fresh@x.example',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    const r = await runFirmOutreach({ limit: 25 });
+    expect(r.sent).toBe(1); // only the fresh one sends
+    expect(state.sends).toEqual(['fresh']);
+    // Both stale rows are reconciled to sent (at seq 0 AND seq 1).
+    expect(state.prospects.get('stale0').status).toBe('sent');
+    expect(state.prospects.get('stale1').status).toBe('sent');
+  });
+
   it('does not take the lock for dry runs (previews never block real sends)', async () => {
     seedReadyProspects(5);
     const { claimKey } = await import('@/lib/kv-atomic');

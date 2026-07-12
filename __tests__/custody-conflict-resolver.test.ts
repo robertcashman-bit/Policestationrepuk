@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import {
   shouldAutoRejectWeakEvidence,
+  resolveSuiteConflicts,
 } from '@/lib/custody-discovery/auto-decision';
 import {
   pickConflictWinner,
@@ -154,5 +155,119 @@ describe('conflict winner selection', () => {
       },
     ]);
     expect(winner?.finding.id).toBe('high');
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/*  resolveSuiteConflicts — bulk PCC switchboard reject                */
+/* ------------------------------------------------------------------ */
+
+const rejectedIds = vi.fn();
+let suiteFindingsMock: CustodyNumberFinding[] = [];
+
+vi.mock('@/lib/custody-discovery/storage', async (importOriginal) => {
+  const mod = await importOriginal<typeof import('@/lib/custody-discovery/storage')>();
+  return {
+    ...mod,
+    getApprovedNumber: async () => null,
+    getCustodySuite: async (id: string) => ({
+      id,
+      forceName: 'Essex Police',
+      forceDomain: 'essex.police.uk',
+      name: 'Chelmsford Custody',
+    }),
+    getFindingsForSuite: async () => suiteFindingsMock,
+    getAllFindings: async () => essexPccCluster(),
+    rejectFinding: async (id: string) => {
+      rejectedIds(id);
+      return null;
+    },
+    saveFinding: async (f: CustodyNumberFinding) => f,
+    approveFinding: async () => null,
+    saveApprovedNumber: async () => undefined,
+    invalidateApprovedCache: () => undefined,
+    appendAuditEntry: async () => undefined,
+  };
+});
+
+function essexPccFinding(suiteId: string, suiteName: string): CustodyNumberFinding {
+  return {
+    id: `essex_${suiteId}`,
+    custodySuiteId: suiteId,
+    forceName: 'Essex Police',
+    custodySuiteName: suiteName,
+    policeStationName: suiteName,
+    possiblePhoneNumber: '01245 291600',
+    normalizedPhoneNumber: '01245291600',
+    sourceTitle: 'Volunteers',
+    sourceUrl: 'https://www.essex.police.uk/police-and-crime-commissioner/volunteers',
+    sourceDomain: 'essex.police.uk',
+    sourceType: 'pcc',
+    pageSnippet: 'Skip to content 01245 291600 pfcc@essex.police.uk Open Menu',
+    classification: 'direct_custody',
+    confidenceScore: 55,
+    confidenceLevel: 'medium',
+    status: 'needs_review',
+    conflictReason: 'possible_conflict',
+    dateFound: '2026-06-13',
+    lastChecked: '2026-06-13',
+    hashOfSourceEvidence: `h_${suiteId}`,
+    notes: '',
+    createdAt: '2026-06-13',
+    updatedAt: '2026-06-13',
+    aiReview: {
+      recommendation: 'hold',
+      aiConfidence: 55,
+      whyPublish: '',
+      whyNot: 'PCC page header phone — not a custody desk line.',
+      evidence: {
+        quote: 'Skip to content **01245 291600** pfcc@essex.police.uk Open Menu',
+        section: 'Header',
+        sourceUrl: 'https://www.essex.police.uk/police-and-crime-commissioner/volunteers',
+        sourceTitle: 'Volunteers',
+        source: 'page_fetch',
+        fetchedAt: '2026-06-13',
+      },
+      publishVerified: false,
+      flags: [],
+      model: 'gpt-4o-mini',
+      reviewedAt: '2026-06-13',
+    },
+  };
+}
+
+function essexPccCluster(): CustodyNumberFinding[] {
+  return [
+    essexPccFinding('essex-chelmsford', 'Chelmsford Custody'),
+    essexPccFinding('essex-colchester', 'Colchester Custody'),
+    essexPccFinding('essex-basildon', 'Basildon Custody'),
+    essexPccFinding('essex-southend', 'Southend Custody'),
+  ];
+}
+
+beforeEach(() => {
+  rejectedIds.mockClear();
+  suiteFindingsMock = [];
+  process.env.CUSTODY_AI_AUTO_REJECT = 'true';
+  process.env.CUSTODY_AI_AUTO_PUBLISH = 'true';
+  process.env.CUSTODY_AI_AUTO_RESOLVE_CONFLICTS = 'true';
+});
+
+afterEach(() => {
+  delete process.env.CUSTODY_AI_AUTO_REJECT;
+  delete process.env.CUSTODY_AI_AUTO_PUBLISH;
+  delete process.env.CUSTODY_AI_AUTO_RESOLVE_CONFLICTS;
+});
+
+describe('resolveSuiteConflicts bulk PCC reject', () => {
+  it('bulk-rejects force-wide PCC header cluster when no publishable winner', async () => {
+    const chelmsford = essexPccFinding('essex-chelmsford', 'Chelmsford Custody');
+    suiteFindingsMock = [chelmsford];
+
+    const result = await resolveSuiteConflicts('essex-chelmsford');
+    expect(result.action).toBe('rejected_only');
+    expect(result.reason).toBe('auto_reject_force_pcc_switchboard');
+    expect(result.rejectedCount).toBe(4);
+    expect(rejectedIds).toHaveBeenCalledTimes(4);
   });
 });

@@ -1,5 +1,9 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { resolveHoldFinding } from '@/lib/custody-discovery/hold-resolver';
+import {
+  countForceOpenFindingsSameNumber,
+  isPccSiteHeaderPage,
+  resolveHoldFinding,
+} from '@/lib/custody-discovery/hold-resolver';
 import type { CustodyAiReview, CustodyNumberFinding } from '@/lib/custody-discovery/types';
 
 function finding(partial: Partial<CustodyNumberFinding> = {}): CustodyNumberFinding {
@@ -84,10 +88,11 @@ describe('resolveHoldFinding', () => {
     expect(result.outcome).toBe('flag_conflict');
   });
 
-  it('rejects when number is published on 3+ force suites (switchboard pattern)', () => {
+  it('rejects when open findings span 3+ force suites (switchboard pattern)', () => {
     const result = resolveHoldFinding(finding(), holdReview(), {
       suiteFindings: [],
-      forceSameNumberPublishedCount: 4,
+      forceSameNumberPublishedCount: 0,
+      forceSameNumberOpenCount: 4,
     });
     expect(result.outcome).toBe('reject_force_switchboard');
   });
@@ -114,13 +119,88 @@ describe('resolveHoldFinding', () => {
     expect(result.outcome).toBe('unresolved');
   });
 
-  it('returns unresolved when existing conflictReason is set', () => {
+  it('returns unresolved when existing conflictReason is set without junk signals', () => {
     const result = resolveHoldFinding(
       finding({ conflictReason: 'possible_conflict' }),
       holdReview(),
-      { suiteFindings: [], forceSameNumberPublishedCount: 0 },
+      { suiteFindings: [], forceSameNumberPublishedCount: 0, forceSameNumberOpenCount: 1 },
     );
     expect(result.outcome).toBe('unresolved');
+  });
+
+  it('auto-rejects Essex PFCC switchboard cluster even with conflictReason', () => {
+    const essexPcc = finding({
+      id: 'essex_chelmsford',
+      forceName: 'Essex Police',
+      custodySuiteId: 'essex-chelmsford',
+      custodySuiteName: 'Chelmsford Custody',
+      possiblePhoneNumber: '01245 291600',
+      normalizedPhoneNumber: '01245291600',
+      sourceType: 'pcc',
+      sourceDomain: 'essex.police.uk',
+      sourceUrl: 'https://www.essex.police.uk/police-and-crime-commissioner/volunteers',
+      pageSnippet: 'Skip to content 01245 291600 pfcc@essex.police.uk Open Menu',
+      conflictReason: 'possible_conflict',
+    });
+    const review = holdReview({
+      aiConfidence: 55,
+      evidence: {
+        quote: 'Skip to content **01245 291600** pfcc@essex.police.uk Open Menu',
+        section: 'Header',
+        sourceUrl: essexPcc.sourceUrl,
+        sourceTitle: 'Volunteers',
+        source: 'page_fetch',
+        fetchedAt: '2026-06-13',
+      },
+    });
+    const allFindings = [
+      essexPcc,
+      { ...essexPcc, id: 'essex_colchester', custodySuiteId: 'essex-colchester', custodySuiteName: 'Colchester Custody' },
+      { ...essexPcc, id: 'essex_basildon', custodySuiteId: 'essex-basildon', custodySuiteName: 'Basildon Custody' },
+      { ...essexPcc, id: 'essex_southend', custodySuiteId: 'essex-southend', custodySuiteName: 'Southend Custody' },
+    ];
+    const openCount = countForceOpenFindingsSameNumber(
+      'Essex Police',
+      '01245291600',
+      allFindings,
+    );
+    const result = resolveHoldFinding(essexPcc, review, {
+      suiteFindings: [],
+      forceSameNumberPublishedCount: 0,
+      forceSameNumberOpenCount: openCount,
+    });
+    expect(openCount).toBe(4);
+    expect(result.outcome).toBe('reject_force_switchboard');
+  });
+
+  it('rejects PCC site header pages with low AI confidence', () => {
+    const pcc = finding({
+      sourceType: 'pcc',
+      sourceDomain: 'essex.police.uk',
+      sourceUrl: 'https://www.essex.police.uk/police-and-crime-commissioner/have-your-say',
+      pageSnippet: 'Skip to content 01245 291600 pfcc@essex.police.uk',
+      possiblePhoneNumber: '01245 291600',
+      normalizedPhoneNumber: '01245291600',
+      conflictReason: 'possible_conflict',
+    });
+    const review = holdReview({
+      aiConfidence: 55,
+      evidence: {
+        quote: 'Skip to content **01245 291600** pfcc@essex.police.uk',
+        section: 'Header',
+        sourceUrl: pcc.sourceUrl,
+        sourceTitle: 'Have your say',
+        source: 'page_fetch',
+        fetchedAt: '2026-06-13',
+      },
+    });
+    expect(isPccSiteHeaderPage(pcc, review)).toBe(true);
+    const result = resolveHoldFinding(pcc, review, {
+      suiteFindings: [],
+      forceSameNumberPublishedCount: 0,
+      forceSameNumberOpenCount: 1,
+    });
+    expect(result.outcome).toBe('reject_pcc_non_custody');
   });
 
   it('closes duplicate when number matches published record', () => {
@@ -146,6 +226,7 @@ vi.mock('@/lib/custody-discovery/storage', async (importOriginal) => {
     ...mod,
     getApprovedNumber: async () => null,
     getFindingsForSuite: async () => [],
+    getAllFindings: async () => [],
     getCustodySuite: async () => null,
     loadAllApprovedNumbers: async () => new Map(),
     saveFinding: async (f: CustodyNumberFinding) => {

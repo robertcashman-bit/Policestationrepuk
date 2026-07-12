@@ -50,6 +50,7 @@ async function main() {
       if (rec === 'hold') {
         const { getFindingsForSuite, getApprovedNumber, loadAllApprovedNumbers, getCustodySuite } =
           await import('../lib/custody-discovery/storage');
+        const { countForceOpenFindingsSameNumber } = await import('../lib/custody-discovery/hold-resolver');
         const suiteFindings = await getFindingsForSuite(finding.custodySuiteId);
         const approved = await getApprovedNumber(finding.custodySuiteId);
         const approvedMap = await loadAllApprovedNumbers();
@@ -60,10 +61,23 @@ async function main() {
           const suite = await getCustodySuite(suiteId);
           if (suite?.forceName === finding.forceName) forceCount++;
         }
+        const forceOpen = countForceOpenFindingsSameNumber(
+          finding.forceName,
+          finding.normalizedPhoneNumber,
+          findings,
+        );
+        const { countForceSwitchboardClusterSuites } = await import('../lib/custody-discovery/hold-resolver');
+        const clusterCount = countForceSwitchboardClusterSuites(
+          finding.forceName,
+          finding.normalizedPhoneNumber,
+          findings,
+        );
         const resolution = resolveHoldFinding(finding, finding.aiReview!, {
           suiteFindings,
           approvedNormalized: approved?.normalizedPhoneNumber,
           forceSameNumberPublishedCount: forceCount,
+          forceSameNumberOpenCount: forceOpen,
+          forceSwitchboardClusterCount: Math.max(clusterCount, forceCount),
         });
         const key = `hold:${resolution.outcome}`;
         stats.byReason.set(key, (stats.byReason.get(key) ?? 0) + 1);

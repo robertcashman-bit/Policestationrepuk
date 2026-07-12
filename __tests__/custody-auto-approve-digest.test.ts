@@ -82,4 +82,66 @@ describe('custody auto-approve digest', () => {
     expect(summary.autoRejectedLast24h).toBe(1);
     expect(summary.published[0]?.finding.id).toBe('f1');
   });
+
+  it('excludes auto-rejected Essex PCC junk from needsManualReview', () => {
+    const now = new Date('2026-07-09T20:00:00.000Z');
+    const rejectedAt = '2026-07-09T18:00:00.000Z';
+    const essexJunk = (suiteId: string, suiteName: string): CustodyNumberFinding =>
+      finding({
+        id: suiteId,
+        custodySuiteId: suiteId,
+        forceName: 'Essex Police',
+        custodySuiteName: suiteName,
+        possiblePhoneNumber: '01245 291600',
+        normalizedPhoneNumber: '01245291600',
+        sourceType: 'pcc',
+        sourceDomain: 'essex.police.uk',
+        sourceUrl: 'https://www.essex.police.uk/police-and-crime-commissioner/volunteers',
+        pageSnippet: 'Skip to content 01245 291600 pfcc@essex.police.uk',
+        status: 'rejected',
+        autoRejectedAt: rejectedAt,
+        autoPublishedAt: undefined,
+        conflictReason: 'possible_conflict',
+        aiReview: {
+          recommendation: 'hold',
+          aiConfidence: 55,
+          whyPublish: '',
+          whyNot: 'PCC header phone',
+          evidence: {
+            quote: 'Skip to content **01245 291600** pfcc@essex.police.uk',
+            section: 'Header',
+            sourceUrl: 'https://www.essex.police.uk/police-and-crime-commissioner/volunteers',
+            sourceTitle: 'Volunteers',
+            source: 'page_fetch',
+            fetchedAt: rejectedAt,
+          },
+          publishVerified: false,
+          flags: [],
+          model: 'gpt-4o-mini',
+          reviewedAt: rejectedAt,
+        },
+        notes: '[Auto 2026-07-09] reject_force_switchboard',
+      });
+
+    const beforeReject = buildAutoApproveDigestSummary(
+      [
+        essexJunk('essex-chelmsford', 'Chelmsford Custody'),
+        essexJunk('essex-colchester', 'Colchester Custody'),
+      ].map((f) => ({ ...f, status: 'needs_review' as const, autoRejectedAt: undefined })),
+      now,
+    );
+    expect(beforeReject.needsManualReview).toBe(2);
+
+    const afterReject = buildAutoApproveDigestSummary(
+      [
+        essexJunk('essex-chelmsford', 'Chelmsford Custody'),
+        essexJunk('essex-colchester', 'Colchester Custody'),
+        essexJunk('essex-basildon', 'Basildon Custody'),
+        essexJunk('essex-southend', 'Southend Custody'),
+      ],
+      now,
+    );
+    expect(afterReject.needsManualReview).toBe(0);
+    expect(afterReject.autoRejectedLast24h).toBe(4);
+  });
 });

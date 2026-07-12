@@ -13,10 +13,14 @@ import {
   type SuiteConflictResolution,
 } from './conflict-resolver';
 import {
+  countForceOpenFindingsSameNumber,
+  countForceSwitchboardClusterSuites,
   deterministicRejectReason,
   isDeterministicRejectNumber,
+  isPccSiteHeaderPage,
   isRepDirectoryFinding,
   resolveHoldFinding,
+  type HoldResolutionOutcome,
 } from './hold-resolver';
 import { isAutoPublishableRange, numberSafetyFlags } from './number-safety';
 import {
@@ -27,6 +31,7 @@ import { isOfficialSourceType } from './source-type';
 import {
   appendAuditEntry,
   approveFinding,
+  getAllFindings,
   getApprovedNumber,
   getCustodySuite,
   getFindingsForSuite,
@@ -108,6 +113,105 @@ export interface AutoDecisionResult {
   reason?: string;
 }
 
+async function forceSwitchboardClusterCount(finding: CustodyNumberFinding): Promise<number> {
+  const all = await getAllFindings();
+  const cluster = countForceSwitchboardClusterSuites(
+    finding.forceName,
+    finding.normalizedPhoneNumber,
+    all,
+  );
+  const published = await countForcePublishedSameNumber(
+    finding.forceName,
+    finding.normalizedPhoneNumber,
+  );
+  return Math.max(cluster, published);
+}
+
+async function forceOpenSameNumberCount(finding: CustodyNumberFinding): Promise<number> {
+  const all = await getAllFindings();
+  return countForceOpenFindingsSameNumber(
+    finding.forceName,
+    finding.normalizedPhoneNumber,
+    all,
+  );
+}
+
+const HOLD_AUTO_REJECT_OUTCOMES = new Set<HoldResolutionOutcome>([
+  'reject_force_switchboard',
+  'reject_untrusted_only',
+  'reject_pcc_non_custody',
+]);
+
+async function tryHoldSafeAutoReject(
+  finding: CustodyNumberFinding,
+  review: CustodyAiReview,
+  approvedNormalized?: string,
+): Promise<AutoDecisionResult | null> {
+  const suiteFindings = await getFindingsForSuite(finding.custodySuiteId);
+  const forcePublished = await countForcePublishedSameNumber(
+    finding.forceName,
+    finding.normalizedPhoneNumber,
+  );
+  const forceOpen = await forceOpenSameNumberCount(finding);
+  const clusterCount = await forceSwitchboardClusterCount(finding);
+  const resolution = resolveHoldFinding(finding, review, {
+    suiteFindings,
+    approvedNormalized,
+    forceSameNumberPublishedCount: forcePublished,
+    forceSameNumberOpenCount: forceOpen,
+    forceSwitchboardClusterCount: clusterCount,
+  });
+  if (!HOLD_AUTO_REJECT_OUTCOMES.has(resolution.outcome)) {
+    return null;
+  }
+  if (!autoRejectEnabled()) {
+    return { action: 'queued', reason: resolution.outcome };
+  }
+  return autoRejectFinding(
+    finding,
+    review,
+    resolution.outcome,
+    resolution.detail ?? resolution.outcome,
+  );
+}
+
+/**
+ * When no publishable conflict winner exists, reject force-wide PCC header clusters.
+ */
+async function bulkRejectForcePccSwitchboardCluster(
+  forceName: string,
+  normalizedPhone: string,
+): Promise<number> {
+  const allFindings = await getAllFindings();
+  const open = allFindings.filter(
+    (f) =>
+      f.forceName === forceName &&
+      f.normalizedPhoneNumber === normalizedPhone &&
+      (f.status === 'needs_review' || f.status === 'new') &&
+      f.aiReview?.reviewedAt &&
+      f.sourceType === 'pcc',
+  );
+  const suiteIds = new Set(open.map((f) => f.custodySuiteId));
+  if (suiteIds.size < Math.max(3, Number(process.env.CUSTODY_FORCE_SWITCHBOARD_MIN_SUITES ?? 3))) {
+    return 0;
+  }
+  if (!open.every((f) => isPccSiteHeaderPage(f, f.aiReview!))) {
+    return 0;
+  }
+
+  let rejectedCount = 0;
+  for (const f of open) {
+    await autoRejectFinding(
+      f,
+      f.aiReview!,
+      'auto_reject_force_pcc_switchboard',
+      `Same PCC header number (${f.possiblePhoneNumber}) on ${suiteIds.size} ${forceName} suites — force switchboard, not custody desk.`,
+    );
+    rejectedCount++;
+  }
+  return rejectedCount;
+}
+
 async function countForcePublishedSameNumber(
   forceName: string,
   normalizedPhone: string,
@@ -137,7 +241,7 @@ async function autoRejectFinding(
   note: string,
 ): Promise<AutoDecisionResult> {
   const now = new Date().toISOString();
-  const notes = [`[Auto ${now.slice(0, 10)}] ${note}`, formatAiReviewNotes(review)]
+  const notes = [`[Auto ${now.slice(0, 10)}] ${reason} — ${note}`, formatAiReviewNotes(review)]
     .filter(Boolean)
     .join('\n');
   await rejectFinding(finding.id, notes);
@@ -353,6 +457,15 @@ export async function applyAutoDecision(
     );
   }
 
+  if (finding.conflictReason && autoRejectEnabled()) {
+    const safeReject = await tryHoldSafeAutoReject(
+      finding,
+      review,
+      existingApproved?.normalizedPhoneNumber,
+    );
+    if (safeReject) return safeReject;
+  }
+
   if (finding.conflictReason && autoConflictResolveEnabled()) {
     const resolution = await resolveSuiteConflicts(finding.custodySuiteId);
     const refreshed = (await getFinding(finding.id)) ?? finding;
@@ -383,10 +496,14 @@ export async function applyAutoDecision(
       finding.forceName,
       finding.normalizedPhoneNumber,
     );
+    const forceOpen = await forceOpenSameNumberCount(finding);
+    const clusterCount = await forceSwitchboardClusterCount(finding);
     const resolution = resolveHoldFinding(finding, review, {
       suiteFindings,
       approvedNormalized: existingApproved?.normalizedPhoneNumber,
       forceSameNumberPublishedCount: forceCount,
+      forceSameNumberOpenCount: forceOpen,
+      forceSwitchboardClusterCount: clusterCount,
     });
 
     switch (resolution.outcome) {
@@ -396,6 +513,7 @@ export async function applyAutoDecision(
 
       case 'reject_force_switchboard':
       case 'reject_untrusted_only':
+      case 'reject_pcc_non_custody':
         if (!autoRejectEnabled()) {
           return { action: 'queued', reason: resolution.outcome };
         }
@@ -603,6 +721,21 @@ export async function resolveSuiteConflicts(
       }
       if (rejectedCount > 0) {
         return { action: 'rejected_only', rejectedCount, reason: 'rep_directory_cleared' };
+      }
+
+      const distinctNumbers = [...new Set(open.map((f) => f.normalizedPhoneNumber))];
+      if (distinctNumbers.length === 1 && suite?.forceName) {
+        const pccRejected = await bulkRejectForcePccSwitchboardCluster(
+          suite.forceName,
+          distinctNumbers[0]!,
+        );
+        if (pccRejected > 0) {
+          return {
+            action: 'rejected_only',
+            rejectedCount: pccRejected,
+            reason: 'auto_reject_force_pcc_switchboard',
+          };
+        }
       }
     }
     return { action: 'none', rejectedCount: 0, reason: 'no_publishable_winner' };

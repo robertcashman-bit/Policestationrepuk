@@ -136,8 +136,13 @@ export default function RootLayout({
           </Suspense>
           <DeferredGlobalWidgets />
         </AssistantUiProvider>
-        <SpeedInsights />
-        <Analytics />
+        {/* Platform scripts 404 on local `next start` / CI site-audit — only load on Vercel. */}
+        {process.env.VERCEL ? (
+          <>
+            <SpeedInsights />
+            <Analytics />
+          </>
+        ) : null}
       </body>
     </html>
   );

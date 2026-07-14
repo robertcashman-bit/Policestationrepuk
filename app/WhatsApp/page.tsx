@@ -108,7 +108,7 @@ export default function WhatsAppPage() {
             <strong className="text-white">criminal defence solicitors</strong>, and{' '}
             <strong className="text-white">criminal defence firms</strong> across England &amp; Wales. Proof of
             accreditation is required — members are verified before being added. Not fully qualified?{' '}
-            <Link href="/Forum" className="font-semibold text-emerald-300 underline hover:text-white">
+            <Link href="/forum" className="font-semibold text-emerald-300 underline hover:text-white">
               Use the community forum
             </Link>
             .

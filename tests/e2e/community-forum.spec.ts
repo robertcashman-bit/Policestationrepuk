@@ -4,8 +4,8 @@ import { checkFacebookGroupUrl } from '../../lib/community-health';
 const FACEBOOK_GROUP_URL = 'https://www.facebook.com/groups/policestationrepuk';
 
 test.describe('Community forum hub — user journey', () => {
-  test('/Forum hub shows join guidance and Facebook CTAs', async ({ page }) => {
-    const res = await page.goto('/Forum');
+  test('/forum hub shows join guidance and Facebook CTAs', async ({ page }) => {
+    const res = await page.goto('/forum');
     expect(res?.status()).toBe(200);
 
     await expect(page.getByRole('heading', { name: /Community Forum for Police Station/i })).toBeVisible();
@@ -24,31 +24,31 @@ test.describe('Community forum hub — user journey', () => {
     }
   });
 
-  test('/forum redirects to /Forum', async ({ page }) => {
-    const res = await page.goto('/forum', { waitUntil: 'commit' });
+  test('/Forum redirects to /forum', async ({ page }) => {
+    const res = await page.goto('/Forum', { waitUntil: 'commit' });
     expect(res?.status()).toBeLessThan(400);
-    expect(page.url()).toMatch(/\/Forum\/?$/i);
+    expect(page.url()).toMatch(/\/forum\/?$/i);
   });
 
-  test('footer Community Forum link reaches /Forum', async ({ page }) => {
+  test('footer Community Forum link reaches /forum', async ({ page }) => {
     await page.goto('/');
     await page.locator('footer').getByRole('link', { name: 'Community Forum' }).click();
-    await expect(page).toHaveURL(/\/Forum\/?$/i);
+    await expect(page).toHaveURL(/\/forum\/?$/i);
   });
 
   test('/WhatsApp links to community forum', async ({ page }) => {
     await page.goto('/WhatsApp');
     await expect(page.getByRole('link', { name: /community forum/i }).first()).toHaveAttribute(
       'href',
-      '/Forum',
+      '/forum',
     );
   });
 
-  test('home page links community forum to /Forum', async ({ page }) => {
+  test('home page links community forum to /forum', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('link', { name: /community forum/i }).first()).toHaveAttribute(
       'href',
-      '/Forum',
+      '/forum',
     );
   });
 

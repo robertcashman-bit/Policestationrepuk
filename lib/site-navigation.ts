@@ -162,7 +162,7 @@ export const FOOTER_COMMUNITY: FooterLink[] = [
   { href: WHATSAPP_PAGE_SOLICITORS, label: 'Join WhatsApp — solicitors' },
   { href: WHATSAPP_PAGE_FIRMS, label: 'Join WhatsApp — firms' },
   { href: FACEBOOK_GROUP_URL, label: 'Facebook Group', external: true },
-  { href: '/Forum', label: 'Community Forum' },
+  { href: '/forum', label: 'Community Forum' },
   { href: '/Blog', label: 'Blog' },
   { href: SUPPORT_MAILTO_HREF, label: 'Email support', external: true },
   { href: '/Contact', label: 'Contact Us' },

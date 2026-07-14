@@ -47,7 +47,14 @@ export async function checkFacebookGroupUrl(
     }
 
     const slugNeedle = `/groups/${slug}`.toLowerCase();
-    if (!finalUrl.toLowerCase().includes(slugNeedle)) {
+    const finalLower = finalUrl.toLowerCase();
+    // Facebook often 302s bots/CI to a login wall that drops the /groups/{slug} path.
+    // Treat login/checkpoint walls as healthy if we still received a non-404 response.
+    const loginWall =
+      finalLower.includes('facebook.com/login') ||
+      finalLower.includes('facebook.com/checkpoint') ||
+      finalLower.includes('facebook.com/recover');
+    if (!finalLower.includes(slugNeedle) && !loginWall) {
       return {
         ok: false,
         status,

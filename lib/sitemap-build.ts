@@ -77,7 +77,7 @@ const HIGH_PRIORITY_PAGES = [
   { path: 'PoliceStationCover', priority: 0.65, freq: 'monthly' as const },
   { path: 'PoliceStationRepJobsUK', priority: 0.8, freq: 'weekly' as const },
   { path: 'LegalUpdates', priority: 0.75, freq: 'weekly' as const },
-  { path: 'Forum', priority: 0.5, freq: 'monthly' as const },
+  { path: 'forum', priority: 0.5, freq: 'monthly' as const },
   { path: 'Wiki', priority: 0.8, freq: 'weekly' as const },
   { path: 'AboutFounder', priority: 0.6, freq: 'monthly' as const },
   { path: 'BeginnersGuide', priority: 0.7, freq: 'monthly' as const },

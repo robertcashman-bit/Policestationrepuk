@@ -10,7 +10,7 @@ import {
 
 describe('community-messaging', () => {
   it('exports stable paths for forum and register', () => {
-    expect(FORUM_PATH).toBe('/Forum');
+    expect(FORUM_PATH).toBe('/forum');
     expect(REGISTER_PATH).toBe('/register');
   });
 

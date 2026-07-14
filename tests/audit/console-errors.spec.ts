@@ -6,12 +6,14 @@ const IGNORED_CONSOLE_PATTERNS: RegExp[] = [
   /Tracking Prevention/i,
   /Stripe\.js/i,
   /HMR/i,
+  /_vercel\/(insights|speed-insights)\//i,
 ];
 
 const IGNORED_NETWORK_PATTERNS: RegExp[] = [
   /\.well-known\/(appspecific|microsoft-identity)/i,
   /favicon\.ico/i,
   /\/api\/featured\/grandfather/i,
+  /\/_vercel\/(insights|speed-insights)\//i,
 ];
 
 test.describe('Console, page error and network sanity', () => {

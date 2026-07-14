@@ -25,7 +25,7 @@ export const ENTRY_POINTS: string[] = [
   '/PACE',
   '/CommonOffencesGuide',
   '/FormsLibrary',
-  '/Forum',
+  '/forum',
 ];
 
 /** Guide and crawl-backed pages — must render real headings + sections without Wix mirror defects. */

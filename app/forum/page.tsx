@@ -16,7 +16,7 @@ export const metadata = buildMetadata({
   title: 'Community Forum for Police Station Representatives',
   description:
     'Community forum for police station reps — advice, peer chat and networking via Facebook. Fully accredited professionals use the verified WhatsApp group for cover requests.',
-  path: '/Forum',
+  path: '/forum',
 });
 
 const CHANNEL_GUIDE = [
@@ -73,7 +73,7 @@ export default function ForumPage() {
             light
             items={[
               { label: 'Home', href: '/' },
-              { label: 'Community Forum', href: '/Forum' },
+              { label: 'Community Forum', href: '/forum' },
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">

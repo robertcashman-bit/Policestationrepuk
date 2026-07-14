@@ -1,6 +1,6 @@
 /** Shared copy for WhatsApp eligibility, directory rules, LAA/payment, and forum routing. */
 
-export const FORUM_PATH = '/Forum';
+export const FORUM_PATH = '/forum';
 export const REGISTER_PATH = '/register';
 
 /** One line for banners and footer strips. */

@@ -29,7 +29,7 @@ export const SITEMAP_PATHS: string[] = [
   'FirmsWhatsAppGroup',
   'Forces',
   'FormsLibrary',
-  'Forum',
+  'forum',
   'GDPR',
   'GetWork',
   'GettingStarted',

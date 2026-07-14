@@ -103,8 +103,8 @@ test.describe('Public entry points', () => {
     expect(page.url()).toContain('policestationrepuk.org');
   });
 
-  test('/Forum loads with community channel guidance', async ({ page }) => {
-    const res = await page.goto('/Forum');
+  test('/forum loads with community channel guidance', async ({ page }) => {
+    const res = await page.goto('/forum');
     expect(res?.status()).toBe(200);
     await expect(page.getByRole('heading', { name: /community forum|community & advice/i }).first()).toBeVisible();
     await expect(page.getByText(/fully accredited|fully qualified/i).first()).toBeVisible();
@@ -116,13 +116,13 @@ test.describe('Public entry points', () => {
     const res = await page.goto('/WhatsApp');
     expect(res?.status()).toBe(200);
     await expect(page.getByText(/fully accredited only|who can join/i).first()).toBeVisible();
-    await expect(page.getByRole('link', { name: /community forum/i }).first()).toHaveAttribute('href', '/Forum');
+    await expect(page.getByRole('link', { name: /community forum/i }).first()).toHaveAttribute('href', '/forum');
   });
 
-  test('/forum redirects to /Forum', async ({ page }) => {
-    const res = await page.goto('/forum', { waitUntil: 'commit' });
+  test('/Forum redirects to /forum', async ({ page }) => {
+    const res = await page.goto('/Forum', { waitUntil: 'commit' });
     expect(res?.status()).toBeLessThan(400);
-    expect(page.url()).toMatch(/\/Forum\/?$/i);
+    expect(page.url()).toMatch(/\/forum\/?$/i);
   });
 });
 

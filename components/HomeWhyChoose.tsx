@@ -51,7 +51,7 @@ export function HomeWhyChoose() {
       body: (
         <>
           WhatsApp groups (fully accredited only), our{' '}
-          <Link href="/Forum" className="font-semibold text-[var(--navy)] underline">
+          <Link href="/forum" className="font-semibold text-[var(--navy)] underline">
             community forum
           </Link>
           , and a blog with practical guidance for freelance reps and criminal defence firms.

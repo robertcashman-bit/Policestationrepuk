@@ -432,8 +432,9 @@ const nextConfig: NextConfig = {
       { source: "/DataEnrichment", destination: "/", permanent: false },
       { source: "/SEOStrategy", destination: "/", permanent: false },
       { source: "/SendablePost", destination: "/Blog", permanent: false },
-      { source: "/ForumPost", destination: "/Forum", permanent: false },
-      { source: "/forum", destination: "/Forum", permanent: true },
+      // Lowercase canonical — mixed-case /Forum caused a Next.js 308 redirect loop on Linux CI.
+      { source: "/ForumPost", destination: "/forum", permanent: false },
+      { source: "/Forum", destination: "/forum", permanent: true },
 
       // Additional legacy content paths
       { source: "/importance-of-early-legal-advice", destination: "/InterviewUnderCaution", permanent: true },

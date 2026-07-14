@@ -102,6 +102,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
+  // Exact-case only (next.config redirects are case-insensitive and loop on macOS).
+  if (path === '/Forum') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/forum';
+    return NextResponse.redirect(url, 301);
+  }
+
   if (key === '/find-a-rep' || key === '/find-rep' || key === '/findarep') {
     const url = request.nextUrl.clone();
     url.pathname = '/directory';

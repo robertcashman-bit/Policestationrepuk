@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Block pushes that would break Vercel production (tsc --noEmit).
+# Install: npm run hooks:install
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$ROOT"
+
+# Allow emergency bypass: SKIP_PRE_PUSH_TSC=1 git push
+if [ "${SKIP_PRE_PUSH_TSC:-}" = "1" ]; then
+  echo "pre-push: SKIP_PRE_PUSH_TSC=1 — skipping typecheck" >&2
+  exit 0
+fi
+
+echo "pre-push: running npx tsc --noEmit (catches Vercel build failures)..."
+if ! npx tsc --noEmit; then
+  echo "" >&2
+  echo "pre-push: TypeScript failed. Fix errors before pushing to master." >&2
+  echo "  Or: npm run ci:fix" >&2
+  echo "  Bypass (not for production): SKIP_PRE_PUSH_TSC=1 git push" >&2
+  exit 1
+fi
+
+echo "pre-push: tsc OK"
+exit 0

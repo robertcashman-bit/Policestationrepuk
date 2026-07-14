@@ -583,19 +583,6 @@ export async function applyAutoDecision(
     }
   }
 
-  if (
-    autoRejectEnabled() &&
-    review.recommendation === 'hold' &&
-    shouldAutoRejectUnresolvedHold(finding, review)
-  ) {
-    return autoRejectFinding(
-      finding,
-      review,
-      'auto_reject_unresolved_hold',
-      'AI hold without publishable evidence — cleared automatically.',
-    );
-  }
-
   return { action: 'queued', reason: 'needs_human' };
 }
 

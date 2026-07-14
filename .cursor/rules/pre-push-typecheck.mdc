@@ -1,0 +1,15 @@
+---
+description: Never push Policestationrepuk without a green typecheck/build gate
+alwaysApply: true
+---
+
+# Deploy safety (Policestationrepuk)
+
+Broken TypeScript has repeatedly failed Vercel production. Before any `git push` to `master`/`main`:
+
+1. Run `npm run typecheck` (`npx tsc --noEmit`).
+2. For custody/discovery or route changes, also run `npm run test:custody-discovery:ci` (or the relevant suite).
+3. Prefer `npm run build` when changing code that Next compiles (lib/, app/, components/).
+4. Do not push known type errors. Do not use `SKIP_PRE_PUSH_TSC=1` unless the user explicitly asks.
+
+A `pre-push` git hook runs `tsc --noEmit` after `npm install` / `npm run hooks:install`.

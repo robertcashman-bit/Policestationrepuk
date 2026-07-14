@@ -251,3 +251,15 @@ Guessed emails (`info@domain` via MX check) are used only when crawl/Hunter fail
 - Nightly maintain requalify downgrades `ready_to_send` rows with implausible emails or failed MX checks (batch-limited).
 - Local ops: `bash -c 'set -a; source .env.vercel.production; set +a; npx tsx scripts/firm-outreach-run-prod.mjs enrich --limit=150'` (dotenv cannot parse `.env.vercel.production`; use bash `source` or inline env).
 - Duplicate initial sends to the same email address are blocked across automated and admin paths.
+
+## Local CI before push
+
+Day-to-day: `npm run build && npm test`.
+
+Before merging outreach or CI-touching changes, run the full mirror + ESLint autofix:
+
+```bash
+npm run ci:fix
+```
+
+See [`docs/ci-local.md`](./ci-local.md). Cap defaults (`dailySendCap`, `cronEnrichBatchSize`, `paidDailyCap`) are guarded in `__tests__/firm-outreach-duplicate.test.ts` — update those tests when changing defaults in `lib/firm-outreach/constants.ts`.

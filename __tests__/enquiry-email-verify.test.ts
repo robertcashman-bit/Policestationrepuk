@@ -132,15 +132,14 @@ describe('enquiry email verification — code lifecycle', () => {
 });
 
 describe('enquiry email verification — no KV configured', () => {
-  beforeEach(() => {
+  it('returns disabled-no-kv', async () => {
+    // Re-register after the suite-level beforeEach mock so getKV() is null.
     vi.resetModules();
+    vi.doUnmock('@/lib/kv');
     vi.doMock('@/lib/kv', () => ({
       getKV: () => null,
       skipKVInPrerender: () => false,
     }));
-  });
-
-  it('returns disabled-no-kv', async () => {
     const { consumeEnquiryEmailCode } = await import('@/lib/enquiry-email-verify');
     const r = await consumeEnquiryEmailCode('test@example.com', '123456');
     expect(r.ok).toBe(false);

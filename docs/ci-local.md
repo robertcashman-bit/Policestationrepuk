@@ -10,40 +10,44 @@ npm run build && npm test
 
 ## Full CI mirror
 
-Same steps as [`.github/workflows/ci.yml`](../.github/workflows/ci.yml):
+Same ordered steps as [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) (after install):
 
 ```bash
 npm run test:ci
 ```
 
-Includes build, vitest, **firm outreach approval tests** (`test:firm-outreach:ci`), buffer tests (including daily report), Lighthouse, blog audits, UTM guards, schema validation, and live sitemap crawl sample.
-
-## Targeted autotest suites
-
-```bash
-npm run test:firm-outreach:ci   # approval token, emails, cron routes, send flow
-npm run test:buffer:ci          # scheduler + daily digest + GBP probe
-```
+Runs typecheck, lint, build, full vitest, reliability/automation/firm-outreach/buffer/custody gates, directory search self-test, Lighthouse, blog SEO/orphan/cross-domain/UTM/schema checks, Playwright smoke, and the live sitemap crawl sample (`CRAWL_MAX_URLS=800`).
 
 ## Autofix + verify
 
-Runs `eslint --fix`, then the full CI mirror (one retry by default):
+Runs `eslint --fix`, then the full CI mirror:
 
 ```bash
 npm run ci:fix
 npm run ci:fix -- --retry 3
 ```
 
-Autofix only handles ESLint auto-fixable issues. TypeScript errors, test assertion mismatches, and audit content failures still need manual or agent fixes, then re-run.
+Use the full gate before merging outreach or CI-touching changes.
+
+**What autofix can do:** ESLint auto-fixable style issues.
+
+**What still needs a code/test edit:** TypeScript errors, Vitest assertion mismatches when defaults change (e.g. `dailySendCap` / `cronEnrichBatchSize` / `paidDailyCap` in `__tests__/firm-outreach-duplicate.test.ts`), and audit/content failures (blog SEO, sitemap, Lighthouse).
 
 ## Site audit (separate workflow)
 
 Playwright site audit (~25 min) is not included in `test:ci`:
 
 ```bash
-npm run audit:site
+npm run test:ci:audit
+# or: npm run audit:site
 ```
 
 ## Environment
 
-Scripts set `LEGACY_REPS_PUBLIC=1` and `NODE_OPTIONS=--max-old-space-size=8192` to match CI.
+Scripts set:
+
+- `LEGACY_REPS_PUBLIC=1`
+- `NODE_OPTIONS=--max-old-space-size=8192`
+- `CRON_SECRET=ci-smoke-placeholder-not-for-production` (satisfies production `validateEnv` during smoke/`next start`)
+
+to match CI.

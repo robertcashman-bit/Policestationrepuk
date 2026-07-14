@@ -239,7 +239,7 @@ describe('AI hallucination guardrails', () => {
     expect(downgraded.recommendation).toBe('hold');
   });
 
-  it('downgrades AI approve with no custody wording on a non-custody classification', () => {
+  it('downgrades AI approve when direct_custody evidence lacks custody wording', () => {
     const noCustody = review({
       evidence: {
         ...review().evidence,
@@ -247,11 +247,26 @@ describe('AI hallucination guardrails', () => {
       },
     });
     const validation = validateAiReviewOutput(
-      finding({ classification: 'unknown' }),
+      finding({ classification: 'direct_custody' }),
       noCustody,
     );
     expect(validation.ok).toBe(false);
     expect(validation.flags).toContain('no_custody_wording_in_excerpt');
+  });
+
+  it('downgrades AI approve when station/enquiry evidence lacks station wording', () => {
+    const noStation = review({
+      evidence: {
+        ...review().evidence,
+        quote: 'Call **01622 690690** for general information',
+      },
+    });
+    const validation = validateAiReviewOutput(
+      finding({ classification: 'public_enquiry' }),
+      noStation,
+    );
+    expect(validation.ok).toBe(false);
+    expect(validation.flags).toContain('no_station_wording_in_excerpt');
   });
 });
 

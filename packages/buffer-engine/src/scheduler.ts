@@ -249,14 +249,28 @@ export async function runSiteBufferScheduler(
 
   picked = await preparePostImages(adapter, picked);
 
-  for (const post of picked) {
-    if (!post.imageUrl?.trim()) {
-      return {
-        ok: false,
-        reason: `Post "${post.slug}" has no Buffer-compatible image after correction`,
-        date: localDate,
-      };
-    }
+  // Drop posts without usable images instead of aborting the entire batch.
+  // One bad hero must not prevent other due posts from scheduling.
+  const imageSkipped: Array<{ slug: string; error: string }> = [];
+  picked = picked.filter((post) => {
+    if (post.imageUrl?.trim()) return true;
+    imageSkipped.push({
+      slug: post.slug,
+      error: 'No Buffer-compatible image after correction',
+    });
+    console.warn(
+      `[buffer-engine:${adapter.siteId}] Skipping "${post.slug}" — no Buffer-compatible image`,
+    );
+    return false;
+  });
+
+  if (picked.length === 0) {
+    return {
+      ok: false,
+      reason: 'All selected posts lacked Buffer-compatible images',
+      date: localDate,
+      errors: imageSkipped,
+    };
   }
 
   let dayWindow = getSchedulerDayWindow();
@@ -344,7 +358,7 @@ export async function runSiteBufferScheduler(
 
   const created: NonNullable<ScheduleResult['posts']> = [];
   const newRecent = [];
-  const errors: Array<{ slug: string; error: string }> = [];
+  const errors: Array<{ slug: string; error: string }> = [...imageSkipped];
   const updatedStats = new Map(statsMap);
 
   for (let i = 0; i < picked.length; i++) {

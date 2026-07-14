@@ -85,6 +85,10 @@
       "schedule": "0 6 * * *"
     },
     {
+      "path": "/api/cron/buffer-health",
+      "schedule": "0 6 * * 1"
+    },
+    {
       "path": "/api/cron/buffer-weekly-report",
       "schedule": "0 8 * * 1"
     },

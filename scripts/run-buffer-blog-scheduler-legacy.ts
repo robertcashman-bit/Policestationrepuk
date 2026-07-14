@@ -1,19 +1,11 @@
 #!/usr/bin/env npx tsx
 /**
- * Manual trigger for the daily Buffer blog scheduler (production engine path).
- * Matches Vercel cron `/api/cron/buffer-blog-posts` — local REPUK blog only.
- *
- * Usage:
- *   npm run buffer:schedule
- *   npm run buffer:schedule -- --force
- *   npm run buffer:schedule -- --dry-run
- *   npm run buffer:schedule -- --respect-now
- *
- * Legacy multi-feed path: npm run buffer:schedule-legacy
+ * Legacy multi-feed Buffer scheduler (RSS + local). Prefer `npm run buffer:schedule`
+ * which uses the production engine path matching Vercel cron.
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { runRepukBufferScheduler } from '../lib/buffer/engine-run';
+import { runBufferBlogScheduler } from '../lib/buffer/scheduler';
 
 function loadEnvFile(filename: string) {
   const path = resolve(process.cwd(), filename);
@@ -41,12 +33,10 @@ async function main() {
 
   const respectCurrentTime = process.argv.includes('--respect-now');
   const force = process.argv.includes('--force');
-  const dryRun = process.argv.includes('--dry-run');
-  const result = await runRepukBufferScheduler({
-    respectCurrentTime,
-    force,
-    dryRun,
-  });
+  console.warn(
+    '[buffer:schedule-legacy] Using multi-feed legacy scheduler — production cron uses engine (local REPUK only).',
+  );
+  const result = await runBufferBlogScheduler(new Date(), { respectCurrentTime, force });
   console.log(JSON.stringify(result, null, 2));
   if (!result.ok) process.exit(1);
 }

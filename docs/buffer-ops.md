@@ -29,7 +29,9 @@ Auth: `Authorization: Bearer $CRON_SECRET` (or `x-cron-secret` locally).
 ## NPM scripts
 
 ```bash
-npm run buffer:schedule              # Run scheduler once (manual)
+npm run buffer:schedule              # Run engine scheduler once (matches production cron)
+npm run buffer:schedule-legacy       # Multi-feed RSS+local (ops only; not production cron)
+npm run buffer:reconcile-history     # Dry-run historical reconciliation report
 npm run buffer:list-today              # List today's scheduled posts
 npm run buffer:verify-feeds            # Live RSS + image ratio check
 npm run buffer:verify-posted           # Verify yesterday's run all reached sent

@@ -1,0 +1,45 @@
+{
+  "ok": true,
+  "dryRun": true,
+  "daysExamined": 3,
+  "today": "2026-07-14",
+  "examined": 5,
+  "byCategory": {
+    "confirmed_scheduled_or_sent": 3,
+    "under_quota": 2
+  },
+  "findings": [
+    {
+      "date": "2026-07-14",
+      "category": "confirmed_scheduled_or_sent",
+      "detail": "3 posts present in Buffer (KV aligned)",
+      "proposedAction": "none"
+    },
+    {
+      "date": "2026-07-13",
+      "category": "confirmed_scheduled_or_sent",
+      "detail": "3 posts present in Buffer (KV aligned)",
+      "proposedAction": "none"
+    },
+    {
+      "date": "2026-07-13",
+      "category": "under_quota",
+      "detail": "Buffer day window has 0 posts; KV expected 3",
+      "proposedAction": "stale_past_due_review"
+    },
+    {
+      "date": "2026-07-12",
+      "category": "confirmed_scheduled_or_sent",
+      "detail": "3 posts present in Buffer (KV aligned)",
+      "proposedAction": "none"
+    },
+    {
+      "date": "2026-07-12",
+      "category": "under_quota",
+      "detail": "Buffer day window has 0 posts; KV expected 3",
+      "proposedAction": "stale_past_due_review"
+    }
+  ],
+  "note": "Dry-run only — no writes to Buffer or KV post schedules.",
+  "capturedAt": "2026-07-14T07:15:01.306Z"
+}

@@ -118,6 +118,22 @@ describe('runSiteBufferScheduler', () => {
     expect(new Set(slugs).size).toBe(slugs.length);
   });
 
+  it('still completes the day when some posts start without images (correct or skip)', async () => {
+    const kv = makeKV();
+    const posts = makePosts(20);
+    posts[0]!.imageUrl = '';
+    posts[1]!.imageUrl = undefined;
+    posts[2]!.imageUrl = '   ';
+    const adapter = makeAdapter(kv, posts);
+    const result = await runSiteBufferScheduler(adapter, { now: new Date('2026-06-28T05:00:00Z') });
+
+    // Correction may restore a default JPEG, or the post is skipped — either way
+    // the batch must not abort because of those rows.
+    expect(result.ok).toBe(true);
+    expect(result.posts?.length).toBeGreaterThanOrEqual(5);
+    expect(result.reason ?? '').not.toMatch(/All selected posts lacked/i);
+  });
+
   it('is idempotent for the same date (skips re-run)', async () => {
     const kv = makeKV();
     const adapter = makeAdapter(kv, makePosts(20));

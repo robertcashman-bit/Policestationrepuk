@@ -17,6 +17,9 @@ import {
   schedulerFailureErrorKey,
   wasSchedulerFailureEmailSent,
 } from '@/lib/buffer/scheduler-notification-digest';
+import { appendBufferAttempt } from '@/lib/buffer/attempts';
+import { BUFFER_SCHEDULER_SITE_ID } from '@/lib/buffer/scheduler-storage';
+import { classifyBufferError } from '@/lib/buffer/errors';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -47,6 +50,54 @@ export async function GET(request: Request) {
 
   try {
     const result = await runRepukBufferScheduler({ force });
+    const jobRunId = `cron_${scheduleDate}_${Date.now()}`;
+
+    // Persist durable attempt rows for accepted posts (+ errors when present)
+    if (result.posts?.length) {
+      for (const post of result.posts) {
+        await appendBufferAttempt({
+          jobRunId,
+          siteId: BUFFER_SCHEDULER_SITE_ID,
+          date: result.date ?? scheduleDate,
+          slug: post.slug,
+          feedId: post.feedId,
+          channelId: post.channelId,
+          channelService: post.channelService,
+          dueAt: post.dueAt,
+          outcome: 'accepted',
+          externalPostId: post.postId,
+          attemptNumber: 1,
+          durationMs: Date.now() - t0,
+        });
+      }
+    }
+    if (result.errors?.length) {
+      for (const err of result.errors) {
+        const classified = classifyBufferError(err.error);
+        await appendBufferAttempt({
+          jobRunId,
+          siteId: BUFFER_SCHEDULER_SITE_ID,
+          date: result.date ?? scheduleDate,
+          slug: err.slug,
+          feedId: BUFFER_SCHEDULER_SITE_ID,
+          channelId: '',
+          channelService: 'twitter',
+          dueAt: null,
+          outcome:
+            classified.class === 'rate_limit'
+              ? 'rate_limited'
+              : classified.class === 'duplicate'
+                ? 'duplicate'
+                : /image|attachment/i.test(err.error)
+                  ? 'skipped_invalid_attachment'
+                  : 'failed',
+          errorCode: classified.code,
+          errorMessage: err.error,
+          attemptNumber: 1,
+          durationMs: Date.now() - t0,
+        });
+      }
+    }
 
     logSchedulerLifecycle('cron_complete', {
       date: result.date ?? scheduleDate,

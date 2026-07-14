@@ -172,7 +172,7 @@ async function scheduleOne(
       });
       return { ok: true, postId: created.id };
     } catch (err) {
-      if (isDuplicate(err)) return { ok: true, postId: 'already-scheduled-in-buffer' };
+      if (isDuplicate(err)) return { ok: true, postId: '' };
       if (isRateLimit(err) && attempt < MAX_ATTEMPTS) {
         const wait = Math.min(15000 * attempt, 90000);
         console.warn(`  rate limited — waiting ${wait}ms (${attempt}/${MAX_ATTEMPTS})`);

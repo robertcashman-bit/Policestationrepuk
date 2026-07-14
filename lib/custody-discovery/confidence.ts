@@ -20,6 +20,7 @@ const SOURCE_BONUS: Record<CustodySourceType, number> = {
   pdf: 25,
   pcc: 15,
   local_authority: 15,
+  open_data: 12,
   solicitor_site: 10,
   archived: 0,
   unknown: 0,

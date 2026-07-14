@@ -20,7 +20,7 @@ export function passesPublishHardGates(
   if (!isAutoPublishableRange(finding.normalizedPhoneNumber)) return false;
   if (finding.classification !== 'direct_custody') return false;
   if (approvedNormalized && approvedNormalized !== finding.normalizedPhoneNumber) return false;
-  if (review.evidence.source !== 'page_fetch') return false;
+  if (review.evidence.source !== 'page_fetch' && review.evidence.source !== 'pdf_fetch') return false;
   if (!evidenceHasCustodyWording(review.evidence)) return false;
   if (!evidenceContainsPhone(review.evidence, finding.normalizedPhoneNumber)) return false;
   if (isRepDirectoryFinding(finding)) return false;

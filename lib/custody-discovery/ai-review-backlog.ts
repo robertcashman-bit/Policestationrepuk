@@ -33,7 +33,7 @@ export function isWeakEvidenceRetryCandidate(finding: CustodyNumberFinding): boo
   const review = finding.aiReview;
   if (!review?.reviewedAt) return false;
   if (review.recommendation === 'reject') return false;
-  if (review.evidence.source === 'page_fetch') return false;
+    if (review.evidence.source === 'page_fetch' || review.evidence.source === 'pdf_fetch') return false;
   return (finding.aiEvidenceRetries ?? 0) < evidenceRetryLimit();
 }
 
@@ -52,7 +52,8 @@ export function selectFindingsNeedingAiReview(
   candidates.sort((a, b) => {
     const rank = (f: CustodyNumberFinding) => {
       if (!f.aiReview?.reviewedAt) return 0;
-      if (f.aiReview.evidence.source !== 'page_fetch') return 1;
+      if (f.aiReview.evidence.source !== 'page_fetch' && f.aiReview.evidence.source !== 'pdf_fetch')
+        return 1;
       if (f.aiReview.recommendation === 'approve') return 2;
       return 3;
     };

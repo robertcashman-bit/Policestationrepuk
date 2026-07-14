@@ -7,6 +7,8 @@ const UK_PHONE_RE = /(?:\+44\s?|0)(?:\d[\s\-().]{0,3}){9,12}\d/g;
 
 const JUNK_CONTEXT_RE = /solicitor|legal advice|victim|witness support|victim and witness/i;
 const SWITCHBOARD_CONTEXT_RE = /switchboard|non-emergency|call 101|general enquiries|main switchboard/i;
+const ENQUIRY_CONTEXT_RE =
+  /enquiry office|public enquiry|front counter|contact (?:us|number)|telephone(?: number)?|opening times|police station phone/i;
 
 export interface ExtractedPhone {
   display: string;
@@ -53,6 +55,7 @@ export function scorePhoneCandidate(context: string, opts?: PhonePickContext): n
   let score = 0;
   const ctx = context.toLowerCase();
   if (hasCustodyWordingNear(context)) score += 50;
+  else if (hasEnquiryWordingNear(context)) score += 25;
   for (const token of suiteNameTokens(opts?.suiteNames ?? [])) {
     if (ctx.includes(token.toLowerCase())) score += 15;
   }
@@ -123,6 +126,23 @@ export function pickCustodyCandidatePhone(
 
 export function hasCustodyWordingNear(text: string): boolean {
   return /custody|custody suite|custody desk|detention|custody centre|custody center/i.test(text);
+}
+
+export function hasEnquiryWordingNear(text: string): boolean {
+  return ENQUIRY_CONTEXT_RE.test(text);
+}
+
+/** All candidates scoring at/above threshold, best first. */
+export function listScoredCustodyCandidatePhones(
+  text: string,
+  opts?: PhonePickContext,
+): Array<ExtractedPhone & { score: number }> {
+  const phones = extractPhonesFromText(text, 120, opts?.forceName);
+  const minScore = opts?.minScore ?? MIN_PHONE_CANDIDATE_SCORE;
+  return phones
+    .map((phone) => ({ ...phone, score: scorePhoneCandidate(phone.context, opts) }))
+    .filter((p) => p.score >= minScore)
+    .sort((a, b) => b.score - a.score);
 }
 
 export function isCommercialUnrelatedPage(url: string, title: string): boolean {

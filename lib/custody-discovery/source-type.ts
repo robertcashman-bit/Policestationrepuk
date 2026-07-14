@@ -17,6 +17,7 @@ export function detectSourceType(url: string, title = ''): CustodySourceType {
   if (/web\.archive\.org|archive\.org|wayback/i.test(url)) return 'archived';
   if (domain.endsWith('.police.uk') || /\.police\.uk$/i.test(domain)) return 'official_police';
   if (domain === 'police.uk' || domain.endsWith('.police.uk')) return 'police_uk';
+  if (/openstreetmap\.org|wikidata\.org|wikipedia\.org/i.test(domain)) return 'open_data';
   if (/\.pdf$/i.test(url) || hay.includes('filetype:pdf')) return 'pdf';
   if (/foi|freedom.of.information|whatdotheyknow|gov\.uk\/government\/publications/i.test(hay)) {
     return 'foi';

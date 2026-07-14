@@ -26,7 +26,11 @@ Auto-publish is **off** by default. See [Yield review](#yield-review-deferred) b
 | `SERPER_API_KEY` | — | Google search for custody contact pages (required for best yield) |
 | `CRON_SECRET` | — | Cron auth |
 | `KV_REST_API_*` / `UPSTASH_*` | — | Findings + approved numbers storage |
-| `CUSTODY_DISCOVERY_BATCH_LIMIT` | `10` | Suites per cron run |
+| `CUSTODY_DISCOVERY_BATCH_LIMIT` | `20` | Suites per cron run |
+| `CUSTODY_DISCOVERY_MAX_QUERIES` | `8` | Initial Serper queries per suite |
+| `CUSTODY_DISCOVERY_FALLBACK_QUERIES` | `14` | Expanded when early queries are empty/sparse |
+| `CUSTODY_DISCOVERY_PAGE_FETCH_LIMIT` | `6` | HTML/PDF fetches per suite |
+| `CUSTODY_DISCOVERY_OSM` | on | Set `false` to disable OpenStreetMap lookups |
 | `CUSTODY_DISCOVERY_MAX_QUERIES` | `4` | Serper queries per suite |
 | `CUSTODY_DISCOVERY_PAGE_FETCH_LIMIT` | `3` | Full page fetches per suite when snippet is weak |
 | `CUSTODY_AI_BATCH_LIMIT` | `12` | AI reviews per cron run |

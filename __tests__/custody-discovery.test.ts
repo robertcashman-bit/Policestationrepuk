@@ -434,7 +434,7 @@ describe('crawler helpers', () => {
       ],
     );
     expect(merged).toHaveLength(2);
-    expect(merged.map((r) => r.url)).toEqual(['https://kent.police.uk/b', 'https://kent.police.uk/a']);
+    expect(merged.map((r) => r.url)).toEqual(['https://kent.police.uk/a', 'https://kent.police.uk/b']);
   });
 
   it('rejects solicitor_office classification at crawl', async () => {

@@ -26,6 +26,7 @@ import { isAutoPublishableRange, numberSafetyFlags } from './number-safety';
 import {
   evidenceContainsPhone,
   evidenceHasCustodyWording,
+  isStrongEvidenceSource,
 } from './source-evidence';
 import { isOfficialSourceType } from './source-type';
 import {
@@ -72,7 +73,7 @@ export function shouldAutoRejectWeakEvidence(
   finding: CustodyNumberFinding,
   review: CustodyAiReview,
 ): boolean {
-  if (review.evidence.source === 'page_fetch') return false;
+  if (isStrongEvidenceSource(review.evidence.source)) return false;
   if (review.recommendation === 'approve') return true;
   if (isRepDirectoryFinding(finding)) return true;
   return (finding.aiEvidenceRetries ?? 0) >= evidenceRetryLimit();
@@ -288,7 +289,7 @@ async function closeDuplicateConfirmation(
 
   if (
     isTrustedCorroboratingSource(finding) &&
-    review.evidence.source === 'page_fetch' &&
+    isStrongEvidenceSource(review.evidence.source) &&
     evidenceContainsPhone(review.evidence, finding.normalizedPhoneNumber)
   ) {
     const approved = await getApprovedNumber(finding.custodySuiteId);
@@ -596,7 +597,7 @@ function hardGates(
   if (approvedNormalized && approvedNormalized !== finding.normalizedPhoneNumber) {
     return { ok: false, reason: 'different_approved_number' };
   }
-  if (review.evidence.source !== 'page_fetch') {
+  if (!isStrongEvidenceSource(review.evidence.source)) {
     return { ok: false, reason: 'weak_evidence' };
   }
   if (!evidenceHasCustodyWording(review.evidence)) {

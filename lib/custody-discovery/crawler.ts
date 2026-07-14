@@ -13,12 +13,21 @@ import {
   extractPhonesFromText,
   hasCustodyWordingNear,
   isValidCustodyCandidate,
+  listScoredCustodyCandidatePhones,
   pickBestCustodyCandidatePhone,
   type ExtractedPhone,
   type PhonePickContext,
 } from './phone';
 import { fetchOfficialSources } from './official-pages';
-import { searchForSuite, isSearchQueryError, type SearchProvider } from './search';
+import { fetchOsmPhoneSources } from './openstreetmap';
+import { isPdfUrl } from './pdf-text';
+import {
+  searchForSuite,
+  isSearchQueryError,
+  isSuiteSearchOutcome,
+  defaultMaxSearchQueries,
+  type SearchProvider,
+} from './search';
 import { fetchPageTextFromUrl } from './source-evidence';
 import { detectSourceType, extractDomain } from './source-type';
 import {
@@ -30,54 +39,58 @@ import {
 import { selectSuiteBatch } from './cursor';
 import type { CrawlerRunStats, CustodyNumberFinding, CustodySuite, SearchResult } from './types';
 
+/** Never store these — noise, not labelled contact outcomes. */
 const REJECT_CLASSIFICATIONS = new Set([
   'irrelevant',
-  'general_101',
-  'switchboard',
   'solicitor_office',
   'victim_witness',
 ]);
+
+/** Cap how many distinct scored phones we persist per URL. */
+const MAX_CANDIDATES_PER_HIT = 6;
 
 function newFindingId(): string {
   return `cnf_${Date.now().toString(36)}_${crypto.randomBytes(4).toString('hex')}`;
 }
 
-export function defaultMaxSearchQueries(): number {
-  return Math.max(1, Number(process.env.CUSTODY_DISCOVERY_MAX_QUERIES ?? 4));
-}
+export { defaultMaxSearchQueries };
 
 export function maxPageFetchesPerSuite(): number {
-  return Math.max(0, Number(process.env.CUSTODY_DISCOVERY_PAGE_FETCH_LIMIT ?? 3));
+  return Math.max(0, Number(process.env.CUSTODY_DISCOVERY_PAGE_FETCH_LIMIT ?? 6));
 }
 
 function phonePickContext(suite: CustodySuite): PhonePickContext {
   return {
     forceName: suite.forceName,
-    suiteNames: [suite.custodySuiteName, suite.policeStationName],
+    suiteNames: [suite.custodySuiteName, suite.policeStationName, ...(suite.aliases ?? [])],
   };
 }
 
-export function mergeSearchResults(serper: SearchResult[], official: SearchResult[]): SearchResult[] {
+export function mergeSearchResults(...lists: SearchResult[][]): SearchResult[] {
   const seen = new Set<string>();
   const merged: SearchResult[] = [];
-  for (const row of [...official, ...serper]) {
-    const key = row.url.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    merged.push(row);
+  for (const list of lists) {
+    for (const row of list) {
+      const key = row.url.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      merged.push(row);
+    }
   }
   return merged;
 }
 
 function urlFetchPriority(url: string): number {
   const u = url.toLowerCase();
-  if (u.includes('.police.uk') || u.includes('police.uk/')) return 3;
-  if (u.includes('gov.uk')) return 2;
+  if (u.includes('.police.uk') || u.includes('police.uk/')) return 4;
+  if (u.includes('gov.uk')) return 3;
+  if (isPdfUrl(u)) return 3;
+  if (u.includes('openstreetmap.org')) return 2;
   return 1;
 }
 
 function isFetchableUrl(url: string): boolean {
-  return url.startsWith('http') && !/\.pdf(\?|#|$)/i.test(url);
+  return url.startsWith('http');
 }
 
 function snippetNeedsPageFetch(hit: SearchResult, opts: PhonePickContext): boolean {
@@ -87,21 +100,24 @@ function snippetNeedsPageFetch(hit: SearchResult, opts: PhonePickContext): boole
   return !hasCustodyWordingNear(phone.context);
 }
 
-function resolvePhoneFromHit(
+function resolvePhonesFromHit(
   hit: SearchResult,
   opts: PhonePickContext,
   pageText?: string,
-): ExtractedPhone | null {
+): ExtractedPhone[] {
   const combined = `${hit.title} ${hit.snippet}`;
+  const extractSource = pageText ? `${combined} ${pageText}` : combined;
+  const scored = listScoredCustodyCandidatePhones(extractSource, opts);
+  if (scored.length > 0) return scored.slice(0, MAX_CANDIDATES_PER_HIT);
+
+  // Fallback: best single even if below shared list (legacy path)
   const fromSnippet = pickBestCustodyCandidatePhone(combined, opts);
-  if (fromSnippet && hasCustodyWordingNear(fromSnippet.context)) {
-    return fromSnippet;
-  }
+  if (fromSnippet && hasCustodyWordingNear(fromSnippet.context)) return [fromSnippet];
   if (pageText) {
     const fromPage = pickBestCustodyCandidatePhone(pageText, opts);
-    if (fromPage) return fromPage;
+    if (fromPage) return [fromPage];
   }
-  return fromSnippet;
+  return fromSnippet ? [fromSnippet] : [];
 }
 
 async function buildPageTextCache(
@@ -135,19 +151,17 @@ export interface ProcessSearchResultInput {
   existingFindings: CustodyNumberFinding[];
   searchProvider?: SearchProvider;
   pageText?: string;
+  /** When set, only this candidate is processed (multi-candidate loop). */
+  candidatePhone?: ExtractedPhone;
 }
 
-export async function processSearchHit(
+async function persistPhoneCandidate(
   input: ProcessSearchResultInput,
+  phone: ExtractedPhone,
 ): Promise<{ action: 'created' | 'updated' | 'rejected' | 'duplicate'; finding?: CustodyNumberFinding }> {
-  const { suite, title, url, snippet, date, pageText } = input;
+  const { suite, title, url, snippet, date } = input;
 
-  if (!url?.trim().startsWith('http')) {
-    return { action: 'rejected' };
-  }
-
-  const phone = resolvePhoneFromHit({ title, url, snippet }, phonePickContext(suite), pageText);
-  if (!phone || !isValidCustodyCandidate(phone.display, suite.forceName)) {
+  if (!isValidCustodyCandidate(phone.display, suite.forceName)) {
     return { action: 'rejected' };
   }
 
@@ -168,9 +182,10 @@ export async function processSearchHit(
     return { action: 'duplicate', finding: updated };
   }
 
-  const sameNumberCount = input.existingFindings.filter(
-    (f) => f.normalizedPhoneNumber === phone.normalized && f.status !== 'rejected',
-  ).length + 1;
+  const sameNumberCount =
+    input.existingFindings.filter(
+      (f) => f.normalizedPhoneNumber === phone.normalized && f.status !== 'rejected',
+    ).length + 1;
 
   const distinctNumbers = new Set(
     input.existingFindings
@@ -210,6 +225,7 @@ export async function processSearchHit(
     return { action: 'rejected' };
   }
 
+  // Persist switchboard / 101 as labelled outcomes (not publishable as direct custody)
   const now = new Date().toISOString();
   const hasConflict = hasConflictingNumbers || Boolean(conflictsWithApproved);
   const status = initialFindingStatus();
@@ -229,7 +245,7 @@ export async function processSearchHit(
     sourceUrl: url,
     sourceDomain,
     sourceType,
-    pageSnippet: phone.context,
+    pageSnippet: phone.context || snippet,
     classification,
     confidenceScore,
     confidenceLevel: confidenceLevelFromScore(confidenceScore),
@@ -247,9 +263,49 @@ export async function processSearchHit(
   return { action: 'created', finding };
 }
 
+export async function processSearchHit(
+  input: ProcessSearchResultInput,
+): Promise<{ action: 'created' | 'updated' | 'rejected' | 'duplicate'; finding?: CustodyNumberFinding }> {
+  const { suite, title, url, snippet, pageText, candidatePhone } = input;
+
+  if (!url?.trim().startsWith('http')) {
+    return { action: 'rejected' };
+  }
+
+  if (candidatePhone) {
+    return persistPhoneCandidate(input, candidatePhone);
+  }
+
+  const phones = resolvePhonesFromHit({ title, url, snippet }, phonePickContext(suite), pageText);
+  if (phones.length === 0) return { action: 'rejected' };
+  return persistPhoneCandidate(input, phones[0]!);
+}
+
+/** Process every scored phone on a hit (max MAX_CANDIDATES_PER_HIT). */
+export async function processAllPhonesFromHit(
+  input: ProcessSearchResultInput,
+): Promise<Array<{ action: 'created' | 'updated' | 'rejected' | 'duplicate'; finding?: CustodyNumberFinding }>> {
+  const { suite, title, url, snippet, pageText } = input;
+  if (!url?.trim().startsWith('http')) return [{ action: 'rejected' }];
+
+  const phones = resolvePhonesFromHit({ title, url, snippet }, phonePickContext(suite), pageText);
+  if (phones.length === 0) return [{ action: 'rejected' }];
+
+  const outcomes = [];
+  for (const phone of phones) {
+    const outcome = await persistPhoneCandidate({ ...input, candidatePhone: phone }, phone);
+    outcomes.push(outcome);
+    if (outcome.finding && outcome.action === 'created') {
+      input.existingFindings.push(outcome.finding);
+    }
+  }
+  return outcomes;
+}
+
 export interface CrawlSuiteOptions {
   searchProvider?: SearchProvider;
   maxQueries?: number;
+  includeOsm?: boolean;
 }
 
 export async function crawlCustodySuite(
@@ -264,27 +320,37 @@ export async function crawlCustodySuite(
   conflicts: number;
   officialPagesFetched: number;
   pageFetchesUsed: number;
+  osmResults: number;
+  queryErrors: string[];
   newFindingIds: string[];
+  exhaustedWithoutResults: boolean;
 }> {
   const maxQueries = options.maxQueries ?? defaultMaxSearchQueries();
   const pickOpts = phonePickContext(suite);
+  const includeOsm = options.includeOsm ?? process.env.CUSTODY_DISCOVERY_OSM !== 'false';
 
-  const [serperOutcome, officialResults] = await Promise.all([
+  const [serperOutcome, officialResults, osmResults] = await Promise.all([
     searchForSuite(suite, options.searchProvider, maxQueries),
     fetchOfficialSources(suite),
+    includeOsm ? fetchOsmPhoneSources(suite) : Promise.resolve([] as SearchResult[]),
   ]);
 
   if (isSearchQueryError(serperOutcome)) {
     throw new Error(serperOutcome.reason);
   }
-  const serperResults = serperOutcome;
 
-  const results = mergeSearchResults(serperResults, officialResults);
-  const pageTextCache = await buildPageTextCache(
-    results,
-    pickOpts,
-    maxPageFetchesPerSuite(),
-  );
+  const searchMeta = isSuiteSearchOutcome(serperOutcome)
+    ? serperOutcome
+    : {
+        results: serperOutcome as SearchResult[],
+        queriesRun: maxQueries,
+        queryErrors: [] as string[],
+        strategiesUsed: [],
+        exhaustedWithoutResults: (serperOutcome as SearchResult[]).length === 0,
+      };
+
+  const results = mergeSearchResults(officialResults, searchMeta.results, osmResults);
+  const pageTextCache = await buildPageTextCache(results, pickOpts, maxPageFetchesPerSuite());
 
   const existing = await getFindingsForSuite(suite.id);
 
@@ -297,11 +363,12 @@ export async function crawlCustodySuite(
 
   for (const hit of results) {
     const pageText = pageTextCache.get(hit.url);
-    const extractSource = pageText ? `${hit.title} ${hit.snippet} ${pageText}` : `${hit.title} ${hit.snippet}`;
-    const phones = extractPhonesFromText(extractSource, 120, suite.forceName);
-    numbersExtracted += phones.length;
+    const extractSource = pageText
+      ? `${hit.title} ${hit.snippet} ${pageText}`
+      : `${hit.title} ${hit.snippet}`;
+    numbersExtracted += extractPhonesFromText(extractSource, 120, suite.forceName).length;
 
-    const outcome = await processSearchHit({
+    const outcomes = await processAllPhonesFromHit({
       suite,
       title: hit.title,
       url: hit.url,
@@ -312,20 +379,21 @@ export async function crawlCustodySuite(
       pageText,
     });
 
-    if (outcome.action === 'created') {
-      created++;
-      if (outcome.finding?.id) newFindingIds.push(outcome.finding.id);
-      if (outcome.finding?.conflictReason) conflicts++;
-      if (outcome.finding) existing.push(outcome.finding);
-    } else if (outcome.action === 'duplicate') {
-      updated++;
-    } else {
-      rejected++;
+    for (const outcome of outcomes) {
+      if (outcome.action === 'created') {
+        created++;
+        if (outcome.finding?.id) newFindingIds.push(outcome.finding.id);
+        if (outcome.finding?.conflictReason) conflicts++;
+      } else if (outcome.action === 'duplicate') {
+        updated++;
+      } else {
+        rejected++;
+      }
     }
   }
 
   return {
-    searchesRun: maxQueries,
+    searchesRun: searchMeta.queriesRun,
     numbersExtracted,
     created,
     updated,
@@ -333,7 +401,10 @@ export async function crawlCustodySuite(
     conflicts,
     officialPagesFetched: officialResults.length,
     pageFetchesUsed: pageTextCache.size,
+    osmResults: osmResults.length,
+    queryErrors: searchMeta.queryErrors,
     newFindingIds,
+    exhaustedWithoutResults: searchMeta.exhaustedWithoutResults && created === 0,
   };
 }
 
@@ -408,6 +479,12 @@ export async function runCustodyDiscoveryCrawler(
       stats.officialPagesFetched += row.officialPagesFetched;
       stats.pageFetchesUsed += row.pageFetchesUsed;
       newFindingIds.push(...row.newFindingIds);
+      if (row.queryErrors.length) {
+        console.warn(
+          `custody discovery: query errors for ${suite.id}:`,
+          row.queryErrors.slice(0, 3).join('; '),
+        );
+      }
     } catch (err) {
       console.error(`custody discovery: crawl failed for ${suite.id}`, err);
     }

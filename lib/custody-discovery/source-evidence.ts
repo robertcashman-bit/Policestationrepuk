@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { getKV } from '@/lib/kv';
 import { normalizePhoneDigits } from '@/lib/phone-format';
 import { hasCustodyWordingNear, pickBestCustodyCandidatePhone, type PhonePickContext } from './phone';
+import { fetchPdfText, isPdfUrl } from './pdf-text';
 import type { CustodyNumberFinding, SourceEvidence, SourceEvidenceKind } from './types';
 
 const FETCH_TIMEOUT_MS = 12_000;
@@ -135,16 +136,44 @@ export async function fetchSourceEvidence(finding: CustodyNumberFinding): Promis
     return snippetFallback(finding);
   }
 
-  if (/\.pdf(\?|#|$)/i.test(url)) {
-    return {
-      ...snippetFallback(finding),
-      source: 'pdf_unfetched',
-      section: 'PDF document (not fetched)',
-    };
-  }
-
   if (!fetchEvidenceEnabled()) {
     return snippetFallback(finding);
+  }
+
+  if (isPdfUrl(url)) {
+    const pdfText = await fetchPdfText(url);
+    if (!pdfText) {
+      return {
+        ...snippetFallback(finding),
+        source: 'pdf_unfetched',
+        section: 'PDF document (not fetched)',
+      };
+    }
+    const digits = normalizePhoneDigits(finding.possiblePhoneNumber);
+    const textDigits = pdfText.replace(/\D/g, '');
+    if (!digits || !textDigits.includes(digits.replace(/^0/, ''))) {
+      return {
+        ...snippetFallback(finding),
+        source: 'pdf_unfetched',
+        section: 'PDF document (number not confirmed in body)',
+      };
+    }
+    const excerpt = extractExcerptFromText(pdfText, finding);
+    if (!excerpt) {
+      return {
+        ...snippetFallback(finding),
+        source: 'pdf_unfetched',
+        section: 'PDF document',
+      };
+    }
+    return {
+      quote: excerpt.quote,
+      section: 'PDF document',
+      sourceUrl: url,
+      sourceTitle: finding.sourceTitle,
+      source: 'pdf_fetch',
+      fetchedAt: now,
+    };
   }
 
   const html = await fetchCachedPageHtml(url);
@@ -181,6 +210,11 @@ export async function fetchSourceEvidence(finding: CustodyNumberFinding): Promis
   };
 }
 
+/** True when evidence came from a successfully fetched page or PDF body. */
+export function isStrongEvidenceSource(source: SourceEvidenceKind | string): boolean {
+  return source === 'page_fetch' || source === 'pdf_fetch';
+}
+
 export function evidenceHasCustodyWording(evidence: SourceEvidence): boolean {
   return hasCustodyWordingNear(evidence.quote.replace(/\*\*/g, ''));
 }
@@ -194,9 +228,10 @@ export function evidenceContainsPhone(
   return hay.includes(digits) || hay.includes(digits.replace(/^0/, ''));
 }
 
-/** Fetch page text for crawl-time extraction (skips PDFs; uses KV cache). */
+/** Fetch page or PDF text for crawl-time extraction (uses KV cache for HTML). */
 export async function fetchPageTextFromUrl(url: string): Promise<string | null> {
-  if (!url.startsWith('http') || /\.pdf(\?|#|$)/i.test(url)) return null;
+  if (!url.startsWith('http')) return null;
+  if (isPdfUrl(url)) return fetchPdfText(url);
   const html = await fetchCachedPageHtml(url);
   return html ? htmlToText(html) : null;
 }

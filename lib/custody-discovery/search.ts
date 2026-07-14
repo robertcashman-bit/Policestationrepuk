@@ -1,4 +1,10 @@
 import type { SearchResult } from './types';
+import {
+  buildRankedSearchQueries,
+  type RankedSearchQuery,
+  type SearchStrategy,
+} from './station-aliases';
+import { recentlyExhaustedStrategies, recordSearchAttempt } from './search-attempts';
 
 export type SearchProvider = (query: string) => Promise<SearchQueryResult>;
 
@@ -7,6 +13,7 @@ export type SearchQueryResult = SearchResult[] | SearchQueryError;
 export interface SearchQueryError {
   ok: false;
   reason: string;
+  httpStatus?: number;
 }
 
 export function isSearchQueryError(result: SearchQueryResult): result is SearchQueryError {
@@ -15,7 +22,11 @@ export function isSearchQueryError(result: SearchQueryResult): result is SearchQ
 
 const SERPER_URL = 'https://google.serper.dev/search';
 
-async function serperSearch(query: string): Promise<SearchQueryResult> {
+async function sleep(ms: number): Promise<void> {
+  await new Promise((r) => setTimeout(r, ms));
+}
+
+async function serperSearchOnce(query: string): Promise<SearchQueryResult> {
   const key = process.env.SERPER_API_KEY?.trim();
   if (!key) {
     return { ok: false, reason: 'SERPER_API_KEY missing' };
@@ -31,7 +42,7 @@ async function serperSearch(query: string): Promise<SearchQueryResult> {
   });
 
   if (!res.ok) {
-    return { ok: false, reason: `Serper HTTP ${res.status}` };
+    return { ok: false, reason: `Serper HTTP ${res.status}`, httpStatus: res.status };
   }
   const data = (await res.json()) as {
     organic?: Array<{ title?: string; link?: string; snippet?: string; date?: string }>;
@@ -47,76 +58,168 @@ async function serperSearch(query: string): Promise<SearchQueryResult> {
     }));
 }
 
-function stationSearchLabel(name: string): string {
-  return name
-    .replace(/\s*police station\s*/gi, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+/** Serper search with lightweight retry on 429 / 5xx. */
+export async function serperSearch(query: string): Promise<SearchQueryResult> {
+  let last: SearchQueryResult = { ok: false, reason: 'unknown' };
+  for (let attempt = 0; attempt < 3; attempt++) {
+    last = await serperSearchOnce(query);
+    if (!isSearchQueryError(last)) return last;
+    const status = last.httpStatus ?? 0;
+    if (status !== 429 && status < 500) return last;
+    await sleep(400 * 2 ** attempt);
+  }
+  return last;
 }
 
+/** @deprecated Prefer buildRankedSearchQueries — kept for existing callers/tests. */
 export function buildSearchQueries(suite: import('./types').CustodySuite): string[] {
-  const name = suite.custodySuiteName || suite.policeStationName;
-  const shortName = stationSearchLabel(name);
-  const force = suite.forceName;
-  const domain = suite.forceDomain;
-  const dedicated = suite.isDedicatedCustodySuite ?? /custody|justice centre/i.test(name);
-
-  const stationQueries = dedicated
-    ? [
-        `"${name}" custody telephone`,
-        `"${name}" police custody phone number`,
-        `"${name}" custody suite telephone site:.gov.uk`,
-      ]
-    : [
-        `"${name}" custody telephone number`,
-        `"${name}" police station custody phone`,
-        `"${force}" "${shortName}" custody telephone`,
-        `"${shortName}" custody suite contact`,
-        `site:${domain} "${shortName}" custody`,
-      ];
-
-  return [
-    ...stationQueries,
-    `"${force}" custody suite contact`,
-    `"${force}" custody telephone number`,
-    `site:${domain} custody telephone`,
-    `site:${domain} custody suite`,
-    `filetype:pdf "${force}" custody suite telephone number`,
-    `filetype:pdf "${force}" custody contact police`,
-    `site:police.uk "${name}" custody`,
-  ];
+  return buildRankedSearchQueries(suite).map((q) => q.query);
 }
 
 export function isSerperConfigured(): boolean {
   return Boolean(process.env.SERPER_API_KEY?.trim());
 }
 
+export function defaultMaxSearchQueries(): number {
+  return Math.max(1, Number(process.env.CUSTODY_DISCOVERY_MAX_QUERIES ?? 8));
+}
+
+export function defaultFallbackSearchQueries(): number {
+  return Math.max(
+    defaultMaxSearchQueries(),
+    Number(process.env.CUSTODY_DISCOVERY_FALLBACK_QUERIES ?? 14),
+  );
+}
+
+export interface SuiteSearchOutcome {
+  results: SearchResult[];
+  queriesRun: number;
+  queryErrors: string[];
+  strategiesUsed: SearchStrategy[];
+  exhaustedWithoutResults: boolean;
+}
+
+function selectQueriesForRun(
+  ranked: RankedSearchQuery[],
+  maxQueries: number,
+  exhausted: Set<string>,
+): RankedSearchQuery[] {
+  const preferred = ranked.filter((q) => !exhausted.has(`${q.strategy}::${q.query.toLowerCase()}`));
+  const pool = preferred.length > 0 ? preferred : ranked;
+  return pool.slice(0, maxQueries);
+}
+
+/**
+ * Multi-query search with fallbacks.
+ * - Continues after per-query Serper errors (does not abort the suite).
+ * - Expands to fallback query budget when early queries return empty.
+ * - Records attempts in KV when available.
+ */
 export async function searchForSuite(
   suite: import('./types').CustodySuite,
   provider: SearchProvider = serperSearch,
-  maxQueries = 4,
-): Promise<SearchResult[] | SearchQueryError> {
+  maxQueries = defaultMaxSearchQueries(),
+): Promise<SearchResult[] | SearchQueryError | SuiteSearchOutcome> {
   if (provider === serperSearch && !isSerperConfigured()) {
     return { ok: false, reason: 'SERPER_API_KEY missing' };
   }
 
-  const queries = buildSearchQueries(suite).slice(0, maxQueries);
+  const ranked = buildRankedSearchQueries(suite);
+  const fallbackBudget = Math.max(maxQueries, defaultFallbackSearchQueries());
+  const exhausted =
+    provider === serperSearch ? await recentlyExhaustedStrategies(suite.id) : new Set<string>();
+
+  let budget = maxQueries;
+  const selected = selectQueriesForRun(ranked, budget, exhausted);
   const seen = new Set<string>();
   const results: SearchResult[] = [];
+  const queryErrors: string[] = [];
+  const strategiesUsed: SearchStrategy[] = [];
+  let queriesRun = 0;
 
-  for (const q of queries) {
-    const rows = await provider(q);
-    if (isSearchQueryError(rows)) {
-      return rows;
+  const runBatch = async (batch: RankedSearchQuery[]) => {
+    for (const item of batch) {
+      const startedAt = new Date().toISOString();
+      queriesRun++;
+      strategiesUsed.push(item.strategy);
+      const rows = await provider(item.query);
+
+      if (isSearchQueryError(rows)) {
+        queryErrors.push(`${item.strategy}: ${rows.reason}`);
+        await recordSearchAttempt({
+          stationId: suite.id,
+          query: item.query,
+          provider: provider === serperSearch ? 'serper' : 'custom',
+          strategy: item.strategy,
+          status: 'error',
+          resultCount: 0,
+          errorCode: rows.httpStatus ? String(rows.httpStatus) : 'provider_error',
+          errorMessage: rows.reason,
+          startedAt,
+        });
+        // Auth / missing key: stop further spend
+        if (/SERPER_API_KEY missing|Serper HTTP 401|Serper HTTP 403/i.test(rows.reason)) {
+          return;
+        }
+        continue;
+      }
+
+      await recordSearchAttempt({
+        stationId: suite.id,
+        query: item.query,
+        provider: provider === serperSearch ? 'serper' : 'custom',
+        strategy: item.strategy,
+        status: rows.length === 0 ? 'empty' : 'ok',
+        resultCount: rows.length,
+        startedAt,
+      });
+
+      for (const row of rows) {
+        const key = row.url.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        results.push(row);
+      }
     }
-    for (const row of rows) {
-      const key = row.url.toLowerCase();
-      if (seen.has(key)) continue;
-      seen.add(key);
-      results.push(row);
-    }
+  };
+
+  await runBatch(selected);
+
+  // Adaptive fallback: if nothing useful yet, spend remaining budget on next strategies
+  if (results.length === 0 && budget < fallbackBudget) {
+    budget = fallbackBudget;
+    const more = selectQueriesForRun(ranked, budget, exhausted).slice(selected.length);
+    await runBatch(more);
+  } else if (results.length < 3 && budget < fallbackBudget) {
+    // Sparse results — try a few more identity/postcode strategies
+    const extra = Math.min(fallbackBudget, budget + 4);
+    const more = selectQueriesForRun(ranked, extra, exhausted).slice(selected.length);
+    await runBatch(more);
   }
-  return results;
+
+  // Only hard-fail the suite when every query failed with the same fatal config error
+  if (
+    results.length === 0 &&
+    queryErrors.length > 0 &&
+    queryErrors.every((e) => /SERPER_API_KEY missing/i.test(e))
+  ) {
+    return { ok: false, reason: 'SERPER_API_KEY missing' };
+  }
+
+  return {
+    results,
+    queriesRun,
+    queryErrors,
+    strategiesUsed: [...new Set(strategiesUsed)],
+    exhaustedWithoutResults: results.length === 0,
+  };
 }
 
-export { serperSearch };
+export function isSuiteSearchOutcome(
+  value: SearchResult[] | SearchQueryError | SuiteSearchOutcome,
+): value is SuiteSearchOutcome {
+  return Boolean(value && typeof value === 'object' && 'results' in value && 'queriesRun' in value);
+}
+
+export { buildRankedSearchQueries };
+export type { RankedSearchQuery, SearchStrategy };

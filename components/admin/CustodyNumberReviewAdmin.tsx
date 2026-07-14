@@ -112,7 +112,9 @@ export function CustodyNumberReviewAdmin({
     if (filter === 'needs_human') {
       if (!r.aiReview?.reviewedAt) return false;
       if (r.status !== 'needs_review' && r.status !== 'new') return false;
-      const weakEvidence = r.aiReview.evidence.source !== 'page_fetch';
+      const weakEvidence =
+        r.aiReview.evidence.source !== 'page_fetch' &&
+        r.aiReview.evidence.source !== 'pdf_fetch';
       const needsHuman =
         r.aiReview.recommendation === 'hold' ||
         r.aiReview.recommendation === 'approve' ||
@@ -302,7 +304,7 @@ export function CustodyNumberReviewAdmin({
         <p className="text-xs font-bold uppercase tracking-wide text-slate-600">Evidence</p>
         <p className="mt-1 text-sm font-semibold text-[var(--navy)]">
           Section: {ai.evidence.section}
-          {ai.evidence.source !== 'page_fetch' && (
+          {ai.evidence.source !== 'page_fetch' && ai.evidence.source !== 'pdf_fetch' && (
             <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-900">
               {ai.evidence.source === 'pdf_unfetched' ? 'PDF not fetched' : 'Search snippet only'}
             </span>

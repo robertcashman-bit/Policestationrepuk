@@ -48,7 +48,7 @@ export async function reviewFindingWithAi(
     : [notesPrefix, finding.notes].filter(Boolean).join('\n');
 
   const previouslyReviewed = Boolean(finding.aiReview?.reviewedAt);
-  const fetchFailedAgain = evidence.source !== 'page_fetch';
+  const fetchFailedAgain = evidence.source !== 'page_fetch' && evidence.source !== 'pdf_fetch';
   const aiEvidenceRetries = fetchFailedAgain
     ? (finding.aiEvidenceRetries ?? 0) + (previouslyReviewed ? 1 : 0)
     : 0;

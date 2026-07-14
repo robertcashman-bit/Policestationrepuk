@@ -2,6 +2,8 @@
  * Normalise and format UK telephone numbers for storage and display.
  */
 
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+
 /** Strip to digits with leading 0 (UK) for comparison. */
 export function normalizePhoneDigits(value: string): string {
   let t = value.trim().replace(/\s+/g, '');
@@ -46,6 +48,9 @@ export function formatPhoneUk(value: string): string {
 
 /** Convert a UK number to E.164 (+44…) where possible; null if not a valid UK format. */
 export function toE164Uk(value: string): string | null {
+  const parsed = parsePhoneNumberFromString(value.trim(), 'GB');
+  if (parsed?.isValid()) return parsed.format('E.164');
+
   const digits = normalizePhoneDigits(value);
   if (!digits) return null;
   if (digits === '101') return null; // short code, no E.164 form

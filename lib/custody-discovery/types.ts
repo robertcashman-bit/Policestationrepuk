@@ -6,6 +6,7 @@ export type CustodySourceType =
   | 'solicitor_site'
   | 'pcc'
   | 'local_authority'
+  | 'open_data'
   | 'archived'
   | 'unknown';
 
@@ -38,16 +39,58 @@ export interface CustodySuite {
   custodySuiteName: string;
   policeStationName: string;
   address: string;
+  postcode?: string;
+  town?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  /** Alternative / former names used in search. */
+  aliases?: string[];
+  operationalStatus?: string;
+  publicEnquiryStatus?: string;
+  custodyStatus?: string;
   /** True when the directory row is a dedicated custody suite (name/flag). */
   isDedicatedCustodySuite?: boolean;
   active: boolean;
+  lastSearchedAt?: string;
+  lastVerifiedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
 
+export type SearchAttemptStatus = 'ok' | 'empty' | 'error' | 'skipped';
+
+export interface StationSearchAttempt {
+  id: string;
+  stationId: string;
+  query: string;
+  provider: string;
+  strategy: string;
+  status: SearchAttemptStatus;
+  resultCount: number;
+  errorCode?: string;
+  errorMessage?: string;
+  startedAt: string;
+  completedAt: string;
+  createdAt: string;
+}
+
+/** Publication / pipeline outcome labels (admin + reporting). */
+export type StationPhonePublicationStatus =
+  | 'verified_direct'
+  | 'verified_public_enquiry'
+  | 'verified_custody'
+  | 'verified_force_switchboard'
+  | 'probable'
+  | 'conflicting_sources'
+  | 'manual_review'
+  | 'no_public_number_found'
+  | 'station_closed'
+  | 'temporarily_unavailable'
+  | 'search_failed';
+
 export type AiReviewRecommendation = 'approve' | 'reject' | 'hold';
 
-export type SourceEvidenceKind = 'page_fetch' | 'search_snippet' | 'pdf_unfetched';
+export type SourceEvidenceKind = 'page_fetch' | 'search_snippet' | 'pdf_unfetched' | 'pdf_fetch';
 
 export interface SourceEvidence {
   quote: string;

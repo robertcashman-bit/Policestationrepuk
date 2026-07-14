@@ -6,6 +6,10 @@ import {
   wasAutoApproveDigestSent,
 } from './auto-approve-digest-state';
 import {
+  minManualPreviewEmailCount,
+  shouldSendAutoApproveDigest,
+} from './notify-policy';
+import {
   buildOutstandingReviewSummary,
   pickOutstandingDigestItems,
 } from './outstanding-queue';
@@ -118,13 +122,31 @@ export async function sendDailyAutoApproveDigest(opts?: {
   const findings = await getAllFindings();
   const summary = buildAutoApproveDigestSummary(findings, opts?.now);
   const outstanding = buildOutstandingReviewSummary(findings);
-  const manualPreview = pickOutstandingDigestItems(outstanding, 8).filter(
-    (item) => item.actionHint === 'review' || Boolean(item.finding.conflictReason),
-  );
+
+  const policy = shouldSendAutoApproveDigest({
+    publishedCount: summary.published.length,
+    autoRejectedLast24h: summary.autoRejectedLast24h,
+    needsManualReview: summary.needsManualReview,
+  });
+  if (!opts?.force && !policy.send) {
+    return { sent: false, reason: policy.reason, date, summary };
+  }
+
+  // Only attach a manual preview when the backlog is large enough to bother a human.
+  // Small leftovers stay in the admin queue and are retried by AI on later crons.
+  const includeManualPreview =
+    summary.needsManualReview >= minManualPreviewEmailCount() || opts?.force === true;
+  const manualPreview = includeManualPreview
+    ? pickOutstandingDigestItems(outstanding, 8).filter(
+        (item) => item.actionHint === 'review' || Boolean(item.finding.conflictReason),
+      )
+    : [];
 
   const sent = await sendCustodyAutoApproveDigestEmail({
     date,
-    summary,
+    summary: includeManualPreview
+      ? summary
+      : { ...summary, needsManualReview: 0 },
     manualPreview,
   });
 

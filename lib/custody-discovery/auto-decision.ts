@@ -91,6 +91,15 @@ function minApproveConfidence(): number {
   return Number(process.env.CUSTODY_AI_MIN_APPROVE_CONFIDENCE ?? 92);
 }
 
+/** Soft auto-publish when AI strongly approves but rule score is just under 85. */
+function softApproveConfidence(): number {
+  return Number(process.env.CUSTODY_AI_SOFT_APPROVE_CONFIDENCE ?? 85);
+}
+
+function softApproveMinScore(): number {
+  return Number(process.env.CUSTODY_AI_SOFT_APPROVE_MIN_SCORE ?? 70);
+}
+
 /**
  * Auto-reject whenever AI recommends reject. Conflicts still block
  * auto-publish but do not block clearing reject recommendations from the queue.
@@ -357,7 +366,9 @@ async function tryAutoPublish(
   const pathNote =
     gates.path === 'corroborated' || pathLabel === 'hold_corroborated'
       ? '[Auto-published via hold cross-reference / multi-source corroboration]'
-      : '[Auto-published via official source]';
+      : gates.path === 'ai_soft'
+        ? '[Auto-published via AI soft approve — unverified pending recheck]'
+        : '[Auto-published via official source]';
   const notes = [pathNote, formatAiReviewNotes(review)].join('\n');
   const result = await approveFinding(finding.id, 'ai-reviewer', {
     notes,
@@ -559,11 +570,50 @@ export async function applyAutoDecision(
         );
 
       default:
+        // Unresolved holds: clear low-value / weak evidence instead of emailing humans.
+        if (autoRejectEnabled() && shouldAutoRejectUnresolvedHold(finding, review)) {
+          return autoRejectFinding(
+            finding,
+            review,
+            'auto_reject_unresolved_hold',
+            'AI hold without publishable evidence — cleared automatically.',
+          );
+        }
         return { action: 'queued', reason: 'needs_human' };
     }
   }
 
+  if (
+    autoRejectEnabled() &&
+    review.recommendation === 'hold' &&
+    shouldAutoRejectUnresolvedHold(finding, review)
+  ) {
+    return autoRejectFinding(
+      finding,
+      review,
+      'auto_reject_unresolved_hold',
+      'AI hold without publishable evidence — cleared automatically.',
+    );
+  }
+
   return { action: 'queued', reason: 'needs_human' };
+}
+
+/** Holds that are not worth a human email — weak score, untrusted source, or timid AI. */
+export function shouldAutoRejectUnresolvedHold(
+  finding: CustodyNumberFinding,
+  review: CustodyAiReview,
+): boolean {
+  if (finding.conflictReason) return false;
+  if (isRepDirectoryFinding(finding)) return true;
+  if (!isTrustedCorroboratingSource(finding) && !isOfficialSourceType(finding.sourceType)) {
+    return true;
+  }
+  if (finding.confidenceScore < 45) return true;
+  if (review.aiConfidence < 45) return true;
+  if (!isStrongEvidenceSource(review.evidence.source)) return true;
+  if (!evidenceContainsPhone(review.evidence, finding.normalizedPhoneNumber)) return true;
+  return false;
 }
 
 /** Auto-publish rule score floor (spec: >= 85 with an official source). */
@@ -584,7 +634,7 @@ function sourceDomainIsOfficialForForce(
 }
 
 export type AutoPublishGateResult =
-  | { ok: true; path: 'official' | 'corroborated' }
+  | { ok: true; path: 'official' | 'corroborated' | 'ai_soft' }
   | { ok: false; reason: string };
 
 function hardGates(
@@ -661,6 +711,18 @@ function canAutoPublish(
       }
       return { ok: false, reason: 'corroborated_confidence_low' };
     }
+  }
+
+  // Soft path: AI strongly approves with page evidence on a trusted/official source,
+  // publish as unverified so the human queue does not grow with near-miss approvals.
+  const softEligible =
+    (isOfficialSourceType(finding.sourceType) || isTrustedCorroboratingSource(finding)) &&
+    review.aiConfidence >= softApproveConfidence() &&
+    finding.confidenceScore >= softApproveMinScore() &&
+    isStrongEvidenceSource(review.evidence.source) &&
+    evidenceContainsPhone(review.evidence, finding.normalizedPhoneNumber);
+  if (softEligible) {
+    return { ok: true, path: 'ai_soft' };
   }
 
   if (!isOfficialSourceType(finding.sourceType)) {

@@ -1,5 +1,6 @@
 import { autoPublishEnabled } from './auto-decision';
 import { sendCustodyOutstandingDigestEmail } from './email';
+import { shouldSendOutstandingDigest } from './notify-policy';
 import {
   markOutstandingDigestSent,
   outstandingDigestDate,
@@ -38,6 +39,14 @@ export async function sendDailyOutstandingDigest(opts?: {
 
   if (summary.total === 0) {
     return { sent: false, reason: 'nothing_outstanding', date, summary };
+  }
+
+  const policy = shouldSendOutstandingDigest({
+    total: summary.total,
+    conflicts: summary.conflicts,
+  });
+  if (!opts?.force && !policy.send) {
+    return { sent: false, reason: policy.reason, date, summary };
   }
 
   const previewItems = pickOutstandingDigestItems(summary);

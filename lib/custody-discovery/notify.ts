@@ -12,6 +12,7 @@ import {
 } from './daily-notify';
 import { meetsNotifyConfidenceThreshold } from './confidence';
 import { sendCustodyDiscoveryBatchEmail } from './email';
+import { shouldSendManualDiscoveryDigest } from './notify-policy';
 import { getFinding } from './storage';
 import type { CrawlerRunStats, CustodyNumberFinding } from './types';
 
@@ -51,6 +52,7 @@ async function sendDailyDigestFromBucket(opts: {
   batchTotal?: number;
   seededCreated?: number;
   createdAt?: string;
+  force?: boolean;
 }): Promise<{ emailed: boolean; notifyCount: number; batchId: string }> {
   const digestFindings = await loadQualifyingFindings(opts.bucket.findingIds);
 
@@ -62,6 +64,16 @@ async function sendDailyDigestFromBucket(opts: {
     await markBatchNotified(opts.batchId);
     await markDailyNotifySent(opts.today);
     return { emailed: false, notifyCount: digestFindings.length, batchId: opts.batchId };
+  }
+
+  // Manual mode: batch only — never email for one leftover finding.
+  const digestPolicy = shouldSendManualDiscoveryDigest(digestFindings.length);
+  if (!opts.force && !digestPolicy.send) {
+    return {
+      emailed: false,
+      notifyCount: digestFindings.length,
+      batchId: opts.batchId,
+    };
   }
 
   const digestBatch: CustodyDiscoveryBatch = {
@@ -129,6 +141,7 @@ export async function flushPendingDailyDigest(
     today: date,
     bucket,
     batchId: `digest_${date}`,
+    force: opts?.force,
   });
 
   return {
@@ -231,6 +244,7 @@ export async function notifyIfNewFindings(input: BatchNotifyInput): Promise<Batc
     batchTotal: input.stats.batchTotal,
     seededCreated: input.seededCreated,
     createdAt: batch.createdAt,
+    force: input.forceDigest,
   });
 
   return {

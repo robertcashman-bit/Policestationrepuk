@@ -45,6 +45,11 @@ Auto-publish is **off** by default. See [Yield review](#yield-review-deferred) b
 | `CUSTODY_CORROBORATION_MIN_SOURCES` | `2` | Independent trusted domains required for corroborated auto-publish |
 | `CUSTODY_EVIDENCE_RETRY_LIMIT` | `3` | Max automatic re-reviews when the source page fetch fails |
 | `CUSTODY_DISCOVERY_NOTIFY_EMAIL` | — | Daily digest of new findings |
+| `CUSTODY_REVIEW_EMAIL_MIN_COUNT` | `2` | Minimum findings before review/outstanding emails (blocks single-item nags) |
+| `CUSTODY_MANUAL_PREVIEW_EMAIL_MIN_COUNT` | `5` | Minimum leftovers before auto-approve digests mention "needs review" |
+| `CUSTODY_AUTO_REJECT_EMAIL_MIN_COUNT` | `3` | Minimum auto-rejects before a reject-only digest is sent |
+| `CUSTODY_AI_SOFT_APPROVE_CONFIDENCE` | `85` | AI confidence for soft auto-publish of near-miss official/trusted findings |
+| `CUSTODY_AI_SOFT_APPROVE_MIN_SCORE` | `70` | Rule score floor for soft auto-publish |
 
 ### Auto-publish gates
 
@@ -75,8 +80,12 @@ Then one of two paths must pass:
 - **Duplicate confirmations** — a finding matching the already-published number for its suite is closed automatically; trusted page evidence bumps `lastVerifiedAt`.
 - **Unsafe numbers** — mobiles/premium-rate from non-official sources are auto-rejected.
 - **Weak-evidence retries** — page-fetch failures retried up to `CUSTODY_EVIDENCE_RETRY_LIMIT` (default 3).
+- **Soft AI approve** — official/trusted page-fetch findings with AI ≥ 85 and rule score ≥ 70 auto-publish as **unverified** (rechecked later) so they do not pile into email review.
+- **Unresolved hold cleanup** — weak/untrusted AI-hold leftovers are auto-rejected instead of emailed one-by-one.
 
-**Conflicts never auto-publish or auto-reject** — they always need your decision in the admin panel.
+**Email policy:** digests only send for material activity (publishes, or ≥5 open review items / conflicts). Single findings stay in `/admin/custody-number-review` and are retried by AI — they do not email you.
+
+**Conflicts never auto-publish or auto-reject** — they always need your decision in the admin panel (and only email once the conflict backlog reaches the minimum count).
 
 Nothing is invented: numbers only enter the pipeline via crawler extraction from fetched pages or committed official JSON, and the AI validator (`ai-review-validator.ts`) downgrades any AI approval whose excerpt does not contain the exact number.
 

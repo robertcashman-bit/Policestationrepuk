@@ -77,4 +77,13 @@ describe('canAutoPublish gates', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toBe('insufficient_corroboration');
   });
+
+  it('soft-approves near-miss official findings with strong AI confidence', () => {
+    const result = canAutoPublish(
+      finding({ confidenceScore: 72 }),
+      review({ aiConfidence: 88 }),
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.path).toBe('ai_soft');
+  });
 });

@@ -24,7 +24,7 @@ const COUNTY_PAGES: { name: string; slug: string; href: string; popular?: boolea
   { name: 'Norfolk', slug: 'norfolk', href: '/directory/norfolk' },
   { name: 'Suffolk', slug: 'suffolk', href: '/directory/suffolk' },
   { name: 'Berkshire', slug: 'berkshire', href: '/directory/berkshire' },
-  { name: 'Hertfordshire', slug: 'hertfordshire', href: '/directory/hertfordshire' },
+  { name: 'Hertfordshire', slug: 'hertfordshire', href: '/PoliceStationRepsHertfordshire' },
 ];
 
 export default async function PoliceStationRepsByCountyPage() {

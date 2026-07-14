@@ -31,13 +31,34 @@ export async function runSiteBufferSelfTest(
   const dayStart = `${yesterday}T00:00:00${timezoneOffsetForDate(yesterday, env.timezone)}`;
   const dayEnd = `${today}T00:00:00${timezoneOffsetForDate(today, env.timezone)}`;
 
-  const sent = await listPostsInWindow(env.apiKey, env.organizationId, {
-    status: ['sent'],
+  const listOpts = {
+    status: ['sent'] as Array<'sent'>,
     dueAtStart: dayStart,
     dueAtEnd: dayEnd,
     channelIds: env.channels.map((c) => c.id),
-    includeMetrics: true,
-  });
+  };
+
+  let sent;
+  let metricsAvailable = true;
+  try {
+    sent = await listPostsInWindow(env.apiKey, env.organizationId, {
+      ...listOpts,
+      includeMetrics: true,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    // API keys without insights:read still need a sent-count workspace check.
+    if (/insights:read/i.test(message)) {
+      metricsAvailable = false;
+      issues.push('Buffer API key lacks insights:read — sent-count check only (no metrics ingest)');
+      sent = await listPostsInWindow(env.apiKey, env.organizationId, {
+        ...listOpts,
+        includeMetrics: false,
+      });
+    } else {
+      throw err;
+    }
+  }
 
   const siteSent = sent.filter((p) => p.text.includes(hostname));
   const sentCount = siteSent.length;
@@ -46,17 +67,21 @@ export async function runSiteBufferSelfTest(
     issues.push(`Yesterday (${yesterday}): only ${sentCount}/${env.postsPerDay} posts sent`);
   }
 
-  const ingested = ingestMetricsFromPosts(siteSent, hostname);
-  const kv = adapter.kv ?? null;
-  const existing = await getSlugEngagementStats(kv, adapter.siteId);
-  await saveSlugEngagementStats(kv, adapter.siteId, mergeSlugStats(existing, ingested));
+  let metricsIngested = 0;
+  if (metricsAvailable) {
+    const ingested = ingestMetricsFromPosts(siteSent, hostname);
+    metricsIngested = ingested.length;
+    const kv = adapter.kv ?? null;
+    const existing = await getSlugEngagementStats(kv, adapter.siteId);
+    await saveSlugEngagementStats(kv, adapter.siteId, mergeSlugStats(existing, ingested));
+  }
 
   return {
     ok: sentCount >= MIN_POSTS_PER_DAY,
     date: yesterday,
     sentCount,
     requiredCount: env.postsPerDay,
-    metricsIngested: ingested.length,
+    metricsIngested,
     issues,
   };
 }

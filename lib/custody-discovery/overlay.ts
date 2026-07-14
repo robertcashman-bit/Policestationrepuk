@@ -1,10 +1,11 @@
 import type { PoliceStation } from '@/lib/types';
 import { isDialablePhone } from '@/lib/station-phone-dialable';
 import { getApprovedCache } from './storage';
+import type { ApprovedContactField } from './types';
 
 /**
- * Merge admin-approved discovery numbers onto stations at request time.
- * Only numbers explicitly approved via /admin/custody-number-review are published.
+ * Merge admin/AI-approved discovery numbers onto stations at request time.
+ * Custody desk numbers overlay `custodyPhone`; station/enquiry numbers overlay `phone`.
  */
 export async function applyApprovedDiscoveryNumbers(
   stations: PoliceStation[],
@@ -20,21 +21,26 @@ export async function applyApprovedDiscoveryNumbers(
     if (!isDialablePhone(number)) return s;
 
     const verificationStatus = record.verificationStatus ?? 'unverified';
+    const contactField: ApprovedContactField = record.contactField ?? 'custodyPhone';
+    const notes =
+      verificationStatus === 'verified'
+        ? `Admin-approved discovery (${record.approvedAt.slice(0, 10)})`
+        : `Admin-approved discovery — unverified pending confirmation (${record.approvedAt.slice(0, 10)})`;
+
+    const fieldMeta = {
+      status: verificationStatus,
+      sourceUrl: record.sourceUrl || undefined,
+      notes,
+    };
+
     return {
       ...s,
-      custodyPhone: number,
+      ...(contactField === 'phone' ? { phone: number } : { custodyPhone: number }),
       verificationMeta: {
         ...(s.verificationMeta ?? {}),
         fields: {
           ...(s.verificationMeta?.fields ?? {}),
-          custodyPhone: {
-            status: verificationStatus,
-            sourceUrl: record.sourceUrl || undefined,
-            notes:
-              verificationStatus === 'verified'
-                ? `Admin-approved discovery (${record.approvedAt.slice(0, 10)})`
-                : `Admin-approved discovery — unverified pending confirmation (${record.approvedAt.slice(0, 10)})`,
-          },
+          [contactField]: fieldMeta,
         },
         custodyDiscovery: {
           status: verificationStatus,
@@ -43,6 +49,8 @@ export async function applyApprovedDiscoveryNumbers(
           approvedAt: record.approvedAt,
           approvedBy: record.approvedBy,
           source: 'autonomous_discovery' as const,
+          contactField,
+          publicationStatus: record.publicationStatus,
         },
       },
     };

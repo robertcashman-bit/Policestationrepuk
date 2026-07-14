@@ -39,6 +39,10 @@ Writes `data/reports/station-phone-eval-YYYY-MM-DD.json`.
 | Search telemetry | None | KV attempts |
 | Outstanding digest | Unscheduled | Daily 19:15 UTC |
 | Default batch | 10 | 20 |
+| Suite index KV type | JSON `SET` string → cron WRONGTYPE 500 | Redis SET + migrate-on-read |
+| `tel:` href numbers | Dropped by HTML strip | Injected before strip |
+| Station / enquiry labels | Forced through custody-only gate | `direct_station` / `public_enquiry` → `phone` |
+| Zero-phone adaptive search | Only when SERP empty/sparse | Re-query when zero findings persisted |
 
 Dry-run expectation: `queryVariantsPerStationAvg` ≥ 12.  
 Observed dry (2026-07-14): **31** variants/station average.

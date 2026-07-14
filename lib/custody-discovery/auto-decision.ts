@@ -26,6 +26,7 @@ import { isAutoPublishableRange, numberSafetyFlags } from './number-safety';
 import {
   evidenceContainsPhone,
   evidenceHasCustodyWording,
+  evidenceHasStationOrEnquiryWording,
   isStrongEvidenceSource,
 } from './source-evidence';
 import { isOfficialSourceType } from './source-type';
@@ -42,6 +43,13 @@ import {
   saveFinding,
   getFinding,
 } from './storage';
+import type { PhoneClassification } from './types';
+
+const PUBLISHABLE_CLASSIFICATIONS = new Set<PhoneClassification>([
+  'direct_custody',
+  'direct_station',
+  'public_enquiry',
+]);
 
 export function autoPublishEnabled(): boolean {
   return process.env.CUSTODY_AI_AUTO_PUBLISH !== 'false';
@@ -588,8 +596,8 @@ function hardGates(
     const flags = finding.numberFlags ?? numberSafetyFlags(finding.normalizedPhoneNumber);
     return { ok: false, reason: flags[0] ?? 'number_range_not_publishable' };
   }
-  if (finding.classification !== 'direct_custody') {
-    return { ok: false, reason: 'not_direct_custody' };
+  if (!PUBLISHABLE_CLASSIFICATIONS.has(finding.classification)) {
+    return { ok: false, reason: 'not_publishable_classification' };
   }
   if (finding.conflictReason) {
     return { ok: false, reason: 'conflict' };
@@ -600,8 +608,19 @@ function hardGates(
   if (!isStrongEvidenceSource(review.evidence.source)) {
     return { ok: false, reason: 'weak_evidence' };
   }
-  if (!evidenceHasCustodyWording(review.evidence)) {
-    return { ok: false, reason: 'no_custody_wording' };
+  const wordingOk =
+    finding.classification === 'direct_custody'
+      ? evidenceHasCustodyWording(review.evidence)
+      : evidenceHasStationOrEnquiryWording(review.evidence) ||
+        evidenceHasCustodyWording(review.evidence);
+  if (!wordingOk) {
+    return {
+      ok: false,
+      reason:
+        finding.classification === 'direct_custody'
+          ? 'no_custody_wording'
+          : 'no_station_wording',
+    };
   }
   if (!evidenceContainsPhone(review.evidence, finding.normalizedPhoneNumber)) {
     return { ok: false, reason: 'phone_not_in_excerpt' };

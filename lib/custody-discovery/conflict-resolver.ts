@@ -7,8 +7,15 @@ import { isAutoPublishableRange } from './number-safety';
 import {
   evidenceContainsPhone,
   evidenceHasCustodyWording,
+  evidenceHasStationOrEnquiryWording,
 } from './source-evidence';
-import type { CustodyAiReview, CustodyNumberFinding } from './types';
+import type { CustodyAiReview, CustodyNumberFinding, PhoneClassification } from './types';
+
+const PUBLISHABLE: ReadonlySet<PhoneClassification> = new Set([
+  'direct_custody',
+  'direct_station',
+  'public_enquiry',
+]);
 
 /** Hard publish gates ignoring conflict flags — used to score conflict candidates. */
 export function passesPublishHardGates(
@@ -17,10 +24,15 @@ export function passesPublishHardGates(
   approvedNormalized?: string,
 ): boolean {
   if (!isAutoPublishableRange(finding.normalizedPhoneNumber)) return false;
-  if (finding.classification !== 'direct_custody') return false;
+  if (!PUBLISHABLE.has(finding.classification)) return false;
   if (approvedNormalized && approvedNormalized !== finding.normalizedPhoneNumber) return false;
   if (review.evidence.source !== 'page_fetch' && review.evidence.source !== 'pdf_fetch') return false;
-  if (!evidenceHasCustodyWording(review.evidence)) return false;
+  const wordingOk =
+    finding.classification === 'direct_custody'
+      ? evidenceHasCustodyWording(review.evidence)
+      : evidenceHasStationOrEnquiryWording(review.evidence) ||
+        evidenceHasCustodyWording(review.evidence);
+  if (!wordingOk) return false;
   if (!evidenceContainsPhone(review.evidence, finding.normalizedPhoneNumber)) return false;
   if (isRepDirectoryFinding(finding)) return false;
   return true;

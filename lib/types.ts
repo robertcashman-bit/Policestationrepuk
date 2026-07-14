@@ -185,6 +185,9 @@ export interface PoliceStation {
       approvedAt: string;
       approvedBy: string;
       source: 'autonomous_discovery';
+      /** Directory field populated by the approved discovery overlay. */
+      contactField?: 'custodyPhone' | 'phone';
+      publicationStatus?: string;
     };
   };
 }

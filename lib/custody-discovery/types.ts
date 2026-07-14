@@ -12,6 +12,8 @@ export type CustodySourceType =
 
 export type PhoneClassification =
   | 'direct_custody'
+  | 'direct_station'
+  | 'public_enquiry'
   | 'switchboard'
   | 'general_101'
   | 'solicitor_office'
@@ -173,6 +175,9 @@ export interface ApprovalAuditEntry {
   detail?: string;
 }
 
+/** Which public station field an approved discovery number should populate. */
+export type ApprovedContactField = 'custodyPhone' | 'phone';
+
 export interface ApprovedCustodyNumber {
   id: string;
   custodySuiteId: string;
@@ -181,6 +186,13 @@ export interface ApprovedCustodyNumber {
   normalizedPhoneNumber: string;
   /** E.164 format (+44…) where derivable. */
   e164?: string | null;
+  /**
+   * Directory field to overlay. Defaults to custodyPhone for legacy records.
+   * Station / enquiry numbers publish onto `phone`.
+   */
+  contactField?: ApprovedContactField;
+  /** Pipeline publication label for admin/reporting. */
+  publicationStatus?: StationPhonePublicationStatus;
   sourceFindingId: string;
   sourceUrl: string;
   approvedBy: string;

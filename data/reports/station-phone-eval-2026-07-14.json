@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-07-14T11:04:01.989Z",
+  "generatedAt": "2026-07-14T11:48:25.623Z",
   "mode": "live",
-  "stationsEvaluated": 8,
+  "stationsEvaluated": 5,
   "metrics": {
     "queryVariantsPerStationAvg": 31,
     "anyCandidateRate": 1,
     "scoredCandidateRate": 1,
-    "custodyContextCandidateRate": 1,
+    "custodyContextCandidateRate": 0.8,
     "genericOr101Hits": 0,
     "hallucinatedResults": 0,
     "note": "Rates measure extraction yield before AI gates; precision requires curated expected.phone labels."
@@ -33,8 +33,8 @@
         "alias",
         "force_directory"
       ],
-      "organicCount": 42,
-      "extracted": 9,
+      "organicCount": 43,
+      "extracted": 10,
       "bestPhone": "01732 771 055",
       "bestScore": 65,
       "custodyNear": true,
@@ -68,17 +68,17 @@
         "alias",
         "force_directory"
       ],
-      "organicCount": 33,
-      "extracted": 4,
-      "bestPhone": "01732 247427",
-      "bestScore": 65,
-      "custodyNear": true,
+      "organicCount": 47,
+      "extracted": 5,
+      "bestPhone": "01622 652610",
+      "bestScore": 40,
+      "custodyNear": false,
       "sources": [
+        "https://www.police.uk/pu/contact-us/find-force-local-policing-team/",
         "https://www.whatdotheyknow.com/request/police_station_custody_suite_inf_3",
         "https://www.ksar.co.uk/contact/",
         "https://www.kent.police.uk/police-forces/kent-police/areas/kent-police/c/careers/police-staff-roles/contact-handlers-and-dispatchers/",
-        "https://www.facebook.com/SherbornePolice/mentions/",
-        "https://www.police.uk/pu/your-area/metropolitan-police-service/"
+        "https://www.uwe.ac.uk/about/services/police-services"
       ],
       "expectedOutcome": "unknown"
     },
@@ -103,8 +103,8 @@
         "alias",
         "force_directory"
       ],
-      "organicCount": 42,
-      "extracted": 22,
+      "organicCount": 39,
+      "extracted": 40,
       "bestPhone": "01732 247427",
       "bestScore": 65,
       "custodyNear": true,
@@ -113,7 +113,7 @@
         "https://policestationrepuk.org/police-station/swanley-police-station",
         "https://www.policestationagent.com/police-station-rep-swanley",
         "https://www.kent.police.uk/foi-ai/kent-police/lists-and-registers/asset-register-land-and-buildings/",
-        "https://uk.linkedin.com/in/robert-cashman-5043054b"
+        "https://www.facebook.com/kentpolice/photos/an-off-road-motorcycle-has-been-seized-following-reports-of-antisocial-riding-an/1339433998228668/"
       ],
       "expectedOutcome": "unknown"
     },
@@ -138,17 +138,17 @@
         "alias",
         "force_directory"
       ],
-      "organicCount": 35,
-      "extracted": 10,
-      "bestPhone": "01634 792 000",
-      "bestScore": 50,
+      "organicCount": 33,
+      "extracted": 36,
+      "bestPhone": "07535494446",
+      "bestScore": 65,
       "custodyNear": true,
       "sources": [
-        "https://www.facebook.com/100092626779033/posts/man-arrested-for-attacking-police-station-rumours-on-social-media-that-sheerness/859826537114898/",
         "https://www.kent.police.uk/foi-ai/kent-police/lists-and-registers/asset-register-land-and-buildings/",
         "https://policestationrepuk.org/directory/kent",
+        "https://www.facebook.com/groups/676291043116508/posts/1826982131380721/",
         "https://bidstats.uk/tenders/?q=police+station",
-        "https://www.kentonline.co.uk/sheerness/news/fake-detective-in-bank-card-17548/"
+        "https://crimerate.co.uk/kent-police"
       ],
       "expectedOutcome": "unknown"
     },
@@ -173,122 +173,17 @@
         "alias",
         "force_directory"
       ],
-      "organicCount": 15,
-      "extracted": 20,
-      "bestPhone": "0161 856 5757",
-      "bestScore": 80,
+      "organicCount": 35,
+      "extracted": 29,
+      "bestPhone": "07722045525",
+      "bestScore": 95,
       "custodyNear": true,
       "sources": [
         "https://policestationrepuk.org/police-station/greater-manchester-headquarters",
         "https://policestationrepuk.org/directory/greater-manchester",
+        "https://assets.publishing.service.gov.uk/media/64dcd3fec8dee4000d7f1db4/annex-probation-officer-recruitment-June-2023_final.ods",
         "https://www.gov.uk/government/statistics/hm-prison-probation-service-workforce-quarterly-september-2024/workforce-statistics-guide",
-        "https://www.manchestereveningnews.co.uk/news/greater-manchester-news/harrowing-video-death-police-custody-22528588",
-        "https://assets.publishing.service.gov.uk/media/64dcd3fec8dee4000d7f1db4/annex-probation-officer-recruitment-June-2023_final.ods"
-      ],
-      "expectedOutcome": "unknown"
-    },
-    {
-      "id": "68af781484b8f00da0b8d992",
-      "name": "Ashton Police Station",
-      "force": "Greater Manchester Police",
-      "category": "police_station",
-      "queryVariants": 31,
-      "strategies": [
-        "canonical_custody",
-        "force_domain",
-        "police_uk",
-        "gov_uk",
-        "pdf_official",
-        "enquiry_office",
-        "contact_us",
-        "opening_times",
-        "name_town",
-        "postcode",
-        "address",
-        "alias",
-        "force_directory"
-      ],
-      "organicCount": 40,
-      "extracted": 3,
-      "bestPhone": "01732) 247427",
-      "bestScore": 50,
-      "custodyNear": true,
-      "sources": [
-        "https://policestationrepuk.org/police-station/ashton-police-station",
-        "https://www.facebook.com/GMPTameside/posts/update-a-man-and-a-woman-from-ashton-have-been-charged-with-firearm-and-drug-off/4849042135159507/",
-        "https://www.instagram.com/popular/ashton-police-station-custody-number/",
-        "https://www.greatermanchester-ca.gov.uk/media/9861/the-baird-inquiry.pdf",
-        "https://www.instagram.com/reel/DYU6NbCADwe/"
-      ],
-      "expectedOutcome": "unknown"
-    },
-    {
-      "id": "68af781484b8f00da0b8d993",
-      "name": "Bolton Police Station",
-      "force": "Greater Manchester Police",
-      "category": "custody_suite",
-      "queryVariants": 31,
-      "strategies": [
-        "canonical_custody",
-        "force_domain",
-        "police_uk",
-        "gov_uk",
-        "pdf_official",
-        "enquiry_office",
-        "contact_us",
-        "opening_times",
-        "name_town",
-        "postcode",
-        "address",
-        "alias",
-        "force_directory"
-      ],
-      "organicCount": 32,
-      "extracted": 11,
-      "bestPhone": "01732) 247427",
-      "bestScore": 50,
-      "custodyNear": true,
-      "sources": [
-        "https://www.jdspicer.co.uk/site/our-services/criminal-law-solicitors/police-stations/bolton-police-station-custody-legal-representation/",
-        "https://assets.publishing.service.gov.uk/media/5a823bd3e5274a2e8ab58333/bolton-police-station-closure-consultation-response.pdf",
-        "https://policestationrepuk.org/police-station/bolton-police-station",
-        "https://www.gmp.police.uk/news/greater-manchester/news/news/2021/september/cc-stephen-watson-fast-tracks-re-opening-of-bolton-custody-suite/",
-        "https://www.facebook.com/GMPBoltonNorth/posts/as-of-monday-23rd-march-2020-the-public-enquiry-counter-at-bolton-police-station/2657619084346488/"
-      ],
-      "expectedOutcome": "unknown"
-    },
-    {
-      "id": "68af781484b8f00da0b8d9a0",
-      "name": "Radcliffe Police Station",
-      "force": "Greater Manchester Police",
-      "category": "police_station",
-      "queryVariants": 31,
-      "strategies": [
-        "canonical_custody",
-        "force_domain",
-        "police_uk",
-        "gov_uk",
-        "pdf_official",
-        "enquiry_office",
-        "contact_us",
-        "opening_times",
-        "name_town",
-        "postcode",
-        "address",
-        "alias",
-        "force_directory"
-      ],
-      "organicCount": 38,
-      "extracted": 16,
-      "bestPhone": "0161 856 5757",
-      "bestScore": 50,
-      "custodyNear": true,
-      "sources": [
-        "https://policestationrepuk.org/directory/greater-manchester",
-        "https://www.facebook.com/cityofradcliff/posts/radcliff-police-department-is-requesting-assistance-from-the-public-in-identifyi/2032027393682499/",
-        "https://www.burytimes.co.uk/news/13715297.man-arrested-after-threat-to-kill-woman-with-firearm-in-radcliffe/",
-        "https://gmpmuseum.co.uk/collection-item/history-of-gmp-1974-2013/",
-        "https://www.facebook.com/groups/188202667969872/posts/24794205813609549/"
+        "https://s3-eu-west-1.amazonaws.com/datagovuk-production-ckan-organogram/organogram-ministry-of-justice/resources/2023-11-28T14-55-57Z-2023-11-28-organogram-junior.csv"
       ],
       "expectedOutcome": "unknown"
     }

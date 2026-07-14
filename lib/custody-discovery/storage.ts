@@ -2,10 +2,14 @@ import crypto from 'crypto';
 import { addToIndexSet, readIndexMembers, claimKey } from '@/lib/kv-atomic';
 import { getKV, skipKVInPrerender } from '@/lib/kv';
 import type {
+  ApprovalAuditEntry,
+  ApprovedContactField,
   ApprovedCustodyNumber,
   CustodyNumberFinding,
   CustodySuite,
   FindingStatus,
+  PhoneClassification,
+  StationPhonePublicationStatus,
 } from './types';
 
 const SUITE_PREFIX = 'custodysuite:';
@@ -84,18 +88,30 @@ export async function bootstrapCustodySuites(suites: CustodySuite[]): Promise<nu
     return suites.length;
   }
 
-  const now = new Date().toISOString();
-  const pipeline = kv.pipeline();
-  const indexIds = [...existingIds];
-
-  for (const suite of missing) {
-    pipeline.set(suiteKey(suite.id), suite);
-    if (!indexIds.includes(suite.id)) indexIds.push(suite.id);
+  if (missing.length === 0) {
+    return suites.length;
   }
 
-  if (missing.length > 0) {
-    pipeline.set(SUITE_INDEX, indexIds);
+  // Always index with Redis SET (SADD). Writing a JSON array via kv.set caused
+  // production WRONGTYPE failures when later code called SADD on the same key.
+  const pipeline = kv.pipeline();
+  for (const suite of missing) {
+    pipeline.set(suiteKey(suite.id), suite);
+    pipeline.sadd(SUITE_INDEX, suite.id);
+  }
+
+  try {
     await pipeline.exec();
+  } catch (err) {
+    if (!/WRONGTYPE/i.test(String(err))) throw err;
+    // Repair legacy string index, then retry SADD for missing suites only.
+    await readStringList(SUITE_INDEX);
+    const retry = kv.pipeline();
+    for (const suite of missing) {
+      retry.set(suiteKey(suite.id), suite);
+      retry.sadd(SUITE_INDEX, suite.id);
+    }
+    await retry.exec();
   }
 
   return suites.length;
@@ -215,7 +231,30 @@ export async function loadAllApprovedNumbers(): Promise<Map<string, ApprovedCust
 
 import { resolveApprovalVerificationStatus } from './verification';
 import { toE164Uk } from '@/lib/phone-format';
-import type { ApprovalAuditEntry } from './types';
+
+export function contactFieldForClassification(
+  classification: PhoneClassification,
+): ApprovedContactField {
+  return classification === 'direct_custody' ? 'custodyPhone' : 'phone';
+}
+
+export function publicationStatusForClassification(
+  classification: PhoneClassification,
+): StationPhonePublicationStatus {
+  switch (classification) {
+    case 'direct_custody':
+      return 'verified_custody';
+    case 'public_enquiry':
+      return 'verified_public_enquiry';
+    case 'direct_station':
+      return 'verified_direct';
+    case 'switchboard':
+    case 'general_101':
+      return 'verified_force_switchboard';
+    default:
+      return 'probable';
+  }
+}
 
 const AUDIT_LOG_MAX_ENTRIES = 50;
 
@@ -267,6 +306,8 @@ export async function approveFinding(
       phoneNumber: finding.possiblePhoneNumber,
       normalizedPhoneNumber: finding.normalizedPhoneNumber,
       e164: finding.e164 ?? toE164Uk(finding.normalizedPhoneNumber),
+      contactField: contactFieldForClassification(finding.classification),
+      publicationStatus: publicationStatusForClassification(finding.classification),
       sourceFindingId: finding.id,
       sourceUrl: finding.sourceUrl,
       approvedBy,
@@ -279,7 +320,7 @@ export async function approveFinding(
     {
       actor: approvedBy,
       action: isAi ? 'auto_approved' : 'approved',
-      detail: `source: ${finding.sourceUrl} · score ${finding.confidenceScore} (${finding.confidenceLevel}) · ${finding.sourceType}`,
+      detail: `source: ${finding.sourceUrl} · score ${finding.confidenceScore} (${finding.confidenceLevel}) · ${finding.sourceType} · ${finding.classification}`,
     },
   );
   await saveApprovedNumber(approved);

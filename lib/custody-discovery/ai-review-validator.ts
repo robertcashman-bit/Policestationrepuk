@@ -1,5 +1,9 @@
 import type { CustodyAiReview, CustodyNumberFinding } from './types';
-import { evidenceContainsPhone, evidenceHasCustodyWording } from './source-evidence';
+import {
+  evidenceContainsPhone,
+  evidenceHasCustodyWording,
+  evidenceHasStationOrEnquiryWording,
+} from './source-evidence';
 
 export interface AiReviewValidationResult {
   ok: boolean;
@@ -17,13 +21,20 @@ export function validateAiReviewOutput(
     return { ok: false, flags };
   }
 
-  if (
-    review.recommendation === 'approve' &&
-    !evidenceHasCustodyWording(review.evidence) &&
-    finding.classification !== 'direct_custody'
-  ) {
-    flags.push('no_custody_wording_in_excerpt');
-    return { ok: false, flags };
+  if (review.recommendation === 'approve') {
+    if (finding.classification === 'direct_custody' && !evidenceHasCustodyWording(review.evidence)) {
+      flags.push('no_custody_wording_in_excerpt');
+      return { ok: false, flags };
+    }
+    if (
+      (finding.classification === 'direct_station' ||
+        finding.classification === 'public_enquiry') &&
+      !evidenceHasStationOrEnquiryWording(review.evidence) &&
+      !evidenceHasCustodyWording(review.evidence)
+    ) {
+      flags.push('no_station_wording_in_excerpt');
+      return { ok: false, flags };
+    }
   }
 
   const whyText = review.recommendation === 'reject' ? review.whyNot ?? '' : review.whyPublish;

@@ -1,7 +1,13 @@
 import crypto from 'crypto';
 import { getKV } from '@/lib/kv';
 import { normalizePhoneDigits } from '@/lib/phone-format';
-import { hasCustodyWordingNear, pickBestCustodyCandidatePhone, type PhonePickContext } from './phone';
+import { htmlToSearchableText } from './html-text';
+import {
+  hasCustodyWordingNear,
+  hasEnquiryWordingNear,
+  pickBestCustodyCandidatePhone,
+  type PhonePickContext,
+} from './phone';
 import { fetchPdfText, isPdfUrl } from './pdf-text';
 import type { CustodyNumberFinding, SourceEvidence, SourceEvidenceKind } from './types';
 
@@ -21,21 +27,12 @@ export function fetchEvidenceEnabled(): boolean {
   return process.env.CUSTODY_AI_FETCH_EVIDENCE !== 'false';
 }
 
-function htmlToText(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 function nearestSectionHeading(html: string, matchIndex: number): string {
   const before = html.slice(0, matchIndex);
   const headingMatches = [...before.matchAll(/<h[1-4][^>]*>([\s\S]*?)<\/h[1-4]>/gi)];
   if (headingMatches.length === 0) return 'Page content';
   const raw = headingMatches[headingMatches.length - 1][1];
-  return htmlToText(raw).slice(0, 120) || 'Page content';
+  return htmlToSearchableText(raw).slice(0, 120) || 'Page content';
 }
 
 function highlightPhoneInQuote(quote: string, display: string, normalized: string): string {
@@ -181,7 +178,7 @@ export async function fetchSourceEvidence(finding: CustodyNumberFinding): Promis
     return snippetFallback(finding);
   }
 
-  const text = htmlToText(html);
+  const text = htmlToSearchableText(html);
   const digits = normalizePhoneDigits(finding.possiblePhoneNumber);
   const textDigits = text.replace(/\D/g, '');
   if (!digits || !textDigits.includes(digits.replace(/^0/, ''))) {
@@ -219,6 +216,15 @@ export function evidenceHasCustodyWording(evidence: SourceEvidence): boolean {
   return hasCustodyWordingNear(evidence.quote.replace(/\*\*/g, ''));
 }
 
+/** Station-specific / public enquiry wording (not custody desk). */
+export function evidenceHasStationOrEnquiryWording(evidence: SourceEvidence): boolean {
+  const quote = evidence.quote.replace(/\*\*/g, '');
+  if (hasEnquiryWordingNear(quote)) return true;
+  return /police station|station (?:telephone|phone|contact)|front counter|enquiry desk/i.test(
+    quote,
+  );
+}
+
 export function evidenceContainsPhone(
   evidence: SourceEvidence,
   normalizedPhoneNumber: string,
@@ -233,7 +239,7 @@ export async function fetchPageTextFromUrl(url: string): Promise<string | null> 
   if (!url.startsWith('http')) return null;
   if (isPdfUrl(url)) return fetchPdfText(url);
   const html = await fetchCachedPageHtml(url);
-  return html ? htmlToText(html) : null;
+  return html ? htmlToSearchableText(html) : null;
 }
 
 export function extractBestPhoneFromPageText(

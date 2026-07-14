@@ -26,6 +26,7 @@ import {
   isSearchQueryError,
   isSuiteSearchOutcome,
   defaultMaxSearchQueries,
+  defaultFallbackSearchQueries,
   type SearchProvider,
 } from './search';
 import { fetchPageTextFromUrl } from './source-evidence';
@@ -361,39 +362,81 @@ export async function crawlCustodySuite(
   let numbersExtracted = 0;
   const newFindingIds: string[] = [];
 
-  for (const hit of results) {
-    const pageText = pageTextCache.get(hit.url);
-    const extractSource = pageText
-      ? `${hit.title} ${hit.snippet} ${pageText}`
-      : `${hit.title} ${hit.snippet}`;
-    numbersExtracted += extractPhonesFromText(extractSource, 120, suite.forceName).length;
+  const processHits = async (hits: SearchResult[]) => {
+    for (const hit of hits) {
+      const pageText = pageTextCache.get(hit.url);
+      const extractSource = pageText
+        ? `${hit.title} ${hit.snippet} ${pageText}`
+        : `${hit.title} ${hit.snippet}`;
+      numbersExtracted += extractPhonesFromText(extractSource, 120, suite.forceName).length;
 
-    const outcomes = await processAllPhonesFromHit({
+      const outcomes = await processAllPhonesFromHit({
+        suite,
+        title: hit.title,
+        url: hit.url,
+        snippet: hit.snippet,
+        date: hit.date,
+        existingFindings: existing,
+        searchProvider: options.searchProvider,
+        pageText,
+      });
+
+      for (const outcome of outcomes) {
+        if (outcome.action === 'created') {
+          created++;
+          if (outcome.finding?.id) newFindingIds.push(outcome.finding.id);
+          if (outcome.finding?.conflictReason) conflicts++;
+        } else if (outcome.action === 'duplicate') {
+          updated++;
+        } else {
+          rejected++;
+        }
+      }
+    }
+  };
+
+  await processHits(results);
+
+  // Adaptive identity search: SERP rows ≠ phones. If nothing persisted, spend
+  // remaining fallback query budget on unused strategies.
+  const fallbackBudget = defaultFallbackSearchQueries();
+  let queriesRun = searchMeta.queriesRun;
+  let queryErrors = [...searchMeta.queryErrors];
+  if (created === 0 && queriesRun < fallbackBudget) {
+    const retryOutcome = await searchForSuite(
       suite,
-      title: hit.title,
-      url: hit.url,
-      snippet: hit.snippet,
-      date: hit.date,
-      existingFindings: existing,
-      searchProvider: options.searchProvider,
-      pageText,
-    });
-
-    for (const outcome of outcomes) {
-      if (outcome.action === 'created') {
-        created++;
-        if (outcome.finding?.id) newFindingIds.push(outcome.finding.id);
-        if (outcome.finding?.conflictReason) conflicts++;
-      } else if (outcome.action === 'duplicate') {
-        updated++;
-      } else {
-        rejected++;
+      options.searchProvider,
+      fallbackBudget,
+    );
+    if (!isSearchQueryError(retryOutcome)) {
+      const retryMeta = isSuiteSearchOutcome(retryOutcome)
+        ? retryOutcome
+        : {
+            results: retryOutcome as SearchResult[],
+            queriesRun: fallbackBudget,
+            queryErrors: [] as string[],
+            strategiesUsed: [],
+            exhaustedWithoutResults: (retryOutcome as SearchResult[]).length === 0,
+          };
+      queriesRun = Math.max(queriesRun, retryMeta.queriesRun);
+      queryErrors.push(...retryMeta.queryErrors);
+      const extraHits = mergeSearchResults(retryMeta.results).filter(
+        (hit) => !results.some((r) => r.url.toLowerCase() === hit.url.toLowerCase()),
+      );
+      if (extraHits.length > 0) {
+        const extraCache = await buildPageTextCache(
+          extraHits,
+          pickOpts,
+          maxPageFetchesPerSuite(),
+        );
+        for (const [url, text] of extraCache) pageTextCache.set(url, text);
+        await processHits(extraHits);
       }
     }
   }
 
   return {
-    searchesRun: searchMeta.queriesRun,
+    searchesRun: queriesRun,
     numbersExtracted,
     created,
     updated,
@@ -402,7 +445,7 @@ export async function crawlCustodySuite(
     officialPagesFetched: officialResults.length,
     pageFetchesUsed: pageTextCache.size,
     osmResults: osmResults.length,
-    queryErrors: searchMeta.queryErrors,
+    queryErrors,
     newFindingIds,
     exhaustedWithoutResults: searchMeta.exhaustedWithoutResults && created === 0,
   };

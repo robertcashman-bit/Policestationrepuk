@@ -1,4 +1,5 @@
 import { normaliseStationName } from '@/lib/custody-station';
+import { htmlToSearchableText } from './html-text';
 import { extractPhonesFromText, hasCustodyWordingNear } from './phone';
 import type { CustodySuite, SearchResult } from './types';
 
@@ -54,15 +55,6 @@ export const FORCE_CUSTODY_PAGES: Record<string, string[]> = {
   'city of london police': ['https://www.cityoflondon.police.uk/contact/'],
 };
 
-function htmlToText(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 function suiteNameTokens(name: string): string[] {
   return normaliseStationName(name)
     .split(/\s+/)
@@ -115,7 +107,7 @@ async function fetchPageText(url: string): Promise<string | null> {
     });
     if (!res.ok) return null;
     const html = await res.text();
-    return htmlToText(html);
+    return htmlToSearchableText(html);
   } catch {
     return null;
   } finally {

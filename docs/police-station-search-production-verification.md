@@ -14,9 +14,12 @@
 
 ## Deployment
 
-- **Commit:** `6ad6266` (type fix) on top of `5d364ae` (pipeline overhaul)
-- **Production deployment:** `dpl_YenkbN4c5Rwppz6WVCg23rhavD4C` — READY  
-- **Alias:** https://policestationrepuk.com (org host redirects to policestationrepuk.org)
+- **Prior overhaul:** `5d364ae` / `6ad6266` — READY as `dpl_YenkbN4c5Rwppz6WVCg23rhavD4C`
+- **Follow-up fix (KV WRONGTYPE + tel: + station publish):** see latest `master` after 2026-07-14 afternoon deploy
+
+### Production incident fixed
+
+Discovery cron returned **500 WRONGTYPE** on `SADD` against `custodysuite:index` (JSON array string vs Redis SET) across multiple scheduled runs on 2026-07-12–14. Deploy after the kv-atomic/bootstrap fix must show `ok: true` on `/api/cron/custody-number-discovery`.
 
 Local live eval against Serper (pre-deploy, `n=8`): 100% scored candidate yield with custody context; 0 generic/101 hits.
 

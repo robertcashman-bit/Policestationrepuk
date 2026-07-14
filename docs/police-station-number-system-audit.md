@@ -106,6 +106,37 @@ Committed seeds only Devon & Cornwall + Kent; Playwright GHA only expands Devon 
 
 Recheck keeps published numbers on source failure (`approved-recheck.ts`). Auto-publish hard-gates block different approved numbers. Reject of an approved finding still revokes visibility — intended admin/AI path.
 
+### 13. Production cron hard-failed on KV WRONGTYPE (critical — observed live)
+
+**Evidence (Vercel runtime logs, 2026-07-12 → 2026-07-14):**  
+`GET /api/cron/custody-number-discovery` repeatedly returned **500** with:
+
+```text
+Error [UpstashError]: Command 1 [ sadd ] failed: WRONGTYPE Operation against a key holding the wrong kind of value
+```
+
+**Root cause:** `bootstrapCustodySuites` wrote `custodysuite:index` as a **JSON array string** via `kv.set`, while `saveCustodySuite` / `readIndexMembers` migration used Redis **`SADD`/`SMEMBERS`**. Calling `SADD` on a STRING key aborts the entire discovery run before crawling.
+
+**Fix:** migrate-by-delete-then-SADD in `lib/kv-atomic.ts`; bootstrap indexes only via `SADD`; resilient `addToIndexSet` recovers WRONGTYPE.
+
+### 14. HTML strip discarded `tel:` href numbers (high impact)
+
+`htmlToText` removed all tags before extraction, so force pages that only expose numbers as `<a href="tel:…">` yielded zero candidates.
+
+**Fix:** `lib/custody-discovery/html-text.ts` injects `Telephone: <n>` tokens from tel: hrefs before tag stripping; used by official-page + evidence fetch paths.
+
+### 15. Custody-only classification blocked station numbers (high impact)
+
+Pipeline / auto-publish required `direct_custody` + custody wording. Legitimate **station** and **public enquiry** numbers were classified `unknown` and could never auto-publish or overlay the public `phone` field.
+
+**Fix:** classifications `direct_station` / `public_enquiry`; publish gates accept them with station/enquiry wording; approved overlay can write `phone` via `contactField`.
+
+### 16. Adaptive search keyed on SERP rows, not extracted phones
+
+Fallback query budget expanded when search returned &lt;3 URLs, not when those URLs yielded zero persistable phones.
+
+**Fix:** crawler re-runs remaining fallback query budget when `created === 0`.
+
 ## Silent failure modes observed in design
 
 | Mode | Behaviour |
@@ -114,6 +145,7 @@ Recheck keeps published numbers on source failure (`approved-recheck.ts`). Auto-
 | Page/Cloudflare block | `null` fetch → snippet fallback → weak evidence |
 | KV missing | Findings cannot persist |
 | OpenAI missing | AI hold (`no_openai`); rules still classify |
+| Legacy JSON suite index (pre-fix) | Cron 500 WRONGTYPE until migrated |
 
 ## Production scheduler confirmation
 

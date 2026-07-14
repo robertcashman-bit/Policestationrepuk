@@ -1,5 +1,9 @@
 import { getKV } from '@/lib/kv';
 
+function isWrongTypeError(err: unknown): boolean {
+  return /WRONGTYPE/i.test(String(err));
+}
+
 /** Atomic SET NX — returns true when this caller claimed the key. */
 export async function claimKey(
   key: string,
@@ -37,34 +41,78 @@ export async function incrementCounter(
   return next;
 }
 
-/** Read string index — Redis SET (SMEMBERS) with legacy JSON array fallback. */
+async function migrateStringArrayToSet(key: string, members: string[]): Promise<void> {
+  const kv = getKV();
+  if (!kv) return;
+  // Must DEL first — SADD against a Redis STRING (JSON array) throws WRONGTYPE.
+  await kv.del(key);
+  if (members.length === 0) return;
+  const pipeline = kv.pipeline();
+  for (const id of members) pipeline.sadd(key, id);
+  await pipeline.exec();
+}
+
+/**
+ * Read string index — Redis SET (SMEMBERS) with legacy JSON array fallback.
+ * Legacy keys written via `kv.set(key, string[])` are migrated to SET on read.
+ */
 export async function readIndexMembers(key: string): Promise<string[]> {
   const kv = getKV();
   if (!kv) return [];
 
   try {
     const members = await kv.smembers(key);
-    if (Array.isArray(members) && members.length > 0) {
+    if (Array.isArray(members)) {
       return members.map(String);
     }
-  } catch {
-    // Key may be legacy JSON array type — fall through.
+  } catch (err) {
+    if (!isWrongTypeError(err)) {
+      // Unexpected Redis error — try legacy path once.
+      console.warn(`[kv-atomic] smembers failed for ${key}:`, err);
+    }
   }
 
-  const raw = await kv.get<string[]>(key);
+  let raw: string[] | null = null;
+  try {
+    raw = await kv.get<string[]>(key);
+  } catch (err) {
+    if (isWrongTypeError(err)) {
+      // Key is already a SET but smembers failed earlier oddly — retry smembers.
+      try {
+        const members = await kv.smembers(key);
+        return Array.isArray(members) ? members.map(String) : [];
+      } catch {
+        return [];
+      }
+    }
+    throw err;
+  }
+
   if (!Array.isArray(raw) || raw.length === 0) return [];
 
-  const pipeline = kv.pipeline();
-  for (const id of raw) pipeline.sadd(key, id);
-  await pipeline.exec();
-  return raw;
+  try {
+    await migrateStringArrayToSet(key, raw.map(String));
+  } catch (err) {
+    console.error(`[kv-atomic] failed to migrate index ${key} to SET:`, err);
+    // Still return the members so callers can proceed this request.
+  }
+  return raw.map(String);
 }
 
-/** Atomically add a unique id to a string index (Redis SADD). */
+/** Atomically add a unique id to a string index (Redis SADD), migrating legacy JSON arrays. */
 export async function addToIndexSet(key: string, id: string): Promise<void> {
   const kv = getKV();
   if (!kv) return;
-  await kv.sadd(key, id);
+  try {
+    await kv.sadd(key, id);
+  } catch (err) {
+    if (!isWrongTypeError(err)) throw err;
+    // Migrate legacy string/JSON index, then SADD the new id.
+    const members = await readIndexMembers(key);
+    if (!members.includes(id)) {
+      await kv.sadd(key, id);
+    }
+  }
 }
 
 /** @deprecated Use addToIndexSet — kept for callers migrating from RMW append. */

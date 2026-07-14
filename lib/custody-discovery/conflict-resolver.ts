@@ -8,7 +8,6 @@ import {
   evidenceContainsPhone,
   evidenceHasCustodyWording,
 } from './source-evidence';
-import { isOfficialSourceType } from './source-type';
 import type { CustodyAiReview, CustodyNumberFinding } from './types';
 
 /** Hard publish gates ignoring conflict flags — used to score conflict candidates. */

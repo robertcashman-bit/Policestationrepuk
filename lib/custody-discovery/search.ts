@@ -16,8 +16,15 @@ export interface SearchQueryError {
   httpStatus?: number;
 }
 
-export function isSearchQueryError(result: SearchQueryResult): result is SearchQueryError {
-  return !Array.isArray(result) && 'ok' in result && result.ok === false;
+export function isSearchQueryError(result: unknown): result is SearchQueryError {
+  return Boolean(
+    result &&
+      typeof result === 'object' &&
+      !Array.isArray(result) &&
+      'ok' in result &&
+      (result as { ok: unknown }).ok === false &&
+      'reason' in result,
+  );
 }
 
 const SERPER_URL = 'https://google.serper.dev/search';

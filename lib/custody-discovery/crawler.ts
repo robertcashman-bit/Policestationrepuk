@@ -401,7 +401,7 @@ export async function crawlCustodySuite(
   // remaining fallback query budget on unused strategies.
   const fallbackBudget = defaultFallbackSearchQueries();
   let queriesRun = searchMeta.queriesRun;
-  let queryErrors = [...searchMeta.queryErrors];
+  const queryErrors = [...searchMeta.queryErrors];
   if (created === 0 && queriesRun < fallbackBudget) {
     const retryOutcome = await searchForSuite(
       suite,

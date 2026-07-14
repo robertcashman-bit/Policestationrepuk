@@ -12,7 +12,17 @@
 | Cron routes exist for new paths | `vercel-cron-routes` green |
 | Audit + architecture docs | Present under `docs/police-station-*.md` |
 
-## Post-deploy smoke (run after promote)
+## Deployment
+
+- **Commit:** `6ad6266` (type fix) on top of `5d364ae` (pipeline overhaul)
+- **Production deployment:** `dpl_YenkbN4c5Rwppz6WVCg23rhavD4C` — READY  
+- **Alias:** https://policestationrepuk.com (org host redirects to policestationrepuk.org)
+
+Local live eval against Serper (pre-deploy, `n=8`): 100% scored candidate yield with custody context; 0 generic/101 hits.
+
+## Post-deploy smoke (run with dashboard `CRON_SECRET`)
+
+Sensitive production secrets do not export via `vercel env pull` (empty values). Smoke from a machine/shell that has the real secret:
 
 ```bash
 # 1) Controlled crawl

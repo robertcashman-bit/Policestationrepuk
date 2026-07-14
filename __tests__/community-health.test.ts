@@ -47,7 +47,7 @@ describe('checkFacebookGroupUrl', () => {
     expect(result.issue).toMatch(/404/);
   });
 
-  it('fails when redirected away from group slug', async () => {
+  it('passes when redirected to a Facebook login wall', async () => {
     const fetchImpl = vi.fn().mockResolvedValue({
       status: 200,
       url: 'https://www.facebook.com/login.php',
@@ -58,7 +58,36 @@ describe('checkFacebookGroupUrl', () => {
       fetchImpl as unknown as typeof fetch,
     );
 
+    expect(result.ok).toBe(true);
+  });
+
+  it('fails when redirected away from Facebook entirely', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue({
+      status: 200,
+      url: 'https://example.com/blocked',
+    });
+
+    const result = await checkFacebookGroupUrl(
+      'https://www.facebook.com/groups/policestationrepuk',
+      fetchImpl as unknown as typeof fetch,
+    );
+
     expect(result.ok).toBe(false);
     expect(result.issue).toMatch(/redirected/i);
+  });
+
+  it('supports Playwright-style status()/url() responses', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue({
+      status: () => 200,
+      url: () => 'https://www.facebook.com/groups/policestationrepuk',
+    });
+
+    const result = await checkFacebookGroupUrl(
+      'https://www.facebook.com/groups/policestationrepuk',
+      fetchImpl as unknown as typeof fetch,
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.status).toBe(200);
   });
 });

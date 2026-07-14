@@ -18,9 +18,26 @@ export function facebookGroupSlugFromUrl(url: string): string | null {
   }
 }
 
+type FetchLikeResponse = {
+  status: number | (() => number);
+  url: string | (() => string);
+};
+
+function readStatus(res: FetchLikeResponse): number {
+  return typeof res.status === 'function' ? res.status() : res.status;
+}
+
+function readUrl(res: FetchLikeResponse): string {
+  const value = typeof res.url === 'function' ? res.url() : res.url;
+  return typeof value === 'string' ? value : '';
+}
+
 /**
  * Verify a Facebook group URL is reachable. A login wall (200) is OK — we only fail on
  * 404+, redirects away from the group slug, or network errors.
+ *
+ * Accepts both the global Fetch Response (`status`/`url` fields) and Playwright's
+ * APIResponse (`status()`/`url()` methods).
  */
 export async function checkFacebookGroupUrl(
   url: string,
@@ -32,15 +49,15 @@ export async function checkFacebookGroupUrl(
   }
 
   try {
-    const res = await fetchImpl(url, {
+    const res = (await fetchImpl(url, {
       method: 'GET',
       redirect: 'follow',
       headers: { 'User-Agent': HEALTH_CHECK_USER_AGENT },
       signal: AbortSignal.timeout(25_000),
-    });
+    })) as FetchLikeResponse;
 
-    const finalUrl = res.url;
-    const status = res.status;
+    const finalUrl = readUrl(res) || url;
+    const status = readStatus(res);
 
     if (status >= 404) {
       return { ok: false, status, finalUrl, issue: `HTTP ${status}` };

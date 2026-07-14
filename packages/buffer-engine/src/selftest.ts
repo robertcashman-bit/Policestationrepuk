@@ -1,6 +1,6 @@
 import { listPostsInWindow } from './client';
 import { getSiteBufferEnvConfig, MIN_POSTS_PER_DAY } from './config';
-import { localDateInTimezone, addDaysToLocalDate } from './scheduler-core';
+import { localDateInTimezone, addDaysToLocalDate, timezoneOffsetForDate } from './scheduler-core';
 import type { BufferEngineAdapter, SelfTestResult } from './types';
 import { ingestMetricsFromPosts, siteHostnameFromUrl } from './metrics';
 import { getSlugEngagementStats, mergeSlugStats, saveSlugEngagementStats } from './storage';
@@ -11,7 +11,8 @@ export async function runSiteBufferSelfTest(
 ): Promise<SelfTestResult> {
   const env = getSiteBufferEnvConfig();
   const now = options?.now ?? new Date();
-  const yesterday = addDaysToLocalDate(localDateInTimezone(now, env.timezone), -1);
+  const today = localDateInTimezone(now, env.timezone);
+  const yesterday = addDaysToLocalDate(today, -1);
   const issues: string[] = [];
 
   if (!env.apiKey) {
@@ -26,8 +27,9 @@ export async function runSiteBufferSelfTest(
   }
 
   const hostname = siteHostnameFromUrl(adapter.siteUrl);
-  const dayStart = `${yesterday}T00:00:00`;
-  const dayEnd = `${localDateInTimezone(now, env.timezone)}T00:00:00`;
+  // Buffer's GraphQL DateTime scalar requires an offset (same pattern as verify/reconcile).
+  const dayStart = `${yesterday}T00:00:00${timezoneOffsetForDate(yesterday, env.timezone)}`;
+  const dayEnd = `${today}T00:00:00${timezoneOffsetForDate(today, env.timezone)}`;
 
   const sent = await listPostsInWindow(env.apiKey, env.organizationId, {
     status: ['sent'],

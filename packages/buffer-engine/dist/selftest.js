@@ -9,7 +9,8 @@ const storage_1 = require("./storage");
 async function runSiteBufferSelfTest(adapter, options) {
     const env = (0, config_1.getSiteBufferEnvConfig)();
     const now = options?.now ?? new Date();
-    const yesterday = (0, scheduler_core_1.addDaysToLocalDate)((0, scheduler_core_1.localDateInTimezone)(now, env.timezone), -1);
+    const today = (0, scheduler_core_1.localDateInTimezone)(now, env.timezone);
+    const yesterday = (0, scheduler_core_1.addDaysToLocalDate)(today, -1);
     const issues = [];
     if (!env.apiKey) {
         return {
@@ -22,8 +23,9 @@ async function runSiteBufferSelfTest(adapter, options) {
         };
     }
     const hostname = (0, metrics_1.siteHostnameFromUrl)(adapter.siteUrl);
-    const dayStart = `${yesterday}T00:00:00`;
-    const dayEnd = `${(0, scheduler_core_1.localDateInTimezone)(now, env.timezone)}T00:00:00`;
+    // Buffer's GraphQL DateTime scalar requires an offset (same pattern as verify/reconcile).
+    const dayStart = `${yesterday}T00:00:00${(0, scheduler_core_1.timezoneOffsetForDate)(yesterday, env.timezone)}`;
+    const dayEnd = `${today}T00:00:00${(0, scheduler_core_1.timezoneOffsetForDate)(today, env.timezone)}`;
     const sent = await (0, client_1.listPostsInWindow)(env.apiKey, env.organizationId, {
         status: ['sent'],
         dueAtStart: dayStart,

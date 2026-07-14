@@ -48,6 +48,9 @@ export default defineConfig({
             PORT: '3100',
             NEXT_PUBLIC_SITE_URL: BASE_URL,
             LEGACY_REPS_PUBLIC: '1',
+            // satisfy lib/env.ts fail-fast when starting a production server without Vercel secrets
+            CRON_SECRET:
+              process.env.CRON_SECRET || 'ci-smoke-placeholder-not-for-production',
           },
         },
       }

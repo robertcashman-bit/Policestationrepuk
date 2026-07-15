@@ -75,7 +75,25 @@ Live smoke (2026-07-14, `n=8`, OSM off, Serper + page/PDF fetch):
 | `hallucinatedResults` | **0** |
 | `incorrect101AsDirect` | **0** |
 
-## Live eval (2026-07-15, n=20)
+## Live eval (2026-07-15, full n=50)
+
+| Metric | Value |
+|--------|-------|
+| `anyCandidateRate` | **0.90** (45/50) |
+| `scoredCandidateRate` | **0.90** |
+| `custodyContextCandidateRate` | **0.18** |
+| `genericOr101Hits` | **0** |
+| `incorrect101AsDirect` | **0** |
+| `mobile` as best candidate | **0** (after mobile scoring penalty) |
+| `hallucinatedResults` | 3 |
+| `goldPhoneHitRate` | **0.192** (5/26 labelled phones) |
+| Runtime | ~14 minutes |
+
+No search errors. Stations with no extractable candidate: South Wales HQ, Carlisle, Aspatria, Windsor, Frome.
+
+Gold exact-match stays low because many `stations.json` gold numbers differ from current web “best” extractions; publish still requires AI + evidence gates. Zero `101`-as-direct and zero mobiles-as-best are the accuracy wins from this run.
+
+## Live eval (2026-07-15 earlier, n=20)
 
 | Metric | Value |
 |--------|-------|
@@ -87,7 +105,7 @@ Live smoke (2026-07-14, `n=8`, OSM off, Serper + page/PDF fetch):
 | `incorrect101AsDirect` | **0** |
 | `goldPhoneHitRate` | 0.0 (directory gold ≠ current web “best”) |
 
-Follow-up in same day: mobile/premium candidates now heavily penalised in scoring so they stop winning as “best desk line”.
+Follow-up same day: mobile/premium candidates heavily penalised in scoring.
 
 ### Official seed Playwright (GHA 2026-07-15)
 
@@ -96,8 +114,7 @@ Follow-up in same day: mobile/premium candidates now heavily penalised in scorin
 | Devon & Cornwall | Cloudflare blocked this run; existing official seed retained (no false `verifiedAt` bump) |
 | West Midlands / Essex / Hampshire | Fetched; **0** station desk numbers parseable (pages do not list per-suite phones like D&C) |
 
-Extraction yield remains high with no `101`-as-direct. Exact gold-phone match remains a separate labelling task (many directory numbers are outdated vs live snippets).
-## Ship criteria
+Extraction yield remains high with no `101`-as-direct. Exact gold-phone match remains a separate labelling task (many directory numbers are outdated vs live snippets).## Ship criteria
 
 - Material gain in legitimate contact / station-specific hit rate vs pre-gap-fix baseline
 - `hallucinatedResults` = 0

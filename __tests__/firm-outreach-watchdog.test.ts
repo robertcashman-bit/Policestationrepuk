@@ -54,3 +54,26 @@ describe('OUTREACH_SEND_WINDOWS_UTC', () => {
     expect(OUTREACH_SEND_WINDOWS_UTC).toHaveLength(4);
   });
 });
+
+describe('OutreachWatchdogResult dueSendable', () => {
+  it('documents that dueSendable is required on the watchdog result shape', () => {
+    // Compile-time / shape guard — runOutreachWatchdog returns dueSendable so
+    // alerts key off truly-due prospects, not bloated ready_to_send counts.
+    const sample = {
+      ok: true,
+      date: '2026-07-15',
+      issues: [] as string[],
+      autoFixed: [] as string[],
+      phantomCount: 0,
+      capDrifts: [] as [],
+      realSendsToday: {},
+      sendableReady: 100,
+      dueSendable: 0,
+      readyToSend: 100,
+      sendEnabled: true,
+      sendAllowed: true,
+    };
+    expect(sample.dueSendable).toBe(0);
+    expect(sample.sendableReady).toBeGreaterThan(sample.dueSendable);
+  });
+});

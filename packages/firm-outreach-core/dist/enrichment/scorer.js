@@ -16,11 +16,12 @@ function computeProspectPriority(prospect) {
     let score = prospect.priorityScore;
     if (prospect.emailScore)
         score += Math.round(prospect.emailScore / 4);
-    if (prospect.sources.includes('laa'))
+    const sources = prospect.sources ?? [];
+    if (sources.includes('laa'))
         score += 10;
-    if (prospect.sources.includes('dscc'))
+    if (sources.includes('dscc'))
         score += 8;
-    if (prospect.sources.includes('directory'))
+    if (sources.includes('directory'))
         score += 25;
     if (prospect.websiteUrl)
         score += 5;

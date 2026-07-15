@@ -4,6 +4,7 @@ import { OUTREACH_CAMPAIGN_IDS } from '../site-config';
 import {
   getLatestOutreachRunLog,
   listAllSends,
+  listProspectsByRecordStatus,
 } from '../storage';
 import type { OutreachRunStats } from '../types';
 import { buildOutreachActivityReport } from './activity-report';
@@ -16,6 +17,7 @@ import {
   fixDailyCapDrift,
 } from './phantom-send-repair-apply';
 import { sendOutreachSendFailureEmail } from './send-failure-email';
+import { nextOutreachStep } from './sequence';
 
 /** UTC send windows (hour, minute). */
 export const OUTREACH_SEND_WINDOWS_UTC: Array<{ hour: number; minute: number }> = [
@@ -36,6 +38,7 @@ export interface OutreachWatchdogResult {
   capDrifts: Awaited<ReturnType<typeof findDailyCapDrift>>;
   realSendsToday: Record<string, number>;
   sendableReady: number;
+  dueSendable: number;
   readyToSend: number;
   sendEnabled: boolean;
   sendAllowed: boolean;
@@ -58,6 +61,26 @@ function recentSendWindowPassed(now: Date): boolean {
     const elapsed = minutesSinceWindow(w, now);
     return elapsed >= WINDOW_GRACE_MINUTES && elapsed <= WINDOW_GRACE_MINUTES + 60;
   });
+}
+
+/** Count prospects the send loop would actually attempt (next step due), across campaigns. */
+export async function countDueSendableProspects(opts?: {
+  perStatusLimit?: number;
+  nowMs?: number;
+}): Promise<number> {
+  const perStatusLimit = opts?.perStatusLimit ?? 500;
+  const nowMs = opts?.nowMs ?? Date.now();
+  let due = 0;
+  for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
+    const [ready, sent] = await Promise.all([
+      listProspectsByRecordStatus('ready_to_send', perStatusLimit, { campaignId }),
+      listProspectsByRecordStatus('sent', perStatusLimit, { campaignId }),
+    ]);
+    for (const prospect of [...ready, ...sent]) {
+      if (nextOutreachStep(prospect, nowMs) !== null && prospect.email) due += 1;
+    }
+  }
+  return due;
 }
 
 export async function runOutreachWatchdog(opts?: {
@@ -108,6 +131,7 @@ export async function runOutreachWatchdog(opts?: {
   const { report } = await buildOutreachActivityReport();
   const sendableReady = report.readyToSendProspects.filter((r) => !r.suppressed && r.email).length;
   const readyToSend = report.summary.readyToSend;
+  const dueSendable = await countDueSendableProspects({ nowMs: now.getTime() });
 
   if (autoRepair) {
     if (phantoms.length > 0) {
@@ -128,7 +152,9 @@ export async function runOutreachWatchdog(opts?: {
     }
   }
 
-  if (recentSendWindowPassed(now) && sendEnabled && sendAllowed && sendableReady > 0) {
+  // Only alert when something is actually due. A large ready_to_send count often
+  // means stale-ready / not-yet-due follow-ups — that is not a send failure.
+  if (recentSendWindowPassed(now) && sendEnabled && sendAllowed && dueSendable > 0) {
     for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
       const latest = await getLatestOutreachRunLog(campaignId);
       const realToday = realSendsToday[campaignId] ?? 0;
@@ -143,8 +169,11 @@ export async function runOutreachWatchdog(opts?: {
         continue;
       }
       if (latest.sent === 0 && latest.failed === 0 && realToday === 0) {
+        const skipHint = latest.skipReasons
+          ? ` (latest skips: ${JSON.stringify(latest.skipReasons)})`
+          : '';
         issues.push(
-          `${campaignId}: send window passed with ${sendableReady} sendable ready but 0 provider-confirmed sends today`,
+          `${campaignId}: send window passed with ${dueSendable} due sendable but 0 provider-confirmed sends today${skipHint}`,
         );
       }
     }
@@ -169,6 +198,7 @@ export async function runOutreachWatchdog(opts?: {
     capDrifts,
     realSendsToday,
     sendableReady,
+    dueSendable,
     readyToSend,
     sendEnabled,
     sendAllowed,
@@ -191,7 +221,8 @@ export async function maybeAlertOutreachWatchdog(result: OutreachWatchdogResult)
     ...result.issues,
     ...(result.autoFixed.length ? [`Auto-fixed: ${result.autoFixed.join('; ')}`] : []),
     `Real sends today: ${JSON.stringify(result.realSendsToday)}`,
-    `Sendable ready: ${result.sendableReady}`,
+    `Due sendable: ${result.dueSendable}`,
+    `Ready (status) sendable: ${result.sendableReady}`,
   ];
 
   await sendOutreachSendFailureEmail({

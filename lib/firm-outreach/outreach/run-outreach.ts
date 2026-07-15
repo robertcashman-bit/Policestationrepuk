@@ -3,7 +3,6 @@ import { getKV } from '@/lib/kv';
 import { claimKey, releaseKey } from '@/lib/kv-atomic';
 import { activeOutreachCampaignId, isCampaignProspect } from '../campaign-scope';
 import { dailySendCap, outreachSendEnabled } from '../constants';
-import { sortProspectsForSend } from '../enrichment/scorer';
 import { isPlausibleOutreachEmail, validateEmailForSend } from '../enrichment/validator';
 import {
   qualifyProspectForOutreach,
@@ -23,6 +22,7 @@ import {
 } from '../storage';
 import type { FirmProspect, OutreachRunStats } from '../types';
 import { normalizeEmail } from '../normalize';
+import { orderProspectsForSendQueue } from './candidate-order';
 import {
   buildOutreachRunLog,
   initExtendedRunStats,
@@ -31,10 +31,10 @@ import {
 } from './run-log';
 import { sendOutreachEmail } from './send';
 import { commitSuccessfulOutreachSend } from './commit-send';
+import { daysSinceIso, nextOutreachStep } from './sequence';
 
-const FOLLOWUP_DAY_1 = 7;
-const FOLLOWUP_DAY_2 = 21;
 const FIRM_SEND_COOLDOWN_DAYS = 90;
+/** Always scan a large candidate pool; per-run batch size only caps how many we send. */
 const MAX_CANDIDATE_SCAN = 500;
 /** Send lock lease — longer than cron maxDuration (300s) so a crashed run auto-releases. */
 const SEND_LOCK_TTL_SECONDS = 330;
@@ -45,11 +45,6 @@ function emailPrevalidatedForSend(prospect: FirmProspect): boolean {
   return prospect.status === 'ready_to_send' || prospect.status === 'sent';
 }
 
-function daysSince(iso: string | undefined): number {
-  if (!iso) return Infinity;
-  return (Date.now() - Date.parse(iso)) / (1000 * 60 * 60 * 24);
-}
-
 async function firmRecentlyContacted(
   prospect: FirmProspect,
   campaignId: string,
@@ -57,30 +52,11 @@ async function firmRecentlyContacted(
   const siblings = await listProspectsForFirmKey(prospect.firmKey);
   for (const s of siblings) {
     if (s.id === prospect.id || !isCampaignProspect(s, campaignId)) continue;
-    if (s.lastEmailAt && daysSince(s.lastEmailAt) < FIRM_SEND_COOLDOWN_DAYS) {
+    if (s.lastEmailAt && daysSinceIso(s.lastEmailAt) < FIRM_SEND_COOLDOWN_DAYS) {
       return true;
     }
   }
   return false;
-}
-
-function dueForFollowUp(prospect: FirmProspect): boolean {
-  if (prospect.waLinkClickedAt || prospect.joinedWhatsAppAt) return false;
-  if (!prospect.lastEmailAt) return prospect.status === 'ready_to_send';
-
-  const days = daysSince(prospect.lastEmailAt);
-  if (prospect.sequenceStep === 0 && days >= FOLLOWUP_DAY_1) return true;
-  if (prospect.sequenceStep === 1 && days >= FOLLOWUP_DAY_2 - FOLLOWUP_DAY_1) return true;
-  return false;
-}
-
-function nextStep(prospect: FirmProspect): number | null {
-  if (prospect.status === 'ready_to_send' && prospect.sequenceStep === 0 && !prospect.lastEmailAt) {
-    return 0;
-  }
-  if (prospect.status === 'sent' && prospect.sequenceStep === 0 && dueForFollowUp(prospect)) return 1;
-  if (prospect.status === 'sent' && prospect.sequenceStep === 1 && dueForFollowUp(prospect)) return 2;
-  return null;
 }
 
 async function persistRunLog(opts: {
@@ -179,17 +155,22 @@ export async function runFirmOutreach(opts?: {
     return finish(0, alreadySent, dayCap);
   }
 
+  // Candidate scan is independent of the per-run batch size. Using remaining*5
+  // previously left cron ticks (batch≈25 → scan≈125) looking only at an arbitrary
+  // slice of the KV index, then sorting that truncated set — due prospects never
+  // entered the loop. Always scan up to MAX_CANDIDATE_SCAN; listProspectsByRecordStatus
+  // now orders due-first before limiting.
   const ready = await listProspectsByRecordStatus(
     'ready_to_send',
-    Math.min(MAX_CANDIDATE_SCAN, Math.max(remaining * 5, 50)),
+    MAX_CANDIDATE_SCAN,
     campaignOpts,
   );
   const sent = await listProspectsByRecordStatus(
     'sent',
-    Math.min(MAX_CANDIDATE_SCAN, Math.max(remaining * 5, 50)),
+    MAX_CANDIDATE_SCAN,
     campaignOpts,
   );
-  const candidates = sortProspectsForSend([...ready, ...sent]);
+  const candidates = orderProspectsForSendQueue([...ready, ...sent]);
   const emailsSentThisRun = new Set<string>();
   let resendQuota = globalQuota;
 
@@ -201,7 +182,7 @@ export async function runFirmOutreach(opts?: {
     }
 
     try {
-      const step = nextStep(prospect);
+      const step = nextOutreachStep(prospect);
       if (step === null) {
         // Self-heal "stale-ready" rows: a send already happened (lastEmailAt set) but the
         // status was never moved off ready_to_send. Follow-ups run off status==='sent', so at

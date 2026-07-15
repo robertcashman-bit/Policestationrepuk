@@ -215,10 +215,16 @@ export async function listProspectsByRecordStatus(
   limit = 500,
   opts?: { campaignId?: string },
 ): Promise<FirmProspect[]> {
-  const ids = (await listProspectIdsByRecordStatus(status, opts)).slice(0, limit);
+  // Load the full campaign-scoped status set first, then order due/sendable
+  // prospects ahead of dead weight, THEN apply the limit. Truncating the raw
+  // KV index order before sort previously made cron send ticks (small scan
+  // windows) miss every due candidate and record sent=0 / failed=0.
+  const ids = await listProspectIdsByRecordStatus(status, opts);
   if (ids.length === 0) return [];
   const map = await getProspectsByIds(ids);
-  return ids.map((id) => map.get(id)).filter((p): p is FirmProspect => Boolean(p));
+  const all = ids.map((id) => map.get(id)).filter((p): p is FirmProspect => Boolean(p));
+  const { orderProspectsForSendQueue } = await import('./outreach/candidate-order');
+  return orderProspectsForSendQueue(all).slice(0, limit);
 }
 
 export async function listProspectsForFirmKey(firmKey: string): Promise<FirmProspect[]> {

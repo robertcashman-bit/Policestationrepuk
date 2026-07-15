@@ -1,7 +1,6 @@
 import { bumpSkipReason, createEmptySkipReasons } from '@robertcashman/firm-outreach-core';
 import { activeOutreachCampaignId, isCampaignProspect } from './campaign-scope';
 import { dailySendCap } from './constants';
-import { sortProspectsForSend } from './enrichment/scorer';
 import { validateEmailForSend } from './enrichment/validator';
 import { qualifyProspectForOutreach } from './qualification';
 import {
@@ -14,9 +13,9 @@ import {
 } from './storage';
 import type { FirmProspect } from './types';
 import { normalizeEmail } from './normalize';
+import { orderProspectsForSendQueue } from './outreach/candidate-order';
+import { daysSinceIso, nextOutreachStep } from './outreach/sequence';
 
-const FOLLOWUP_DAY_1 = 7;
-const FOLLOWUP_DAY_2 = 21;
 const FIRM_SEND_COOLDOWN_DAYS = 90;
 
 export interface DryRunPreviewRow {
@@ -40,23 +39,6 @@ export interface DryRunPreviewResult {
   skipReasons: Partial<Record<string, number>>;
 }
 
-function daysSince(iso: string | undefined): number {
-  if (!iso) return Infinity;
-  return (Date.now() - Date.parse(iso)) / (1000 * 60 * 60 * 24);
-}
-
-function nextStep(prospect: FirmProspect): number | null {
-  if (prospect.status === 'ready_to_send' && prospect.sequenceStep === 0 && !prospect.lastEmailAt) {
-    return 0;
-  }
-  const days = daysSince(prospect.lastEmailAt);
-  if (prospect.status === 'sent' && prospect.sequenceStep === 0 && days >= FOLLOWUP_DAY_1) return 1;
-  if (prospect.status === 'sent' && prospect.sequenceStep === 1 && days >= FOLLOWUP_DAY_2 - FOLLOWUP_DAY_1) {
-    return 2;
-  }
-  return null;
-}
-
 async function firmRecentlyContacted(
   prospect: FirmProspect,
   campaignId: string,
@@ -64,7 +46,7 @@ async function firmRecentlyContacted(
   const siblings = await listProspectsForFirmKey(prospect.firmKey);
   for (const s of siblings) {
     if (s.id === prospect.id || !isCampaignProspect(s, campaignId)) continue;
-    if (s.lastEmailAt && daysSince(s.lastEmailAt) < FIRM_SEND_COOLDOWN_DAYS) {
+    if (s.lastEmailAt && daysSinceIso(s.lastEmailAt) < FIRM_SEND_COOLDOWN_DAYS) {
       return true;
     }
   }
@@ -88,14 +70,14 @@ export async function buildOutreachDryRunPreview(opts?: {
 
   const ready = await listProspectsByRecordStatus('ready_to_send', 2000, campaignOpts);
   const sent = await listProspectsByRecordStatus('sent', 2000, campaignOpts);
-  const candidates = sortProspectsForSend([...ready, ...sent]);
+  const candidates = orderProspectsForSendQueue([...ready, ...sent]);
   const emailsSeen = new Set<string>();
   let wouldSend = 0;
 
   for (const prospect of candidates) {
     if (preview.length >= maxRows && wouldSend >= remaining) break;
 
-    const step = nextStep(prospect);
+    const step = nextOutreachStep(prospect);
     const row: DryRunPreviewRow = {
       prospectId: prospect.id,
       firmName: prospect.firmName,

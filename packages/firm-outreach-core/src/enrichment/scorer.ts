@@ -15,9 +15,10 @@ export function computeProspectPriority(prospect: FirmProspect): number {
   let score = prospect.priorityScore;
 
   if (prospect.emailScore) score += Math.round(prospect.emailScore / 4);
-  if (prospect.sources.includes('laa')) score += 10;
-  if (prospect.sources.includes('dscc')) score += 8;
-  if (prospect.sources.includes('directory')) score += 25;
+  const sources = prospect.sources ?? [];
+  if (sources.includes('laa')) score += 10;
+  if (sources.includes('dscc')) score += 8;
+  if (sources.includes('directory')) score += 25;
   if (prospect.websiteUrl) score += 5;
   if (prospect.prospectType === 'solicitor' && prospect.emailConfidence === 'crawled') score += 8;
 

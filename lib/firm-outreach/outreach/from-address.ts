@@ -55,6 +55,20 @@ function normalizeDomainRecords(
   return [];
 }
 
+function isAuthOrValidationResendError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const e = error as { statusCode?: number; message?: string; name?: string };
+  const status = e.statusCode;
+  if (status === 401 || status === 403) return true;
+  if (status === 400 && /api key|invalid|unauthorized|forbidden/i.test(String(e.message ?? ''))) {
+    return true;
+  }
+  if (/validation_error/i.test(String(e.name ?? '')) && /api key|invalid/i.test(String(e.message ?? ''))) {
+    return true;
+  }
+  return false;
+}
+
 export async function fetchResendVerifiedDomains(
   listDomains?: ResendDomainLister,
 ): Promise<Set<string>> {
@@ -76,11 +90,15 @@ export async function fetchResendVerifiedDomains(
 
   try {
     const result = await list();
-    // The Resend SDK resolves (does not throw) with an { error } object on
-    // auth/validation failures. Treat that like a thrown error so a transient
-    // API problem never reports "zero verified domains" and blocks all sends.
     if (result.error) {
       console.warn('[firm-outreach] Resend domains.list returned error:', result.error);
+      // Auth/invalid-key must NOT pretend the fallback domain is verified — that hid a
+      // broken production RESEND_API_KEY behind sendHealthy=true and 0 real sends.
+      if (isAuthOrValidationResendError(result.error)) {
+        verifiedDomainsCache = { at: Date.now(), domains: new Set() };
+        return verifiedDomainsCache.domains;
+      }
+      // Transient API problems: keep send unblocked with the known verified fallback.
       return new Set([VERIFIED_FALLBACK_DOMAIN]);
     }
     const domains = new Set<string>();
@@ -91,6 +109,10 @@ export async function fetchResendVerifiedDomains(
     return domains;
   } catch (err) {
     console.warn('[firm-outreach] Resend domains.list failed:', err);
+    if (isAuthOrValidationResendError(err)) {
+      verifiedDomainsCache = { at: Date.now(), domains: new Set() };
+      return verifiedDomainsCache.domains;
+    }
     return new Set([VERIFIED_FALLBACK_DOMAIN]);
   }
 }

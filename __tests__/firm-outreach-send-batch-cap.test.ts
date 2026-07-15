@@ -89,6 +89,9 @@ function seedReadyProspects(n: number): void {
       sequenceStep: 0,
       campaignId: 'test_campaign',
       email: `contact${i}@firm${i}.example`,
+      sources: [],
+      priorityScore: 10,
+      enrichAttempts: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
@@ -158,6 +161,9 @@ describe('runFirmOutreach send lock', () => {
       lastEmailAt: new Date().toISOString(),
       campaignId: 'test_campaign',
       email: 'stale0@x.example',
+      sources: [],
+      priorityScore: 10,
+      enrichAttempts: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
@@ -171,6 +177,9 @@ describe('runFirmOutreach send lock', () => {
       lastEmailAt: new Date().toISOString(),
       campaignId: 'test_campaign',
       email: 'stale1@x.example',
+      sources: [],
+      priorityScore: 10,
+      enrichAttempts: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
@@ -183,6 +192,9 @@ describe('runFirmOutreach send lock', () => {
       sequenceStep: 0,
       campaignId: 'test_campaign',
       email: 'fresh@x.example',
+      sources: [],
+      priorityScore: 10,
+      enrichAttempts: 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });

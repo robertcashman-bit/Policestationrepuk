@@ -120,7 +120,7 @@ describe('from-address resolution', () => {
     expect(domains.has('policestationagent.com')).toBe(false);
   });
 
-  it('falls back to the verified sending domain when Resend returns an error object', async () => {
+  it('treats an invalid Resend API key as zero verified domains (does not fake-healthy)', async () => {
     process.env.RESEND_API_KEY = 're_test';
     const { fetchResendVerifiedDomains } = await import('@/lib/firm-outreach/outreach/from-address');
     clearVerifiedDomainsCache();
@@ -128,17 +128,27 @@ describe('from-address resolution', () => {
       data: null,
       error: { statusCode: 400, message: 'API key is invalid', name: 'validation_error' },
     }));
-    expect(domains.has(VERIFIED_FALLBACK_DOMAIN)).toBe(true);
-    expect(domains.size).toBe(1);
+    expect(domains.size).toBe(0);
   });
 
-  it('does not cache an errored domain lookup', async () => {
+  it('falls back to the verified sending domain on transient Resend errors', async () => {
+    process.env.RESEND_API_KEY = 're_test';
+    const { fetchResendVerifiedDomains } = await import('@/lib/firm-outreach/outreach/from-address');
+    clearVerifiedDomainsCache();
+    const domains = await fetchResendVerifiedDomains(async () => ({
+      data: null,
+      error: { statusCode: 500, message: 'Internal server error' },
+    }));
+    expect(domains.has(VERIFIED_FALLBACK_DOMAIN)).toBe(true);
+  });
+
+  it('does not permanently stick on a transient errored lookup', async () => {
     process.env.RESEND_API_KEY = 're_test';
     const { fetchResendVerifiedDomains } = await import('@/lib/firm-outreach/outreach/from-address');
     clearVerifiedDomainsCache();
     await fetchResendVerifiedDomains(async () => ({
       data: null,
-      error: { message: 'API key is invalid' },
+      error: { statusCode: 503, message: 'Service unavailable' },
     }));
     const domains = await fetchResendVerifiedDomains(async () => ({
       data: [

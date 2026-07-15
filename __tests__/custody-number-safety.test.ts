@@ -166,8 +166,14 @@ describe('canAutoPublish hard gates', () => {
     if (!result.ok) expect(result.reason).toBe('premium_rate');
   });
 
-  it('requires rule score >= 85', () => {
-    const result = canAutoPublish(finding({ confidenceScore: 84 }), review());
+  it('requires rule score >= 85 (below soft-approve floor)', () => {
+    // Soft path allows scores down to ~70; this asserts the official path floor.
+    const result = canAutoPublish(
+      finding({ confidenceScore: 69 }),
+      review({ aiConfidence: 95 }),
+      undefined,
+      'kent.police.uk',
+    );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toBe('rule_score_low');
   });

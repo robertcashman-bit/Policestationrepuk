@@ -756,10 +756,12 @@ function canAutoPublish(
     }
   }
 
-  // Soft path: AI strongly approves with page evidence on a trusted/official source,
-  // publish as unverified so the human queue does not grow with near-miss approvals.
+  // Soft path: AI strongly approves with page evidence on an official force/police.uk
+  // domain — publish unverified so near-miss approvals do not clog the human queue.
+  // FOI/PCC/council on non-force domains must use corroboration, not soft solo publish.
   const softEligible =
-    (isOfficialSourceType(finding.sourceType) || isTrustedCorroboratingSource(finding)) &&
+    isOfficialSourceType(finding.sourceType) &&
+    sourceDomainIsOfficialForForce(finding.sourceDomain, forceDomain) &&
     review.aiConfidence >= softApproveConfidence() &&
     finding.confidenceScore >= softApproveMinScore() &&
     isStrongEvidenceSource(review.evidence.source) &&

@@ -6,6 +6,7 @@ import {
   hasCustodyWordingNear,
   pickBestCustodyCandidatePhone,
   scorePhoneCandidate,
+  MIN_PHONE_CANDIDATE_SCORE,
 } from '@/lib/custody-discovery/phone';
 import { detectSourceType, extractDomain, isOfficialSourceType } from '@/lib/custody-discovery/source-type';
 import {
@@ -94,6 +95,21 @@ describe('phone extraction and normalisation', () => {
       suiteNames: ['Medway Custody Suite'],
     });
     expect(custodyScore).toBeGreaterThan(plainScore);
+  });
+
+  it('penalises mobile numbers versus geographic desk lines', () => {
+    const geo = scorePhoneCandidate(
+      'Medway custody desk 01634 123456',
+      { suiteNames: ['Medway Custody Suite'] },
+      '01634 123456',
+    );
+    const mobile = scorePhoneCandidate(
+      'Medway custody desk 07700 900123',
+      { suiteNames: ['Medway Custody Suite'] },
+      '07700 900123',
+    );
+    expect(geo).toBeGreaterThan(mobile);
+    expect(mobile).toBeLessThan(MIN_PHONE_CANDIDATE_SCORE);
   });
 });
 

@@ -199,13 +199,23 @@ async function main(): Promise<void> {
   const merged = mergeParsedIntoFile(existing, parsed, fetched.url);
 
   if (WRITE) {
-    writeFileSync(OUT_PATH, JSON.stringify(merged, null, 2) + '\n');
-    console.log('Wrote', OUT_PATH);
+    if (parsed.length === 0) {
+      console.warn(
+        'No custody rows parsed (likely Cloudflare). Leaving existing seed JSON unchanged.',
+      );
+    } else {
+      writeFileSync(OUT_PATH, JSON.stringify(merged, null, 2) + '\n');
+      console.log('Wrote', OUT_PATH);
+    }
   } else {
     console.log('Dry-run. Use --write to save JSON, --apply to update stations.json');
   }
 
   if (APPLY) {
+    if (parsed.length === 0) {
+      console.error('Refusing --apply with empty parse.');
+      process.exit(1);
+    }
     await applyToStations(merged);
   }
 }

@@ -1,6 +1,7 @@
 import { normaliseStationName } from '@/lib/custody-station';
 import { formatPhoneUk, isPlausibleUkPhoneField, normalizePhoneDigits } from '@/lib/phone-format';
 import { isGenericCustodyNumber } from './generic-numbers';
+import { classifyUkNumberRange } from './number-safety';
 
 const EMERGENCY_NUMBERS = new Set(['999', '112', '911']);
 const UK_PHONE_RE = /(?:\+44\s?|0)(?:\d[\s\-().]{0,3}){9,12}\d/g;
@@ -50,8 +51,15 @@ function suiteNameTokens(names: string[]): string[] {
   return [...tokens];
 }
 
-/** Score a phone candidate by custody wording, suite name proximity, and junk penalties. */
-export function scorePhoneCandidate(context: string, opts?: PhonePickContext): number {
+/**
+ * Score a phone candidate by custody wording, suite name proximity, number range,
+ * and junk penalties. Mobiles/premium rarely belong on a station contact line.
+ */
+export function scorePhoneCandidate(
+  context: string,
+  opts?: PhonePickContext,
+  phoneValue?: string,
+): number {
   let score = 0;
   const ctx = context.toLowerCase();
   if (hasCustodyWordingNear(context)) score += 50;
@@ -61,6 +69,15 @@ export function scorePhoneCandidate(context: string, opts?: PhonePickContext): n
   }
   if (JUNK_CONTEXT_RE.test(context)) score -= 80;
   if (SWITCHBOARD_CONTEXT_RE.test(context)) score -= 40;
+
+  if (phoneValue) {
+    const range = classifyUkNumberRange(phoneValue);
+    if (range === 'mobile') score -= 80;
+    else if (range === 'premium') score -= 100;
+    else if (range === 'freephone') score -= 15;
+    else if (range === 'geographic' || range === 'non_geographic_03') score += 10;
+  }
+
   return score;
 }
 
@@ -105,7 +122,7 @@ export function pickBestCustodyCandidatePhone(
   let bestScore = -Infinity;
 
   for (const phone of phones) {
-    const candidateScore = scorePhoneCandidate(phone.context, opts);
+    const candidateScore = scorePhoneCandidate(phone.context, opts, phone.display);
     if (candidateScore > bestScore) {
       bestScore = candidateScore;
       best = phone;
@@ -140,7 +157,7 @@ export function listScoredCustodyCandidatePhones(
   const phones = extractPhonesFromText(text, 120, opts?.forceName);
   const minScore = opts?.minScore ?? MIN_PHONE_CANDIDATE_SCORE;
   return phones
-    .map((phone) => ({ ...phone, score: scorePhoneCandidate(phone.context, opts) }))
+    .map((phone) => ({ ...phone, score: scorePhoneCandidate(phone.context, opts, phone.display) }))
     .filter((p) => p.score >= minScore)
     .sort((a, b) => b.score - a.score);
 }

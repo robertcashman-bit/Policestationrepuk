@@ -9,7 +9,7 @@
 | GOV.UK | `site:gov.uk` queries |
 | Official PDFs | `filetype:pdf` queries + body text extraction |
 | Committed force JSON seeds | `data/*-custody-numbers.json` via `seedFindingsFromOfficialJson` |
-| Playwright force fetch (GHA) | Devon & Cornwall Cloudflare-heavy pages weekly |
+| Playwright force fetch (GHA) | D&C weekly; also WMP/Essex/Hampshire (often 0 per-suite phones — pages promote 101) |
 
 ## Tier 2 — structured / licensed
 

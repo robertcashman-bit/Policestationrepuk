@@ -75,8 +75,28 @@ Live smoke (2026-07-14, `n=8`, OSM off, Serper + page/PDF fetch):
 | `hallucinatedResults` | **0** |
 | `incorrect101AsDirect` | **0** |
 
-Extraction yield remains high with zero hallucinations. Gold-phone exact-match rate on this sample was low because many directory phones differ from current web "best" candidates — publish gates (AI + evidence) still apply before public overlay. Full 50-station live eval recommended after Playwright seed refresh lands new official JSON.
+## Live eval (2026-07-15, n=20)
 
+| Metric | Value |
+|--------|-------|
+| `anyCandidateRate` | **0.90** |
+| `scoredCandidateRate` | **0.90** |
+| `custodyContextCandidateRate` | **0.40** |
+| `genericOr101Hits` | 0 |
+| `hallucinatedResults` | 1 (detector; evidence formatting edge) |
+| `incorrect101AsDirect` | **0** |
+| `goldPhoneHitRate` | 0.0 (directory gold ≠ current web “best”) |
+
+Follow-up in same day: mobile/premium candidates now heavily penalised in scoring so they stop winning as “best desk line”.
+
+### Official seed Playwright (GHA 2026-07-15)
+
+| Force | Result |
+|-------|--------|
+| Devon & Cornwall | Cloudflare blocked this run; existing official seed retained (no false `verifiedAt` bump) |
+| West Midlands / Essex / Hampshire | Fetched; **0** station desk numbers parseable (pages do not list per-suite phones like D&C) |
+
+Extraction yield remains high with no `101`-as-direct. Exact gold-phone match remains a separate labelling task (many directory numbers are outdated vs live snippets).
 ## Ship criteria
 
 - Material gain in legitimate contact / station-specific hit rate vs pre-gap-fix baseline

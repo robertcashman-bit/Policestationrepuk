@@ -4,9 +4,10 @@ import { maybeAlertOutreachWatchdog, runOutreachWatchdog } from '@/lib/firm-outr
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-export const maxDuration = 120;
+/** Allow send-only autofix kick inside the watchdog (same budget as firm-outreach-send). */
+export const maxDuration = 300;
 
-/** Hourly outreach watchdog — auto-repair phantom sends / cap drift and alert on failures. */
+/** Outreach watchdog — auto-repair phantom/cap drift, auto-kick zero-send windows, alert if still failing. */
 export async function GET(request: Request) {
   if (!isCronAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

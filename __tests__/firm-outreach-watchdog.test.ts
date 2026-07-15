@@ -55,6 +55,15 @@ describe('OUTREACH_SEND_WINDOWS_UTC', () => {
   });
 });
 
+describe('watchdog zero-send autofix contract', () => {
+  it('documents that zero-send windows trigger a send-only kick before alert', () => {
+    // Behaviour lives in runOutreachWatchdog: when a send window passes with
+    // dueSendable > 0 and realSendsToday === 0, autoRepair kicks
+    // runFirmOutreachPipeline(send-only) and only alerts if still zero.
+    expect(OUTREACH_SEND_WINDOWS_UTC.some((w) => w.hour === 16 && w.minute === 0)).toBe(true);
+  });
+});
+
 describe('OutreachWatchdogResult dueSendable', () => {
   it('documents that dueSendable is required on the watchdog result shape', () => {
     // Compile-time / shape guard — runOutreachWatchdog returns dueSendable so

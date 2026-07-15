@@ -52,7 +52,7 @@ export function CustodyNumberReviewAdmin({
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(accessError ? decodeURIComponent(accessError) : null);
   const [showBatchOnly, setShowBatchOnly] = useState(Boolean(batchFindingIds?.length));
-  const [filter, setFilter] = useState<FilterKey>(batchFindingIds?.length ? 'all' : 'inspect');
+  const [filter, setFilter] = useState<FilterKey>(batchFindingIds?.length ? 'all' : 'needs_human');
   const [forceFilter, setForceFilter] = useState('');
   const [countyFilter, setCountyFilter] = useState('');
   const [suiteFilter, setSuiteFilter] = useState('');

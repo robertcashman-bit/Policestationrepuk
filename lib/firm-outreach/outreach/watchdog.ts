@@ -1,5 +1,6 @@
 import { validateOutreachEnv } from '@robertcashman/firm-outreach-core';
-import { outreachSendEnabled } from '../constants';
+import { cronSendBatchSize, outreachSendEnabled } from '../constants';
+import { runFirmOutreachPipeline } from '../run-pipeline';
 import { OUTREACH_CAMPAIGN_IDS } from '../site-config';
 import {
   getLatestOutreachRunLog,
@@ -89,8 +90,8 @@ export async function runOutreachWatchdog(opts?: {
   const autoRepair = opts?.autoRepair !== false;
   const now = new Date();
   const date = now.toISOString().slice(0, 10);
-  const issues: string[] = [];
   const autoFixed: string[] = [];
+  let issues: string[] = [];
 
   const envCheck = validateOutreachEnv({ requireCronSecret: false });
   if (!envCheck.ok) {
@@ -154,7 +155,14 @@ export async function runOutreachWatchdog(opts?: {
 
   // Only alert when something is actually due. A large ready_to_send count often
   // means stale-ready / not-yet-due follow-ups — that is not a send failure.
-  if (recentSendWindowPassed(now) && sendEnabled && sendAllowed && dueSendable > 0) {
+  let zeroSendCampaigns: string[] = [];
+  if (
+    recentSendWindowPassed(now) &&
+    sendEnabled &&
+    sendAllowed &&
+    sendHealth.sendHealthy &&
+    dueSendable > 0
+  ) {
     for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
       const latest = await getLatestOutreachRunLog(campaignId);
       const realToday = realSendsToday[campaignId] ?? 0;
@@ -166,6 +174,7 @@ export async function runOutreachWatchdog(opts?: {
 
       if (!latest || !latest.startedAt.startsWith(date)) {
         issues.push(`${campaignId}: no send run log for today after a send window`);
+        zeroSendCampaigns.push(campaignId);
         continue;
       }
       if (latest.sent === 0 && latest.failed === 0 && realToday === 0) {
@@ -175,7 +184,60 @@ export async function runOutreachWatchdog(opts?: {
         issues.push(
           `${campaignId}: send window passed with ${dueSendable} due sendable but 0 provider-confirmed sends today${skipHint}`,
         );
+        zeroSendCampaigns.push(campaignId);
       }
+    }
+  }
+
+  // Autofix: when a send window produced zero provider-confirmed sends, kick a
+  // send-only pipeline once before alerting — mirrors what an operator would do.
+  if (autoRepair && zeroSendCampaigns.length > 0) {
+    try {
+      const kick = await runFirmOutreachPipeline({
+        skipDiscovery: true,
+        skipEnrich: true,
+        skipDigest: true,
+        skipCleanup: true,
+        skipCounts: true,
+        sendLimit: cronSendBatchSize(),
+      });
+      const kickSent = kick.send?.sent ?? 0;
+      autoFixed.push(
+        `Auto-kicked send-only after zero-send window (${zeroSendCampaigns.join(', ')}); sent=${kickSent}`,
+      );
+
+      const refreshed = await listAllSends();
+      for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
+        realSendsToday[campaignId] = countRealSendsOnDate(refreshed, date, campaignId);
+      }
+
+      // Drop zero-send issues that are now resolved by the kick.
+      const remainingZero = zeroSendCampaigns.filter((id) => (realSendsToday[id] ?? 0) === 0);
+      if (remainingZero.length === 0) {
+        issues = issues.filter(
+          (issue) =>
+            !zeroSendCampaigns.some(
+              (id) =>
+                issue.startsWith(`${id}: send window passed`) ||
+                issue.startsWith(`${id}: no send run log`),
+            ),
+        );
+      } else {
+        // Keep only issues for campaigns still at zero.
+        issues = issues.filter((issue) => {
+          const matched = zeroSendCampaigns.find(
+            (id) =>
+              issue.startsWith(`${id}: send window passed`) ||
+              issue.startsWith(`${id}: no send run log`),
+          );
+          if (!matched) return true;
+          return remainingZero.includes(matched);
+        });
+      }
+    } catch (err) {
+      issues.push(
+        `Auto-kick send failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
   }
 

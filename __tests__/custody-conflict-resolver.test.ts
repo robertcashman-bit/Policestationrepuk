@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import {
   shouldAutoRejectWeakEvidence,
   resolveSuiteConflicts,
+  isConflictNonCandidate,
 } from '@/lib/custody-discovery/auto-decision';
 import {
   pickConflictWinner,
@@ -95,6 +96,50 @@ describe('shouldAutoRejectWeakEvidence', () => {
         }),
       ),
     ).toBe(false);
+  });
+});
+
+describe('isConflictNonCandidate', () => {
+  it('treats rep directory sources as non-candidates', () => {
+    expect(
+      isConflictNonCandidate(
+        finding({
+          sourceDomain: 'policestationrepuk.org',
+          sourceUrl: 'https://policestationrepuk.org/stations/foo',
+          sourceType: 'other',
+        }),
+        review({ recommendation: 'hold' }),
+        [],
+        'norfolk.police.uk',
+      ),
+    ).toBe(true);
+  });
+
+  it('keeps official high-trust findings for winner/tie logic', () => {
+    expect(
+      isConflictNonCandidate(finding(), review(), [finding()], 'norfolk.police.uk'),
+    ).toBe(false);
+  });
+
+  it('rejects untrusted low-score leftovers', () => {
+    expect(
+      isConflictNonCandidate(
+        finding({
+          sourceDomain: 'random-blog.example',
+          sourceType: 'other',
+          sourceUrl: 'https://random-blog.example/x',
+          confidenceScore: 30,
+          conflictReason: 'possible_conflict',
+        }),
+        review({
+          recommendation: 'hold',
+          aiConfidence: 30,
+          evidence: { ...review().evidence, source: 'search_snippet' },
+        }),
+        [],
+        'norfolk.police.uk',
+      ),
+    ).toBe(true);
   });
 });
 

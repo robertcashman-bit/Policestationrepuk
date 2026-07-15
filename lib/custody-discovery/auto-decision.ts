@@ -10,6 +10,7 @@ import {
 import {
   pickConflictWinner,
   scoreConflictCandidate,
+  sourceTrustScore,
   type SuiteConflictResolution,
 } from './conflict-resolver';
 import {
@@ -555,6 +556,23 @@ export async function applyAutoDecision(
             .join('\n'),
           updatedAt: now,
         });
+        // Immediately try suite conflict resolution so humans are not left with junk conflicts.
+        if (autoConflictResolveEnabled()) {
+          const suiteResolution = await resolveSuiteConflicts(finding.custodySuiteId);
+          const refreshed = (await getFinding(finding.id)) ?? finding;
+          if (refreshed.status === 'rejected') {
+            return { action: 'rejected', reason: 'conflict_loser' };
+          }
+          if (refreshed.status === 'approved' || refreshed.autoPublishedAt) {
+            return { action: 'published', reason: 'conflict_winner' };
+          }
+          if (
+            suiteResolution.action === 'published' &&
+            suiteResolution.winningFindingId === finding.id
+          ) {
+            return { action: 'published', reason: 'conflict_winner' };
+          }
+        }
         return { action: 'queued', reason: 'hold_crossref_conflict' };
       }
 
@@ -727,6 +745,37 @@ function canAutoPublish(
 export { canAutoPublish };
 
 /**
+ * Conflict leftovers that should never wait for a human.
+ * Official / high-trust sources (for winner pick or tied-official human review) are kept.
+ */
+export function isConflictNonCandidate(
+  finding: CustodyNumberFinding,
+  review: CustodyAiReview,
+  suiteFindings: CustodyNumberFinding[],
+  forceDomain?: string,
+  approvedNormalized?: string,
+): boolean {
+  if (isRepDirectoryFinding(finding)) return true;
+  if (shouldAutoRejectWeakEvidence(finding, review)) return true;
+  if (!isTrustedCorroboratingSource(finding) && !isOfficialSourceType(finding.sourceType)) {
+    return true;
+  }
+  if (finding.confidenceScore < 45) return true;
+  if (review.aiConfidence < 45 && review.recommendation !== 'approve') return true;
+  if (!isStrongEvidenceSource(review.evidence.source)) return true;
+  const trust = sourceTrustScore(finding, forceDomain);
+  if (trust >= 85) return false;
+  const score = scoreConflictCandidate(
+    finding,
+    review,
+    suiteFindings,
+    forceDomain,
+    approvedNormalized,
+  );
+  return score === null;
+}
+
+/**
  * Pick a publishable winner when sources disagree, publish unverified, reject losers.
  */
 export async function resolveSuiteConflicts(
@@ -774,29 +823,16 @@ export async function resolveSuiteConflicts(
     candidates.push({ finding: f, review, score });
   }
 
-  const winner = pickConflictWinner(candidates);
+  let winner = pickConflictWinner(candidates);
   if (!winner) {
+    let rejectedCount = 0;
     if (autoRejectEnabled()) {
-      let rejectedCount = 0;
-      for (const f of open) {
-        if (!isRepDirectoryFinding(f)) continue;
-        await autoRejectFinding(
-          f,
-          f.aiReview!,
-          'auto_reject_rep_directory_conflict',
-          'Rep/self directory source — not authoritative for conflict resolution.',
-        );
-        rejectedCount++;
-      }
-      if (rejectedCount > 0) {
-        return { action: 'rejected_only', rejectedCount, reason: 'rep_directory_cleared' };
-      }
-
-      const distinctNumbers = [...new Set(open.map((f) => f.normalizedPhoneNumber))];
-      if (distinctNumbers.length === 1 && suite?.forceName) {
+      // Prefer force-wide PCC switchboard cleanup before per-finding non-candidate rejects.
+      const distinctOpenNumbers = [...new Set(open.map((f) => f.normalizedPhoneNumber))];
+      if (distinctOpenNumbers.length === 1 && suite?.forceName) {
         const pccRejected = await bulkRejectForcePccSwitchboardCluster(
           suite.forceName,
-          distinctNumbers[0]!,
+          distinctOpenNumbers[0]!,
         );
         if (pccRejected > 0) {
           return {
@@ -806,6 +842,154 @@ export async function resolveSuiteConflicts(
           };
         }
       }
+
+      for (const f of open) {
+        const review = f.aiReview;
+        if (!review) continue;
+        if (
+          !isConflictNonCandidate(
+            f,
+            review,
+            suiteFindings,
+            suite?.forceDomain,
+            approved?.normalizedPhoneNumber,
+          )
+        ) {
+          continue;
+        }
+        await autoRejectFinding(
+          f,
+          review,
+          isRepDirectoryFinding(f)
+            ? 'auto_reject_rep_directory_conflict'
+            : 'auto_reject_conflict_non_candidate',
+          'Conflict non-candidate — weak/untrusted/not publishable; cleared automatically.',
+        );
+        rejectedCount++;
+      }
+
+      // After cleanup, re-evaluate remaining open findings for a winner / sole official.
+      const refreshedSuite = await getFindingsForSuite(custodySuiteId);
+      const remaining = refreshedSuite.filter(
+        (f) =>
+          (f.status === 'needs_review' || f.status === 'new') && f.aiReview?.reviewedAt,
+      );
+      if (remaining.length === 0) {
+        return {
+          action: rejectedCount > 0 ? 'rejected_only' : 'none',
+          rejectedCount,
+          reason: rejectedCount > 0 ? 'conflict_non_candidates_cleared' : 'no_publishable_winner',
+        };
+      }
+
+      const remainingCandidates: Array<{
+        finding: CustodyNumberFinding;
+        review: CustodyAiReview;
+        score: number;
+      }> = [];
+      for (const f of remaining) {
+        const review = f.aiReview;
+        if (!review) continue;
+        const score = scoreConflictCandidate(
+          f,
+          review,
+          refreshedSuite,
+          suite?.forceDomain,
+          approved?.normalizedPhoneNumber,
+        );
+        if (score === null) continue;
+        remainingCandidates.push({ finding: f, review, score });
+      }
+
+      winner = pickConflictWinner(remainingCandidates);
+      if (!winner && remainingCandidates.length === 1) {
+        winner = {
+          finding: remainingCandidates[0]!.finding,
+          review: remainingCandidates[0]!.review,
+        };
+      }
+      if (
+        !winner &&
+        remaining.length === 1 &&
+        remaining[0]!.aiReview &&
+        sourceTrustScore(remaining[0]!, suite?.forceDomain) >= 85
+      ) {
+        winner = { finding: remaining[0]!, review: remaining[0]!.aiReview };
+      }
+
+      if (!winner) {
+        return {
+          action: rejectedCount > 0 ? 'rejected_only' : 'none',
+          rejectedCount,
+          reason:
+            remaining.length > 1
+              ? 'tied_official_sources'
+              : rejectedCount > 0
+                ? 'conflict_non_candidates_cleared'
+                : 'no_publishable_winner',
+        };
+      }
+
+      // Fall through to publish the recovered winner, carrying rejectedCount.
+      const gatesRetry = canAutoPublish(
+        { ...winner.finding, conflictReason: undefined },
+        winner.review,
+        approved?.normalizedPhoneNumber,
+        suite?.forceDomain,
+        refreshedSuite,
+      );
+      if (!gatesRetry.ok) {
+        return {
+          action: rejectedCount > 0 ? 'rejected_only' : 'none',
+          rejectedCount,
+          reason: gatesRetry.reason,
+        };
+      }
+
+      const winningNumber = winner.finding.normalizedPhoneNumber;
+      for (const f of remaining) {
+        if (f.id === winner.finding.id) continue;
+        if (f.normalizedPhoneNumber === winningNumber) {
+          await saveFinding({
+            ...f,
+            conflictReason: undefined,
+            updatedAt: new Date().toISOString(),
+          });
+          continue;
+        }
+        await autoRejectFinding(
+          f,
+          f.aiReview!,
+          'auto_reject_conflict_loser',
+          `Conflict resolution: published ${winner.finding.possiblePhoneNumber} from ${winner.finding.sourceDomain}.`,
+        );
+        rejectedCount++;
+      }
+
+      await saveFinding({
+        ...winner.finding,
+        conflictReason: undefined,
+        updatedAt: new Date().toISOString(),
+      });
+
+      const publishResult = await autoPublishEligibleFinding(
+        { ...winner.finding, conflictReason: undefined },
+        winner.review,
+        gatesRetry.path === 'corroborated' ? 'hold_corroborated' : 'approve',
+      );
+      if (publishResult.action !== 'published') {
+        return {
+          action: 'rejected_only',
+          rejectedCount,
+          reason: publishResult.reason ?? 'publish_failed',
+        };
+      }
+      return {
+        action: 'published',
+        winningFindingId: winner.finding.id,
+        rejectedCount,
+        reason: 'conflict_winner_published_after_cleanup',
+      };
     }
     return { action: 'none', rejectedCount: 0, reason: 'no_publishable_winner' };
   }

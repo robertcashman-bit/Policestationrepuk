@@ -70,7 +70,7 @@
     },
     {
       "path": "/api/cron/custody-discovery-queue-reprocess",
-      "schedule": "0 4 * * *"
+      "schedule": "0 4,12,20 * * *"
     },
     {
       "path": "/api/cron/custody-approved-recheck",

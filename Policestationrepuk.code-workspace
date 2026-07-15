@@ -1,8 +1,53 @@
 {
 	"folders": [
 		{
+			"name": "Policestationrepuk",
 			"path": "."
+		},
+		{
+			"name": "policestationagent",
+			"path": "../policestationagent"
+		},
+		{
+			"name": "psrtrain (pstrain-rebuild)",
+			"path": "../pstrain-rebuild"
+		},
+		{
+			"name": "custody-note-app",
+			"path": "../custody-note-app"
+		},
+		{
+			"name": "custody-note-website",
+			"path": "../custody-note-website"
+		},
+		{
+			"name": "custodynote-anywhere",
+			"path": "../custodynote-anywhere"
+		},
+		{
+			"name": "robs-solar",
+			"path": "../robs-solar"
+		},
+		{
+			"name": "shared-packages",
+			"path": "../shared-packages"
+		},
+		{
+			"name": "dev-hub",
+			"path": "../dev-hub"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.exclude": {
+			"**/node_modules": true,
+			"**/.next": true
+		},
+		"search.exclude": {
+			"**/node_modules": true,
+			"**/.next": true,
+			"**/dist": true,
+			"**/.turbo": true
+		},
+		"git.autoRepositoryDetection": true
+	}
 }

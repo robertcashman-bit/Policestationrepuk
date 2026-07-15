@@ -75,17 +75,16 @@ Then one of two paths must pass:
   - 2+ trusted domains agree + page evidence → auto-publish (corroborated, unverified)
   - Rep-directory / untrusted-only → auto-reject
   - Number on ≥3 force suites → auto-reject as force switchboard
-  - Trusted sources disagree → flag conflict (never auto-publish)
-  - Unresolved → manual queue
+  - Trusted sources disagree → flag conflict, then immediately run suite conflict resolver
+  - Unresolved → manual queue only for remaining high-trust ties
 - **Duplicate confirmations** — a finding matching the already-published number for its suite is closed automatically; trusted page evidence bumps `lastVerifiedAt`.
 - **Unsafe numbers** — mobiles/premium-rate from non-official sources are auto-rejected.
 - **Weak-evidence retries** — page-fetch failures retried up to `CUSTODY_EVIDENCE_RETRY_LIMIT` (default 3).
 - **Soft AI approve** — official/trusted page-fetch findings with AI ≥ 85 and rule score ≥ 70 auto-publish as **unverified** (rechecked later) so they do not pile into email review.
 - **Unresolved hold cleanup** — weak/untrusted AI-hold leftovers are auto-rejected instead of emailed one-by-one.
+- **Conflict auto-resolve** (`CUSTODY_AI_AUTO_RESOLVE_CONFLICTS`, default ON): prefer official / high-scoring winner → soft-publish unverified → auto-reject losers and non-candidates (rep directory, weak evidence, low-trust). Only **tied official vs official** stays for human review. Queue reprocess cron runs at **04:00 / 12:00 / 20:00 UTC**.
 
-**Email policy:** digests only send for material activity (publishes, or ≥5 open review items / conflicts). Single findings stay in `/admin/custody-number-review` and are retried by AI — they do not email you.
-
-**Conflicts never auto-publish or auto-reject** — they always need your decision in the admin panel (and only email once the conflict backlog reaches the minimum count).
+**Email policy:** digests only send for material activity (publishes, or ≥5 open review items / remaining tied official conflicts). Single findings stay in `/admin/custody-number-review` and are retried by AI — they do not email you.
 
 Nothing is invented: numbers only enter the pipeline via crawler extraction from fetched pages or committed official JSON, and the AI validator (`ai-review-validator.ts`) downgrades any AI approval whose excerpt does not contain the exact number.
 

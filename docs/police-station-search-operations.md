@@ -6,7 +6,7 @@
 |----------|------|---------|
 | `0 */6 * * *` | `/api/cron/custody-number-discovery` | Crawl + seed + AI new findings |
 | `30 3,9,15 * * *` | `/api/cron/custody-discovery-ai-review` | AI backlog |
-| `0 4 * * *` | `/api/cron/custody-discovery-queue-reprocess` | Weak evidence / conflicts |
+| `0 4,12,20 * * *` | `/api/cron/custody-discovery-queue-reprocess` | Weak evidence / conflict auto-resolve |
 | `45 2 * * *` | `/api/cron/custody-approved-recheck` | Re-verify published |
 | `0 19 * * *` | `/api/cron/custody-discovery-digest` | New findings / auto-approve digest |
 | `15 19 * * *` | `/api/cron/custody-discovery-outstanding` | Full open-queue digest |

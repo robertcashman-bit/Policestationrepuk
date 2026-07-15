@@ -155,7 +155,7 @@ export async function runOutreachWatchdog(opts?: {
 
   // Only alert when something is actually due. A large ready_to_send count often
   // means stale-ready / not-yet-due follow-ups — that is not a send failure.
-  let zeroSendCampaigns: string[] = [];
+  const zeroSendCampaigns: string[] = [];
   if (
     recentSendWindowPassed(now) &&
     sendEnabled &&

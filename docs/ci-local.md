@@ -29,9 +29,21 @@ npm run ci:fix -- --retry 3
 
 Use the full gate before merging outreach or CI-touching changes.
 
-**What autofix can do:** ESLint auto-fixable style issues.
+**What autofix can do:** ESLint auto-fixable style issues (e.g. `prefer-const`).
 
 **What still needs a code/test edit:** TypeScript errors, Vitest assertion mismatches when defaults change (e.g. `dailySendCap` / `cronEnrichBatchSize` / `paidDailyCap` in `__tests__/firm-outreach-duplicate.test.ts`), and audit/content failures (blog SEO, sitemap, Lighthouse).
+
+## GitHub autofix (master)
+
+Workflow [`.github/workflows/ci-autofix.yml`](../.github/workflows/ci-autofix.yml) runs when **CI — Next.js build** fails on a `push` to `master`/`main`:
+
+1. Checks out the failed SHA
+2. Skips if the commit already contains `[ci-autofix]` (loop guard)
+3. Runs `npm run lint -- --fix`
+4. If files changed and `tsc` + `lint` pass → commits and **pushes to master** with `[ci-autofix]` in the message
+5. If nothing is auto-fixable → step summary + optional Resend email (`RESEND_API_KEY` + `OWNER_EMAIL` / `CI_AUTOFIX_NOTIFY_EMAIL` secrets)
+
+The follow-up push re-triggers full CI (and Vercel deploy on green). Autofix does **not** invent TypeScript or test changes.
 
 ## Site audit (separate workflow)
 

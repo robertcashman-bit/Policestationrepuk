@@ -76,6 +76,8 @@
     "custody:ai-review": "npx tsx scripts/review-custody-findings-ai.ts",
     "custody:eval": "npx tsx scripts/evaluate-station-phone-discovery.ts",
     "custody:eval:live": "npx tsx scripts/evaluate-station-phone-discovery.ts --live",
+    "custody:psr-harvest": "npx tsx scripts/fetch-psr-custody-numbers.ts",
+    "custody:psr-verify": "npx tsx scripts/run-psr-verify.ts",
     "test:custody-discovery:ci": "vitest run __tests__/custody-discovery*.test.ts __tests__/station-aliases-search.test.ts",
     "custody:review": "echo 'Open /admin/custody-number-review after signing in as admin'",
     "psa:coverage": "npx tsx scripts/build-psa-coverage.ts",

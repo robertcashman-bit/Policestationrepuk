@@ -378,3 +378,51 @@ export async function sendCustodyOutstandingDigestEmail(opts: {
     return false;
   }
 }
+
+/** Owner digest when Phase-1 PSR backfill flips to steady mode. */
+export async function sendPsrBackfillCompleteEmail(opts: {
+  verified: number;
+  probable: number;
+  queued: number;
+  noDesk: number;
+}): Promise<boolean> {
+  const to = NOTIFY_EMAIL;
+  const subject = `[PSR verify] Backfill complete — ${opts.verified} verified, ${opts.probable} probable, ${opts.queued} need review`;
+  const html = `
+    <div style="font-family:system-ui,sans-serif;color:#0f172a;max-width:640px;">
+      <h2 style="margin:0 0 12px;">PSR custody verify — backfill complete</h2>
+      <p style="margin:0 0 16px;line-height:1.5;">
+        Phase 1 (~48h hit-suite pass) has finished. The cron will continue in
+        <strong>steady</strong> self-review mode (smaller batches + rechecks).
+      </p>
+      <ul style="margin:0 0 20px;padding-left:20px;line-height:1.6;">
+        <li><strong>Verified (official confirm):</strong> ${opts.verified}</li>
+        <li><strong>Probable (2+ sources):</strong> ${opts.probable}</li>
+        <li><strong>Queued for human:</strong> ${opts.queued}</li>
+        <li><strong>No PSR desk found:</strong> ${opts.noDesk}</li>
+      </ul>
+      <p style="margin:24px 0 16px;">
+        <a href="${escapeHtml(SITE_URL)}/admin/custody-number-review"
+           style="display:inline-block;background:#0f2749;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;">
+          Open custody review
+        </a>
+      </p>
+      <p style="color:#64748b;font-size:12px;line-height:1.5;">
+        Pause anytime with <code>CUSTODY_PSR_VERIFY=false</code>. Numbers are never published from PSR alone.
+      </p>
+    </div>
+  `;
+
+  const client = getResend();
+  if (!client) {
+    console.info('[psr-backfill email]', subject);
+    return false;
+  }
+  try {
+    await client.emails.send({ from: FROM_EMAIL, to, subject, html });
+    return true;
+  } catch (err) {
+    console.error('[psr-backfill email]', err);
+    return false;
+  }
+}

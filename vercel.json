@@ -77,6 +77,10 @@
       "schedule": "45 2 * * *"
     },
     {
+      "path": "/api/cron/custody-psr-verify",
+      "schedule": "0 */2 * * *"
+    },
+    {
       "path": "/api/cron/station-contact-health",
       "schedule": "0 4 * * 1"
     },

@@ -62,22 +62,26 @@ export async function seedFindingsFromOfficialJson(
       const suite = matchSuite(key, entry, suites);
       if (!suite) continue;
 
-      const url = entry.sourceUrl?.startsWith('http') ? entry.sourceUrl : sourceUrl;
+      const url =
+        (entry.sourceUrl?.startsWith('http') ? entry.sourceUrl : '') ||
+        (entry.psrUrl?.startsWith('http') ? entry.psrUrl : '') ||
+        sourceUrl;
       if (!url) {
         rejected++;
         continue;
       }
-      // Rep/self directory URLs must not seed the publish path — they are
-      // auto-rejected later and waste crawl/AI budget.
-      if (
-        /policestationreps\.com|policestationrepuk\.org|policestationagent\.com/i.test(url)
-      ) {
+      // Self-directory URLs must never seed. PSR URLs are allowed as
+      // candidates only — auto-publish hard-gates block solo PSR publish.
+      if (/policestationrepuk\.org|policestationrep\.com|policestationagent\.com/i.test(url)) {
         rejected++;
         continue;
       }
 
+      const isPsr = /policestationreps\.com/i.test(url);
       const title = entry.suiteName ?? suite.custodySuiteName;
-      const snippet = `${title} custody suite telephone ${entry.custodyPhone} — official force listing`;
+      const snippet = isPsr
+        ? `${title} custody telephone ${entry.custodyPhone} — PSR candidate (verify before publish)`
+        : `${title} custody suite telephone ${entry.custodyPhone} — official force listing`;
       const existing = await getFindingsForSuite(suite.id);
       const outcome = await processSearchHit({
         suite,

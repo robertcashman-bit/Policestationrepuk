@@ -86,15 +86,35 @@ export function countForceSwitchboardClusterSuites(
   return suiteIds.size;
 }
 
-const REP_DIRECTORY_DOMAINS = [
-  'policestationreps.com',
+/** External third-party directory — candidate seed only; never solo-publish. */
+const PSR_DIRECTORY_DOMAINS = ['policestationreps.com'];
+
+/** Our own sites — never authoritative; auto-reject. */
+const SELF_DIRECTORY_DOMAINS = [
   'policestationrepuk.org',
   'policestationrep.com',
+  'policestationagent.com',
 ];
 
+function domainMatches(domain: string, list: string[]): boolean {
+  const d = domain.toLowerCase().replace(/^www\./, '');
+  return list.some((base) => d === base || d.endsWith(`.${base}`));
+}
+
+export function isPsrDirectoryFinding(finding: CustodyNumberFinding): boolean {
+  return domainMatches(finding.sourceDomain, PSR_DIRECTORY_DOMAINS);
+}
+
+export function isSelfDirectoryFinding(finding: CustodyNumberFinding): boolean {
+  return domainMatches(finding.sourceDomain, SELF_DIRECTORY_DOMAINS);
+}
+
+/**
+ * Blocked self-directory findings (our sites).
+ * PSR is intentionally excluded — it is a candidate source verified separately.
+ */
 export function isRepDirectoryFinding(finding: CustodyNumberFinding): boolean {
-  const domain = finding.sourceDomain.toLowerCase();
-  return REP_DIRECTORY_DOMAINS.some((d) => domain === d || domain.endsWith(`.${d}`));
+  return isSelfDirectoryFinding(finding);
 }
 
 function isRepDirectory(finding: CustodyNumberFinding): boolean {
@@ -210,6 +230,21 @@ function trySafeAutoRejects(
     sameNumberSiblings.length > 0 &&
     trustedAgreeing.length === 0 &&
     !isTrustedCorroboratingSource(finding);
+
+  // Self-directory alone is poison. PSR alone stays unresolved for the verify cron.
+  if (isSelfDirectoryFinding(finding) && corroboration.independentDomains.length < 2) {
+    return {
+      outcome: 'reject_untrusted_only',
+      detail: 'Self-directory source is not authoritative for custody numbers.',
+    };
+  }
+
+  if (isPsrDirectoryFinding(finding) && trustedAgreeing.length === 0) {
+    return {
+      outcome: 'unresolved',
+      detail: 'psr_candidate_awaiting_verify',
+    };
+  }
 
   if (untrustedOnly || (isRepDirectory(finding) && corroboration.independentDomains.length < 2)) {
     const repOnly =

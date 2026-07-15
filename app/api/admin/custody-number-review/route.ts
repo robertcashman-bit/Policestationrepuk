@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/admin-auth';
 import {
+  queuePsrRecheck,
+  verifySuiteFromPsr,
+} from '@/lib/custody-discovery/psr-verify';
+import {
   approveFinding,
   getAllFindings,
   getFinding,
@@ -28,14 +32,36 @@ export async function POST(request: Request) {
   if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
   const body = (await request.json()) as {
-    action?: 'approve' | 'reject' | 'stale' | 'update_notes' | 'mark_verified';
+    action?:
+      | 'approve'
+      | 'reject'
+      | 'stale'
+      | 'update_notes'
+      | 'mark_verified'
+      | 'force_psr_recheck';
     findingId?: string;
+    suiteId?: string;
     notes?: string;
     status?: FindingStatus;
     markVerified?: boolean;
   };
 
   const { action, findingId, notes } = body;
+
+  if (action === 'force_psr_recheck') {
+    const suiteId =
+      body.suiteId?.trim() ||
+      (findingId ? (await getFinding(findingId))?.custodySuiteId : undefined);
+    if (!suiteId) {
+      return NextResponse.json({ error: 'suiteId or findingId required' }, { status: 400 });
+    }
+    const suite = await getCustodySuite(suiteId);
+    if (!suite) return NextResponse.json({ error: 'Suite not found' }, { status: 404 });
+    await queuePsrRecheck(suiteId);
+    const result = await verifySuiteFromPsr(suite, { force: true });
+    return NextResponse.json({ ok: true, suiteId, ...result });
+  }
+
   if (!findingId || !action) {
     return NextResponse.json({ error: 'findingId and action required' }, { status: 400 });
   }

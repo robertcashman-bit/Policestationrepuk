@@ -97,13 +97,27 @@ describe('resolveHoldFinding', () => {
     expect(result.outcome).toBe('reject_force_switchboard');
   });
 
-  it('rejects rep-directory-only sources', () => {
+  it('leaves PSR candidates unresolved for verify cron (not auto-rejected)', () => {
     const rep = finding({
       sourceType: 'unknown',
       sourceUrl: 'https://www.policestationreps.com/stations/bethel',
       sourceDomain: 'policestationreps.com',
     });
     const result = resolveHoldFinding(rep, holdReview(), {
+      suiteFindings: [],
+      forceSameNumberPublishedCount: 0,
+    });
+    expect(result.outcome).toBe('unresolved');
+    expect(result.detail).toBe('psr_candidate_awaiting_verify');
+  });
+
+  it('rejects self-directory-only sources', () => {
+    const self = finding({
+      sourceType: 'unknown',
+      sourceUrl: 'https://policestationrepuk.org/stations/bethel',
+      sourceDomain: 'policestationrepuk.org',
+    });
+    const result = resolveHoldFinding(self, holdReview(), {
       suiteFindings: [],
       forceSameNumberPublishedCount: 0,
     });
@@ -257,7 +271,7 @@ afterEach(() => {
 });
 
 describe('applyAutoDecision broad reject', () => {
-  it('auto-rejects AI reject at >=85% confidence', async () => {
+  it('auto-rejects high-confidence AI reject on PSR via AI path (not rep_directory poison)', async () => {
     const result = await applyAutoDecision(
       finding({ sourceDomain: 'policestationreps.com', sourceType: 'unknown' }),
       {
@@ -265,6 +279,20 @@ describe('applyAutoDecision broad reject', () => {
         recommendation: 'reject',
         aiConfidence: 90,
         whyNot: 'This is a rep directory listing, not an official custody source.',
+      },
+    );
+    expect(result.action).toBe('rejected');
+    expect(result.reason).toBe('auto_reject_ai');
+  });
+
+  it('auto-rejects self-directory at any confidence', async () => {
+    const result = await applyAutoDecision(
+      finding({ sourceDomain: 'policestationrepuk.org', sourceType: 'unknown' }),
+      {
+        ...holdReview(),
+        recommendation: 'reject',
+        aiConfidence: 20,
+        whyNot: 'Self site.',
       },
     );
     expect(result.action).toBe('rejected');
@@ -323,9 +351,17 @@ describe('applyAutoDecision broad reject', () => {
 });
 
 describe('shouldAutoRejectAiFinding low-confidence tier', () => {
-  it('auto-rejects rep directory at any AI reject confidence', () => {
+  it('does not auto-reject low-confidence AI reject on PSR candidates', () => {
     const gate = shouldAutoRejectAiFinding(
       finding({ sourceDomain: 'policestationreps.com', sourceType: 'unknown' }),
+      { ...holdReview(), recommendation: 'reject', aiConfidence: 20 },
+    );
+    expect(gate.reject).toBe(false);
+  });
+
+  it('auto-rejects self directory at any AI reject confidence', () => {
+    const gate = shouldAutoRejectAiFinding(
+      finding({ sourceDomain: 'policestationrepuk.org', sourceType: 'unknown' }),
       { ...holdReview(), recommendation: 'reject', aiConfidence: 20 },
     );
     expect(gate.reject).toBe(true);
@@ -386,12 +422,12 @@ describe('shouldAutoRejectAiFinding low-confidence tier', () => {
     if (gate.reject) expect(gate.reason).toBe('auto_reject_generic_number');
   });
 
-  it('auto-rejects when conflict is flagged on rep directory', () => {
+  it('high-confidence AI reject on PSR with conflict uses AI path', () => {
     const gate = shouldAutoRejectAiFinding(
       finding({ sourceDomain: 'policestationreps.com', conflictReason: 'possible_conflict' }),
       { ...holdReview(), recommendation: 'reject', aiConfidence: 95 },
     );
     expect(gate.reject).toBe(true);
-    if (gate.reject) expect(gate.reason).toBe('auto_reject_rep_directory');
+    if (gate.reject) expect(gate.reason).toBe('auto_reject_ai');
   });
 });

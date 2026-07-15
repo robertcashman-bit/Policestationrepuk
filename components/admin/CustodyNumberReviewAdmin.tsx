@@ -131,7 +131,7 @@ export function CustodyNumberReviewAdmin({
   });
 
   async function act(
-    action: 'approve' | 'reject' | 'stale' | 'mark_verified',
+    action: 'approve' | 'reject' | 'stale' | 'mark_verified' | 'force_psr_recheck',
     findingId: string,
   ) {
     setBusy(`${action}-${findingId}`);
@@ -144,12 +144,21 @@ export function CustodyNumberReviewAdmin({
         body: JSON.stringify({
           action,
           findingId,
+          suiteId: row?.custodySuiteId,
           notes: notesDraft[findingId] || undefined,
           markVerified: action === 'approve' ? markVerifiedDraft[findingId] : undefined,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Request failed');
+      if (action === 'force_psr_recheck') {
+        if (data.outcome) {
+          setError(
+            `PSR recheck: ${data.outcome}${data.phone ? ` · ${data.phone}` : ''}${data.detail ? ` · ${data.detail}` : ''}`,
+          );
+        }
+        return;
+      }
 
       if (action === 'approve' && data.approved && row) {
         setPublished((prev) => ({
@@ -436,6 +445,15 @@ export function CustodyNumberReviewAdmin({
                 {busy === `mark_verified-${r.id}` ? 'Updating…' : 'Mark as verified'}
               </button>
             )}
+            <button
+              type="button"
+              onClick={() => act('force_psr_recheck', r.id)}
+              disabled={busy !== null}
+              className="rounded-lg border border-[var(--border)] bg-white px-4 py-2 text-sm font-semibold text-[var(--navy)] hover:border-[var(--navy)] disabled:opacity-50"
+              title="Re-fetch PSR candidate and re-run official/corroboration checks"
+            >
+              {busy === `force_psr_recheck-${r.id}` ? 'Rechecking…' : 'Force PSR recheck'}
+            </button>
             {r.status !== 'approved' && (
               <button
                 type="button"

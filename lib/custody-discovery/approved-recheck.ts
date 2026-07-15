@@ -32,6 +32,9 @@ export interface ApprovedRecheckStats {
 }
 
 export function recheckIntervalDays(): number {
+  // Prefer desk-specific TTL when set (PSR self-review: 30–45d); else legacy 90d.
+  const desk = Number(process.env.CUSTODY_DESK_RECHECK_DAYS);
+  if (Number.isFinite(desk) && desk > 0) return Math.max(7, desk);
   return Math.max(7, Number(process.env.CUSTODY_RECHECK_DAYS ?? 90));
 }
 

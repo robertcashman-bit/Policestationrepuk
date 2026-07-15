@@ -19,7 +19,9 @@ import {
   deterministicRejectReason,
   isDeterministicRejectNumber,
   isPccSiteHeaderPage,
+  isPsrDirectoryFinding,
   isRepDirectoryFinding,
+  isSelfDirectoryFinding,
   resolveHoldFinding,
   type HoldResolutionOutcome,
 } from './hold-resolver';
@@ -85,7 +87,7 @@ export function shouldAutoRejectWeakEvidence(
 ): boolean {
   if (isStrongEvidenceSource(review.evidence.source)) return false;
   if (review.recommendation === 'approve') return true;
-  if (isRepDirectoryFinding(finding)) return true;
+  if (isSelfDirectoryFinding(finding)) return true;
   return (finding.aiEvidenceRetries ?? 0) >= evidenceRetryLimit();
 }
 
@@ -123,11 +125,11 @@ export function shouldAutoRejectAiFinding(
   if (review.recommendation !== 'reject') return { reject: false };
 
   const conf = review.aiConfidence;
-  if (isRepDirectoryFinding(finding)) {
+  if (isSelfDirectoryFinding(finding)) {
     return {
       reject: true,
       reason: 'auto_reject_rep_directory',
-      note: `AI reject (${conf}%) from rep/self directory (${finding.sourceDomain}) — not an authoritative source.`,
+      note: `AI reject (${conf}%) from self directory (${finding.sourceDomain}) — not an authoritative source.`,
     };
   }
 
@@ -490,14 +492,14 @@ export async function applyAutoDecision(
 
   if (
     autoRejectEnabled() &&
-    isRepDirectoryFinding(finding) &&
+    isSelfDirectoryFinding(finding) &&
     review.recommendation !== 'reject'
   ) {
     return autoRejectFinding(
       finding,
       review,
       'auto_reject_rep_directory',
-      `Rep/self directory (${finding.sourceDomain}) — not an authoritative custody source.`,
+      `Self directory (${finding.sourceDomain}) — not an authoritative custody source.`,
     );
   }
 
@@ -642,7 +644,8 @@ export function shouldAutoRejectUnresolvedHold(
   review: CustodyAiReview,
 ): boolean {
   if (finding.conflictReason) return false;
-  if (isRepDirectoryFinding(finding)) return true;
+  if (isSelfDirectoryFinding(finding)) return true;
+  if (isPsrDirectoryFinding(finding)) return false;
   if (!isTrustedCorroboratingSource(finding) && !isOfficialSourceType(finding.sourceType)) {
     return true;
   }
@@ -679,6 +682,9 @@ function hardGates(
   review: CustodyAiReview,
   approvedNormalized?: string,
 ): { ok: true } | { ok: false; reason: string } {
+  if (isSelfDirectoryFinding(finding) || isPsrDirectoryFinding(finding)) {
+    return { ok: false, reason: 'directory_source_blocked' };
+  }
   if (!isAutoPublishableRange(finding.normalizedPhoneNumber)) {
     const flags = finding.numberFlags ?? numberSafetyFlags(finding.normalizedPhoneNumber);
     return { ok: false, reason: flags[0] ?? 'number_range_not_publishable' };
@@ -787,7 +793,9 @@ export function isConflictNonCandidate(
   forceDomain?: string,
   approvedNormalized?: string,
 ): boolean {
-  if (isRepDirectoryFinding(finding)) return true;
+  if (isSelfDirectoryFinding(finding)) return true;
+  // PSR findings are not conflict winners — leave them for psr-verify, not human conflict.
+  if (isPsrDirectoryFinding(finding)) return true;
   if (shouldAutoRejectWeakEvidence(finding, review)) return true;
   if (!isTrustedCorroboratingSource(finding) && !isOfficialSourceType(finding.sourceType)) {
     return true;
@@ -878,6 +886,8 @@ export async function resolveSuiteConflicts(
       for (const f of open) {
         const review = f.aiReview;
         if (!review) continue;
+        // Keep PSR candidates for the verify cron; they never win conflict publish.
+        if (isPsrDirectoryFinding(f)) continue;
         if (
           !isConflictNonCandidate(
             f,
@@ -892,7 +902,7 @@ export async function resolveSuiteConflicts(
         await autoRejectFinding(
           f,
           review,
-          isRepDirectoryFinding(f)
+          isSelfDirectoryFinding(f) || isRepDirectoryFinding(f)
             ? 'auto_reject_rep_directory_conflict'
             : 'auto_reject_conflict_non_candidate',
           'Conflict non-candidate — weak/untrusted/not publishable; cleared automatically.',

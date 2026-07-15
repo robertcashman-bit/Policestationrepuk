@@ -1,0 +1,70 @@
+name: PSR custody harvest
+
+on:
+  schedule:
+    # Twice daily during backfill window; cheap cursor harvest for seed JSON
+    - cron: '15 2,14 * * *'
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: Max PSR page fetches
+        required: false
+        default: '80'
+      force:
+        description: Optional force name filter
+        required: false
+        default: ''
+      write:
+        description: Write data/*-psr-custody-numbers.json
+        required: false
+        default: 'true'
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Harvest PSR custody candidates
+        run: |
+          LIMIT="${{ github.event.inputs.limit || '80' }}"
+          FORCE="${{ github.event.inputs.force }}"
+          WRITE_FLAG=""
+          if [ "${{ github.event.inputs.write || 'true' }}" = "true" ]; then
+            WRITE_FLAG="--write"
+          fi
+          if [ -n "$FORCE" ]; then
+            npx tsx scripts/fetch-psr-custody-numbers.ts --limit="$LIMIT" --force="$FORCE" $WRITE_FLAG
+          else
+            npx tsx scripts/fetch-psr-custody-numbers.ts --limit="$LIMIT" $WRITE_FLAG
+          fi
+
+      - name: Upload harvest artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: psr-custody-harvest
+          path: |
+            data/*-psr-custody-numbers.json
+            data/reports/psr-harvest.json
+          if-no-files-found: warn
+
+      - name: Open PR when seeds changed (manual runs)
+        if: github.event_name == 'workflow_dispatch'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'data: PSR custody candidate harvest'
+          title: 'data: PSR custody candidate harvest'
+          body: |
+            Automated PSR harvest of labelled custody desk candidates.
+            These are **candidates only** — `/api/cron/custody-psr-verify` must corroborate before publish.
+          branch: chore/psr-custody-harvest
+          delete-branch: true

@@ -64,10 +64,11 @@ jobs:
         if: success()
         run: |
           set -e
+          # Follow redirects so casing aliases (e.g. /Register → /register) still pass.
           check_path() {
             path="$1"
             expected="$2"
-            code=$(curl -sS -o /dev/null -w "%{http_code}" "https://policestationrepuk.org${path}")
+            code=$(curl -sS -L -o /dev/null -w "%{http_code}" "https://policestationrepuk.org${path}")
             echo "${path} → HTTP ${code} (expected ${expected})"
             if [ "$code" != "$expected" ]; then
               echo "Post-deploy smoke failed for ${path}"
@@ -78,4 +79,4 @@ jobs:
           check_path /api/ready 200
           check_path / 200
           check_path /directory 200
-          check_path /Register 200
+          check_path /register 200

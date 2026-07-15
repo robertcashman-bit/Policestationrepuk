@@ -17,6 +17,18 @@ jobs:
             script: scripts/fetch-devon-cornwall-custody.ts
             json: data/devon-cornwall-custody-numbers.json
             report: data/reports/devon-cornwall-custody-fetch.json
+          - force: west-midlands
+            script: scripts/fetch-force-custody-generic.ts --force=west-midlands
+            json: data/west-midlands-custody-numbers.json
+            report: data/reports/west-midlands-custody-fetch.json
+          - force: essex
+            script: scripts/fetch-force-custody-generic.ts --force=essex
+            json: data/essex-custody-numbers.json
+            report: data/reports/essex-custody-fetch.json
+          - force: hampshire
+            script: scripts/fetch-force-custody-generic.ts --force=hampshire
+            json: data/hampshire-custody-numbers.json
+            report: data/reports/hampshire-custody-fetch.json
     steps:
       - uses: actions/checkout@v4
 
@@ -33,6 +45,7 @@ jobs:
 
       - name: Fetch official custody numbers (${{ matrix.force }})
         run: npx tsx ${{ matrix.script }} --write
+        continue-on-error: true
 
       - name: Upload custody JSON artifact (${{ matrix.force }})
         uses: actions/upload-artifact@v4

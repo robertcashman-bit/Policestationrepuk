@@ -64,7 +64,7 @@ On any `SearchQueryError`, `searchForSuite` returned immediately — one 429 sta
 
 Default batch **10** suites / 6h ≈ 40/day → multi-week full coverage. Cursor missing-first helps but still slow.
 
-**Fix:** default batch **20** (still within 300s Fluid Compute).
+**Fix:** default batch **30** (still within 300s Fluid Compute).
 
 ### 6. Tier-2 structured sources unused
 
@@ -158,3 +158,31 @@ Writers update KV. Public pages read stations.json + KV overlays in `finalizeSta
 ## Definition of fixed (this change set)
 
 See companion docs under `docs/police-station-search-*.md` and evaluation under `data/evaluation/` + `scripts/evaluate-station-phone-discovery.ts`.
+
+---
+
+## Addendum — 2026-07-15 (KV gap-fix pass)
+
+Scope: keep Upstash KV; raise recall/precision without SQL rebuild.
+
+### Remaining root causes addressed in this pass
+
+| Cause | Evidence | Fix |
+|-------|----------|-----|
+| Low-confidence AI `reject` auto-cleared true positives | `shouldAutoRejectAiFinding` rejected whenever AI said reject | Require AI reject confidence ≥ `CUSTODY_AI_MIN_REJECT_CONFIDENCE` (default 80), or deterministic generic/unsafe/rep-directory |
+| `101` / switchboard could overlay public station phones | `overlay.ts` only checked `isDialablePhone` | `isPublishableOverlayNumber` blocks generic/101/emergency and switchboard publication statuses |
+| Kent seed used `policestationreps.com` URLs | `data/kent-psr-custody-numbers.json` | Seed ingest skips rep-directory URLs (no publish-path pollution) |
+| Query budget for ordinary stations spent on custody wording first | First 8 queries were custody-centric | Non-custody suites now prioritise enquiry/postcode/town queries in tier 1 |
+| Throughput | Default batch 20 / 6h | Default batch **30** |
+| Gold eval labels empty | All `expected.outcome = unknown` | Labelled 50-station set from official seeds + `stations.json` + HQ heuristics |
+| Cloudflare force pages | Curl 403 on WMP/Essex/etc. | Generic Playwright fetcher + weekly GHA matrix expansion (D&C + WMP + Essex + Hampshire) |
+
+### Explicit non-goals (unchanged)
+
+- No Postgres migration to `police_stations` / `station_phone_candidates` tables
+- No Google Places / Bing Local
+- No Playwright inside Vercel cron (weekly GHA only)
+
+### Ship gate
+
+Deploy only when `npm run custody:eval:live` against labelled set shows material recall gain without hallucinated phones or inflated `101`-as-direct rates. See `docs/police-station-search-evaluation.md`.

@@ -7,7 +7,6 @@
  *
  * Writes: data/reports/station-phone-eval-YYYY-MM-DD.json
  */
-
 import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { stationToCustodySuite } from '../lib/custody-discovery/suites';
@@ -21,6 +20,7 @@ import {
 } from '../lib/custody-discovery/phone';
 import { isGenericCustodyNumber } from '../lib/custody-discovery/generic-numbers';
 import { isNonStationSpecificNumber } from '../lib/custody-discovery/number-ownership';
+import { normalizePhoneDigits } from '../lib/phone-format';
 import type { PoliceStation } from '../lib/types';
 
 interface EvalStation {
@@ -41,10 +41,15 @@ const live = process.argv.includes('--live');
 const limitArg = process.argv.find((a) => a.startsWith('--limit='));
 const limit = limitArg ? Number(limitArg.split('=')[1]) : 50;
 
+function phonesMatch(a: string | null | undefined, b: string | null | undefined): boolean {
+  if (!a || !b) return false;
+  return normalizePhoneDigits(a) === normalizePhoneDigits(b);
+}
+
 async function main() {
   const raw = JSON.parse(
     readFileSync(join(ROOT, 'data/evaluation/station-phone-eval-set.json'), 'utf8'),
-  ) as { stations: EvalStation[] };
+  ) as { stations: EvalStation[]; labelledAt?: string };
 
   const stations = raw.stations.slice(0, limit);
   const rows: Array<Record<string, unknown>> = [];
@@ -55,6 +60,12 @@ async function main() {
   let hallucinated = 0;
   let genericOr101 = 0;
   let queryCount = 0;
+  let goldPhoneStations = 0;
+  let goldPhoneHits = 0;
+  let goldPhoneMisses = 0;
+  let incorrect101AsDirect = 0;
+  let switchboardOnlyCorrect = 0;
+  let switchboardOnlyTotal = 0;
 
   for (const s of stations) {
     const station: PoliceStation = {
@@ -78,6 +89,9 @@ async function main() {
     let bestPhone: string | null = null;
     let custodyNear = false;
     let sources: string[] = [];
+    let evidenceBlob = '';
+    let sawExpectedInEvidence = false;
+    let sawGenericAsBest = false;
 
     if (live) {
       const outcome = await searchForSuite(suite, undefined, 6);
@@ -87,6 +101,7 @@ async function main() {
           name: s.name,
           force: s.forceName,
           error: outcome.reason,
+          expectedOutcome: s.expected.outcome,
         });
         continue;
       }
@@ -97,6 +112,7 @@ async function main() {
       for (const hit of results.slice(0, 8)) {
         const pageText = await fetchPageTextFromUrl(hit.url);
         const text = `${hit.title} ${hit.snippet} ${pageText ?? ''}`;
+        evidenceBlob += `\n${text}`;
         const phones = listScoredCustodyCandidatePhones(text, {
           forceName: suite.forceName,
           suiteNames: [suite.custodySuiteName, suite.policeStationName],
@@ -108,28 +124,60 @@ async function main() {
             bestPhone = p.display;
             custodyNear = hasCustodyWordingNear(p.context);
           }
-          if (isGenericCustodyNumber(p.display, suite.forceName) || isNonStationSpecificNumber(p.normalized)) {
+          if (
+            isGenericCustodyNumber(p.display, suite.forceName) ||
+            isNonStationSpecificNumber(p.normalized)
+          ) {
             genericOr101++;
           }
         }
       }
-    } else {
-      // Dry mode: validate query expansion coverage only
-      organicCount = 0;
-      extracted = 0;
+
+      if (s.expected.phone) {
+        sawExpectedInEvidence = evidenceBlob.includes(normalizePhoneDigits(s.expected.phone))
+          || evidenceBlob.includes(s.expected.phone.replace(/\s+/g, ''))
+          || new RegExp(s.expected.phone.replace(/\s+/g, '\\s*'), 'i').test(evidenceBlob);
+      }
     }
 
     if (bestPhone) {
       anyCandidate++;
       if (bestScore >= 10) scoredCandidate++;
       if (custodyNear) custodyContextCandidate++;
+      if (
+        isGenericCustodyNumber(bestPhone, suite.forceName) ||
+        normalizePhoneDigits(bestPhone) === '101'
+      ) {
+        sawGenericAsBest = true;
+        if (
+          s.expected.outcome === 'direct_custody' ||
+          s.expected.outcome === 'direct_station' ||
+          s.expected.outcome === 'public_enquiry'
+        ) {
+          incorrect101AsDirect++;
+        }
+      }
     }
 
-    // Hallucination check: expected phone present but not in any fetched evidence
-    if (s.expected.phone && bestPhone && live) {
-      // If we never saw expected phone it's a miss, not a hallucination.
-      // Hallucination = we invented a number not in sources — detector left for
-      // post-hoc when expected phones are curated.
+    // Hallucination: pipeline selected a number that never appeared in fetched evidence
+    if (live && bestPhone && evidenceBlob) {
+      const digits = normalizePhoneDigits(bestPhone);
+      if (digits && !evidenceBlob.replace(/\D/g, '').includes(digits)) {
+        hallucinated++;
+      }
+    }
+
+    if (s.expected.phone) {
+      goldPhoneStations++;
+      if (phonesMatch(bestPhone, s.expected.phone)) goldPhoneHits++;
+      else goldPhoneMisses++;
+    }
+
+    if (s.expected.outcome === 'force_switchboard_only') {
+      switchboardOnlyTotal++;
+      // Correct if we did not invent a station-specific direct number as best,
+      // or best is generic/101.
+      if (!bestPhone || sawGenericAsBest) switchboardOnlyCorrect++;
     }
 
     rows.push({
@@ -146,13 +194,19 @@ async function main() {
       custodyNear,
       sources,
       expectedOutcome: s.expected.outcome,
+      expectedPhone: s.expected.phone ?? null,
+      matchedExpectedPhone: phonesMatch(bestPhone, s.expected.phone),
+      sawExpectedInEvidence: live ? sawExpectedInEvidence : null,
     });
   }
 
+  const labelled = stations.filter((s) => s.expected.outcome !== 'unknown').length;
   const report = {
     generatedAt: new Date().toISOString(),
     mode: live ? 'live' : 'dry',
+    labelledAt: raw.labelledAt ?? null,
     stationsEvaluated: stations.length,
+    labelledStations: labelled,
     metrics: {
       queryVariantsPerStationAvg: Number((queryCount / Math.max(1, stations.length)).toFixed(1)),
       anyCandidateRate: live ? anyCandidate / stations.length : null,
@@ -160,8 +214,24 @@ async function main() {
       custodyContextCandidateRate: live ? custodyContextCandidate / stations.length : null,
       genericOr101Hits: genericOr101,
       hallucinatedResults: hallucinated,
+      goldPhonePrecision:
+        live && goldPhoneStations > 0
+          ? Number((goldPhoneHits / goldPhoneStations).toFixed(3))
+          : null,
+      goldPhoneHitRate:
+        live && goldPhoneStations > 0
+          ? Number((goldPhoneHits / goldPhoneStations).toFixed(3))
+          : null,
+      goldPhoneStations,
+      goldPhoneHits,
+      goldPhoneMisses,
+      incorrect101AsDirect,
+      switchboardOnlyCorrectRate:
+        live && switchboardOnlyTotal > 0
+          ? Number((switchboardOnlyCorrect / switchboardOnlyTotal).toFixed(3))
+          : null,
       note: live
-        ? 'Rates measure extraction yield before AI gates; precision requires curated expected.phone labels.'
+        ? 'Yield + gold-label precision. Hallucination = best phone digits absent from fetched evidence.'
         : 'Dry run validates multi-strategy query generation only. Re-run with --live and SERPER_API_KEY.',
     },
     rows,

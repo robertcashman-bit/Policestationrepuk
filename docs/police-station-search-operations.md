@@ -22,7 +22,8 @@ Auth: `Authorization: Bearer $CRON_SECRET` or `x-cron-secret`.
 | `SERPER_API_KEY` | — | Required in production |
 | `OPENAI_API_KEY` | — | AI review/classify |
 | `KV_REST_API_*` / `UPSTASH_*` | — | Findings + attempts |
-| `CUSTODY_DISCOVERY_BATCH_LIMIT` | `20` | Suites per discovery run |
+| `CUSTODY_DISCOVERY_BATCH_LIMIT` | `30` | Suites per discovery run |
+| `CUSTODY_AI_MIN_REJECT_CONFIDENCE` | `80` | AI-only auto-reject floor (rep/generic always reject) |
 | `CUSTODY_DISCOVERY_MAX_QUERIES` | `8` | Initial query budget |
 | `CUSTODY_DISCOVERY_FALLBACK_QUERIES` | `14` | Expanded when empty/sparse |
 | `CUSTODY_DISCOVERY_PAGE_FETCH_LIMIT` | `6` | HTML/PDF fetches per suite |

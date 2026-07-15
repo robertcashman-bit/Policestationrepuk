@@ -14,8 +14,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -29,8 +29,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -44,8 +44,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -59,8 +59,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01795 477 111",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -74,8 +75,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "Force HQ — expect 101 / force switchboard only as station-specific desk line."
       }
     },
     {
@@ -89,8 +90,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "0161 856 9255",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -104,8 +106,9 @@
       "isCustodyStation": true,
       "category": "custody_suite",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_custody",
+        "phone": "0161 856 5757",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -119,8 +122,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "0161 856 8229",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -134,8 +138,8 @@
       "isCustodyStation": true,
       "category": "custody_suite",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -149,8 +153,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "Force HQ — expect 101 / force switchboard only as station-specific desk line."
       }
     },
     {
@@ -164,8 +168,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01384 812 500",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -179,8 +184,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "0121 312 6000",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -194,8 +200,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "Force HQ — expect 101 / force switchboard only as station-specific desk line."
       }
     },
     {
@@ -209,8 +215,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -224,8 +230,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -239,8 +245,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -254,8 +260,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01248 353 000",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -269,8 +276,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01492 517 777",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -284,8 +292,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01758 704 000",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -299,8 +308,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01492 515 777",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -314,8 +324,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01872 222020",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -329,8 +340,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -344,8 +355,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01237 428700",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -359,8 +371,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01736 363200",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -374,8 +387,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "Force HQ — expect 101 / force switchboard only as station-specific desk line."
       }
     },
     {
@@ -389,8 +402,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01842 754314",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -404,8 +418,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "08454 564567",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -419,8 +434,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01603 765 400",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -434,8 +450,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01228 552222",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -449,8 +466,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "016973 20202",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -464,8 +482,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01768 891999",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -479,8 +498,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "016973 42399",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -494,8 +514,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -509,8 +529,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -524,8 +544,8 @@
       "isCustodyStation": true,
       "category": "custody_suite",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -539,8 +559,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01908 276 999",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -554,8 +575,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01255 241312",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -569,8 +591,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -584,8 +606,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -599,8 +621,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01268 775 400",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -614,8 +637,9 @@
       "isCustodyStation": true,
       "category": "custody_suite",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_custody",
+        "phone": "023 9282 6700",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -629,8 +653,9 @@
       "isCustodyStation": true,
       "category": "custody_suite",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_custody",
+        "phone": "01256 474 444",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -644,8 +669,9 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "direct_station",
+        "phone": "01983 526 581",
+        "notes": "From stations.json dialable non-generic phone."
       }
     },
     {
@@ -659,8 +685,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -674,8 +700,8 @@
       "isCustodyStation": true,
       "category": "custody_suite",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -689,8 +715,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -704,8 +730,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -719,8 +745,8 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -734,8 +760,8 @@
       "isCustodyStation": true,
       "category": "custody_suite",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     },
     {
@@ -749,9 +775,11 @@
       "isCustodyStation": false,
       "category": "police_station",
       "expected": {
-        "outcome": "unknown",
-        "notes": "Expected result to be filled from current public sources before scoring."
+        "outcome": "force_switchboard_only",
+        "notes": "No station-specific public number in official seeds / non-generic directory phones."
       }
     }
-  ]
+  ],
+  "labelledAt": "2026-07-15T19:38:35.714Z",
+  "labelProtocol": "Official custody JSON (non-PSR) + stations.json non-generic phones + HQ → force_switchboard_only."
 }

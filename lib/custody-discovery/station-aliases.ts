@@ -122,14 +122,30 @@ export function buildRankedSearchQueries(suite: CustodySuite): RankedSearchQuery
     out.push({ query: q, strategy, tier });
   };
 
+  // Tier 1 — for ordinary stations, put enquiry/postcode early so the default
+  // query budget (8) is not spent only on custody wording.
+  if (!id.isDedicatedCustodySuite) {
+    add(`"${name}" police station telephone number`, 'enquiry_office', 1);
+    add(`"${name}" police contact number`, 'enquiry_office', 1);
+    add(`"${name}" police station phone`, 'enquiry_office', 1);
+    add(`"${name}" police enquiry office`, 'enquiry_office', 1);
+    if (id.postcode) {
+      add(`"${id.postcode}" police station`, 'postcode', 1);
+      add(`"${name}" "${id.postcode}"`, 'postcode', 1);
+    }
+    if (id.town) {
+      add(`"${short}" police station ${id.town} telephone`, 'name_town', 1);
+    }
+  }
+
   // Tier 1 — official / high-signal custody + contact queries
   add(`"${name}" custody telephone`, 'canonical_custody', 1);
   add(`"${name}" police custody phone number`, 'canonical_custody', 1);
   add(`"${name}" custody suite telephone`, 'canonical_custody', 1);
   add(`"${force}" "${short}" custody telephone`, 'canonical_custody', 1);
   if (domain) {
-    add(`site:${domain} "${short}" custody`, 'force_domain', 1);
     add(`site:${domain} "${short}" telephone`, 'force_domain', 1);
+    add(`site:${domain} "${short}" custody`, 'force_domain', 1);
     add(`site:${domain} custody telephone`, 'force_domain', 1);
     add(`site:${domain} custody suite`, 'force_domain', 1);
   }
@@ -139,7 +155,7 @@ export function buildRankedSearchQueries(suite: CustodySuite): RankedSearchQuery
   add(`filetype:pdf "${force}" custody suite telephone number`, 'pdf_official', 1);
   add(`filetype:pdf "${force}" "${short}" custody`, 'pdf_official', 1);
 
-  // Enquiry / public contact variants
+  // Enquiry / public contact variants (also for dedicated custody suites)
   add(`"${name}" police enquiry office`, 'enquiry_office', 1);
   add(`"${name}" police station telephone number`, 'enquiry_office', 1);
   add(`"${name}" police contact number`, 'enquiry_office', 1);

@@ -23,6 +23,7 @@ import {
   resolveHoldFinding,
   type HoldResolutionOutcome,
 } from './hold-resolver';
+import { isGenericCustodyNumber } from './generic-numbers';
 import { isAutoPublishableRange, numberSafetyFlags } from './number-safety';
 import {
   evidenceContainsPhone,
@@ -101,9 +102,19 @@ function softApproveMinScore(): number {
   return Number(process.env.CUSTODY_AI_SOFT_APPROVE_MIN_SCORE ?? 70);
 }
 
+/** Minimum AI confidence before an AI-only reject clears a finding from the queue. */
+function minAiRejectConfidence(): number {
+  return Number(process.env.CUSTODY_AI_MIN_REJECT_CONFIDENCE ?? 80);
+}
+
 /**
- * Auto-reject whenever AI recommends reject. Conflicts still block
- * auto-publish but do not block clearing reject recommendations from the queue.
+ * Auto-reject when AI recommends reject AND either:
+ * - the source is a rep/self directory (any confidence), or
+ * - the number is deterministically unsafe/generic (101/switchboard/etc.), or
+ * - AI reject confidence is high enough (default ≥80).
+ *
+ * Low-confidence AI rejects on otherwise plausible findings stay in
+ * `needs_review` so false rejects do not erase true positives.
  */
 export function shouldAutoRejectAiFinding(
   finding: CustodyNumberFinding,
@@ -118,6 +129,27 @@ export function shouldAutoRejectAiFinding(
       reason: 'auto_reject_rep_directory',
       note: `AI reject (${conf}%) from rep/self directory (${finding.sourceDomain}) — not an authoritative source.`,
     };
+  }
+
+  if (isGenericCustodyNumber(finding.normalizedPhoneNumber, finding.forceName)) {
+    return {
+      reject: true,
+      reason: 'auto_reject_generic_number',
+      note: `AI reject (${conf}%) — number is generic/switchboard/emergency (${finding.normalizedPhoneNumber}).`,
+    };
+  }
+
+  const safety = numberSafetyFlags(finding.normalizedPhoneNumber);
+  if (safety.includes('emergency_number') || safety.includes('premium_rate')) {
+    return {
+      reject: true,
+      reason: 'auto_reject_unsafe_range',
+      note: `AI reject (${conf}%) — unsafe number range (${safety.join(', ')}).`,
+    };
+  }
+
+  if (conf < minAiRejectConfidence()) {
+    return { reject: false };
   }
 
   return {

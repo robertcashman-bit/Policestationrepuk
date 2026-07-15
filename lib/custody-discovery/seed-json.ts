@@ -67,6 +67,14 @@ export async function seedFindingsFromOfficialJson(
         rejected++;
         continue;
       }
+      // Rep/self directory URLs must not seed the publish path — they are
+      // auto-rejected later and waste crawl/AI budget.
+      if (
+        /policestationreps\.com|policestationrepuk\.org|policestationagent\.com/i.test(url)
+      ) {
+        rejected++;
+        continue;
+      }
 
       const title = entry.suiteName ?? suite.custodySuiteName;
       const snippet = `${title} custody suite telephone ${entry.custodyPhone} — official force listing`;

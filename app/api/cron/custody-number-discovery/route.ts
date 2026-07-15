@@ -61,7 +61,7 @@ export async function GET(request: Request) {
   const startedAt = new Date().toISOString();
   const t0 = Date.now();
 
-  const limit = Number(url.searchParams.get('limit') || process.env.CUSTODY_DISCOVERY_BATCH_LIMIT || 20);
+  const limit = Number(url.searchParams.get('limit') || process.env.CUSTODY_DISCOVERY_BATCH_LIMIT || 30);
 
   const stations = await getAllStations();
   const suites = buildCustodySuitesFromStations(stations);

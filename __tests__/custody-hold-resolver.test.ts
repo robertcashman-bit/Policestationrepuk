@@ -271,18 +271,26 @@ describe('applyAutoDecision broad reject', () => {
     expect(result.reason).toBe('auto_reject_rep_directory');
   });
 
-  it('auto-rejects AI reject at any confidence', async () => {
+  it('queues low-confidence AI reject for human review', async () => {
     const result = await applyAutoDecision(
-      finding(),
+      finding({ normalizedPhoneNumber: '01622790000' }),
       { ...holdReview(), recommendation: 'reject', aiConfidence: 70 },
+    );
+    expect(result.action).toBe('queued');
+  });
+
+  it('auto-rejects high-confidence AI reject', async () => {
+    const result = await applyAutoDecision(
+      finding({ normalizedPhoneNumber: '01622790000' }),
+      { ...holdReview(), recommendation: 'reject', aiConfidence: 90 },
     );
     expect(result.action).toBe('rejected');
     expect(result.reason).toBe('auto_reject_ai');
   });
 
-  it('auto-rejects conflict findings when AI says reject', async () => {
+  it('auto-rejects conflict findings when AI says reject at high confidence', async () => {
     const result = await applyAutoDecision(
-      finding({ conflictReason: 'possible_conflict' }),
+      finding({ conflictReason: 'possible_conflict', normalizedPhoneNumber: '01622790000' }),
       { ...holdReview(), recommendation: 'reject', aiConfidence: 95 },
     );
     expect(result.action).toBe('rejected');
@@ -324,33 +332,61 @@ describe('shouldAutoRejectAiFinding low-confidence tier', () => {
     if (gate.reject) expect(gate.reason).toBe('auto_reject_rep_directory');
   });
 
-  it('auto-rejects official police source at any AI reject confidence', () => {
+  it('does not auto-reject low-confidence AI reject on official sources', () => {
     const gate = shouldAutoRejectAiFinding(
       finding({
         sourceType: 'official_police',
         sourceDomain: 'kent.police.uk',
         classification: 'unknown',
+        normalizedPhoneNumber: '01622790000',
       }),
       { ...holdReview(), recommendation: 'reject', aiConfidence: 75 },
     );
-    expect(gate.reject).toBe(true);
-    if (gate.reject) expect(gate.reason).toBe('auto_reject_ai');
+    expect(gate.reject).toBe(false);
   });
 
-  it('auto-rejects unknown third-party at any AI reject confidence', () => {
+  it('does not auto-reject low-confidence AI reject on third-party findings', () => {
     const gate = shouldAutoRejectAiFinding(
       finding({
         sourceType: 'unknown',
         sourceDomain: 'mindwisenv.org',
         classification: 'direct_custody',
+        normalizedPhoneNumber: '01622790000',
       }),
       { ...holdReview(), recommendation: 'reject', aiConfidence: 45 },
+    );
+    expect(gate.reject).toBe(false);
+  });
+
+  it('auto-rejects high-confidence AI reject on official sources', () => {
+    const gate = shouldAutoRejectAiFinding(
+      finding({
+        sourceType: 'official_police',
+        sourceDomain: 'kent.police.uk',
+        classification: 'unknown',
+        normalizedPhoneNumber: '01622790000',
+      }),
+      { ...holdReview(), recommendation: 'reject', aiConfidence: 90 },
     );
     expect(gate.reject).toBe(true);
     if (gate.reject) expect(gate.reason).toBe('auto_reject_ai');
   });
 
-  it('auto-rejects when conflict is flagged', () => {
+  it('auto-rejects generic 101 even at low AI confidence', () => {
+    const gate = shouldAutoRejectAiFinding(
+      finding({
+        sourceType: 'official_police',
+        sourceDomain: 'kent.police.uk',
+        classification: 'general_101',
+        normalizedPhoneNumber: '101',
+      }),
+      { ...holdReview(), recommendation: 'reject', aiConfidence: 30 },
+    );
+    expect(gate.reject).toBe(true);
+    if (gate.reject) expect(gate.reason).toBe('auto_reject_generic_number');
+  });
+
+  it('auto-rejects when conflict is flagged on rep directory', () => {
     const gate = shouldAutoRejectAiFinding(
       finding({ sourceDomain: 'policestationreps.com', conflictReason: 'possible_conflict' }),
       { ...holdReview(), recommendation: 'reject', aiConfidence: 95 },

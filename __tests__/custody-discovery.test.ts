@@ -384,6 +384,34 @@ describe('public display and approval overlay', () => {
     expect(merged[0].verificationMeta?.custodyDiscovery?.status).toBe('unverified');
     expect(merged[0].verificationMeta?.fields?.custodyPhone?.status).toBe('unverified');
   });
+
+  it('never overlays 101 or force switchboard publication status onto station phones', async () => {
+    const { isPublishableOverlayNumber } = await import('@/lib/custody-discovery/overlay');
+    expect(isPublishableOverlayNumber('101', 'Kent Police')).toBe(false);
+    expect(
+      isPublishableOverlayNumber('01634 555 555', 'Kent Police', 'verified_force_switchboard'),
+    ).toBe(false);
+
+    approvedCache.clear();
+    approvedCache.set('suite-1', {
+      id: 'ap-101',
+      custodySuiteId: 'suite-1',
+      phoneNumber: '101',
+      normalizedPhoneNumber: '101',
+      sourceFindingId: 'find-101',
+      sourceUrl: 'https://kent.police.uk/contact',
+      approvedBy: 'admin@test.com',
+      approvedAt: '2025-06-01T00:00:00.000Z',
+      lastVerifiedAt: '2025-06-01T00:00:00.000Z',
+      verificationStatus: 'verified',
+      publicVisible: true,
+      publicationStatus: 'verified_force_switchboard',
+      notes: '',
+    });
+
+    const merged = await applyApprovedDiscoveryNumbers([baseStation]);
+    expect(merged[0].custodyPhone).toBeUndefined();
+  });
 });
 
 describe('approval verification status', () => {

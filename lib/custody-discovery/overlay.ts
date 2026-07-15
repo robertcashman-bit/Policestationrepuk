@@ -1,7 +1,37 @@
 import type { PoliceStation } from '@/lib/types';
 import { isDialablePhone } from '@/lib/station-phone-dialable';
+import { isGenericCustodyNumber } from './generic-numbers';
+import { classifyUkNumberRange } from './number-safety';
 import { getApprovedCache } from './storage';
 import type { ApprovedContactField } from './types';
+
+/**
+ * Never surface 101 / force switchboards / emergency short-codes as a station
+ * direct or custody desk number on the public directory.
+ */
+export function isPublishableOverlayNumber(
+  number: string,
+  forceName?: string,
+  publicationStatus?: string | null,
+): boolean {
+  if (!isDialablePhone(number)) return false;
+  if (isGenericCustodyNumber(number, forceName)) return false;
+  const range = classifyUkNumberRange(number);
+  if (range === 'emergency') return false;
+
+  // Switchboard-labelled publications stay off the station phone fields;
+  // they are tracked in admin / publicationStatus only.
+  if (
+    publicationStatus === 'verified_force_switchboard' ||
+    publicationStatus === 'no_public_number_found' ||
+    publicationStatus === 'station_closed' ||
+    publicationStatus === 'search_failed'
+  ) {
+    return false;
+  }
+
+  return true;
+}
 
 /**
  * Merge admin/AI-approved discovery numbers onto stations at request time.
@@ -18,7 +48,9 @@ export async function applyApprovedDiscoveryNumbers(
     if (!record?.publicVisible) return s;
 
     const number = record.phoneNumber.trim();
-    if (!isDialablePhone(number)) return s;
+    if (!isPublishableOverlayNumber(number, s.forceName, record.publicationStatus)) {
+      return s;
+    }
 
     const verificationStatus = record.verificationStatus ?? 'unverified';
     const contactField: ApprovedContactField = record.contactField ?? 'custodyPhone';

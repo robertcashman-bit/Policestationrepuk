@@ -48,6 +48,12 @@
 			"**/dist": true,
 			"**/.turbo": true
 		},
-		"git.autoRepositoryDetection": true
+		"git.enabled": true,
+		"git.path": "/usr/bin/git",
+		"git.autoRepositoryDetection": true,
+		"git.detectSubmodules": true,
+		"git.repositoryScanMaxDepth": 2,
+		"git.openRepositoryInParentFolders": "always",
+		"scm.repositories.visible": 12
 	}
 }

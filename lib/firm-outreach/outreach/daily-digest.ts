@@ -47,3 +47,54 @@ export async function markOutreachDigestSent(date: string, campaignId: string): 
     ex: 60 * 60 * 24 * 14,
   });
 }
+
+const MORNING_DIGEST_PREFIX = 'firmoutreach:morning-digest:sent:';
+
+/** Local hour (24h) when the daily results email is sent — default 08:00 Europe/London. */
+export const MORNING_DIGEST_HOUR = Number(
+  process.env.FIRM_OUTREACH_MORNING_DIGEST_HOUR ?? 8,
+);
+
+export function morningDigestDedupKey(date: string): string {
+  return `${MORNING_DIGEST_PREFIX}${date}`;
+}
+
+/** Calendar date one day before the given YYYY-MM-DD anchor (London timezone semantics). */
+export function previousDigestDate(date: string): string {
+  const anchor = new Date(`${date}T12:00:00.000Z`);
+  anchor.setUTCDate(anchor.getUTCDate() - 1);
+  return localDateInTimezone(anchor, NOTIFY_TIMEZONE);
+}
+
+export function localHourInTimezone(now: Date, timeZone: string): number {
+  return Number(
+    new Intl.DateTimeFormat('en-GB', {
+      timeZone,
+      hour: 'numeric',
+      hour12: false,
+    }).format(now),
+  );
+}
+
+/** True when the clock in NOTIFY_TIMEZONE is exactly the configured morning digest hour. */
+export function isMorningDigestSendWindow(now = new Date()): boolean {
+  return localHourInTimezone(now, NOTIFY_TIMEZONE) === MORNING_DIGEST_HOUR;
+}
+
+export async function wasMorningDigestSent(date: string): Promise<boolean> {
+  const kv = getKV();
+  if (!kv) return false;
+  return Boolean(await kv.get(morningDigestDedupKey(date)));
+}
+
+export async function claimMorningDigest(date: string): Promise<boolean> {
+  return claimKey(morningDigestDedupKey(date), 60 * 60 * 24 * 14);
+}
+
+export async function markMorningDigestSent(date: string): Promise<void> {
+  const kv = getKV();
+  if (!kv) return;
+  await kv.set(morningDigestDedupKey(date), new Date().toISOString(), {
+    ex: 60 * 60 * 24 * 14,
+  });
+}

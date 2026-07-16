@@ -182,7 +182,7 @@
     },
     {
       "path": "/api/cron/firm-outreach-watchdog",
-      "schedule": "*/30 * * * *"
+      "schedule": "*/15 * * * *"
     },
     {
       "path": "/api/cron/firm-outreach-digest",

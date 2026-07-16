@@ -23,6 +23,7 @@ import {
 import type { FirmProspect, OutreachRunStats } from '../types';
 import { normalizeEmail } from '../normalize';
 import { orderProspectsForSendQueue } from './candidate-order';
+import { reconcileStaleReadyProspects } from './outreach-autofix';
 import {
   buildOutreachRunLog,
   initExtendedRunStats,
@@ -122,6 +123,11 @@ export async function runFirmOutreach(opts?: {
   if (!outreachSendEnabled()) {
     recordSkip(stats, 'send_disabled');
     return finish(0, 0, dailySendCap());
+  }
+
+  // Self-heal stale ready_to_send rows before every live send tick.
+  if (!opts?.dryRun && Boolean(getKV())) {
+    await reconcileStaleReadyProspects({ limit: 200 });
   }
 
   // Restart-safe send lock: only one live send run per campaign at a time. Prevents

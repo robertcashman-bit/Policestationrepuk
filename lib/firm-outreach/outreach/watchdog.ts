@@ -2,33 +2,37 @@ import { validateOutreachEnv } from '@robertcashman/firm-outreach-core';
 import { cronSendBatchSize, outreachSendEnabled } from '../constants';
 import { runFirmOutreachPipeline } from '../run-pipeline';
 import { OUTREACH_CAMPAIGN_IDS } from '../site-config';
-import {
-  getLatestOutreachRunLog,
-  listAllSends,
-  listProspectsByRecordStatus,
-} from '../storage';
+import { getLatestOutreachRunLog, listAllSends } from '../storage';
 import type { OutreachRunStats } from '../types';
 import { buildOutreachActivityReport } from './activity-report';
 import { getOutreachSendHealth } from './from-address';
+import {
+  collectCapDriftCheckDates,
+  countDueSendableByCampaign,
+  detectCampaignSendRecovery,
+  findAllDailyCapDrifts,
+  fixAllDailyCapDrifts,
+  OUTREACH_SEND_WINDOWS_UTC,
+  minutesSinceSendWindow,
+  recordWatchdogKick,
+  reconcileStaleReadyProspects,
+  releaseSendLockForCampaign,
+  shouldAllowWatchdogKick,
+  summarizeCapDrifts,
+  countRealSendsTodayByCampaign,
+  type CampaignSendRecovery,
+} from './outreach-autofix';
 import { isPhantomSend } from './phantom-send-repair';
 import {
   applyPhantomSendRepair,
-  countRealSendsOnDate,
   findDailyCapDrift,
-  fixDailyCapDrift,
 } from './phantom-send-repair-apply';
 import { sendOutreachSendFailureEmail } from './send-failure-email';
-import { nextOutreachStep } from './sequence';
 
-/** UTC send windows (hour, minute). */
-export const OUTREACH_SEND_WINDOWS_UTC: Array<{ hour: number; minute: number }> = [
-  { hour: 12, minute: 0 },
-  { hour: 14, minute: 30 },
-  { hour: 16, minute: 0 },
-  { hour: 18, minute: 30 },
-];
+/** Grace after a scheduled send window before recovery kicks in. */
+const SEND_WINDOW_GRACE_MINUTES = 30;
 
-const WINDOW_GRACE_MINUTES = 45;
+export { OUTREACH_SEND_WINDOWS_UTC };
 
 export interface OutreachWatchdogResult {
   ok: boolean;
@@ -43,25 +47,8 @@ export interface OutreachWatchdogResult {
   readyToSend: number;
   sendEnabled: boolean;
   sendAllowed: boolean;
+  recovery?: CampaignSendRecovery[];
   repair?: Awaited<ReturnType<typeof applyPhantomSendRepair>>;
-}
-
-function minutesSinceWindow(window: { hour: number; minute: number }, now: Date): number {
-  const windowStart = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-    window.hour,
-    window.minute,
-  );
-  return (now.getTime() - windowStart) / 60_000;
-}
-
-function recentSendWindowPassed(now: Date): boolean {
-  return OUTREACH_SEND_WINDOWS_UTC.some((w) => {
-    const elapsed = minutesSinceWindow(w, now);
-    return elapsed >= WINDOW_GRACE_MINUTES && elapsed <= WINDOW_GRACE_MINUTES + 60;
-  });
 }
 
 /** Count prospects the send loop would actually attempt (next step due), across campaigns. */
@@ -69,19 +56,54 @@ export async function countDueSendableProspects(opts?: {
   perStatusLimit?: number;
   nowMs?: number;
 }): Promise<number> {
-  const perStatusLimit = opts?.perStatusLimit ?? 500;
-  const nowMs = opts?.nowMs ?? Date.now();
-  let due = 0;
-  for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
-    const [ready, sent] = await Promise.all([
-      listProspectsByRecordStatus('ready_to_send', perStatusLimit, { campaignId }),
-      listProspectsByRecordStatus('sent', perStatusLimit, { campaignId }),
-    ]);
-    for (const prospect of [...ready, ...sent]) {
-      if (nextOutreachStep(prospect, nowMs) !== null && prospect.email) due += 1;
-    }
+  const byCampaign = await countDueSendableByCampaign(opts);
+  return Object.values(byCampaign).reduce((a, b) => a + b, 0);
+}
+
+async function runAutonomousSendKick(opts: {
+  date: string;
+  campaigns: string[];
+  capFixedThisRun: boolean;
+}): Promise<{ sent: number; autoFixed: string[]; issues: string[] }> {
+  const autoFixed: string[] = [];
+  const issues: string[] = [];
+  let totalSent = 0;
+
+  for (const campaignId of opts.campaigns) {
+    const allowed = await shouldAllowWatchdogKick(
+      opts.date,
+      campaignId,
+      opts.capFixedThisRun,
+    );
+    if (!allowed) continue;
+
+    await releaseSendLockForCampaign(campaignId);
   }
-  return due;
+
+  try {
+    const kick = await runFirmOutreachPipeline({
+      skipDiscovery: true,
+      skipEnrich: true,
+      skipDigest: true,
+      skipCleanup: true,
+      skipCounts: true,
+      sendLimit: cronSendBatchSize(),
+    });
+    totalSent = kick.send?.sent ?? 0;
+    autoFixed.push(
+      `Auto-kicked send-only for [${opts.campaigns.join(', ')}]; sent=${totalSent}`,
+    );
+
+    for (const campaignId of opts.campaigns) {
+      await recordWatchdogKick(opts.date, campaignId);
+    }
+  } catch (err) {
+    issues.push(
+      `Auto-kick send failed: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+
+  return { sent: totalSent, autoFixed, issues };
 }
 
 export async function runOutreachWatchdog(opts?: {
@@ -109,134 +131,130 @@ export async function runOutreachWatchdog(opts?: {
   if (!sendEnabled) issues.push('FIRM_OUTREACH_SEND_ENABLED=false');
   if (!sendAllowed) issues.push('Outreach send paused (env or admin KV pause)');
 
-  const allSends = await listAllSends();
+  let allSends = await listAllSends();
   const phantoms = allSends.filter(isPhantomSend);
   if (phantoms.length > 0) {
     issues.push(`${phantoms.length} phantom send record(s) without provider message IDs`);
   }
 
-  let capDrifts = await findDailyCapDrift(allSends, date);
-  if (capDrifts.length > 0) {
+  const capDates = collectCapDriftCheckDates(allSends, { anchorDate: date });
+  let capDrifts = await findAllDailyCapDrifts(allSends, capDates);
+  const todayCapDrifts = capDrifts.filter((d) => d.date === date);
+  if (todayCapDrifts.length > 0) {
+    issues.push(`Daily cap drift today: ${summarizeCapDrifts(todayCapDrifts)}`);
+  }
+  if (capDrifts.length > todayCapDrifts.length) {
     issues.push(
-      `Daily cap drift: ${capDrifts
-        .map((d) => `${d.campaignId} counter=${d.counterValue} real=${d.realCount}`)
-        .join('; ')}`,
+      `Historical cap drift (${capDrifts.length - todayCapDrifts.length} older day(s))`,
     );
   }
 
-  const realSendsToday: Record<string, number> = {};
-  for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
-    realSendsToday[campaignId] = countRealSendsOnDate(allSends, date, campaignId);
-  }
+  let realSendsToday = countRealSendsTodayByCampaign(allSends, date);
 
   const { report } = await buildOutreachActivityReport();
   const sendableReady = report.readyToSendProspects.filter((r) => !r.suppressed && r.email).length;
   const readyToSend = report.summary.readyToSend;
-  const dueSendable = await countDueSendableProspects({ nowMs: now.getTime() });
+  const dueByCampaign = await countDueSendableByCampaign({ nowMs: now.getTime() });
+  const dueSendable = Object.values(dueByCampaign).reduce((a, b) => a + b, 0);
+
+  let capFixedThisRun = false;
 
   if (autoRepair) {
+    const reconciled = await reconcileStaleReadyProspects();
+    if (reconciled > 0) {
+      autoFixed.push(`Reconciled ${reconciled} stale-ready prospect(s) to sent`);
+    }
+
     if (phantoms.length > 0) {
       const repair = await applyPhantomSendRepair({ recountDailyCaps: true });
       autoFixed.push(
         `Removed ${repair.phantomsRemoved} phantom send(s); reconciled ${repair.prospectsReconciled} prospect(s)`,
       );
-      capDrifts = await findDailyCapDrift(
-        (await listAllSends()).filter((s) => !isPhantomSend(s)),
-        date,
-      );
-    } else if (capDrifts.length > 0) {
-      const fixed = await fixDailyCapDrift(allSends, date);
+      allSends = (await listAllSends()).filter((s) => !isPhantomSend(s));
+      capDrifts = await findAllDailyCapDrifts(allSends, capDates);
+      capFixedThisRun = repair.dailyCapsFixed > 0;
+    }
+
+    if (capDrifts.length > 0) {
+      const fixed = await fixAllDailyCapDrifts(allSends, [...new Set(capDrifts.map((d) => d.date))]);
       if (fixed > 0) {
         autoFixed.push(`Recounted ${fixed} daily cap key(s) from provider-confirmed sends`);
-        capDrifts = [];
+        capDrifts = await findAllDailyCapDrifts(allSends, capDates);
+        capFixedThisRun = true;
       }
     }
   }
 
-  // Only alert when something is actually due. A large ready_to_send count often
-  // means stale-ready / not-yet-due follow-ups — that is not a send failure.
-  const zeroSendCampaigns: string[] = [];
-  if (
-    recentSendWindowPassed(now) &&
-    sendEnabled &&
-    sendAllowed &&
-    sendHealth.sendHealthy &&
-    dueSendable > 0
-  ) {
+  const recovery: CampaignSendRecovery[] = [];
+  const kickCampaigns: string[] = [];
+
+  const canRecover =
+    sendEnabled && sendAllowed && sendHealth.sendHealthy && envCheck.ok;
+
+  if (canRecover && dueSendable > 0) {
     for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
       const latest = await getLatestOutreachRunLog(campaignId);
-      const realToday = realSendsToday[campaignId] ?? 0;
-      const windowJustPassed = OUTREACH_SEND_WINDOWS_UTC.some((w) => {
-        const elapsed = minutesSinceWindow(w, now);
-        return elapsed >= WINDOW_GRACE_MINUTES && elapsed <= WINDOW_GRACE_MINUTES + 60;
+      const todayDrift = capDrifts.find((d) => d.campaignId === campaignId && d.date === date);
+      const detected = detectCampaignSendRecovery({
+        campaignId,
+        now,
+        date,
+        dueCount: dueByCampaign[campaignId] ?? 0,
+        realSendsToday: realSendsToday[campaignId] ?? 0,
+        latest,
+        todayCapDrift: todayDrift,
+        graceMinutes: SEND_WINDOW_GRACE_MINUTES,
       });
-      if (!windowJustPassed) continue;
-
-      if (!latest || !latest.startedAt.startsWith(date)) {
-        issues.push(`${campaignId}: no send run log for today after a send window`);
-        zeroSendCampaigns.push(campaignId);
-        continue;
-      }
-      if (latest.sent === 0 && latest.failed === 0 && realToday === 0) {
-        const skipHint = latest.skipReasons
-          ? ` (latest skips: ${JSON.stringify(latest.skipReasons)})`
-          : '';
+      if (detected) {
+        recovery.push(detected);
+        kickCampaigns.push(campaignId);
         issues.push(
-          `${campaignId}: send window passed with ${dueSendable} due sendable but 0 provider-confirmed sends today${skipHint}`,
+          `${campaignId}: recovery needed (${detected.reasons.join(', ')}) — due=${detected.dueCount}, realToday=${detected.realSendsToday}`,
         );
-        zeroSendCampaigns.push(campaignId);
       }
     }
   }
 
-  // Autofix: when a send window produced zero provider-confirmed sends, kick a
-  // send-only pipeline once before alerting — mirrors what an operator would do.
-  if (autoRepair && zeroSendCampaigns.length > 0) {
-    try {
-      const kick = await runFirmOutreachPipeline({
-        skipDiscovery: true,
-        skipEnrich: true,
-        skipDigest: true,
-        skipCleanup: true,
-        skipCounts: true,
-        sendLimit: cronSendBatchSize(),
+  // Pre-send heal: 15 min before first window, reconcile + caps only (no kick).
+  const minutesToFirstWindow = OUTREACH_SEND_WINDOWS_UTC.length
+    ? minutesSinceSendWindow(OUTREACH_SEND_WINDOWS_UTC[0], now)
+    : Infinity;
+  const preSendHeal =
+    autoRepair && minutesToFirstWindow < 0 && minutesToFirstWindow >= -15;
+
+  if (preSendHeal && autoFixed.length === 0 && capDrifts.length === 0 && phantoms.length === 0) {
+    autoFixed.push('Pre-send heal: queue and caps OK');
+  }
+
+  if (autoRepair && kickCampaigns.length > 0) {
+    const kick = await runAutonomousSendKick({
+      date,
+      campaigns: kickCampaigns,
+      capFixedThisRun,
+    });
+    autoFixed.push(...kick.autoFixed);
+    issues.push(...kick.issues);
+
+    allSends = await listAllSends();
+    realSendsToday = countRealSendsTodayByCampaign(allSends, date);
+
+    const stillZero = kickCampaigns.filter((id) => (realSendsToday[id] ?? 0) === 0);
+    if (kick.sent === 0 && stillZero.length > 0 && capFixedThisRun) {
+      const retry = await runAutonomousSendKick({
+        date,
+        campaigns: stillZero,
+        capFixedThisRun: true,
       });
-      const kickSent = kick.send?.sent ?? 0;
-      autoFixed.push(
-        `Auto-kicked send-only after zero-send window (${zeroSendCampaigns.join(', ')}); sent=${kickSent}`,
-      );
+      autoFixed.push(...retry.autoFixed);
+      issues.push(...retry.issues);
+      allSends = await listAllSends();
+      realSendsToday = countRealSendsTodayByCampaign(allSends, date);
+    }
 
-      const refreshed = await listAllSends();
-      for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
-        realSendsToday[campaignId] = countRealSendsOnDate(refreshed, date, campaignId);
-      }
-
-      // Drop zero-send issues that are now resolved by the kick.
-      const remainingZero = zeroSendCampaigns.filter((id) => (realSendsToday[id] ?? 0) === 0);
-      if (remainingZero.length === 0) {
-        issues = issues.filter(
-          (issue) =>
-            !zeroSendCampaigns.some(
-              (id) =>
-                issue.startsWith(`${id}: send window passed`) ||
-                issue.startsWith(`${id}: no send run log`),
-            ),
-        );
-      } else {
-        // Keep only issues for campaigns still at zero.
-        issues = issues.filter((issue) => {
-          const matched = zeroSendCampaigns.find(
-            (id) =>
-              issue.startsWith(`${id}: send window passed`) ||
-              issue.startsWith(`${id}: no send run log`),
-          );
-          if (!matched) return true;
-          return remainingZero.includes(matched);
-        });
-      }
-    } catch (err) {
-      issues.push(
-        `Auto-kick send failed: ${err instanceof Error ? err.message : String(err)}`,
+    const resolved = kickCampaigns.filter((id) => (realSendsToday[id] ?? 0) > 0);
+    if (resolved.length > 0) {
+      issues = issues.filter(
+        (issue) => !resolved.some((id) => issue.startsWith(`${id}: recovery needed`)),
       );
     }
   }
@@ -248,6 +266,9 @@ export async function runOutreachWatchdog(opts?: {
     if (issue.startsWith('Daily cap drift') && autoFixed.some((f) => f.includes('daily cap'))) {
       return false;
     }
+    if (issue.startsWith('Historical cap drift') && autoFixed.some((f) => f.includes('daily cap'))) {
+      return false;
+    }
     return true;
   });
 
@@ -257,13 +278,14 @@ export async function runOutreachWatchdog(opts?: {
     issues: remainingIssues,
     autoFixed,
     phantomCount: phantoms.length,
-    capDrifts,
+    capDrifts: todayCapDrifts,
     realSendsToday,
     sendableReady,
     dueSendable,
     readyToSend,
     sendEnabled,
     sendAllowed,
+    recovery: recovery.length ? recovery : undefined,
   };
 }
 
@@ -290,7 +312,7 @@ export async function maybeAlertOutreachWatchdog(result: OutreachWatchdogResult)
   await sendOutreachSendFailureEmail({
     stats,
     readyToSend: result.readyToSend,
-    reason: `Outreach watchdog alert — ${lines.join(' · ')}`,
+    reason: `Outreach watchdog alert (autofix exhausted) — ${lines.join(' · ')}`,
     date: result.date,
   });
 }

@@ -72,6 +72,9 @@ vi.mock('@/lib/firm-outreach/storage', () => ({
   },
   listProspectsByRecordStatus: async (status: string, limit: number) =>
     [...state.prospects.values()].filter((p) => p.status === status).slice(0, limit),
+  listProspectIdsByStatus: async (status: string) =>
+    [...state.prospects.values()].filter((p) => p.status === status).map((p) => p.id),
+  getProspect: async (id: string) => state.prospects.get(id),
 }));
 
 import { runFirmOutreach } from '@/lib/firm-outreach/outreach/run-outreach';

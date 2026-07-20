@@ -18,12 +18,28 @@ jobs:
   send-now:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@41.4.0
+
+      - name: Pull production env
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "${VERCEL_TOKEN:-}" ]; then
+            echo "VERCEL_TOKEN missing — cannot pull CRON_SECRET"
+            exit 1
+          fi
+          vercel env pull .env.production --environment=production --yes --token="$VERCEL_TOKEN"
 
       - name: Diagnose + optional send
         env:
@@ -33,8 +49,13 @@ jobs:
           CONFIRM: ${{ github.event.inputs.confirm }}
         run: |
           set -euo pipefail
+          set -a
+          # shellcheck disable=SC1091
+          source .env.production
+          set +a
+          # Prefer GitHub secret override if present; else Vercel-pulled value.
           if [ -z "${CRON_SECRET:-}" ] && [ -z "${FIRM_OUTREACH_BOOTSTRAP_SECRET:-}" ]; then
-            echo "No CRON_SECRET or FIRM_OUTREACH_BOOTSTRAP_SECRET in repo secrets"
+            echo "No CRON_SECRET after Vercel env pull"
             exit 1
           fi
           if [ -n "${CRON_SECRET:-}" ]; then
@@ -47,8 +68,10 @@ jobs:
           BASE="https://policestationrepuk.org"
           LIMIT="${LIMIT:-45}"
 
+          echo "flags require_approval=${FIRM_OUTREACH_REQUIRE_APPROVAL:-} send_enabled=${FIRM_OUTREACH_SEND_ENABLED:-} paused=${FIRM_OUTREACH_PAUSED:-} cap=${FIRM_OUTREACH_DAILY_CAP:-}"
+
           echo "## Status"
-          curl -sS -H "$AUTH_HEADER" -H "$AUTH2" "$BASE/api/cron/firm-outreach-status" | tee status.json | head -c 4000
+          curl -sS -H "$AUTH_HEADER" -H "$AUTH2" "$BASE/api/cron/firm-outreach-status" | tee status.json | head -c 5000
           echo
 
           echo "## Dry-run preview"
@@ -76,7 +99,7 @@ jobs:
 
           echo "## Requalify ready junk"
           curl -sS -H "$AUTH_HEADER" -H "$AUTH2" \
-            "$BASE/api/cron/firm-outreach-bootstrap?requalifyOnly=1" | tee requalify.json | head -c 3000
+            "$BASE/api/cron/firm-outreach-bootstrap?requalifyOnly=1" | tee requalify.json | head -c 4000
           echo
 
           echo "## Live send limit=${LIMIT}"

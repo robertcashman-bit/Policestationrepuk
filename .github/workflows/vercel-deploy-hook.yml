@@ -53,6 +53,7 @@ jobs:
     outputs:
       sha: ${{ steps.resolve.outputs.sha }}
       ref: ${{ steps.resolve.outputs.ref }}
+      skip: ${{ steps.verify.outputs.skip }}
     steps:
       - name: Resolve and validate SHA + branch ref
         id: resolve
@@ -89,21 +90,51 @@ jobs:
           echo "Trigger: ${{ github.event_name }}"
 
       - name: Verify CI and Site audit passed for SHA
+        id: verify
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           SHA="${{ steps.resolve.outputs.sha }}"
+          REF="${{ steps.resolve.outputs.ref }}"
           API="https://api.github.com/repos/${{ github.repository }}/commits/${SHA}/check-runs?per_page=100"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+          # Prefer success if any matching check-run succeeded (rapid pushes leave
+          # cancelled Site audit rows that must not mask a successful run).
+          pick_conclusion() {
+            local name="$1"
+            local resp="$2"
+            echo "$resp" | jq -r --arg n "$name" '
+              [.check_runs[] | select(.name == $n)]
+              | if any(.conclusion == "success") then "success"
+                elif any(.conclusion == "failure") then "failure"
+                elif any(.status == "in_progress" or .status == "queued") then "pending"
+                elif any(.conclusion == "cancelled") then "cancelled"
+                else (.[0].conclusion // "null")
+                end
+            '
+          }
+
+          tip_sha() {
+            curl -sS -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${{ github.repository }}/commits/${REF}" \
+              | jq -r '.sha // empty'
+          }
 
           # Cover Site audit's ~25m budget (120 × 15s = 30m) within the 35m job timeout.
           for attempt in $(seq 1 120); do
             RESP=$(curl -sS -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "$API")
             echo "$RESP" | jq -r '.check_runs[] | "\(.name)\t\(.conclusion)\t\(.status)"' | sort
 
-            build_conclusion=$(echo "$RESP" | jq -r '.check_runs[] | select(.name == "build") | .conclusion' | head -1)
-            audit_conclusion=$(echo "$RESP" | jq -r '.check_runs[] | select(.name == "audit") | .conclusion' | head -1)
-            audit_status=$(echo "$RESP" | jq -r '.check_runs[] | select(.name == "audit") | .status' | head -1)
+            build_conclusion=$(pick_conclusion build "$RESP")
+            audit_conclusion=$(pick_conclusion audit "$RESP")
+            audit_status=$(echo "$RESP" | jq -r '
+              [.check_runs[] | select(.name == "audit")]
+              | if any(.status == "in_progress" or .status == "queued") then "in_progress"
+                else (.[0].status // "missing")
+                end
+            ')
 
             if [ "$build_conclusion" = "success" ] && [ "$audit_conclusion" = "success" ]; then
               echo "OK: build → success"
@@ -111,14 +142,26 @@ jobs:
               exit 0
             fi
 
-            if [ "$build_conclusion" != "success" ] && [ "$build_conclusion" != "null" ] && [ -n "$build_conclusion" ]; then
-              echo "Required check build conclusion=${build_conclusion} (expected success)"
+            if [ "$build_conclusion" = "failure" ]; then
+              echo "Required check build conclusion=failure (expected success)"
               exit 1
             fi
 
-            if [ "$audit_conclusion" = "failure" ] || [ "$audit_conclusion" = "cancelled" ]; then
-              echo "Required check audit conclusion=${audit_conclusion} (expected success)"
+            if [ "$audit_conclusion" = "failure" ]; then
+              echo "Required check audit conclusion=failure (expected success)"
               exit 1
+            fi
+
+            # Rapid master pushes cancel in-progress Site audits. A cancelled audit
+            # on a superseded SHA is not a real failure — skip this deploy quietly.
+            if [ "$audit_conclusion" = "cancelled" ]; then
+              TIP="$(tip_sha || true)"
+              if [ -n "$TIP" ] && [ "$TIP" != "$SHA" ]; then
+                echo "Audit cancelled and SHA ${SHA:0:7} is no longer ${REF} tip (${TIP:0:7}) — skipping superseded deploy"
+                echo "skip=true" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+              echo "Audit cancelled while SHA is still tip — waiting for a fresh audit run"
             fi
 
             if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -135,6 +178,7 @@ jobs:
 
   deploy:
     needs: gate-checks
+    if: needs.gate-checks.outputs.skip != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:

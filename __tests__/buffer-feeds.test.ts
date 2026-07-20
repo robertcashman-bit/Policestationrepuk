@@ -142,11 +142,24 @@ describe('cross-site feed reconciliation (four-site SEO plan)', () => {
     expect(feeds.map((f) => f.id)).not.toContain('custodynote');
   });
 
-  it('validateContentFeeds keeps a valid single override (warns on missing IDs, not an error)', () => {
+  it('validateContentFeeds keeps REPUK-only override without warning', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const result = validateContentFeeds([{ id: 'policestationrepuk', type: 'local' }]);
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe('policestationrepuk');
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('validateContentFeeds warns on partial non-REPUK overrides', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const result = validateContentFeeds([
+      { id: 'custodynote', type: 'rss', url: 'https://custodynote.com/feed' },
+    ]);
+    expect(result).toHaveLength(1);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('BUFFER_CONTENT_FEEDS is missing expected feed IDs'),
+    );
     warn.mockRestore();
   });
 

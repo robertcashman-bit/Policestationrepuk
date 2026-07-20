@@ -92,3 +92,46 @@ describe('runSiteBufferSelfTest day-window timezone offset', () => {
     expect(end).toBe('2026-01-16T00:00:00+00:00');
   });
 });
+
+describe('runSiteBufferSelfTest insights scope fallback', () => {
+  it('retries without metrics when API key lacks insights:read', async () => {
+    let calls = 0;
+    const mock = (async (input: string | URL | Request, init?: RequestInit) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      if (!url.startsWith('https://api.buffer.com')) {
+        return new Response(null, { status: 404 });
+      }
+      const body = JSON.parse((init?.body as string) ?? '{}') as {
+        query?: string;
+        variables?: Record<string, unknown>;
+      };
+      if (!/ListPosts/.test(body.query ?? '')) {
+        return Response.json({ data: {} });
+      }
+      calls += 1;
+      listPostsVariables.push(body.variables ?? {});
+      if (calls === 1) {
+        return Response.json({
+          errors: [
+            {
+              message:
+                'Insufficient scope. Required: insights:read. Granted: posts:read, posts:write.',
+            },
+          ],
+        });
+      }
+      return Response.json({
+        data: { posts: { edges: [], pageInfo: { hasNextPage: false, endCursor: null } } },
+      });
+    }) as unknown as typeof fetch;
+    vi.stubGlobal('fetch', mock);
+
+    const result = await runSiteBufferSelfTest(makeAdapter(makeKV()), {
+      now: new Date('2026-06-29T05:00:00Z'),
+    });
+
+    expect(calls).toBe(2);
+    expect(result.metricsIngested).toBe(0);
+    expect(result.issues.some((i) => /insights:read/i.test(i))).toBe(true);
+  });
+});

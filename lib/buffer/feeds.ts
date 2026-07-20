@@ -37,6 +37,9 @@ export interface LoadAllFeedPostsResult {
 
 const EXPECTED_FEED_IDS = ['policestationrepuk', 'custodynote', 'policestationagent', 'psrtrain'] as const;
 
+/** Production REPUK config: local feed only (siblings self-schedule). */
+const REPUK_ONLY_FEED_IDS = new Set(['policestationrepuk']);
+
 const DEFAULT_FEEDS: ContentFeedSource[] = [
   { id: 'policestationrepuk', type: 'local' },
   { id: 'custodynote', type: 'rss', url: `${CUSTODYNOTE_SITE}/feed` },
@@ -60,10 +63,18 @@ function isContentFeedSource(value: unknown): value is ContentFeedSource {
   return false;
 }
 
+function isIntentionalRepukOnly(feeds: ContentFeedSource[]): boolean {
+  if (feeds.length === 0) return false;
+  return feeds.every((f) => REPUK_ONLY_FEED_IDS.has(f.id));
+}
+
 /** Validate parsed feed config — logs warnings when override drops expected feeds. */
 export function validateContentFeeds(feeds: ContentFeedSource[]): ContentFeedSource[] {
   const valid = feeds.filter(isContentFeedSource);
   if (valid.length === 0) return DEFAULT_FEEDS;
+
+  // REPUK production intentionally posts only local content; siblings schedule themselves.
+  if (isIntentionalRepukOnly(valid)) return valid;
 
   const ids = new Set(valid.map((f) => f.id));
   const missing = EXPECTED_FEED_IDS.filter((id) => !ids.has(id));

@@ -1,0 +1,92 @@
+# One-shot: diagnose skip reasons and optionally send firm outreach on production.
+name: Ops — firm outreach send now
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type SEND to allow live sends (otherwise dry-run preview only)'
+        required: true
+        type: string
+      limit:
+        description: 'Max emails this run'
+        required: false
+        default: '45'
+        type: string
+
+jobs:
+  send-now:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Diagnose + optional send
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          FIRM_OUTREACH_BOOTSTRAP_SECRET: ${{ secrets.FIRM_OUTREACH_BOOTSTRAP_SECRET }}
+          LIMIT: ${{ github.event.inputs.limit }}
+          CONFIRM: ${{ github.event.inputs.confirm }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRON_SECRET:-}" ] && [ -z "${FIRM_OUTREACH_BOOTSTRAP_SECRET:-}" ]; then
+            echo "No CRON_SECRET or FIRM_OUTREACH_BOOTSTRAP_SECRET in repo secrets"
+            exit 1
+          fi
+          if [ -n "${CRON_SECRET:-}" ]; then
+            AUTH_HEADER="Authorization: Bearer ${CRON_SECRET}"
+            AUTH2="x-cron-secret: ${CRON_SECRET}"
+          else
+            AUTH_HEADER="x-firm-outreach-bootstrap-secret: ${FIRM_OUTREACH_BOOTSTRAP_SECRET}"
+            AUTH2="x-firm-outreach-bootstrap-secret: ${FIRM_OUTREACH_BOOTSTRAP_SECRET}"
+          fi
+          BASE="https://policestationrepuk.org"
+          LIMIT="${LIMIT:-45}"
+
+          echo "## Status"
+          curl -sS -H "$AUTH_HEADER" -H "$AUTH2" "$BASE/api/cron/firm-outreach-status" | tee status.json | head -c 4000
+          echo
+
+          echo "## Dry-run preview"
+          curl -sS -H "$AUTH_HEADER" -H "$AUTH2" \
+            "$BASE/api/cron/firm-outreach-bootstrap?dryRunPreview=1&limit=80" \
+            | tee preview.json | node -e '
+              let s="";process.stdin.on("data",d=>s+=d);process.stdin.on("end",()=>{
+                const j=JSON.parse(s); const p=j.preview||j; const rows=p.preview||[];
+                console.log(JSON.stringify({
+                  error:j.error,
+                  sentToday:p.sentToday, remaining:p.remaining, dailyCap:p.dailyCap,
+                  resendQuota:p.resendQuotaRemaining, skipReasons:p.skipReasons,
+                  wouldSend:rows.filter(r=>r.wouldSend).length,
+                  sampleWould:rows.filter(r=>r.wouldSend).slice(0,10),
+                  sampleSkip:rows.filter(r=>!r.wouldSend).slice(0,20).map(r=>({
+                    firm:r.firmName, reason:r.skipReason, status:r.status
+                  })),
+                },null,2));
+              });'
+
+          if [ "$CONFIRM" != "SEND" ]; then
+            echo "Dry-run only (confirm was not SEND)"
+            exit 0
+          fi
+
+          echo "## Requalify ready junk"
+          curl -sS -H "$AUTH_HEADER" -H "$AUTH2" \
+            "$BASE/api/cron/firm-outreach-bootstrap?requalifyOnly=1" | tee requalify.json | head -c 3000
+          echo
+
+          echo "## Live send limit=${LIMIT}"
+          curl -sS -H "$AUTH_HEADER" -H "$AUTH2" \
+            "$BASE/api/cron/firm-outreach-send?limit=${LIMIT}" | tee send.json
+          echo
+          node -e '
+            const j=require("./send.json");
+            console.log(JSON.stringify({
+              mode:j.mode, skipped:j.skipped, reason:j.reason,
+              send:j.send, elapsedMs:j.elapsedMs, error:j.error
+            },null,2));
+          '

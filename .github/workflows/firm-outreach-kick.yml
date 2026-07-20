@@ -44,15 +44,51 @@ jobs:
 
       - name: Requalify + enrich kick on production
         env:
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          FIRM_OUTREACH_BOOTSTRAP_SECRET: ${{ secrets.FIRM_OUTREACH_BOOTSTRAP_SECRET }}
+          # Prefer GH secret — Vercel Sensitive vars often pull empty.
+          CRON_SECRET_FALLBACK: ${{ secrets.CRON_SECRET }}
+          BOOTSTRAP_FALLBACK: ${{ secrets.FIRM_OUTREACH_BOOTSTRAP_SECRET }}
         run: |
-          set -a
-          if [ -f .env.production ]; then
-            # shellcheck disable=SC1091
-            source .env.production
+          set -euo pipefail
+          CRON_SECRET="${CRON_SECRET_FALLBACK:-}"
+          FIRM_OUTREACH_BOOTSTRAP_SECRET="${BOOTSTRAP_FALLBACK:-}"
+          if [ -z "${CRON_SECRET}" ] && [ -f .env.production ]; then
+            CRON_SECRET=$(python3 - <<'PY'
+          from pathlib import Path
+          for line in Path(".env.production").read_text().splitlines():
+              s = line.strip()
+              if not s or s.startswith("#"):
+                  continue
+              if s.startswith("export "):
+                  s = s[len("export "):]
+              if s.startswith("CRON_SECRET="):
+                  val = s.split("=", 1)[1]
+                  if len(val) >= 2 and val[0] == val[-1] and val[0] in ("'", '"'):
+                      val = val[1:-1]
+                  print(val, end="")
+                  break
+          PY
+            )
           fi
-          set +a
+          if [ -z "${FIRM_OUTREACH_BOOTSTRAP_SECRET}" ] && [ -f .env.production ]; then
+            FIRM_OUTREACH_BOOTSTRAP_SECRET=$(python3 - <<'PY'
+          from pathlib import Path
+          for line in Path(".env.production").read_text().splitlines():
+              s = line.strip()
+              if not s or s.startswith("#"):
+                  continue
+              if s.startswith("export "):
+                  s = s[len("export "):]
+              if s.startswith("FIRM_OUTREACH_BOOTSTRAP_SECRET="):
+                  val = s.split("=", 1)[1]
+                  if len(val) >= 2 and val[0] == val[-1] and val[0] in ("'", '"'):
+                      val = val[1:-1]
+                  print(val, end="")
+                  break
+          PY
+            )
+          fi
+          echo "auth cron_len=${#CRON_SECRET} bootstrap_len=${#FIRM_OUTREACH_BOOTSTRAP_SECRET}"
+          export CRON_SECRET FIRM_OUTREACH_BOOTSTRAP_SECRET
           export FIRM_OUTREACH_KICK_BASE_URL="https://policestationrepuk.org"
           export VERCEL_TOKEN="${{ secrets.VERCEL_TOKEN }}"
           export FIRM_OUTREACH_KICK_COMMIT_SHA="${{ github.event.inputs.sha }}"

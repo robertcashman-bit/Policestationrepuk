@@ -21,8 +21,11 @@ if (!baseUrl) {
 
 const auth = resolveKickAuth(process.env);
 if (!auth) {
-  console.log('No CRON_SECRET or FIRM_OUTREACH_BOOTSTRAP_SECRET — skip kick');
-  process.exit(0);
+  console.error(
+    'No CRON_SECRET or FIRM_OUTREACH_BOOTSTRAP_SECRET — cannot kick. ' +
+      'Set GitHub secret CRON_SECRET (Vercel Sensitive env pulls are often empty).',
+  );
+  process.exit(1);
 }
 
 const token = process.env.VERCEL_TOKEN?.trim();

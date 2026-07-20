@@ -174,16 +174,11 @@ export async function runFirmOutreach(opts?: {
     return finish(0, alreadySent, dailyCap);
   }
 
-  const ready = await listProspectsByRecordStatus(
-    'ready_to_send',
-    Math.min(MAX_CANDIDATE_SCAN, Math.max(remaining * 5, 50)),
-    campaignOpts,
-  );
-  const sent = await listProspectsByRecordStatus(
-    'sent',
-    Math.min(MAX_CANDIDATE_SCAN, Math.max(remaining * 5, 50)),
-    campaignOpts,
-  );
+  // Match dry-run-preview scan depth. A small remaining*5 window starves due
+  // follow-ups when many ready_to_send rows are no_step / cooldown junk.
+  const scanLimit = Math.min(2000, Math.max(MAX_CANDIDATE_SCAN, remaining * 40, 200));
+  const ready = await listProspectsByRecordStatus('ready_to_send', scanLimit, campaignOpts);
+  const sent = await listProspectsByRecordStatus('sent', scanLimit, campaignOpts);
   const candidates = sortProspectsForSend([...ready, ...sent]);
   const emailsSentThisRun = new Set<string>();
   let resendQuota = globalQuota;

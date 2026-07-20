@@ -1,16 +1,27 @@
-import { normalizePhoneDigits } from '@/lib/phone-format';
+import crypto from 'crypto';
+import { normalizePhoneDigits, toE164Uk } from '@/lib/phone-format';
+import { confidenceLevelFromScore, scoreConfidence } from './confidence';
+import { hashSourceEvidence } from './hash';
 import { describeSafetyFlag, numberSafetyFlags } from './number-safety';
-import { extractPhonesFromText } from './phone';
+import {
+  extractPhonesFromText,
+  scorePhoneCandidate,
+  type ExtractedPhone,
+} from './phone';
 import { fetchPageTextFromUrl } from './source-evidence';
+import { detectSourceType, extractDomain } from './source-type';
 import {
   appendAuditEntry,
+  getCustodySuite,
   getFinding,
+  getFindingByHash,
+  getFindingsForSuite,
   loadAllApprovedNumbers,
   saveApprovedNumber,
   saveFinding,
   invalidateApprovedCache,
 } from './storage';
-import type { ApprovedCustodyNumber } from './types';
+import type { ApprovedCustodyNumber, CustodyNumberFinding } from './types';
 
 export type RecheckOutcome =
   | 'still_present'
@@ -72,9 +83,126 @@ async function flagSourceFindingForReview(
 }
 
 /**
+ * When a source page shows a different custody-context number, open a new
+ * finding for human/AI review instead of only flagging the old one.
+ */
+export async function seedReplacementFindingFromRecheck(
+  record: ApprovedCustodyNumber,
+  candidate: ExtractedPhone,
+): Promise<CustodyNumberFinding | null> {
+  const suite = await getCustodySuite(record.custodySuiteId);
+  if (!suite) return null;
+
+  const hash = hashSourceEvidence({
+    custodySuiteId: record.custodySuiteId,
+    normalizedPhoneNumber: candidate.normalized,
+    sourceUrl: record.sourceUrl,
+    pageSnippet: candidate.context,
+  });
+  const existing = await getFindingByHash(hash);
+  if (existing) {
+    if (existing.status === 'rejected' || existing.status === 'stale') {
+      const now = new Date().toISOString();
+      const reopened: CustodyNumberFinding = {
+        ...existing,
+        status: 'needs_review',
+        conflictReason: 'recheck_page_number_changed',
+        notes: [
+          `[Recheck ${now.slice(0, 10)}] Reopened — source page now lists this number instead of/alongside ${record.phoneNumber}.`,
+          existing.notes,
+        ]
+          .filter(Boolean)
+          .join('\n'),
+        updatedAt: now,
+        lastChecked: now,
+      };
+      await saveFinding(reopened);
+      return reopened;
+    }
+    return existing;
+  }
+
+  const siblings = await getFindingsForSuite(record.custodySuiteId);
+  if (siblings.some((f) => f.normalizedPhoneNumber === candidate.normalized && f.status !== 'rejected')) {
+    return null;
+  }
+
+  const now = new Date().toISOString();
+  const sourceType = detectSourceType(record.sourceUrl);
+  const confidenceScore = scoreConfidence({
+    sourceType,
+    sourceUrl: record.sourceUrl,
+    sourceTitle: suite.custodySuiteName,
+    pageSnippet: candidate.context,
+    matchingSourceCount: 1,
+    sameNumberSourceCount: 1,
+    isArchiveOnly: sourceType === 'archived',
+    hasConflictingNumbers: true,
+  });
+
+  const finding: CustodyNumberFinding = {
+    id: `cnf_${Date.now().toString(36)}_${crypto.randomBytes(4).toString('hex')}`,
+    custodySuiteId: record.custodySuiteId,
+    forceName: suite.forceName,
+    custodySuiteName: suite.custodySuiteName,
+    policeStationName: suite.policeStationName,
+    possiblePhoneNumber: candidate.display,
+    normalizedPhoneNumber: candidate.normalized,
+    e164: toE164Uk(candidate.normalized),
+    numberFlags: numberSafetyFlags(candidate.normalized),
+    sourceTitle: `Recheck of ${record.sourceUrl}`,
+    sourceUrl: record.sourceUrl,
+    sourceDomain: extractDomain(record.sourceUrl),
+    sourceType,
+    pageSnippet: candidate.context,
+    classification: 'unknown',
+    confidenceScore,
+    confidenceLevel: confidenceLevelFromScore(confidenceScore),
+    status: 'needs_review',
+    dateFound: now,
+    lastChecked: now,
+    hashOfSourceEvidence: hash,
+    notes: `[Recheck ${now.slice(0, 10)}] Seeded from approved-number recheck — page lists ${candidate.display}; previously approved ${record.phoneNumber}.`,
+    conflictReason: 'recheck_page_number_changed',
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await saveFinding(finding);
+  return finding;
+}
+
+function pickReplacementCandidate(
+  text: string,
+  record: ApprovedCustodyNumber,
+  suiteNames: string[],
+  forceName?: string,
+): ExtractedPhone | null {
+  const approvedNorm = normalizePhoneDigits(record.normalizedPhoneNumber);
+  const candidates = extractPhonesFromText(text, 80, forceName).filter(
+    (c) => c.normalized !== approvedNorm,
+  );
+  if (candidates.length === 0) return null;
+
+  const pickOpts = { forceName, suiteNames, minScore: 40 };
+  let best: ExtractedPhone | null = null;
+  let bestScore = -Infinity;
+  for (const phone of candidates) {
+    const candidateScore = scorePhoneCandidate(phone.context, pickOpts);
+    if (candidateScore > bestScore) {
+      bestScore = candidateScore;
+      best = phone;
+    }
+  }
+  if (best && bestScore >= 40) return best;
+  return candidates[0];
+}
+
+/**
  * Re-verify one approved number against its original source page.
  * Never unpublishes or deletes — failures downgrade to `unverified` and
  * reopen the source finding so it appears in the outstanding digest.
+ * When the page shows a different custody-context number, seeds a new finding.
  */
 export async function recheckApprovedNumber(
   record: ApprovedCustodyNumber,
@@ -101,7 +229,43 @@ export async function recheckApprovedNumber(
     return 'source_missing';
   }
 
+  const suite = await getCustodySuite(record.custodySuiteId);
+  const suiteNames = suite
+    ? [suite.custodySuiteName, suite.policeStationName].filter(Boolean)
+    : [];
+
   if (pageTextContainsNumber(text, record.normalizedPhoneNumber)) {
+    // Approved number still on page — also check for a stronger alternative.
+    const replacement = pickReplacementCandidate(
+      text,
+      record,
+      suiteNames,
+      suite?.forceName,
+    );
+    if (
+      replacement &&
+      scorePhoneCandidate(replacement.context, {
+        forceName: suite?.forceName,
+        suiteNames,
+      }) >= 50
+    ) {
+      const updated = appendAuditEntry(
+        { ...record, verificationStatus: 'unverified' },
+        {
+          actor: 'cron:approved-recheck',
+          action: 'recheck_conflict',
+          detail: `Approved number still on page, but page also lists stronger custody candidate ${replacement.display}.`,
+        },
+      );
+      await saveApprovedNumber(updated);
+      await flagSourceFindingForReview(
+        record,
+        `Source page still has approved number but also lists ${replacement.display} with custody context.`,
+      );
+      await seedReplacementFindingFromRecheck(record, replacement);
+      return 'conflict';
+    }
+
     const updated = appendAuditEntry(
       { ...record, lastVerifiedAt: now },
       {
@@ -115,8 +279,13 @@ export async function recheckApprovedNumber(
   }
 
   // Number gone — check whether the page now shows a different candidate.
-  const otherCandidates = extractPhonesFromText(text, 80);
-  const conflict = otherCandidates.length > 0;
+  const replacement = pickReplacementCandidate(
+    text,
+    record,
+    suiteNames,
+    suite?.forceName,
+  );
+  const conflict = Boolean(replacement);
 
   const updated = appendAuditEntry(
     { ...record, verificationStatus: 'unverified' },
@@ -124,7 +293,7 @@ export async function recheckApprovedNumber(
       actor: 'cron:approved-recheck',
       action: conflict ? 'recheck_conflict' : 'recheck_number_missing',
       detail: conflict
-        ? `Number no longer on page; page now lists ${otherCandidates[0].display} — human review required.`
+        ? `Number no longer on page; page now lists ${replacement!.display} — human review required.`
         : 'Number no longer on source page — human review required.',
     },
   );
@@ -132,9 +301,12 @@ export async function recheckApprovedNumber(
   await flagSourceFindingForReview(
     record,
     conflict
-      ? `Approved number missing from source; page now shows ${otherCandidates[0].display}.`
+      ? `Approved number missing from source; page now shows ${replacement!.display}.`
       : 'Approved number no longer on source page.',
   );
+  if (replacement) {
+    await seedReplacementFindingFromRecheck(record, replacement);
+  }
   return conflict ? 'conflict' : 'number_missing';
 }
 

@@ -18,6 +18,8 @@ export interface NormalizedStationQuery {
   force: string | null;
   postcode: string | null;
   isPostcodeSearch: boolean;
+  /** Digit-only phone query (7+ digits, or 101/999) for reverse lookup. */
+  phoneDigits: string | null;
 }
 
 export type ScoredStation = PoliceStation & { _score: number };
@@ -150,8 +152,8 @@ export function stationPhoneNumbers(station: PoliceStation): StationPhoneEntry[]
   const candidates: Array<{ label: string; field: 'custodyPhone' | 'custodyPhone2' | 'phone' | 'nonEmergencyPhone'; value?: string }> = [
     { label: 'Custody desk', field: 'custodyPhone', value: station.custodyPhone },
     { label: 'Custody desk (alt)', field: 'custodyPhone2', value: station.custodyPhone2 },
-    { label: 'Main line', field: 'phone', value: station.phone },
-    { label: 'Non-emergency', field: 'nonEmergencyPhone', value: station.nonEmergencyPhone },
+    { label: 'Station main line', field: 'phone', value: station.phone },
+    { label: 'Force non-emergency', field: 'nonEmergencyPhone', value: station.nonEmergencyPhone },
   ];
 
   const seen = new Set<string>();
@@ -185,6 +187,32 @@ function stripPunctuation(s: string): string {
   return s.replace(/[^\w\s-]/g, '').replace(/\s+/g, ' ').trim();
 }
 
+/** Extract a searchable phone digit string from a free-text query, or null. */
+export function extractPhoneDigitsFromQuery(query: string): string | null {
+  const digits = normalizePhone(query);
+  if (!digits) return null;
+  if (digits === '101' || digits === '999' || digits === '112') return digits;
+  // UK geographic/03/08 lines are typically 10–11 digits; allow partial from 7+.
+  if (digits.length >= 7) return digits;
+  return null;
+}
+
+function stationMatchesPhoneDigits(station: PoliceStation, digits: string): boolean {
+  const fields = [
+    station.phone,
+    station.custodyPhone,
+    station.custodyPhone2,
+    station.nonEmergencyPhone,
+  ];
+  for (const value of fields) {
+    if (!value?.trim()) continue;
+    const n = normalizePhone(value);
+    if (!n) continue;
+    if (n === digits || n.includes(digits) || digits.includes(n)) return true;
+  }
+  return false;
+}
+
 export function normalizeStationQuery(query: string): NormalizedStationQuery {
   const raw = query.trim();
   const cleaned = stripPunctuation(raw.toLowerCase());
@@ -192,7 +220,9 @@ export function normalizeStationQuery(query: string): NormalizedStationQuery {
 
   let force: string | null = null;
   let postcode: string | null = null;
-  const isPostcodeSearch = POSTCODE_RE.test(raw) || POSTCODE_PREFIX_RE.test(raw);
+  const phoneDigits = extractPhoneDigitsFromQuery(raw);
+  const isPostcodeSearch =
+    !phoneDigits && (POSTCODE_RE.test(raw) || POSTCODE_PREFIX_RE.test(raw));
 
   if (isPostcodeSearch) {
     postcode = cleaned.replace(/\s+/g, '').toUpperCase();
@@ -219,7 +249,7 @@ export function normalizeStationQuery(query: string): NormalizedStationQuery {
     }
   }
 
-  return { raw, tokens, force, postcode, isPostcodeSearch };
+  return { raw, tokens, force, postcode, isPostcodeSearch, phoneDigits };
 }
 
 /* ------------------------------------------------------------------ */
@@ -281,6 +311,11 @@ export function scoreStation(
   const postcode = (station.postcode || '').toUpperCase().replace(/\s+/g, '');
   const force = (station.forceName || '').toLowerCase();
   const fullQuery = nq.tokens.join(' ');
+
+  // Reverse phone lookup — exact / substring digit match
+  if (nq.phoneDigits && stationMatchesPhoneDigits(station, nq.phoneDigits)) {
+    score += 120;
+  }
 
   // Exact name match
   if (name === fullQuery || name === fullQuery + ' police station') {
@@ -387,6 +422,16 @@ export function searchStations(
 
   let results = scored.filter((s) => s._score >= 20);
   results.sort((a, b) => b._score - a._score);
+
+  // Phone-digit queries: prefer exact phone hits even if name scoring is weak
+  if (nq.phoneDigits) {
+    const phoneHits = scored
+      .filter((s) => stationMatchesPhoneDigits(s, nq.phoneDigits!))
+      .sort((a, b) => b._score - a._score);
+    if (phoneHits.length > 0) {
+      return phoneHits.map((s) => ({ ...s, _score: Math.max(s._score, 120) }));
+    }
+  }
 
   if (results.length > 0) return results;
 

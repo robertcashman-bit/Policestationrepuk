@@ -13,7 +13,7 @@ const FIELD_LABELS: Record<string, string> = {
   phone: 'Main line',
   custodyPhone: 'Custody desk',
   custodyPhone2: 'Custody desk (alt)',
-  nonEmergencyPhone: 'Non-emergency',
+  nonEmergencyPhone: 'Force non-emergency',
 };
 
 function fieldRows(fields: StationOverrideFields) {

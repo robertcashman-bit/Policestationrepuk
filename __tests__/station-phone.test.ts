@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   classifyPhone,
+  extractPhoneDigitsFromQuery,
   normalizePhone,
+  searchStations,
   stationPhoneNumbers,
 } from '@/lib/station-search';
 import { deriveStationCounty, withDerivedCounty } from '@/lib/force-county';
@@ -25,6 +27,44 @@ describe('normalizePhone', () => {
   });
   it('normalises 0044 to leading 0', () => {
     expect(normalizePhone('0044 161 872 5050')).toBe('01618725050');
+  });
+});
+
+describe('reverse phone search', () => {
+  it('extracts digit queries for reverse lookup', () => {
+    expect(extractPhoneDigitsFromQuery('020 7230 1212')).toBe('02072301212');
+    expect(extractPhoneDigitsFromQuery('+44 20 7230 1212')).toBe('02072301212');
+    expect(extractPhoneDigitsFromQuery('101')).toBe('101');
+    expect(extractPhoneDigitsFromQuery('Maidstone')).toBeNull();
+  });
+
+  it('finds stations by phone digits', () => {
+    const stations = [
+      stub({
+        id: 'a',
+        name: 'Alpha Station',
+        forceName: 'Metropolitan Police',
+        phone: '020 7230 1212',
+      }),
+      stub({
+        id: 'b',
+        name: 'Beta Station',
+        forceName: 'Kent Police',
+        custodyPhone: '01622 690690',
+        verificationMeta: {
+          fields: {
+            custodyPhone: {
+              status: 'verified',
+              sourceUrl: 'https://www.kent.police.uk/contact/',
+              dateVerified: '2026-06-02',
+            },
+          },
+        },
+      }),
+    ];
+    const hits = searchStations('01622 690690', stations);
+    expect(hits[0]?.id).toBe('b');
+    expect(hits[0]?._score).toBeGreaterThanOrEqual(120);
   });
 });
 
@@ -107,7 +147,7 @@ describe('stationPhoneNumbers', () => {
     );
     expect(entries).toHaveLength(2);
     expect(entries[0]).toMatchObject({ label: 'Custody desk', className: 'station' });
-    expect(entries[1]).toMatchObject({ label: 'Main line', className: 'generic' });
+    expect(entries[1]).toMatchObject({ label: 'Station main line', className: 'generic' });
   });
   it('dedupes numbers that differ only by formatting', () => {
     const entries = stationPhoneNumbers(

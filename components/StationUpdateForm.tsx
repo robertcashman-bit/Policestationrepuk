@@ -83,6 +83,26 @@ export function StationUpdateForm({ stations }: Props) {
     if (!stub) return;
     lastAppliedStationFromUrl.current = id;
     selectStation(stub);
+
+    const reason = searchParams.get('reason');
+    const field = searchParams.get('field');
+    const number = searchParams.get('number');
+    const noteParts: string[] = [];
+    if (reason === 'not_custody') {
+      noteParts.push(
+        'Reporter says the published number is not the custody desk line.',
+      );
+    } else if (reason === 'wrong' || reason === 'outdated') {
+      noteParts.push('Reporter says the published number is wrong or outdated.');
+    }
+    if (field && number) {
+      noteParts.push(`Field: ${field}. Current published number: ${number}.`);
+    } else if (number) {
+      noteParts.push(`Current published number: ${number}.`);
+    }
+    if (noteParts.length > 0) {
+      setNotes(noteParts.join(' '));
+    }
   }, [searchParams, stations, selectStation]);
 
   useEffect(() => {

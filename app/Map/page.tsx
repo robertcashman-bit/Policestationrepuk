@@ -219,13 +219,18 @@ export default function MapPage() {
                   <p className="mt-1 text-sm text-[var(--gold-link)]">{selectedStation.county}</p>
                   <p className="mt-2 text-sm text-[var(--muted)]">{selectedStation.address}</p>
                   {selectedStation.phone && (
-                    <p className="mt-2">
+                    <p className="mt-3">
                       <a
                         href={phoneToTelHref(selectedStation.phone)}
-                        className="text-sm font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
+                        className="inline-flex min-h-[40px] items-center rounded-lg bg-[var(--navy)] px-4 py-2 text-sm font-semibold text-white no-underline hover:bg-[var(--navy-light)]"
                       >
-                        📞 {selectedStation.phone}
+                        Call {selectedStation.phone}
                       </a>
+                    </p>
+                  )}
+                  {selectedStation.custodySuite && !selectedStation.phone && (
+                    <p className="mt-2 text-xs text-amber-800">
+                      Custody suite — check station details for published desk lines.
                     </p>
                   )}
                 </div>

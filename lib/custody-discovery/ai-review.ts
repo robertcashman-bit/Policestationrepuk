@@ -16,6 +16,9 @@ const VALID: AiReviewRecommendation[] = ['approve', 'reject', 'hold'];
 export interface AiReviewContext {
   hasApprovedNumber: boolean;
   approvedNumber?: string;
+  /** Other candidate numbers already found for this suite (normalized). */
+  siblingNumbers?: string[];
+  evidenceSource?: string;
 }
 
 function getClient(): OpenAI | null {
@@ -88,6 +91,15 @@ export async function runAiReview(
   const approvedNote = ctx.hasApprovedNumber
     ? `Suite already has approved number: ${ctx.approvedNumber ?? 'yes'}.`
     : 'No approved number on this suite yet.';
+  const flagsNote =
+    finding.numberFlags && finding.numberFlags.length > 0
+      ? `Number safety flags: ${finding.numberFlags.join(', ')}.`
+      : 'Number safety flags: none.';
+  const siblingNote =
+    ctx.siblingNumbers && ctx.siblingNumbers.length > 0
+      ? `Other candidate numbers already recorded for this suite: ${ctx.siblingNumbers.join(', ')}.`
+      : 'No other candidate numbers recorded for this suite.';
+  const evidenceNote = `Evidence fetch kind: ${ctx.evidenceSource ?? evidence.source}. Prefer approve only when evidence is page_fetch with clear custody desk wording.`;
 
   const userPrompt = `Review this custody desk number finding for a UK police station directory.
 
@@ -95,12 +107,18 @@ Force: ${finding.forceName}
 Custody suite: ${finding.custodySuiteName}
 Police station: ${finding.policeStationName}
 Number: ${finding.possiblePhoneNumber}
+Normalised: ${finding.normalizedPhoneNumber}
+E.164: ${finding.e164 ?? 'n/a'}
 Source URL: ${finding.sourceUrl}
+Source domain: ${finding.sourceDomain}
 Source type: ${finding.sourceType}
 Rule classification: ${finding.classification}
 Rule confidence score: ${finding.confidenceScore} (${finding.confidenceLevel})
+${flagsNote}
 ${conflictNote}
 ${approvedNote}
+${siblingNote}
+${evidenceNote}
 
 Evidence section: ${evidence.section}
 Evidence excerpt (ONLY quote from this — do not invent text):
@@ -121,7 +139,8 @@ Return JSON only:
 Rules:
 - Use approve only when the excerpt clearly shows a direct custody suite/desk line for the named suite.
 - Use reject for switchboard, 101, solicitor, victim/witness, or wrong station.
-- Use hold when uncertain, excerpt is weak, or conflict exists.
+- Use hold when uncertain, excerpt is weak, evidence is only a search snippet, or conflict exists.
+- If sibling numbers differ and the excerpt does not clearly pick this suite's desk, use hold.
 - Base reasoning ONLY on the excerpt provided.`;
 
   try {

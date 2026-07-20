@@ -9,6 +9,10 @@ export const FORCE_CUSTODY_PAGES: Record<string, string[]> = {
   'devon and cornwall police': [
     'https://www.devon-cornwall.police.uk/contact/custody-information',
   ],
+  'avon and somerset constabulary': [
+    'https://www.avonandsomerset.police.uk/contact/custody-information',
+    'https://www.avonandsomerset.police.uk/contact/',
+  ],
   'kent police': ['https://www.kent.police.uk/contact/'],
   'thames valley police': ['https://www.thamesvalley.police.uk/contact/'],
   'metropolitan police': ['https://www.met.police.uk/contact/af/contact-us/'],

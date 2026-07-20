@@ -63,24 +63,27 @@ export function buildSearchQueries(suite: import('./types').CustodySuite): strin
 
   const stationQueries = dedicated
     ? [
-        `"${name}" custody telephone`,
+        `"${name}" custody desk telephone`,
+        `"${name}" custody suite telephone OR phone`,
         `"${name}" police custody phone number`,
-        `"${name}" custody suite telephone site:.gov.uk`,
+        `"${name}" custody suite telephone site:.gov.uk OR site:.police.uk`,
       ]
     : [
+        `"${name}" custody desk telephone`,
         `"${name}" custody telephone number`,
         `"${name}" police station custody phone`,
-        `"${force}" "${shortName}" custody telephone`,
+        `"${force}" "${shortName}" custody desk telephone`,
         `"${shortName}" custody suite contact`,
-        `site:${domain} "${shortName}" custody`,
+        `site:${domain} "${shortName}" custody telephone OR phone`,
       ];
 
   return [
     ...stationQueries,
-    `"${force}" custody suite contact`,
+    `"${force}" custody suite contact telephone`,
     `"${force}" custody telephone number`,
     `site:${domain} custody telephone`,
     `site:${domain} custody suite`,
+    `site:whatdotheyknow.com "${force}" custody telephone`,
     `filetype:pdf "${force}" custody suite telephone number`,
     `filetype:pdf "${force}" custody contact police`,
     `site:police.uk "${name}" custody`,

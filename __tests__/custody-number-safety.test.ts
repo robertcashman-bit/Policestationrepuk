@@ -285,6 +285,20 @@ vi.mock('@/lib/custody-discovery/storage', async (importOriginal) => {
       return Promise.resolve();
     },
     getFinding: async () => finding({ status: 'approved' }),
+    getFindingByHash: async () => null,
+    getFindingsForSuite: async () => [],
+    getCustodySuite: async () => ({
+      id: 's1',
+      forceName: 'Kent Police',
+      forceDomain: 'kent.police.uk',
+      county: 'Kent',
+      custodySuiteName: 'Maidstone Custody Suite',
+      policeStationName: 'Maidstone Police Station',
+      address: 'Kent',
+      active: true,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    }),
     loadAllApprovedNumbers: async () => mockApprovedMap,
     invalidateApprovedCache: () => undefined,
   };
@@ -367,6 +381,8 @@ describe('approved number 90-day recheck', () => {
     const saved = savedApproved.mock.calls[0][0] as ApprovedCustodyNumber;
     expect(saved.verificationStatus).toBe('unverified');
     expect(saved.auditLog?.at(-1)?.action).toBe('recheck_conflict');
+    // Reopens source finding and seeds a replacement candidate finding.
+    expect(savedFindings.mock.calls.length).toBeGreaterThanOrEqual(2);
   });
 
   it('skips PDF sources without altering the record', async () => {

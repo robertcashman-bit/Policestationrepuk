@@ -7,7 +7,11 @@ import {
   type PhoneClass,
   type StationPhoneEntry,
 } from '@/lib/station-search';
-import { stationPhoneEntryHint } from '@/lib/station-phone-labels';
+import {
+  STATION_PHONE_CALL_GUIDANCE,
+  stationPhoneEntryHint,
+} from '@/lib/station-phone-labels';
+import { stationPhoneReportHref } from '@/lib/station-phone-report';
 import { phoneToTelHref } from '@/lib/phone';
 import { formatPhoneUk } from '@/lib/phone-format';
 import {
@@ -40,6 +44,10 @@ function confidenceLabel(confidence: string): string | null {
   return null;
 }
 
+function isMainLineEntry(entry: StationPhoneEntry): boolean {
+  return entry.label === 'Station main line' || entry.label === 'Main line' || entry.label === 'Station';
+}
+
 function PhoneValue({
   number,
   link,
@@ -65,7 +73,15 @@ function PhoneValue({
   return <span className={className ?? 'font-medium text-[var(--gold-link)]'}>{number}</span>;
 }
 
-function FieldMetaLine({ station, field }: { station: PoliceStation; field: 'phone' | 'custodyPhone' }) {
+function FieldMetaLine({
+  station,
+  field,
+  emphasizeSource = false,
+}: {
+  station: PoliceStation;
+  field: 'phone' | 'custodyPhone';
+  emphasizeSource?: boolean;
+}) {
   const meta = getFieldPublicationMeta(station, field);
   const conf = confidenceLabel(meta.confidence);
   if (!meta.sourceUrl && !meta.lastChecked && !conf) return null;
@@ -85,9 +101,13 @@ function FieldMetaLine({ station, field }: { station: PoliceStation; field: 'pho
             href={meta.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold text-[var(--gold-link)] hover:underline"
+            className={
+              emphasizeSource
+                ? 'font-semibold text-[var(--gold-link)] underline hover:text-[var(--gold)]'
+                : 'font-semibold text-[var(--gold-link)] hover:underline'
+            }
           >
-            source
+            {emphasizeSource ? 'View official source' : 'source'}
           </a>
         </>
       ) : null}
@@ -109,6 +129,29 @@ function EntryMeta({ entry }: { entry: StationPhoneEntry }) {
         </>
       )}
     </span>
+  );
+}
+
+function ReportWrongLink({
+  stationId,
+  field,
+  number,
+  reason = 'wrong',
+  label = 'Wrong number?',
+}: {
+  stationId: string;
+  field: 'phone' | 'custodyPhone';
+  number: string;
+  reason?: 'wrong' | 'not_custody';
+  label?: string;
+}) {
+  return (
+    <Link
+      href={stationPhoneReportHref(stationId, { field, number, reason })}
+      className="ml-1 text-[10px] font-semibold text-[var(--gold-link)] hover:underline"
+    >
+      {label}
+    </Link>
   );
 }
 
@@ -141,32 +184,40 @@ export function StationPhone({
   const custodyDisplay = custody ? getCustodyPublicDisplay(station) : null;
   const { number: neNumber, hint } = forceNonEmergency(station);
 
-  const mainEntry = entries.find((e) => e.label === 'Main line' || e.label === 'Station');
+  const mainEntry = entries.find(isMainLineEntry);
   const custodyEntry = entries.find((e) => e.label.startsWith('Custody'));
 
   if (entries.length > 0 || custody) {
     return (
       <div className={wrapperClass}>
-        {mainEntry ? (
-          <div>
-            <span className="text-[10px] font-semibold uppercase text-[var(--muted)]">Main: </span>
-            <PhoneValue number={mainEntry.number} link={link} />
-            <EntryMeta entry={mainEntry} />
-            <FieldMetaLine station={station} field="phone" />
-          </div>
-        ) : null}
         {custody ? (
-          <div className="mt-1">
-            <span className="text-[10px] font-semibold uppercase text-[var(--muted)]">Custody: </span>
+          <div>
+            <span className="text-[10px] font-semibold uppercase text-[var(--muted)]">Custody desk: </span>
             {custodyDisplay?.published && custodyEntry ? (
               <>
                 <PhoneValue number={custodyEntry.number} link={link} />
                 <EntryMeta entry={custodyEntry} />
-                <FieldMetaLine station={station} field="custodyPhone" />
+                <ReportWrongLink
+                  stationId={station.id}
+                  field="custodyPhone"
+                  number={custodyEntry.number}
+                  reason="not_custody"
+                  label="Not the custody desk?"
+                />
+                <FieldMetaLine station={station} field="custodyPhone" emphasizeSource />
               </>
             ) : (
               <span className="text-[10px] text-amber-800">{CUSTODY_NOT_PUBLISHED_TEXT}</span>
             )}
+          </div>
+        ) : null}
+        {mainEntry ? (
+          <div className={custody ? 'mt-1' : undefined}>
+            <span className="text-[10px] font-semibold uppercase text-[var(--muted)]">Station main: </span>
+            <PhoneValue number={mainEntry.number} link={link} />
+            <EntryMeta entry={mainEntry} />
+            <ReportWrongLink stationId={station.id} field="phone" number={mainEntry.number} />
+            <FieldMetaLine station={station} field="phone" />
           </div>
         ) : null}
         {entries
@@ -185,6 +236,7 @@ export function StationPhone({
         <p className="mt-1 text-[10px] text-[var(--muted)]">
           Emergency: <strong className="text-[var(--navy)]">999</strong>
         </p>
+        <p className="mt-1 text-[10px] leading-snug text-[var(--muted)]">{STATION_PHONE_CALL_GUIDANCE}</p>
         {showDisclaimer ? <StationContactDisclaimer className="mt-2" /> : null}
       </div>
     );

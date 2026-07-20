@@ -14,9 +14,13 @@ import { FirmCoverCTA } from '@/components/FirmCoverCTA';
 import { phoneToTelHref } from '@/lib/phone';
 import { displayPhoneNumber, stationPhoneNumbers } from '@/lib/station-search';
 import { StationContactDisclaimer } from '@/components/StationPhone';
-import { getCustodyPublicDisplay } from '@/lib/station-contacts/publish';
+import { getCustodyPublicDisplay, getFieldPublicationMeta } from '@/lib/station-contacts/publish';
 import { CUSTODY_NOT_PUBLISHED_TEXT } from '@/lib/station-contacts/types';
-import { stationPhoneEntryHint } from '@/lib/station-phone-labels';
+import {
+  STATION_PHONE_CALL_GUIDANCE,
+  stationPhoneEntryHint,
+} from '@/lib/station-phone-labels';
+import { stationPhoneReportHref } from '@/lib/station-phone-report';
 import { isCustodyStation } from '@/lib/custody-station';
 import {
   DEFAULT_NON_EMERGENCY,
@@ -282,7 +286,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
                   Get Directions
                 </a>
                 <Link
-                  href={`/UpdateStation?station=${encodeURIComponent(station.id)}`}
+                  href={stationPhoneReportHref(station.id)}
                   className="btn-gold mt-2 w-full !text-sm no-underline text-center"
                 >
                   Help us to help you — report number
@@ -402,6 +406,16 @@ function StationPhoneDetail({ station }: { station: PoliceStation }) {
         ? 'non-emergency'
         : 'force non-emergency';
 
+  const ordered = [...entries].sort((a, b) => {
+    const rank = (e: (typeof entries)[number]) => {
+      if (e.label.startsWith('Custody')) return 0;
+      if (e.label === 'Station main line' || e.label === 'Main line') return 1;
+      if (e.label.startsWith('Force')) return 2;
+      return 3;
+    };
+    return rank(a) - rank(b);
+  });
+
   if (entries.length === 0) {
     return (
       <div>
@@ -419,6 +433,7 @@ function StationPhoneDetail({ station }: { station: PoliceStation }) {
         {custody && !hasCustodyLine && (
           <dd className="mt-2 text-xs font-semibold text-amber-800">{CUSTODY_NOT_PUBLISHED_TEXT}</dd>
         )}
+        <dd className="mt-2 text-[10px] leading-snug text-[var(--muted)]">{STATION_PHONE_CALL_GUIDANCE}</dd>
       </div>
     );
   }
@@ -427,22 +442,52 @@ function StationPhoneDetail({ station }: { station: PoliceStation }) {
     <div>
       <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Phone</dt>
       <dd className="mt-1 space-y-1.5">
-        {entries.map((entry) => (
-          <div key={`${entry.label}-${entry.number}`}>
-            <a
-              href={phoneToTelHref(entry.number)}
-              className="font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
-            >
-              {entry.number}
-            </a>
-            <span className="ml-2 text-[10px] text-[var(--muted)]">{stationPhoneEntryHint(entry)}</span>
-            {!entry.verified && (
-              <span className="ml-2 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-amber-900">
-                Unverified
-              </span>
-            )}
-          </div>
-        ))}
+        {ordered.map((entry) => {
+          const field = entry.label.startsWith('Custody')
+            ? ('custodyPhone' as const)
+            : entry.label === 'Station main line' || entry.label === 'Main line'
+              ? ('phone' as const)
+              : null;
+          const meta = field ? getFieldPublicationMeta(station, field) : null;
+          return (
+            <div key={`${entry.label}-${entry.number}`}>
+              <a
+                href={phoneToTelHref(entry.number)}
+                className="font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
+              >
+                {entry.number}
+              </a>
+              <span className="ml-2 text-[10px] text-[var(--muted)]">{stationPhoneEntryHint(entry)}</span>
+              {!entry.verified && (
+                <span className="ml-2 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-amber-900">
+                  Unverified
+                </span>
+              )}
+              {meta?.sourceUrl ? (
+                <a
+                  href={meta.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 text-[10px] font-semibold text-[var(--gold-link)] underline hover:text-[var(--gold)]"
+                >
+                  View official source
+                </a>
+              ) : null}
+              {field ? (
+                <Link
+                  href={stationPhoneReportHref(station.id, {
+                    field,
+                    number: entry.number,
+                    reason: field === 'custodyPhone' ? 'not_custody' : 'wrong',
+                  })}
+                  className="ml-2 text-[10px] font-semibold text-[var(--gold-link)] hover:underline"
+                >
+                  {field === 'custodyPhone' ? 'Not the custody desk?' : 'Wrong number?'}
+                </Link>
+              ) : null}
+            </div>
+          );
+        })}
         {custody && !hasCustodyLine && (
           <p className="text-xs font-semibold text-amber-800">{CUSTODY_NOT_PUBLISHED_TEXT}</p>
         )}
@@ -457,6 +502,19 @@ function StationPhoneDetail({ station }: { station: PoliceStation }) {
             </a>
           </p>
         )}
+        <p className="text-[10px] leading-snug text-[var(--muted)]">{STATION_PHONE_CALL_GUIDANCE}</p>
+        <p className="text-[10px] text-[var(--muted)]">
+          Emergency: <strong className="text-[var(--navy)]">999</strong>
+          {' · '}
+          Force:{' '}
+          <a
+            href={phoneToTelHref(neNumber)}
+            className="font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
+          >
+            {neNumber}
+          </a>{' '}
+          ({neHint})
+        </p>
       </dd>
     </div>
   );

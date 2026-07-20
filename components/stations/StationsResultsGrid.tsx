@@ -11,6 +11,7 @@ import {
 } from '@/components/admin/AdminWideTable';
 import { getCustodyPublicDisplay } from '@/lib/station-contacts/publish';
 import { isCustodyStation } from '@/lib/custody-station';
+import { phoneToTelHref } from '@/lib/phone';
 import type { StationsViewMode } from '@/components/stations/stations-filter-types';
 
 export interface StationsResultsGridProps {
@@ -183,15 +184,31 @@ export function buildStationTableColumns(): AdminWideTableColumn<ScoredStation>[
     {
       id: 'main',
       header: 'Main',
-      render: (s) => <span className="font-mono text-xs">{s.phone ?? '—'}</span>,
+      render: (s) =>
+        s.phone ? (
+          <a
+            href={phoneToTelHref(s.phone)}
+            className="font-mono text-xs font-semibold text-[var(--gold-link)] no-underline hover:underline"
+          >
+            {s.phone}
+          </a>
+        ) : (
+          <span className="font-mono text-xs">—</span>
+        ),
     },
     {
       id: 'custody',
       header: 'Custody',
       render: (s) => {
         const pub = getCustodyPublicDisplay(s);
-        return pub.published ? (
-          <span className="font-mono text-xs">{pub.number ?? s.custodyPhone}</span>
+        const number = pub.number ?? s.custodyPhone;
+        return pub.published && number ? (
+          <a
+            href={phoneToTelHref(number)}
+            className="font-mono text-xs font-semibold text-[var(--gold-link)] no-underline hover:underline"
+          >
+            {number}
+          </a>
         ) : isCustodyStation(s) ? (
           <span className="text-xs text-amber-800">Not published</span>
         ) : (

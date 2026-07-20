@@ -1,7 +1,7 @@
 import { formatAiReviewNotes, runAiReview } from './ai-review';
 import { applyAutoDecision } from './auto-decision';
 import { fetchSourceEvidence } from './source-evidence';
-import { getApprovedNumber, getFinding, saveFinding } from './storage';
+import { getApprovedNumber, getFinding, getFindingsForSuite, saveFinding } from './storage';
 import type { CustodyNumberFinding } from './types';
 
 export interface ReviewFindingResult {
@@ -37,9 +37,21 @@ export async function reviewFindingWithAi(
 
   const evidence = await fetchSourceEvidence(finding);
   const approved = await getApprovedNumber(finding.custodySuiteId);
+  const siblings = await getFindingsForSuite(finding.custodySuiteId);
+  const siblingNumbers = [
+    ...new Set(
+      siblings
+        .filter((f) => f.id !== finding.id)
+        .map((f) => f.normalizedPhoneNumber)
+        .filter(Boolean),
+    ),
+  ].slice(0, 8);
+
   const review = await runAiReview(finding, evidence, {
     hasApprovedNumber: Boolean(approved?.publicVisible),
     approvedNumber: approved?.phoneNumber,
+    siblingNumbers,
+    evidenceSource: evidence.source,
   });
 
   const notesPrefix = formatAiReviewNotes(review);

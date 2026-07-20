@@ -102,7 +102,9 @@ export function StationPhoneActions({ station, compact = false }: StationPhoneAc
   const custodyDisplay = custody ? getCustodyPublicDisplay(station) : null;
   const { number: neNumber, hint } = forceNonEmergency(station);
 
-  const mainEntry = entries.find((e) => e.label === 'Main line' || e.label === 'Station');
+  const mainEntry = entries.find(
+    (e) => e.label === 'Station main line' || e.label === 'Main line' || e.label === 'Station',
+  );
   const custodyEntry = entries.find((e) => e.label.startsWith('Custody'));
 
   const spacing = compact ? 'space-y-2' : 'space-y-4';
@@ -116,7 +118,7 @@ export function StationPhoneActions({ station, compact = false }: StationPhoneAc
       ) : null}
 
       {mainEntry ? (
-        <PhoneActionRow label="Main line" number={mainEntry.number} compact={compact} />
+        <PhoneActionRow label="Station main line" number={mainEntry.number} compact={compact} />
       ) : null}
 
       {entries

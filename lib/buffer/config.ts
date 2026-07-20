@@ -1,4 +1,4 @@
-export type BufferChannelService = 'twitter' | 'linkedin' | 'googlebusiness';
+export type BufferChannelService = 'twitter' | 'linkedin' | 'googlebusiness' | 'facebook';
 
 export interface BufferChannelConfig {
   id: string;

@@ -148,6 +148,9 @@ function postMetadataForService(
       },
     };
   }
+  if (service === 'facebook') {
+    return { facebook: { type: 'post' } };
+  }
   return undefined;
 }
 

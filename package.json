@@ -94,6 +94,7 @@
     "buffer:verify-scheduled-gbp": "npx tsx scripts/verify-buffer-scheduled-images.ts --google-business",
     "buffer:repair-gbp": "npx tsx scripts/repair-buffer-gbp-images.ts",
     "buffer:repair-scheduled-urls": "npx tsx scripts/repair-buffer-scheduled-urls.ts --days=7 --apply",
+    "buffer:repair-dead-images": "npx tsx scripts/repair-buffer-dead-images.ts",
     "buffer:smoke": "npx tsx scripts/smoke-buffer-api.ts",
     "buffer:sync-env": "node scripts/sync-buffer-env-to-sibling-sites.mjs",
     "buffer:sync-env:check": "node scripts/sync-buffer-env-to-sibling-sites.mjs --check",

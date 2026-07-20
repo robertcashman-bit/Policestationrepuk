@@ -418,8 +418,9 @@ export function findClearStationMatch(
     return results[0]._score >= 20 ? results[0] : null;
   }
   const [top, second] = results;
-  if (top._score >= 120 && top._score - second._score >= 40) return top;
-  if (top._score >= 100 && top._score - second._score >= 50) return top;
+  const lead = top._score - second._score;
+  if (top._score >= 80 && lead >= 30) return top;
+  if (top._score >= 100 && lead >= 50) return top;
   return null;
 }
 

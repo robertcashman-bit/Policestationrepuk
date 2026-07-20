@@ -53,7 +53,7 @@ const VALUES = [
 
 const EXPLORE_LINKS = [
   { href: '/directory', label: 'Reps Directory', desc: 'Find accredited reps nationwide' },
-  { href: '/StationsDirectory', label: 'Station Contacts', desc: 'UK police station phone numbers' },
+  { href: '/find-station', label: 'Station Contacts', desc: 'UK police station phone numbers' },
   { href: '/FormsLibrary', label: 'Forms Library', desc: 'CRM1, CRM2 & legal aid forms' },
   { href: '/Forces', label: 'Police Forces', desc: 'Browse stations by force' },
 ];

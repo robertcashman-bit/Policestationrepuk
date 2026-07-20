@@ -16,7 +16,7 @@ export function HomePhoneNumbers() {
           </p>
 
           <div className="mt-6 flex flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-center">
-            <Link href="/StationsDirectory" className="btn-gold w-full sm:w-auto">
+            <Link href="/find-station" className="btn-gold w-full sm:w-auto">
               Station phone numbers
             </Link>
             <Link href="/UpdateStation" className="btn-outline w-full sm:w-auto">

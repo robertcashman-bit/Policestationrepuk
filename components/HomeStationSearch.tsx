@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AnalyticsEvents } from '@/lib/analytics';
-import { buildStationsDirectorySearchUrl } from '@/lib/station-directory-links';
+import { buildFindStationSearchUrl } from '@/lib/station-directory-links';
 import type { StationPhonePublicStats } from '@/lib/station-phone-stats-server';
 
 interface HomeStationSearchProps {
@@ -20,9 +20,9 @@ export function HomeStationSearch({ stats }: HomeStationSearchProps) {
     const trimmed = query.trim();
     if (trimmed) {
       AnalyticsEvents.directorySearch(`station:${trimmed}`);
-      router.push(buildStationsDirectorySearchUrl(trimmed));
+      router.push(buildFindStationSearchUrl(trimmed));
     } else {
-      router.push('/StationsDirectory');
+      router.push('/find-station');
     }
   };
 
@@ -48,7 +48,7 @@ export function HomeStationSearch({ stats }: HomeStationSearchProps) {
           <div className="mt-8 card-surface">
             <h3 className="text-h3 mt-0 text-[var(--navy)]">Search station numbers</h3>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Station name, town, postcode, or police force
+              Opens one station page with Call &amp; Copy numbers — not a list of many stations
             </p>
             <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row">
               <input
@@ -59,13 +59,16 @@ export function HomeStationSearch({ stats }: HomeStationSearchProps) {
                 className="min-h-[44px] flex-1 rounded-[var(--radius)] border border-[var(--border)] px-4 py-2.5 text-sm outline-none transition-colors focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/20"
               />
               <button type="submit" className="btn-gold !min-h-[44px] w-full !text-sm sm:w-auto sm:px-8">
-                Search numbers
+                Find station
               </button>
             </form>
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
-            <Link href="/StationsDirectory" className="btn-gold w-full sm:w-auto">
+            <Link href="/find-station" className="btn-gold w-full sm:w-auto">
+              Search station numbers
+            </Link>
+            <Link href="/StationsDirectory" className="btn-outline w-full sm:w-auto">
               Browse all stations
             </Link>
             <Link href="/Forces" className="btn-outline w-full sm:w-auto">

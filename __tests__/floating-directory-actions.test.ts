@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 describe('FloatingDirectoryActions route gate', () => {
-  const DIRECTORY_ROUTES = ['/directory', '/search', '/StationsDirectory'] as const;
+  const DIRECTORY_ROUTES = ['/directory', '/search', '/StationsDirectory', '/find-station'] as const;
 
   function isDirectoryContext(pathname: string | null): boolean {
     if (!pathname) return false;
@@ -16,6 +16,7 @@ describe('FloatingDirectoryActions route gate', () => {
     expect(isDirectoryContext('/directory/kent')).toBe(true);
     expect(isDirectoryContext('/rep/jane-doe')).toBe(true);
     expect(isDirectoryContext('/StationsDirectory')).toBe(true);
+    expect(isDirectoryContext('/find-station')).toBe(true);
   });
 
   it('excludes unrelated pages', () => {

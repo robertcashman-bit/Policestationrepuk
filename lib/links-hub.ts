@@ -39,9 +39,9 @@ export const LINKS_HUB_SECTIONS: LinksHubSection[] = [
         description: 'Browse by county, station, or name.',
       },
       {
-        href: '/StationsDirectory',
+        href: '/find-station',
         label: 'Station phone numbers',
-        description: 'Custody suite and main line numbers across England & Wales.',
+        description: 'Find a station page with custody suite and main line numbers.',
       },
       {
         href: '/HelpUsStationNumbers',

@@ -152,7 +152,7 @@ export function HomeSeoConversionHub() {
               <Link href="/search" className="btn-outline inline-flex justify-center !text-sm">
                 Advanced search
               </Link>
-              <Link href="/StationsDirectory" className="btn-outline inline-flex justify-center !text-sm">
+              <Link href="/find-station" className="btn-outline inline-flex justify-center !text-sm">
                 Station phone numbers
               </Link>
               <Link
@@ -176,7 +176,7 @@ export function HomeSeoConversionHub() {
             </h2>
             <p className="mt-2 text-sm text-[var(--muted)]">
               Browse representatives by region — and use our{' '}
-              <Link href="/StationsDirectory" className="font-semibold text-[var(--navy)] underline">
+              <Link href="/find-station" className="font-semibold text-[var(--navy)] underline">
                 station phone directory
               </Link>{' '}
               for custody desk lines and main numbers.

@@ -22,7 +22,7 @@ function footerLinksToNav(links: readonly FooterLink[]): HeaderNavLink[] {
 export const HEADER_NAV_PRIMARY: HeaderNavLink[] = [
   { href: '/', text: 'Home' },
   { href: '/directory', text: 'Find a Rep' },
-  { href: '/StationsDirectory', text: 'Station Numbers' },
+  { href: '/find-station', text: 'Station Numbers' },
   { href: '/CustodyNote', text: 'Custody Note' },
 ];
 
@@ -75,7 +75,7 @@ export const FOOTER_DIRECTORIES: FooterLink[] = [
   { href: '/directory', label: 'Find a Rep' },
   { href: '/legal-services-directory', label: 'Legal Services Directory' },
   { href: '/search', label: 'Search directory' },
-  { href: '/StationsDirectory', label: 'Station Numbers' },
+  { href: '/find-station', label: 'Station Numbers' },
   { href: '/HelpUsStationNumbers', label: 'Help us — station numbers' },
   { href: '/Forces', label: 'Police Forces' },
   { href: '/legal-services-directory/category/solicitors', label: 'Criminal Defence Solicitors' },

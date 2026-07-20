@@ -76,7 +76,7 @@ describe('findClearStationMatch', () => {
   });
 
   it('returns top when clearly ahead of the rest', () => {
-    const top = { ...stub({ id: '1', slug: 'top', name: 'Top' }), _score: 120 };
+    const top = { ...stub({ id: '1', slug: 'top', name: 'Top' }), _score: 90 };
     const other = { ...stub({ id: '2', slug: 'other', name: 'Other' }), _score: 40 };
     expect(findClearStationMatch([top, other])?.id).toBe('1');
   });

@@ -81,9 +81,9 @@ const SITE_INTENT_ENTRIES: AssistantEntry[] = [
     id: 'site-station-numbers',
     question: 'Where can I find police station phone numbers?',
     answer:
-      'The Stations Directory lists custody suite and main line numbers across England and Wales. Search by station name, force, or county.',
+      'Use Find a station to search by name, town, postcode, or phone. Clear matches open that station’s page with Call and Copy. You can also browse A–Z on the Stations Directory.',
     category: 'Directory',
-    href: '/StationsDirectory',
+    href: '/find-station',
     keywords: ['station numbers', 'custody desk', 'telephone', 'phone'],
   },
   {

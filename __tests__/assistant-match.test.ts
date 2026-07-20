@@ -65,7 +65,7 @@ describe('assistant matcher', () => {
   it('matches station phone number questions', () => {
     const result = queryAssistant('Where can I find police station telephone numbers?');
     expect(result.refused).toBe(false);
-    expect(result.matches.some((m) => m.entry.href === '/StationsDirectory')).toBe(true);
+    expect(result.matches.some((m) => m.entry.href === '/find-station')).toBe(true);
   });
 
   it('matches PSRAS portfolio case count', () => {

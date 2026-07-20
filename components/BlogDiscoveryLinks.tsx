@@ -4,7 +4,7 @@ import type { BlogCategoryId } from '@/lib/blog/types';
 const CATEGORY_DIRECTORY_HINT: Partial<Record<BlogCategoryId, { href: string; label: string }>> = {
   'law-firms': { href: '/PoliceStationCover', label: 'Police station cover for firms' },
   'freelance-reps': { href: '/register', label: 'Join the rep directory' },
-  attendance: { href: '/StationsDirectory', label: 'Station phone numbers' },
+  attendance: { href: '/find-station', label: 'Station phone numbers' },
   'best-practice': { href: '/Wiki', label: 'Rep Wiki & guides' },
 };
 
@@ -40,7 +40,7 @@ export function BlogDiscoveryLinks({ categories }: BlogDiscoveryLinksProps) {
         </li>
         <li>
           <Link
-            href="/StationsDirectory"
+            href="/find-station"
             className="inline-flex font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)] hover:underline"
           >
             Station phone numbers →

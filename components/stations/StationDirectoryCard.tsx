@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import type { PoliceStation } from '@/lib/types';
-import { StationPhone } from '@/components/StationPhone';
 import { isCustodyStation } from '@/lib/custody-station';
 
 export type StationDirectoryCardVariant = 'browse' | 'search';
@@ -12,11 +11,13 @@ export interface StationDirectoryCardProps {
   highlight?: boolean;
 }
 
-/** Browse/directory cards always link to the station page (phones live there). */
+/**
+ * Browse cards always link to the station page.
+ * Phones are not shown here — only on /police-station/[slug].
+ */
 export function StationDirectoryCard({
   station,
   repCount: _repCount,
-  variant = 'browse',
   highlight = false,
 }: StationDirectoryCardProps) {
   const custody = isCustodyStation(station);
@@ -50,9 +51,8 @@ export function StationDirectoryCard({
             {station.forceName || station.county}
           </p>
         ) : null}
-        {variant === 'browse' ? <StationPhone station={station} link /> : null}
         <p className="mt-3 text-xs font-semibold text-[var(--gold-link)]">
-          {variant === 'search' ? 'Open station page →' : 'View station & numbers →'}
+          View station &amp; numbers →
         </p>
       </Link>
       <div className="border-t border-[var(--card-border)] px-4 py-2.5">

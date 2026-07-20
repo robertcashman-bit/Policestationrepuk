@@ -19,10 +19,10 @@ describe('assistant content accuracy (corpus)', () => {
     ).toBe(true);
   });
 
-  it('station phone answers point to the stations directory', () => {
+  it('station phone answers point to find-station', () => {
     const result = queryAssistant('Where can I find police station telephone numbers?');
     expect(result.refused).toBe(false);
-    expect(result.matches.some((m) => m.entry.href === '/StationsDirectory')).toBe(true);
+    expect(result.matches.some((m) => m.entry.href === '/find-station')).toBe(true);
   });
 
   it('PSRAS portfolio answer cites nine cases', () => {

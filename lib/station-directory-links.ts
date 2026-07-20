@@ -1,8 +1,13 @@
-export function buildStationsDirectorySearchUrl(query: string): string {
+export function buildFindStationSearchUrl(query: string): string {
   const trimmed = query.trim();
   return trimmed
-    ? `/StationsDirectory?q=${encodeURIComponent(trimmed)}#directory-search`
-    : '/StationsDirectory';
+    ? `/find-station?q=${encodeURIComponent(trimmed)}`
+    : '/find-station';
+}
+
+/** @deprecated Prefer buildFindStationSearchUrl for phone search. */
+export function buildStationsDirectorySearchUrl(query: string): string {
+  return buildFindStationSearchUrl(query);
 }
 
 export function stationDirectoryHref(countyFilter?: string, forceFilter?: string): string {

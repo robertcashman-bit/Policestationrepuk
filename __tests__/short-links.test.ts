@@ -4,7 +4,7 @@ import { resolveGoLink } from '@/lib/short-links';
 describe('resolveGoLink', () => {
   it('resolves directory shortcuts', () => {
     expect(resolveGoLink('find')).toBe('/directory');
-    expect(resolveGoLink('stations')).toBe('/StationsDirectory');
+    expect(resolveGoLink('stations')).toBe('/find-station');
   });
 
   it('resolves county aliases', () => {

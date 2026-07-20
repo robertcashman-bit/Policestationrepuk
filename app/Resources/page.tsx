@@ -312,7 +312,7 @@ export default function ResourcesPage() {
               { href: '/Wiki', label: 'Rep Wiki', desc: 'In-depth guides and scenarios' },
               { href: '/CommonOffencesGuide', label: 'Common Offences', desc: 'Elements, defences & sentencing' },
               { href: '/FormsLibrary', label: 'Forms Library', desc: 'CRM1–CRM18A legal aid forms' },
-              { href: '/StationsDirectory', label: 'Station Numbers', desc: 'Custody suite phone directory' },
+              { href: '/find-station', label: 'Station Numbers', desc: 'Find a custody suite phone number' },
               { href: '/PACE', label: 'PACE Codes', desc: 'Codes A–H reference summaries' },
               { href: '/Blog', label: 'Professional Blog', desc: 'Practical articles for the profession' },
               { href: '/legal-services-directory/resources', label: 'Official Legal Links', desc: 'CPS, SRA, LAA & regulator signposts' },
@@ -406,11 +406,11 @@ export default function ResourcesPage() {
             <p className="mt-1 text-sm text-[var(--muted)]">CRM1–CRM18A legal aid forms</p>
           </Link>
           <Link
-            href="/StationsDirectory"
+            href="/find-station"
             className="block rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 no-underline shadow-[var(--card-shadow)] hover:border-[var(--gold)]/40"
           >
             <p className="font-medium text-[var(--navy)]">📞 Station Numbers</p>
-            <p className="mt-1 text-sm text-[var(--muted)]">UK police station contact directory</p>
+            <p className="mt-1 text-sm text-[var(--muted)]">Find a police station phone number</p>
           </Link>
           <Link
             href="/directory"

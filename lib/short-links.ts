@@ -36,7 +36,7 @@ export const GO_SHORTCUTS: Record<string, string> = {
   reps: '/directory',
   rep: '/directory',
   directory: '/directory',
-  stations: '/StationsDirectory',
+  stations: '/find-station',
   register: '/register',
   join: '/WhatsApp',
   whatsapp: '/WhatsApp',

@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { SITE_URL } from '@/lib/seo-layer/config';
 import { FOOTER_UTILITY_SHARE, FOOTER_UTILITY_TOP } from '@/lib/site-navigation';
 
-const DIRECTORY_ROUTES = ['/directory', '/search', '/StationsDirectory'] as const;
+const DIRECTORY_ROUTES = ['/directory', '/search', '/StationsDirectory', '/find-station'] as const;
 
 function isDirectoryContext(pathname: string | null): boolean {
   if (!pathname) return false;

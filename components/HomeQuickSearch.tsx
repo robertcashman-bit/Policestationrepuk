@@ -74,7 +74,7 @@ export function HomeQuickSearch({ counties = [] }: QuickSearchProps) {
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Link href="/StationsDirectory" className="btn-outline w-full sm:w-auto">
+            <Link href="/find-station" className="btn-outline w-full sm:w-auto">
               Station phone numbers
             </Link>
             <Link href="/Forces" className="btn-outline w-full sm:w-auto">

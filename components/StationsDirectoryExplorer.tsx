@@ -1,13 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { PoliceStation } from '@/lib/types';
-import {
-  findClearStationMatch,
-  searchStations,
-  type ScoredStation,
-} from '@/lib/station-search';
+import { searchStations, type ScoredStation } from '@/lib/station-search';
 import {
   ALL_AREAS,
   areaKey,
@@ -23,11 +19,11 @@ import { isCustodyStation } from '@/lib/custody-station';
 import { MobileFilterDrawer } from '@/components/directory/MobileFilterDrawer';
 import { StationsSearchBar } from '@/components/stations/StationsSearchBar';
 import { StationsFilterPanel } from '@/components/stations/StationsFilterPanel';
-import { StationSearchPickList } from '@/components/stations/StationSearchPickList';
 import {
   StationsResultsGrid,
   buildStationTableColumns,
 } from '@/components/stations/StationsResultsGrid';
+import { buildFindStationSearchUrl } from '@/lib/station-directory-links';
 import type {
   StationsCustodyFilter,
   StationsFrontCounterFilter,
@@ -36,23 +32,24 @@ import type {
 } from '@/components/stations/stations-filter-types';
 
 const PAGE_SIZE = 60;
-const PICK_LIST_CAP = 40;
 
+/**
+ * Browse-only explorer (A–Z / force / county).
+ * Text search goes to /find-station — this component redirects if the user types a query.
+ */
 export function StationsDirectoryExplorer({
   stations,
   repCountBySlug = {},
-  initialQuery = '',
   initialForce = '',
   initialCounty = '',
 }: {
   stations: PoliceStation[];
   repCountBySlug?: Record<string, number>;
-  initialQuery?: string;
   initialForce?: string;
   initialCounty?: string;
 }) {
   const router = useRouter();
-  const [query, setQuery] = useState(initialQuery);
+  const [query, setQuery] = useState('');
   const [groupBy, setGroupBy] = useState<AreaType>(initialCounty ? 'county' : 'force');
   const [area, setArea] = useState<AreaSelection>(
     initialForce
@@ -70,16 +67,12 @@ export function StationsDirectoryExplorer({
   const [sortBy, setSortBy] = useState<StationsSortBy>('name');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const didScrollToResults = useRef(false);
-  const navigatedForQuery = useRef<string | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const sp = new URLSearchParams(window.location.search);
-    const q = sp.get('q');
     const force = sp.get('force');
     const county = sp.get('county');
-    if (q) setQuery(q);
     if (force) {
       setGroupBy('force');
       setArea({ type: 'force', value: force });
@@ -89,28 +82,30 @@ export function StationsDirectoryExplorer({
     }
   }, []);
 
-  const hasTextQuery = query.trim().length > 0;
+  // Any typed search → dedicated find-station page (one station at a time).
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    const handle = window.setTimeout(() => {
+      router.push(buildFindStationSearchUrl(trimmed));
+    }, 400);
+    return () => window.clearTimeout(handle);
+  }, [query, router]);
+
   const hasArea = area.type !== 'all' && area.value.length > 0;
-  const isFlat = hasTextQuery || hasArea;
+  const isFlat = hasArea;
 
   const areaIndex = useMemo(() => buildAreaIndex(stations, groupBy), [stations, groupBy]);
 
   useEffect(() => {
-    if (hasTextQuery && sortBy !== 'relevance') setSortBy('relevance');
-    else if (!hasTextQuery && sortBy === 'relevance') setSortBy('name');
-  }, [hasTextQuery]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [query, custodyOnly, directOnly, regionFilter, custodyFilter, frontCounterFilter, groupBy, sortBy, area]);
+  }, [custodyOnly, directOnly, regionFilter, custodyFilter, frontCounterFilter, groupBy, sortBy, area]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handle = window.setTimeout(() => {
       const url = new URL(window.location.href);
-      const q = query.trim();
-      if (q) url.searchParams.set('q', q);
-      else url.searchParams.delete('q');
+      url.searchParams.delete('q');
       if (area.type === 'force') url.searchParams.set('force', area.value);
       else url.searchParams.delete('force');
       if (area.type === 'county') url.searchParams.set('county', area.value);
@@ -118,10 +113,10 @@ export function StationsDirectoryExplorer({
       window.history.replaceState(null, '', url.toString());
     }, 300);
     return () => window.clearTimeout(handle);
-  }, [query, area]);
+  }, [area]);
 
   const filtered = useMemo(() => {
-    let result: ScoredStation[] = searchStations(query, stations);
+    let result: ScoredStation[] = searchStations('', stations);
 
     if (hasArea) {
       result = filterByArea(result, area) as ScoredStation[];
@@ -146,41 +141,18 @@ export function StationsDirectoryExplorer({
       result = result.filter((s) => s.frontCounterStatus === frontCounterFilter);
     }
 
-    if (sortBy === 'name' || !hasTextQuery) {
-      result.sort((a, b) => a.name.localeCompare(b.name, 'en-GB'));
-    }
-
+    result.sort((a, b) => a.name.localeCompare(b.name, 'en-GB'));
     return result;
-  }, [stations, query, area, hasArea, custodyOnly, directOnly, regionFilter, custodyFilter, frontCounterFilter, sortBy, hasTextQuery]);
-
-  const clearMatch = useMemo(() => {
-    if (!hasTextQuery) return null;
-    // Extra filters mean the user is browsing — don't auto-navigate away.
-    if (hasArea || custodyOnly || directOnly || regionFilter || custodyFilter !== 'all' || frontCounterFilter !== 'all') {
-      return null;
-    }
-    return findClearStationMatch(filtered);
   }, [
-    hasTextQuery,
+    stations,
+    area,
     hasArea,
     custodyOnly,
     directOnly,
     regionFilter,
     custodyFilter,
     frontCounterFilter,
-    filtered,
   ]);
-
-  useEffect(() => {
-    if (!clearMatch) {
-      navigatedForQuery.current = null;
-      return;
-    }
-    const key = `${query.trim().toLowerCase()}|${clearMatch.slug}`;
-    if (navigatedForQuery.current === key) return;
-    navigatedForQuery.current = key;
-    router.push(`/police-station/${clearMatch.slug}`);
-  }, [clearMatch, query, router]);
 
   const total = stations.length;
   const shown = filtered.length;
@@ -219,7 +191,6 @@ export function StationsDirectoryExplorer({
     : (groupedSorted?.visibleKeys.length ?? 0) < (groupedSorted?.keys.length ?? 0);
 
   const renderedCount = isFlat ? visible.length : groupedSorted?.shownCount ?? 0;
-
   const areaNoun = groupBy === 'county' ? 'county' : 'force';
 
   const regionOptions = useMemo(() => {
@@ -231,33 +202,11 @@ export function StationsDirectoryExplorer({
 
   const hasActiveFilters =
     hasArea ||
-    hasTextQuery ||
     custodyOnly ||
     directOnly ||
     Boolean(regionFilter) ||
     custodyFilter !== 'all' ||
     frontCounterFilter !== 'all';
-
-  const showTextSearchPickList = hasTextQuery && !clearMatch && shown > 0;
-  const pickListStations = showTextSearchPickList
-    ? filtered.slice(0, PICK_LIST_CAP)
-    : [];
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || didScrollToResults.current) return;
-    const sp = new URLSearchParams(window.location.search);
-    const q = sp.get('q')?.trim();
-    const hash = window.location.hash;
-    if ((!q && hash !== '#directory-search' && hash !== '#station-results') || shown === 0) return;
-    if (clearMatch) return;
-
-    requestAnimationFrame(() => {
-      const target =
-        document.getElementById('station-results') ?? document.getElementById('directory-search');
-      target?.scrollIntoView({ block: 'start', behavior: 'smooth' });
-      didScrollToResults.current = true;
-    });
-  }, [shown, hasTextQuery, clearMatch]);
 
   function selectArea(value: string) {
     setArea(value ? { type: groupBy, value } : ALL_AREAS);
@@ -278,14 +227,10 @@ export function StationsDirectoryExplorer({
     setArea(ALL_AREAS);
   }
 
-  function clearSearchOnly() {
-    setQuery('');
-  }
-
   const filterPanelProps = {
     total,
     shown,
-    query,
+    query: '',
     groupBy,
     area,
     areaIndex,
@@ -298,7 +243,7 @@ export function StationsDirectoryExplorer({
     frontCounterFilter,
     sortBy,
     viewMode,
-    hasTextQuery,
+    hasTextQuery: false,
     hasArea,
     onGroupByChange: changeGroupBy,
     onAreaSelect: selectArea,
@@ -320,33 +265,26 @@ export function StationsDirectoryExplorer({
     );
   }
 
-  if (clearMatch) {
-    return (
-      <div id="directory-search" className="space-y-5">
-        <div className="sticky top-[var(--site-chrome-offset)] z-20 -mx-[var(--container-gutter)] border-b border-[var(--border)] bg-[var(--background)] px-[var(--container-gutter)] py-3 shadow-sm sm:mx-0 sm:rounded-[var(--radius-lg)] sm:border sm:px-4">
-          <StationsSearchBar
-            value={query}
-            onChange={setQuery}
-            resultCount={1}
-            onClear={clearSearchOnly}
-          />
-        </div>
-        <p className="rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold-pale)] px-4 py-6 text-center text-sm font-semibold text-[var(--navy)] sm:text-base">
-          Opening {clearMatch.name}…
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div id="directory-search" className="space-y-5">
       <div className="sticky top-[var(--site-chrome-offset)] z-20 -mx-[var(--container-gutter)] border-b border-[var(--border)] bg-[var(--background)] px-[var(--container-gutter)] py-3 shadow-sm sm:mx-0 sm:rounded-[var(--radius-lg)] sm:border sm:px-4">
         <StationsSearchBar
           value={query}
           onChange={setQuery}
-          resultCount={shown}
-          onClear={hasTextQuery ? clearSearchOnly : undefined}
+          resultCount={0}
+          onClear={query.trim() ? () => setQuery('') : undefined}
         />
+        <p className="mt-2 text-xs text-[var(--muted)]">
+          Typing searches one station at a time on the find page — or{' '}
+          <button
+            type="button"
+            className="font-semibold text-[var(--gold-link)] underline"
+            onClick={() => router.push('/find-station')}
+          >
+            open Find a station
+          </button>
+          .
+        </p>
       </div>
 
       <div className="lg:hidden">
@@ -355,13 +293,6 @@ export function StationsDirectoryExplorer({
           onClick={() => setMobileFiltersOpen(true)}
           className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-[var(--navy)] shadow-sm"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden>
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
-            />
-          </svg>
           Filters &amp; sorting
           {hasActiveFilters ? (
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--gold)] text-[10px] font-bold text-[var(--ink)]">
@@ -383,28 +314,24 @@ export function StationsDirectoryExplorer({
         </aside>
 
         <main id="station-results" className="scroll-mt-station-results lg:col-span-9">
-          {showTextSearchPickList ? (
-            <StationSearchPickList stations={pickListStations} query={query.trim()} />
-          ) : (
-            <StationsResultsGrid
-              shown={shown}
-              isFlat={isFlat}
-              hasArea={hasArea}
-              areaValue={hasArea ? area.value : undefined}
-              hasTextQuery={hasTextQuery}
-              viewMode={viewMode}
-              visible={visible}
-              groupedSorted={groupedSorted}
-              groupBy={groupBy}
-              repCountBySlug={repCountBySlug}
-              tableColumns={tableColumns}
-              hideSingleMatchInGrid={false}
-              onClearAll={clearAll}
-              hasMore={hasMore}
-              renderedCount={renderedCount}
-              onLoadMore={() => setVisibleCount((c) => c + PAGE_SIZE)}
-            />
-          )}
+          <StationsResultsGrid
+            shown={shown}
+            isFlat={isFlat}
+            hasArea={hasArea}
+            areaValue={hasArea ? area.value : undefined}
+            hasTextQuery={false}
+            viewMode={viewMode}
+            visible={visible}
+            groupedSorted={groupedSorted}
+            groupBy={groupBy}
+            repCountBySlug={repCountBySlug}
+            tableColumns={tableColumns}
+            hideSingleMatchInGrid={false}
+            onClearAll={clearAll}
+            hasMore={hasMore}
+            renderedCount={renderedCount}
+            onLoadMore={() => setVisibleCount((c) => c + PAGE_SIZE)}
+          />
         </main>
       </div>
     </div>

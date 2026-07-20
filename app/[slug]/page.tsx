@@ -21,7 +21,7 @@ const MAIN_LINKS = [
   { href: '/directory', text: '🔍 Find a Rep' },
   { href: '/search', text: '🔎 Search' },
   { href: '/register', text: 'Join the Directory (Free)' },
-  { href: '/StationsDirectory', text: '📞 Station Numbers' },
+  { href: '/find-station', text: '📞 Station Numbers' },
   { href: '/FormsLibrary', text: '📄 Forms' },
   { href: '/Resources', text: '🌐 Resources' },
   { href: '/Contact', text: 'Contact Us' },

@@ -41,7 +41,7 @@ export default function NotFound() {
                 { href: '/', label: 'Home' },
                 { href: '/Blog', label: 'Blog & Articles' },
                 { href: '/register', label: 'Join the Directory' },
-                { href: '/StationsDirectory', label: 'Station Numbers' },
+                { href: '/find-station', label: 'Station Numbers' },
                 { href: '/FormsLibrary', label: 'Legal Forms' },
                 { href: '/Wiki', label: 'Rep Wiki' },
                 { href: '/FAQ', label: 'FAQ' },

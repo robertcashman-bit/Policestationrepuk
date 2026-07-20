@@ -59,7 +59,7 @@ export function HomeHero() {
               Find a Representative
             </Link>
             <Link
-              href="/StationsDirectory"
+              href="/find-station"
               className="flex min-h-[52px] items-center justify-center rounded-xl border-2 border-[var(--gold)] bg-[var(--gold)]/10 px-8 py-3 text-base font-extrabold text-white no-underline transition-all hover:bg-[var(--gold)]/20 sm:min-w-[200px]"
             >
               Station phone numbers

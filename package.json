@@ -24,6 +24,7 @@
     "postbuild": "npx tsx scripts/postbuild-indexnow.ts",
     "start": "next start",
     "lint": "next lint",
+    "deploy": "node scripts/deploy-production.mjs",
     "deploy:vercel": "npx vercel deploy --prod --yes",
     "qa:smoke": "node scripts/qa-smoke.mjs",
     "qa:lighthouse": "lhci autorun",

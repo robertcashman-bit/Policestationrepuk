@@ -2,6 +2,8 @@
 
 Operational checklist for deployments, smoke verification, and rollback.
 
+**Deploy source of truth:** `origin` (`robertcashman-bit/Policestationrepuk`) on `master`. See [deploy.md](./deploy.md). Use `npm run deploy` to typecheck and push; CI + `vercel-deploy-hook` promote production. The `droid` remote is not used for production.
+
 ## Required production environment
 
 | Variable | Purpose |

@@ -1,0 +1,12 @@
+---
+description: Production deploy source of truth for Policestationrepuk
+alwaysApply: true
+---
+
+# Production deploy source
+
+- **Git remote for production:** `origin` → `robertcashman-bit/Policestationrepuk`
+- **Branch:** `master`
+- When the user says **deploy**, run `npm run deploy` (typecheck + `git push origin HEAD`). CI + `vercel-deploy-hook` promote Vercel production. Use `npm run deploy -- --vercel` only if an immediate CLI promote is needed.
+- Do **not** push to the `droid` remote for production. It is read-only for this workflow.
+- Details: `docs/deploy.md`

@@ -16,6 +16,7 @@ import {
   incrementDailySendCount,
   incrementResendSendCount,
   isDuplicateInitialSend,
+  getSuppression,
   isSuppressed,
   listProspectsByRecordStatus,
   listProspectsForFirmKey,
@@ -227,8 +228,18 @@ export async function runFirmOutreach(opts?: {
       if (await isSuppressed(email)) {
         stats.suppressed++;
         stats.attempted = (stats.attempted ?? 0) + 1;
-        prospect.status = 'unsubscribed';
-        await saveProspect(prospect);
+        const suppression = await getSuppression(email);
+        const terminal = new Set(['unsubscribed', 'bounced', 'joined_whatsapp']);
+        if (!terminal.has(prospect.status)) {
+          const reason = suppression?.reason;
+          if (reason === 'bounce') prospect.status = 'bounced';
+          else if (reason === 'joined') prospect.status = 'joined_whatsapp';
+          else if (reason === 'unsubscribe' || reason === 'complaint' || reason === 'manual') {
+            prospect.status = 'unsubscribed';
+          }
+          prospect.updatedAt = new Date().toISOString();
+          await saveProspect(prospect);
+        }
         continue;
       }
 

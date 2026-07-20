@@ -7,6 +7,7 @@ const mockListAllSuppressions = vi.fn();
 const mockGetProspectsByIds = vi.fn();
 const mockGetSuppressionsByEmails = vi.fn();
 const mockListProspectIdsByStatus = vi.fn();
+const mockListProspectIdsByRecordStatus = vi.fn();
 
 vi.mock('@/lib/firm-outreach/storage', () => ({
   countProspectsByStatus: (...args: unknown[]) => mockCountProspectsByStatus(...args),
@@ -15,6 +16,7 @@ vi.mock('@/lib/firm-outreach/storage', () => ({
   getProspectsByIds: (...args: unknown[]) => mockGetProspectsByIds(...args),
   getSuppressionsByEmails: (...args: unknown[]) => mockGetSuppressionsByEmails(...args),
   listProspectIdsByStatus: (...args: unknown[]) => mockListProspectIdsByStatus(...args),
+  listProspectIdsByRecordStatus: (...args: unknown[]) => mockListProspectIdsByRecordStatus(...args),
 }));
 
 describe('buildOutreachActivityReport', () => {
@@ -35,6 +37,7 @@ describe('buildOutreachActivityReport', () => {
     mockGetProspectsByIds.mockResolvedValue(new Map());
     mockGetSuppressionsByEmails.mockResolvedValue(new Map());
     mockListProspectIdsByStatus.mockResolvedValue([]);
+    mockListProspectIdsByRecordStatus.mockResolvedValue([]);
   });
 
   it('loads ready-to-send prospect ids for admin queue (batched mget)', async () => {
@@ -146,8 +149,8 @@ describe('buildOutreachActivityReport', () => {
 
   it('loads sent, excluded, and ready prospect ids (batched mget)', async () => {
     mockListAllSends.mockResolvedValue([]);
+    mockListProspectIdsByRecordStatus.mockResolvedValue(['fop_a', 'fop_b']);
     mockListProspectIdsByStatus.mockImplementation((status: string) => {
-      if (status === 'sent') return Promise.resolve(['fop_a', 'fop_b']);
       if (status === 'excluded') return Promise.resolve([]);
       if (status === 'ready_to_send') return Promise.resolve([]);
       return Promise.resolve([]);
@@ -158,7 +161,7 @@ describe('buildOutreachActivityReport', () => {
     );
     await buildOutreachActivityReport();
 
-    expect(mockListProspectIdsByStatus).toHaveBeenCalledWith('sent');
+    expect(mockListProspectIdsByRecordStatus).toHaveBeenCalledWith('sent');
     expect(mockListProspectIdsByStatus).toHaveBeenCalledWith('excluded');
     expect(mockListProspectIdsByStatus).toHaveBeenCalledWith('ready_to_send');
     expect(mockGetProspectsByIds).toHaveBeenCalledWith(['fop_a', 'fop_b']);
@@ -298,6 +301,53 @@ describe('computeSendWindowCounts', () => {
   });
 });
 
+describe('computeFunnelFromSends', () => {
+  it('counts clicked sends as delivered and opened', async () => {
+    const { computeFunnelFromSends } = await import(
+      '@/lib/firm-outreach/outreach/activity-report'
+    );
+    const funnel = computeFunnelFromSends([
+      { status: 'sent' },
+      { status: 'delivered', deliveredAt: '2026-07-01T00:00:00Z' },
+      { status: 'opened', deliveredAt: '2026-07-01T00:00:00Z', openedAt: '2026-07-01T01:00:00Z' },
+      {
+        status: 'clicked',
+        deliveredAt: '2026-07-01T00:00:00Z',
+        openedAt: '2026-07-01T01:00:00Z',
+        clickedAt: '2026-07-01T02:00:00Z',
+      },
+      { status: 'bounced', bouncedAt: '2026-07-01T00:00:00Z' },
+    ]);
+
+    expect(funnel.delivered).toBe(3);
+    expect(funnel.opened).toBe(2);
+    expect(funnel.clicked).toBe(1);
+    expect(funnel.bounced).toBe(1);
+  });
+});
+
+describe('countUnsubscribedRecipients', () => {
+  it('counts unique emailed recipients on the unsubscribe list only', async () => {
+    const { countUnsubscribedRecipients } = await import(
+      '@/lib/firm-outreach/outreach/activity-report'
+    );
+    const n = countUnsubscribedRecipients(
+      [
+        { email: 'a@firm.co.uk' },
+        { email: 'a@firm.co.uk' },
+        { email: 'b@firm.co.uk' },
+        { email: 'c@firm.co.uk' },
+      ],
+      [
+        { email: 'a@firm.co.uk', reason: 'unsubscribe' },
+        { email: 'bounce@firm.co.uk', reason: 'bounce' },
+        { email: 'never-emailed@firm.co.uk', reason: 'unsubscribe' },
+      ],
+    );
+    expect(n).toBe(1);
+  });
+});
+
 describe('GET /api/admin/firm-outreach', () => {
   beforeEach(() => {
     vi.resetModules();
@@ -321,6 +371,8 @@ describe('GET /api/admin/firm-outreach', () => {
           sentLast7Days: 0,
           uniqueRecipients: 1,
           bySendStatus: { sent: 1 },
+          delivered: 0,
+          opened: 0,
           waClicks: 0,
           joinedWhatsApp: 0,
           bounced: 0,

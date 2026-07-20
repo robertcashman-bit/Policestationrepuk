@@ -129,7 +129,12 @@ export interface OutreachActivitySummary {
   sentToday: number;
   sentLast7Days: number;
   uniqueRecipients: number;
+  /** Raw current-status buckets (not a funnel — a send in `clicked` is not also in `opened`). */
   bySendStatus: Record<string, number>;
+  /** Cumulative funnel: delivered, opened, or clicked (timestamps or status). */
+  delivered: number;
+  /** Cumulative funnel: opened or clicked (timestamps or status). */
+  opened: number;
   waClicks: number;
   joinedWhatsApp: number;
   bounced: number;

@@ -5,6 +5,7 @@ import {
   getSuppressionsByEmails,
   listAllSends,
   listAllSuppressions,
+  listProspectIdsByRecordStatus,
   listProspectIdsByStatus,
 } from '../storage';
 import { activeOutreachCampaignId, isActiveCampaignProspect, isActiveCampaignSend } from '../campaign-scope';
@@ -19,11 +20,10 @@ import type {
 } from '../types';
 
 const TOUCH_LABELS = ['Initial invite', 'Follow-up (day 7)', 'Follow-up (day 21)'] as const;
-const SENT_PROSPECTS_FOLLOWUP_LIMIT = 1000;
 const EXCLUDED_PROSPECTS_LIMIT = 500;
 const READY_TO_SEND_LIMIT = 500;
 function summaryCacheKey(): string {
-  return `firmoutreach:admin:summary:${activeOutreachCampaignId()}:v1`;
+  return `firmoutreach:admin:summary:${activeOutreachCampaignId()}:v2`;
 }
 const SUMMARY_CACHE_TTL_SECONDS = 60;
 
@@ -79,6 +79,65 @@ export function computeSendWindowCounts(sends: Array<{ sentAt?: string }>): {
   };
 }
 
+/**
+ * Funnel counts from send records. A send that progressed to `clicked` still
+ * counts as delivered + opened (unlike raw bySendStatus buckets).
+ */
+export function computeFunnelFromSends(
+  sends: Array<{
+    status: string;
+    deliveredAt?: string;
+    openedAt?: string;
+    clickedAt?: string;
+    bouncedAt?: string;
+  }>,
+): { delivered: number; opened: number; clicked: number; bounced: number; complained: number } {
+  let delivered = 0;
+  let opened = 0;
+  let clicked = 0;
+  let bounced = 0;
+  let complained = 0;
+
+  for (const s of sends) {
+    if (s.status === 'complained') {
+      complained++;
+      continue;
+    }
+    if (s.status === 'bounced' || s.bouncedAt) {
+      bounced++;
+      continue;
+    }
+    const isClicked = Boolean(s.clickedAt) || s.status === 'clicked';
+    const isOpened = isClicked || Boolean(s.openedAt) || s.status === 'opened';
+    const isDelivered =
+      isOpened || Boolean(s.deliveredAt) || s.status === 'delivered';
+    if (isDelivered) delivered++;
+    if (isOpened) opened++;
+    if (isClicked) clicked++;
+  }
+
+  return { delivered, opened, clicked, bounced, complained };
+}
+
+/** Unique campaign recipients who appear on the unsubscribe suppression list. */
+export function countUnsubscribedRecipients(
+  sends: Array<{ email: string }>,
+  suppressions: Array<{ email: string; reason: string }>,
+): number {
+  const unsubEmails = new Set(
+    suppressions
+      .filter((s) => s.reason === 'unsubscribe')
+      .map((s) => s.email.toLowerCase()),
+  );
+  if (unsubEmails.size === 0) return 0;
+  const recipients = new Set<string>();
+  for (const send of sends) {
+    const email = send.email.toLowerCase();
+    if (unsubEmails.has(email)) recipients.add(email);
+  }
+  return recipients.size;
+}
+
 function emptySummary(prospectCounts: Record<string, number>): OutreachActivitySummary {
   return {
     totalSends: 0,
@@ -86,11 +145,13 @@ function emptySummary(prospectCounts: Record<string, number>): OutreachActivityS
     sentLast7Days: 0,
     uniqueRecipients: 0,
     bySendStatus: {},
+    delivered: 0,
+    opened: 0,
     waClicks: 0,
     joinedWhatsApp: prospectCounts.joined_whatsapp ?? 0,
     bounced: prospectCounts.bounced ?? 0,
     complained: 0,
-    unsubscribed: prospectCounts.unsubscribed ?? 0,
+    unsubscribed: 0,
     pendingFollowUp1: 0,
     pendingFollowUp2: 0,
     readyToSend: prospectCounts.ready_to_send ?? 0,
@@ -124,9 +185,18 @@ function computeFollowUpStats(
 }
 
 function buildSummaryFromSends(
-  sends: Array<{ sentAt?: string; status: string; email: string }>,
+  sends: Array<{
+    sentAt?: string;
+    status: string;
+    email: string;
+    deliveredAt?: string;
+    openedAt?: string;
+    clickedAt?: string;
+    bouncedAt?: string;
+  }>,
   prospectCounts: Record<string, number>,
   followUp: { pendingFollowUp1: number; pendingFollowUp2: number; waClicks: number },
+  suppressions: Array<{ email: string; reason: string }> = [],
 ): OutreachActivitySummary {
   const bySendStatus: Record<string, number> = {};
   const uniqueEmails = new Set<string>();
@@ -135,17 +205,23 @@ function buildSummaryFromSends(
     bySendStatus[send.status] = (bySendStatus[send.status] ?? 0) + 1;
   }
   const windowCounts = computeSendWindowCounts(sends);
+  const funnel = computeFunnelFromSends(sends);
   return {
     totalSends: sends.length,
     sentToday: windowCounts.sentToday,
     sentLast7Days: windowCounts.sentLast7Days,
     uniqueRecipients: uniqueEmails.size,
     bySendStatus,
-    waClicks: followUp.waClicks,
+    delivered: funnel.delivered,
+    opened: funnel.opened,
+    // Prefer prospect WA redirects; fall back to send click events if follow-up scan empty.
+    waClicks: Math.max(followUp.waClicks, funnel.clicked),
     joinedWhatsApp: prospectCounts.joined_whatsapp ?? 0,
-    bounced: (prospectCounts.bounced ?? 0) + (bySendStatus.bounced ?? 0),
-    complained: bySendStatus.complained ?? 0,
-    unsubscribed: prospectCounts.unsubscribed ?? 0,
+    // Send-level bounces only — do not add prospectCounts.bounced (double-count).
+    bounced: funnel.bounced,
+    complained: funnel.complained,
+    // Recipients who unsubscribed (suppression reason), not every suppressed/bounced prospect.
+    unsubscribed: countUnsubscribedRecipients(sends, suppressions),
     pendingFollowUp1: followUp.pendingFollowUp1,
     pendingFollowUp2: followUp.pendingFollowUp2,
     readyToSend: prospectCounts.ready_to_send ?? 0,
@@ -156,22 +232,22 @@ function buildSummaryFromSends(
 }
 
 async function loadSentProspectsForFollowUp() {
-  const sentIds = await listProspectIdsByStatus('sent').then((ids) =>
-    ids.slice(0, SENT_PROSPECTS_FOLLOWUP_LIMIT),
-  );
+  // Truthful campaign-scoped sent list (not the stale status index, not an arbitrary 1000 cap).
+  const sentIds = await listProspectIdsByRecordStatus('sent');
   const sentProspectsMap = await getProspectsByIds(sentIds);
-  return [...sentProspectsMap.values()].filter(isActiveCampaignProspect);
+  return [...sentProspectsMap.values()];
 }
 
 export async function buildOutreachSummaryView(): Promise<OutreachSummaryView> {
-  const [allSends, prospectCounts, sentProspects] = await Promise.all([
+  const [allSends, prospectCounts, sentProspects, suppressions] = await Promise.all([
     listAllSends(),
     countProspectsByStatus(),
     loadSentProspectsForFollowUp(),
+    listAllSuppressions(),
   ]);
   const sends = allSends.filter(isActiveCampaignSend);
   const followUp = computeFollowUpStats(sentProspects);
-  const summary = buildSummaryFromSends(sends, prospectCounts, followUp);
+  const summary = buildSummaryFromSends(sends, prospectCounts, followUp, suppressions);
   const recentSends = sends.slice(0, 8).map((s) => ({
     sendId: s.id,
     firmName: s.firmName || '—',

@@ -74,6 +74,8 @@ interface ReportPayload {
     totalSends: number;
     uniqueRecipients: number;
     bySendStatus: Record<string, number>;
+    delivered: number;
+    opened: number;
     waClicks: number;
     joinedWhatsApp: number;
     bounced: number;
@@ -295,10 +297,24 @@ export function FirmOutreachDashboard() {
     let filtered: ActivityRow[];
     switch (tab) {
       case 'delivered':
-        filtered = rows.filter((r) => r.sendStatus === 'delivered' || r.deliveredAt);
+        filtered = rows.filter(
+          (r) =>
+            r.sendStatus === 'delivered' ||
+            r.sendStatus === 'opened' ||
+            r.sendStatus === 'clicked' ||
+            r.deliveredAt ||
+            r.openedAt ||
+            r.waLinkClickedAt,
+        );
         break;
       case 'opened':
-        filtered = rows.filter((r) => r.sendStatus === 'opened' || r.openedAt);
+        filtered = rows.filter(
+          (r) =>
+            r.sendStatus === 'opened' ||
+            r.sendStatus === 'clicked' ||
+            r.openedAt ||
+            r.waLinkClickedAt,
+        );
         break;
       case 'clicked':
         filtered = rows.filter((r) => r.waLinkClickedAt || r.sendStatus === 'clicked');
@@ -577,15 +593,31 @@ export function FirmOutreachDashboard() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
         <StatCard label="Emails sent" value={s.totalSends} />
-        <StatCard label="Sent today" value={s.sentToday ?? 0} />
+        <StatCard
+          label="Sent today"
+          value={s.sentToday ?? 0}
+          hint="UTC day (matches daily cap)"
+        />
         <StatCard label="Sent (7 days)" value={s.sentLast7Days ?? 0} />
         <StatCard label="Unique recipients" value={s.uniqueRecipients} />
-        <StatCard label="Delivered" value={s.bySendStatus.delivered ?? 0} />
-        <StatCard label="Opened" value={s.bySendStatus.opened ?? 0} />
+        <StatCard
+          label="Delivered"
+          value={s.delivered ?? (s.bySendStatus.delivered ?? 0)}
+          hint="Includes opened + clicked"
+        />
+        <StatCard
+          label="Opened"
+          value={s.opened ?? (s.bySendStatus.opened ?? 0)}
+          hint="Includes clicked (Resend open tracking is partial)"
+        />
         <StatCard label="WA link clicked" value={s.waClicks} />
         <StatCard label="Joined group" value={s.joinedWhatsApp} />
-        <StatCard label="Bounced" value={s.bounced} />
-        <StatCard label="Unsubscribed" value={s.unsubscribed} />
+        <StatCard label="Bounced" value={s.bounced} hint="Send-level bounces" />
+        <StatCard
+          label="Unsubscribed"
+          value={s.unsubscribed}
+          hint="Among emailed recipients"
+        />
         <StatCard label="Follow-up due (7d)" value={s.pendingFollowUp1} />
         <StatCard label="Follow-up due (21d)" value={s.pendingFollowUp2} />
         <StatCard label="Ready to send" value={s.readyToSend} />

@@ -1,8 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { PoliceStation } from '@/lib/types';
-import { searchStations, type ScoredStation } from '@/lib/station-search';
+import {
+  findClearStationMatch,
+  searchStations,
+  type ScoredStation,
+} from '@/lib/station-search';
 import {
   ALL_AREAS,
   areaKey,
@@ -18,15 +23,11 @@ import { isCustodyStation } from '@/lib/custody-station';
 import { MobileFilterDrawer } from '@/components/directory/MobileFilterDrawer';
 import { StationsSearchBar } from '@/components/stations/StationsSearchBar';
 import { StationsFilterPanel } from '@/components/stations/StationsFilterPanel';
-import {
-  StationSearchSpotlight,
-  StationSearchSummaryStrip,
-} from '@/components/stations/StationSearchSpotlight';
+import { StationSearchPickList } from '@/components/stations/StationSearchPickList';
 import {
   StationsResultsGrid,
   buildStationTableColumns,
 } from '@/components/stations/StationsResultsGrid';
-import { StationContactDisclaimer } from '@/components/StationPhone';
 import type {
   StationsCustodyFilter,
   StationsFrontCounterFilter,
@@ -35,7 +36,7 @@ import type {
 } from '@/components/stations/stations-filter-types';
 
 const PAGE_SIZE = 60;
-const SPOTLIGHT_MAX = 5;
+const PICK_LIST_CAP = 40;
 
 export function StationsDirectoryExplorer({
   stations,
@@ -50,6 +51,7 @@ export function StationsDirectoryExplorer({
   initialForce?: string;
   initialCounty?: string;
 }) {
+  const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
   const [groupBy, setGroupBy] = useState<AreaType>(initialCounty ? 'county' : 'force');
   const [area, setArea] = useState<AreaSelection>(
@@ -69,6 +71,7 @@ export function StationsDirectoryExplorer({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const didScrollToResults = useRef(false);
+  const navigatedForQuery = useRef<string | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -150,6 +153,35 @@ export function StationsDirectoryExplorer({
     return result;
   }, [stations, query, area, hasArea, custodyOnly, directOnly, regionFilter, custodyFilter, frontCounterFilter, sortBy, hasTextQuery]);
 
+  const clearMatch = useMemo(() => {
+    if (!hasTextQuery) return null;
+    // Extra filters mean the user is browsing — don't auto-navigate away.
+    if (hasArea || custodyOnly || directOnly || regionFilter || custodyFilter !== 'all' || frontCounterFilter !== 'all') {
+      return null;
+    }
+    return findClearStationMatch(filtered);
+  }, [
+    hasTextQuery,
+    hasArea,
+    custodyOnly,
+    directOnly,
+    regionFilter,
+    custodyFilter,
+    frontCounterFilter,
+    filtered,
+  ]);
+
+  useEffect(() => {
+    if (!clearMatch) {
+      navigatedForQuery.current = null;
+      return;
+    }
+    const key = `${query.trim().toLowerCase()}|${clearMatch.slug}`;
+    if (navigatedForQuery.current === key) return;
+    navigatedForQuery.current = key;
+    router.push(`/police-station/${clearMatch.slug}`);
+  }, [clearMatch, query, router]);
+
   const total = stations.length;
   const shown = filtered.length;
 
@@ -206,10 +238,10 @@ export function StationsDirectoryExplorer({
     custodyFilter !== 'all' ||
     frontCounterFilter !== 'all';
 
-  const spotlightStations =
-    hasTextQuery && shown > 0 && shown <= SPOTLIGHT_MAX ? filtered.slice(0, shown) : [];
-  const hideGridForSpotlight = hasTextQuery && shown >= 1 && shown <= SPOTLIGHT_MAX;
-  const showSummaryStrip = hasTextQuery && shown > SPOTLIGHT_MAX;
+  const showTextSearchPickList = hasTextQuery && !clearMatch && shown > 0;
+  const pickListStations = showTextSearchPickList
+    ? filtered.slice(0, PICK_LIST_CAP)
+    : [];
 
   useEffect(() => {
     if (typeof window === 'undefined' || didScrollToResults.current) return;
@@ -217,6 +249,7 @@ export function StationsDirectoryExplorer({
     const q = sp.get('q')?.trim();
     const hash = window.location.hash;
     if ((!q && hash !== '#directory-search' && hash !== '#station-results') || shown === 0) return;
+    if (clearMatch) return;
 
     requestAnimationFrame(() => {
       const target =
@@ -224,7 +257,7 @@ export function StationsDirectoryExplorer({
       target?.scrollIntoView({ block: 'start', behavior: 'smooth' });
       didScrollToResults.current = true;
     });
-  }, [shown, hasTextQuery]);
+  }, [shown, hasTextQuery, clearMatch]);
 
   function selectArea(value: string) {
     setArea(value ? { type: groupBy, value } : ALL_AREAS);
@@ -287,6 +320,24 @@ export function StationsDirectoryExplorer({
     );
   }
 
+  if (clearMatch) {
+    return (
+      <div id="directory-search" className="space-y-5">
+        <div className="sticky top-[var(--site-chrome-offset)] z-20 -mx-[var(--container-gutter)] border-b border-[var(--border)] bg-[var(--background)] px-[var(--container-gutter)] py-3 shadow-sm sm:mx-0 sm:rounded-[var(--radius-lg)] sm:border sm:px-4">
+          <StationsSearchBar
+            value={query}
+            onChange={setQuery}
+            resultCount={1}
+            onClear={clearSearchOnly}
+          />
+        </div>
+        <p className="rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold-pale)] px-4 py-6 text-center text-sm font-semibold text-[var(--navy)] sm:text-base">
+          Opening {clearMatch.name}…
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div id="directory-search" className="space-y-5">
       <div className="sticky top-[var(--site-chrome-offset)] z-20 -mx-[var(--container-gutter)] border-b border-[var(--border)] bg-[var(--background)] px-[var(--container-gutter)] py-3 shadow-sm sm:mx-0 sm:rounded-[var(--radius-lg)] sm:border sm:px-4">
@@ -332,41 +383,28 @@ export function StationsDirectoryExplorer({
         </aside>
 
         <main id="station-results" className="scroll-mt-station-results lg:col-span-9">
-          {showSummaryStrip ? (
-            <StationSearchSummaryStrip count={shown} query={query.trim()} />
-          ) : null}
-
-          {spotlightStations.length > 0 ? (
-            <div className={showSummaryStrip ? 'mt-4' : ''}>
-              <StationSearchSpotlight stations={spotlightStations} />
-              {hideGridForSpotlight ? (
-                <StationContactDisclaimer className="mt-6 max-w-3xl" />
-              ) : null}
-            </div>
-          ) : null}
-
-          {!hideGridForSpotlight ? (
-            <div className={spotlightStations.length > 0 || showSummaryStrip ? 'mt-6' : ''}>
-              <StationsResultsGrid
-                shown={shown}
-                isFlat={isFlat}
-                hasArea={hasArea}
-                areaValue={hasArea ? area.value : undefined}
-                hasTextQuery={hasTextQuery}
-                viewMode={viewMode}
-                visible={visible}
-                groupedSorted={groupedSorted}
-                groupBy={groupBy}
-                repCountBySlug={repCountBySlug}
-                tableColumns={tableColumns}
-                hideSingleMatchInGrid={false}
-                onClearAll={clearAll}
-                hasMore={hasMore}
-                renderedCount={renderedCount}
-                onLoadMore={() => setVisibleCount((c) => c + PAGE_SIZE)}
-              />
-            </div>
-          ) : null}
+          {showTextSearchPickList ? (
+            <StationSearchPickList stations={pickListStations} query={query.trim()} />
+          ) : (
+            <StationsResultsGrid
+              shown={shown}
+              isFlat={isFlat}
+              hasArea={hasArea}
+              areaValue={hasArea ? area.value : undefined}
+              hasTextQuery={hasTextQuery}
+              viewMode={viewMode}
+              visible={visible}
+              groupedSorted={groupedSorted}
+              groupBy={groupBy}
+              repCountBySlug={repCountBySlug}
+              tableColumns={tableColumns}
+              hideSingleMatchInGrid={false}
+              onClearAll={clearAll}
+              hasMore={hasMore}
+              renderedCount={renderedCount}
+              onLoadMore={() => setVisibleCount((c) => c + PAGE_SIZE)}
+            />
+          )}
         </main>
       </div>
     </div>

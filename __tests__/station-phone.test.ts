@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   classifyPhone,
   extractPhoneDigitsFromQuery,
+  findClearStationMatch,
   normalizePhone,
   searchStations,
   stationPhoneNumbers,
@@ -65,6 +66,25 @@ describe('reverse phone search', () => {
     const hits = searchStations('01622 690690', stations);
     expect(hits[0]?.id).toBe('b');
     expect(hits[0]?._score).toBeGreaterThanOrEqual(120);
+  });
+});
+
+describe('findClearStationMatch', () => {
+  it('returns the only result when scored', () => {
+    const only = { ...stub({ id: '1', slug: 'one', name: 'One' }), _score: 70 };
+    expect(findClearStationMatch([only])?.id).toBe('1');
+  });
+
+  it('returns top when clearly ahead of the rest', () => {
+    const top = { ...stub({ id: '1', slug: 'top', name: 'Top' }), _score: 120 };
+    const other = { ...stub({ id: '2', slug: 'other', name: 'Other' }), _score: 40 };
+    expect(findClearStationMatch([top, other])?.id).toBe('1');
+  });
+
+  it('returns null when matches are ambiguous', () => {
+    const a = { ...stub({ id: '1', slug: 'a', name: 'A' }), _score: 70 };
+    const b = { ...stub({ id: '2', slug: 'b', name: 'B' }), _score: 65 };
+    expect(findClearStationMatch([a, b])).toBeNull();
   });
 });
 

@@ -406,6 +406,23 @@ export function scoreStation(
 /*  Main search function                                               */
 /* ------------------------------------------------------------------ */
 
+/**
+ * True when search results clearly identify a single station page to open.
+ * Used so text search navigates to /police-station/[slug] instead of a multi-card grid.
+ */
+export function findClearStationMatch(
+  results: ScoredStation[],
+): ScoredStation | null {
+  if (results.length === 0) return null;
+  if (results.length === 1) {
+    return results[0]._score >= 20 ? results[0] : null;
+  }
+  const [top, second] = results;
+  if (top._score >= 120 && top._score - second._score >= 40) return top;
+  if (top._score >= 100 && top._score - second._score >= 50) return top;
+  return null;
+}
+
 export function searchStations(
   query: string,
   stations: PoliceStation[],

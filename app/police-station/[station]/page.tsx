@@ -1,7 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getAllCounties, getAllReps, getAllStations, getStationBySlug, getRepsByStation } from '@/lib/data';
-import type { PoliceStation } from '@/lib/types';
 import { buildMetadata, localBusinessSchema, breadcrumbSchema } from '@/lib/seo';
 import { JsonLd } from '@/components/JsonLd';
 import { StationsDataContributeCta } from '@/components/StationsDataContributeCta';
@@ -11,22 +10,10 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { RepCard } from '@/components/RepCard';
 import { DirectoryCredentialVerificationNotice } from '@/components/DirectoryCredentialVerificationNotice';
 import { FirmCoverCTA } from '@/components/FirmCoverCTA';
-import { phoneToTelHref } from '@/lib/phone';
-import { displayPhoneNumber, stationPhoneNumbers } from '@/lib/station-search';
+import { displayPhoneNumber } from '@/lib/station-search';
 import { StationContactDisclaimer } from '@/components/StationPhone';
-import { getCustodyPublicDisplay, getFieldPublicationMeta } from '@/lib/station-contacts/publish';
-import { CUSTODY_NOT_PUBLISHED_TEXT } from '@/lib/station-contacts/types';
-import {
-  STATION_PHONE_CALL_GUIDANCE,
-  stationPhoneEntryHint,
-} from '@/lib/station-phone-labels';
+import { StationPhoneActions } from '@/components/stations/StationPhoneActions';
 import { stationPhoneReportHref } from '@/lib/station-phone-report';
-import { isCustodyStation } from '@/lib/custody-station';
-import {
-  DEFAULT_NON_EMERGENCY,
-  getOfficialContact,
-} from '@/lib/official-force-contacts';
-import { formatPhoneUk } from '@/lib/phone-format';
 import { StationLocationMap } from '@/components/StationLocationMap';
 import { countRepsForStation, shouldIndexPoliceStationPage } from '@/lib/station-indexing';
 import { directoryHrefForAreaName } from '@/lib/county-links';
@@ -104,99 +91,99 @@ export default async function PoliceStationPage({ params }: PageProps) {
     county: station.forceName || station.county || '',
     ...(listedPhone ? { telephone: listedPhone } : {}),
   });
-  const bc = breadcrumbSchema([{ name: 'Home', url: '/' }, { name: 'Station Directory', url: '/StationsDirectory' }, { name: `${station.name} Police Station`, url: `/police-station/${station.slug}` }]);
+  const bc = breadcrumbSchema([
+    { name: 'Home', url: '/' },
+    { name: 'Station Directory', url: '/StationsDirectory' },
+    { name: `${station.name} Police Station`, url: `/police-station/${station.slug}` },
+  ]);
   const areaLabel = station.county || station.forceName || '';
+  const isCustody = Boolean(station.isCustodyStation || station.custodySuite);
 
   return (
     <>
       {indexable && <JsonLd data={schema} />}
       <JsonLd data={bc} />
 
-      {/* Navy header */}
-      <section className="bg-[var(--navy)] py-10 sm:py-12">
-        <div className="page-container !py-0">
+      {/* Bright contact-first hero — works on phone → desktop */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[var(--navy)] via-[#1e3a5f] to-[#0f2744] py-8 sm:py-12">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-30"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 20% 20%, var(--gold) 0, transparent 40%), radial-gradient(circle at 90% 10%, #34d399 0, transparent 35%)',
+          }}
+          aria-hidden
+        />
+        <div className="page-container relative !py-0">
           <Breadcrumbs
             light
             items={[
               { label: 'Home', href: '/' },
               { label: 'Station Directory', href: '/StationsDirectory' },
-              { label: `${station.name}` },
+              { label: station.name },
             ]}
           />
-          <div className="mt-2 flex items-center gap-3">
-            <h1 className="text-h1 text-white">{station.name} Police Station</h1>
-            {(station.isCustodyStation || station.custodySuite) && (
-              <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">
-                Custody Suite
+          <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
+            <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+              {station.name}
+              <span className="block text-lg font-bold text-[var(--gold)] sm:text-2xl lg:text-3xl">
+                Police Station
               </span>
-            )}
+            </h1>
+            {isCustody ? (
+              <span className="rounded-full bg-emerald-400 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wide text-emerald-950 sm:text-xs">
+                Custody suite
+              </span>
+            ) : null}
           </div>
-          <p className="mt-2 text-lg text-[var(--gold)]">{station.forceName || station.county}</p>
+          <p className="mt-2 text-sm font-semibold text-[var(--gold-light)] sm:text-base lg:text-lg">
+            {[station.forceName, station.postcode].filter(Boolean).join(' · ')}
+          </p>
+          {station.address ? (
+            <p className="mt-1 max-w-2xl text-sm text-white/80 sm:text-base">{station.address}</p>
+          ) : null}
+
+          <div className="mt-6 rounded-2xl border-2 border-[var(--gold)] bg-[var(--gold-pale)] p-4 shadow-lg sm:mt-8 sm:rounded-3xl sm:p-6 md:p-8">
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-[var(--navy)] sm:text-base">
+              Contact numbers
+            </h2>
+            <div className="mt-4">
+              <StationPhoneActions station={station} bright />
+            </div>
+            <p className="mt-4 text-center text-xs sm:text-left">
+              <Link
+                href={stationPhoneReportHref(station.id)}
+                className="font-semibold text-[var(--gold-link)] underline hover:text-[var(--navy)]"
+              >
+                Report a correction
+              </Link>
+              {' · '}
+              <Link
+                href="/HelpUsStationNumbers"
+                className="font-semibold text-[var(--gold-link)] underline hover:text-[var(--navy)]"
+              >
+                How updates work
+              </Link>
+            </p>
+            <StationContactDisclaimer className="mt-3" />
+          </div>
         </div>
       </section>
 
       <div className="page-container">
         <div className="mx-auto max-w-6xl">
-          <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-            {/* Main content */}
+          <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+            {/* Main: reps first, then short SEO */}
             <div className="order-2 space-y-6 lg:order-1">
-              <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)] sm:p-8">
-                <h2 className="text-lg font-bold text-[var(--navy)] sm:text-xl">
-                  Police station representation at {station.name}
-                </h2>
-                <div className="mt-4 space-y-4 text-sm leading-relaxed text-[var(--muted)] sm:text-base">
-                  <p>
-                    {station.name} sits within {areaLabel ? `the ${areaLabel} policing area` : 'its local force area'}.
-                    Defence solicitors and duty firms often need an accredited{' '}
-                    <Link href="/WhatDoesRepDo" className="font-medium text-[var(--gold-link)] hover:underline">
-                      police station representative
-                    </Link>{' '}
-                    to attend quickly when a client is booked into custody — especially for evenings, weekends, or
-                    multi-site firms covering several custody suites.
-                  </p>
-                  <p>
-                    This page lists representatives who have told us they cover {station.name} (or matching custody
-                    routes). Availability is between you and the representative; PoliceStationRepUK is a{' '}
-                    <Link href="/About" className="font-medium text-[var(--gold-link)] hover:underline">
-                      directory
-                    </Link>
-                    , not a law firm. For wider cover in the same region, use{' '}
-                    {countyDirHref ? (
-                      <Link href={countyDirHref} className="font-medium text-[var(--gold-link)] hover:underline">
-                        the {areaLabel || 'county'} directory hub
-                      </Link>
-                    ) : (
-                      <Link href="/directory/counties" className="font-medium text-[var(--gold-link)] hover:underline">
-                        county hubs
-                      </Link>
-                    )}{' '}
-                    or the main{' '}
-                    <Link href="/directory" className="font-medium text-[var(--gold-link)] hover:underline">
-                      search directory
-                    </Link>
-                    {legalDirHref ? (
-                      <>
-                        . For criminal defence solicitors and related providers in the area, see the{' '}
-                        <Link href={legalDirHref} className="font-medium text-[var(--gold-link)] hover:underline">
-                          Legal Services Directory
-                        </Link>
-                      </>
-                    ) : (
-                      '.'
-                    )}
-                  </p>
-                </div>
-              </section>
-
               <section>
                 <h2 className="text-h2 text-[var(--navy)]">Representatives covering {station.name}</h2>
                 {reps.length > 0 && <DirectoryCredentialVerificationNotice className="mt-4" />}
                 {reps.length === 0 ? (
                   <div className="mt-4 space-y-6">
-                    <div className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-8 text-center shadow-[var(--card-shadow)]">
-                      <p className="text-[var(--muted)]">
+                    <div className="rounded-2xl border-2 border-dashed border-[var(--gold)]/50 bg-[var(--gold-pale)] p-6 text-center sm:p-8">
+                      <p className="text-sm text-[var(--navy)] sm:text-base">
                         No representatives listed for this station yet.{' '}
-                        <Link href="/register" className="text-[var(--gold-link)] hover:underline">
+                        <Link href="/register" className="font-bold text-[var(--gold-link)] hover:underline">
                           Register free
                         </Link>{' '}
                         to be listed.
@@ -205,7 +192,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
                     <FirmCoverCTA countyName={areaLabel || undefined} />
                   </div>
                 ) : (
-                  <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                  <div className="mt-5 grid gap-4 sm:grid-cols-2 sm:gap-5">
                     {reps.map((rep) => (
                       <RepCard key={rep.id} rep={rep} />
                     ))}
@@ -213,137 +200,156 @@ export default async function PoliceStationPage({ params }: PageProps) {
                 )}
               </section>
 
-              <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
-                <h2 className="text-lg font-bold text-[var(--navy)]">Legal representation at this station</h2>
-                <p className="mt-3 leading-relaxed text-[var(--muted)]">
-                  When someone is detained at {station.name} Police Station, they are entitled to free legal advice under PACE Code C. A police station representative or solicitor can attend the custody suite to advise the detainee, review disclosure, sit in on police interviews, and make representations about bail.
+              <section className="rounded-2xl border border-[var(--card-border)] bg-white p-5 shadow-[var(--card-shadow)] sm:p-6">
+                <h2 className="text-lg font-bold text-[var(--navy)]">Legal advice at this station</h2>
+                <p className="mt-3 text-sm leading-relaxed text-[var(--muted)] sm:text-base">
+                  When someone is detained at {station.name}, they are entitled to free legal advice under
+                  PACE Code C. A police station representative or solicitor can attend custody, review
+                  disclosure, sit in on interviews, and make representations about bail.
+                  {station.forceName
+                    ? ` ${station.name} is part of the ${station.forceName} force area.`
+                    : ''}
                 </p>
-                {station.forceName && (
-                  <p className="mt-3 leading-relaxed text-[var(--muted)]">
-                    {station.name} is part of the {station.forceName} force area{station.county && station.county !== station.forceName ? ` in ${station.county}` : ''}. Representatives listed below have indicated they cover this station or surrounding custody suites.
-                  </p>
-                )}
+                <p className="mt-3 text-sm text-[var(--muted)]">
+                  <Link href="/PACE" className="font-medium text-[var(--gold-link)] hover:underline">
+                    PACE rights and custody procedures →
+                  </Link>
+                  {countyDirHref ? (
+                    <>
+                      {' · '}
+                      <Link
+                        href={countyDirHref}
+                        className="font-medium text-[var(--gold-link)] hover:underline"
+                      >
+                        {areaLabel || 'Area'} directory hub →
+                      </Link>
+                    </>
+                  ) : null}
+                </p>
               </section>
 
-              <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
+              <section className="rounded-2xl border border-[var(--card-border)] bg-white p-5 shadow-[var(--card-shadow)] sm:p-6">
                 <h2 className="text-lg font-bold text-[var(--navy)]">What happens at a police station?</h2>
-                <ul className="mt-3 space-y-2 text-sm leading-relaxed text-[var(--muted)]">
-                  <li className="flex gap-2"><span className="mt-0.5 shrink-0 text-[var(--gold)]">1.</span>The custody officer books the detainee in and explains their rights, including the right to free legal advice.</li>
-                  <li className="flex gap-2"><span className="mt-0.5 shrink-0 text-[var(--gold)]">2.</span>The DSCC is contacted to allocate a duty solicitor or the detainee&apos;s own solicitor is called.</li>
-                  <li className="flex gap-2"><span className="mt-0.5 shrink-0 text-[var(--gold)]">3.</span>The representative reviews disclosure, consults with the client, and advises on interview strategy.</li>
-                  <li className="flex gap-2"><span className="mt-0.5 shrink-0 text-[var(--gold)]">4.</span>After the interview the representative makes representations on charge, bail, or further investigation.</li>
-                </ul>
-                <p className="mt-3 text-sm text-[var(--muted)]">
-                  <Link href="/PACE" className="font-medium text-[var(--gold-link)] no-underline hover:underline">
-                    Read more about PACE rights and custody procedures →
-                  </Link>
-                </p>
+                <ol className="mt-3 space-y-2 text-sm leading-relaxed text-[var(--muted)] sm:text-base">
+                  <li className="flex gap-2">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--gold)] text-xs font-extrabold text-[var(--navy)]">
+                      1
+                    </span>
+                    Custody officer books the detainee in and explains their rights, including free legal advice.
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--gold)] text-xs font-extrabold text-[var(--navy)]">
+                      2
+                    </span>
+                    DSCC allocates a duty solicitor, or the detainee&apos;s own solicitor is called.
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--gold)] text-xs font-extrabold text-[var(--navy)]">
+                      3
+                    </span>
+                    The representative reviews disclosure, consults the client, and advises on interview strategy.
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--gold)] text-xs font-extrabold text-[var(--navy)]">
+                      4
+                    </span>
+                    After interview: representations on charge, bail, or further investigation.
+                  </li>
+                </ol>
               </section>
+
+              {/* Secondary promos — below fold */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <section className="rounded-2xl bg-[var(--navy)] p-5 text-center sm:p-6">
+                  <h3 className="font-bold text-white">Cover this station?</h3>
+                  <p className="mt-2 text-sm text-white/90">
+                    Register free and be listed for {station.name}.
+                  </p>
+                  <Link href="/register" className="btn-gold mt-3 inline-flex !text-sm">
+                    Register Free
+                  </Link>
+                </section>
+                <section className="rounded-2xl border-2 border-[var(--gold)] bg-[var(--gold-pale)] p-5 sm:p-6">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--gold-link)]">
+                    Featured product
+                  </p>
+                  <h3 className="mt-1 font-bold text-[var(--navy)]">{CUSTODYNOTE_BRAND_NAME}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/85">
+                    PACE-aligned attendance notes — {CUSTODYNOTE_PLATFORM_LINE.toLowerCase()}. £
+                    {CUSTODYNOTE_PRICE_GBP}/mo · members £{CUSTODYNOTE_MEMBER_PRICE_GBP} with{' '}
+                    <span className="font-mono font-bold">{CUSTODYNOTE_DISCOUNT_CODE}</span>.
+                  </p>
+                  <a
+                    href={CUSTODYNOTE_TRIAL_HREF}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-gold mt-3 inline-flex !text-sm no-underline"
+                  >
+                    Start free trial →
+                  </a>
+                </section>
+              </div>
             </div>
 
-            {/* Sidebar */}
-            <div className="order-1 space-y-6 lg:order-2">
-              <section className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)]">
-                <h2 className="text-lg font-bold text-[var(--navy)]">Station details</h2>
-                <dl className="mt-3 space-y-3 text-sm">
+            {/* Sidebar: map + location only */}
+            <aside className="order-1 space-y-4 lg:order-2">
+              <section className="rounded-2xl border-2 border-emerald-200 bg-emerald-50/80 p-4 shadow-[var(--card-shadow)] sm:p-5">
+                <h2 className="text-base font-extrabold text-[var(--navy)] sm:text-lg">Location</h2>
+                <dl className="mt-3 space-y-2 text-sm">
                   <div>
-                    <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Address</dt>
-                    <dd className="mt-0.5 text-[var(--navy)]">{station.address}</dd>
+                    <dt className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
+                      Address
+                    </dt>
+                    <dd className="mt-0.5 font-medium text-[var(--navy)]">{station.address}</dd>
                   </div>
-                  {station.forceName && (
+                  {station.postcode ? (
                     <div>
-                      <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Force</dt>
-                      <dd className="mt-0.5 text-[var(--navy)]">{station.forceName}</dd>
+                      <dt className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
+                        Postcode
+                      </dt>
+                      <dd className="mt-0.5 font-medium text-[var(--navy)]">{station.postcode}</dd>
                     </div>
-                  )}
-                  {station.postcode && (
+                  ) : null}
+                  {station.forceName ? (
                     <div>
-                      <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Postcode</dt>
-                      <dd className="mt-0.5 text-[var(--navy)]">{station.postcode}</dd>
+                      <dt className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
+                        Force
+                      </dt>
+                      <dd className="mt-0.5 font-medium text-[var(--navy)]">{station.forceName}</dd>
                     </div>
-                  )}
-                  <StationPhoneDetail station={station} />
+                  ) : null}
                   <div>
-                    <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Custody suite</dt>
-                    <dd className="mt-0.5 text-[var(--navy)]">{(station.isCustodyStation || station.custodySuite) ? 'Yes' : 'No'}</dd>
+                    <dt className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
+                      Custody suite
+                    </dt>
+                    <dd className="mt-0.5 font-medium text-[var(--navy)]">{isCustody ? 'Yes' : 'No'}</dd>
                   </div>
                 </dl>
-                {typeof station.latitude === 'number' && typeof station.longitude === 'number' && (
-                  <div className="mt-4">
+                {typeof station.latitude === 'number' && typeof station.longitude === 'number' ? (
+                  <div className="mt-4 overflow-hidden rounded-xl">
                     <StationLocationMap
                       lat={station.latitude}
                       lng={station.longitude}
                       name={station.name}
                     />
                   </div>
-                )}
+                ) : null}
                 <a
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(station.address)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-outline mt-4 w-full !text-sm"
+                  className="mt-4 flex min-h-[48px] w-full items-center justify-center rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white no-underline hover:bg-emerald-700"
                 >
-                  Get Directions
+                  Get directions
                 </a>
-                <Link
-                  href={stationPhoneReportHref(station.id)}
-                  className="btn-gold mt-2 w-full !text-sm no-underline text-center"
-                >
-                  Help us to help you — report number
-                </Link>
-                <p className="mt-2 text-center text-xs text-[var(--muted)]">
-                  Know a newer custody desk or main line?{' '}
-                  <Link href="/HelpUsStationNumbers" className="font-semibold text-[var(--gold-link)] underline">
-                    Learn how it works
-                  </Link>
-                  .
-                </p>
                 <StationVerificationBadge station={station} />
-                <StationContactDisclaimer className="mt-3" />
                 <CustodyContributePrompt station={station} />
               </section>
-
               <StationsDataContributeCta variant="slim" />
-
-              <section className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-6 text-center">
-                <h3 className="font-bold text-white">Cover this station?</h3>
-                <p className="mt-2 text-sm text-white">
-                  Register free and be listed for {station.name}.
-                </p>
-                <Link href="/register" className="btn-gold mt-3 w-full !text-sm">
-                  Register Free
-                </Link>
-              </section>
-
-              <section className="rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/40 bg-[var(--gold-pale)] p-6">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--gold-link)]">
-                  Featured product
-                </p>
-                <h3 className="mt-1 font-bold text-[var(--navy)]">{CUSTODYNOTE_BRAND_NAME}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/85">
-                  PACE-aligned attendance note software for accredited reps and defence solicitors —
-                  structured custody, voluntary and telephone forms, offline-first, instant PDF, and
-                  LAA billing in one desktop app ({CUSTODYNOTE_PLATFORM_LINE.toLowerCase()}).
-                </p>
-                <p className="mt-2 text-xs font-semibold text-[var(--navy)]">
-                  £{CUSTODYNOTE_PRICE_GBP}/mo · PSR UK readers £{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
-                  <span className="rounded bg-white px-1.5 py-0.5 font-mono text-[var(--navy)]">
-                    {CUSTODYNOTE_DISCOUNT_CODE}
-                  </span>
-                </p>
-                <a
-                  href={CUSTODYNOTE_TRIAL_HREF}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-gold mt-3 block w-full !text-sm no-underline text-center"
-                >
-                  Start free trial →
-                </a>
-              </section>
-            </div>
+            </aside>
           </div>
 
-          <nav className="mt-10 flex flex-wrap gap-4" aria-label="Related directory links">
+          <nav className="mt-10 flex flex-wrap gap-3 text-sm sm:gap-4" aria-label="Related directory links">
             {legalDirHref ? (
               <Link
                 href={legalDirHref}
@@ -374,148 +380,15 @@ export default async function PoliceStationPage({ params }: PageProps) {
                 Browse county hubs →
               </Link>
             )}
-            <Link href="/search" className="font-medium text-[var(--muted)] no-underline hover:text-[var(--gold-hover)]">
-              Search directory
-            </Link>
-            <Link href="/StationsDirectory" className="font-medium text-[var(--muted)] no-underline hover:text-[var(--gold-hover)]">
-              Station A–Z
-            </Link>
-            <Link href="/directory" className="font-medium text-[var(--muted)] no-underline hover:text-[var(--gold-hover)]">
-              ← Full directory
+            <Link
+              href="/StationsDirectory"
+              className="font-medium text-[var(--muted)] no-underline hover:text-[var(--gold-hover)]"
+            >
+              ← Station search
             </Link>
           </nav>
         </div>
       </div>
     </>
-  );
-}
-
-function StationPhoneDetail({ station }: { station: PoliceStation }) {
-  const entries = stationPhoneNumbers(station);
-  const custody = isCustodyStation(station);
-  const custodyDisplay = custody ? getCustodyPublicDisplay(station) : null;
-  const hasCustodyLine = entries.some(
-    (e) => e.label.startsWith('Custody') && e.className === 'station',
-  );
-  const neRaw = getOfficialContact(station.forceName)?.nonEmergency ?? DEFAULT_NON_EMERGENCY;
-  const neNumber = formatPhoneUk(neRaw) || neRaw;
-  const neHint =
-    station.forceName === 'British Transport Police'
-      ? 'BTP non-emergency'
-      : neNumber === '101'
-        ? 'non-emergency'
-        : 'force non-emergency';
-
-  const ordered = [...entries].sort((a, b) => {
-    const rank = (e: (typeof entries)[number]) => {
-      if (e.label.startsWith('Custody')) return 0;
-      if (e.label === 'Station main line' || e.label === 'Main line') return 1;
-      if (e.label.startsWith('Force')) return 2;
-      return 3;
-    };
-    return rank(a) - rank(b);
-  });
-
-  if (entries.length === 0) {
-    return (
-      <div>
-        <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Phone</dt>
-        <dd className="mt-0.5 text-[var(--muted)]">
-          No direct number —{' '}
-          <a
-            href={phoneToTelHref(neNumber)}
-            className="font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
-          >
-            {neNumber}
-          </a>{' '}
-          ({neHint})
-        </dd>
-        {custody && !hasCustodyLine && (
-          <dd className="mt-2 text-xs font-semibold text-amber-800">{CUSTODY_NOT_PUBLISHED_TEXT}</dd>
-        )}
-        <dd className="mt-2 text-[10px] leading-snug text-[var(--muted)]">{STATION_PHONE_CALL_GUIDANCE}</dd>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <dt className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">Phone</dt>
-      <dd className="mt-1 space-y-1.5">
-        {ordered.map((entry) => {
-          const field = entry.label.startsWith('Custody')
-            ? ('custodyPhone' as const)
-            : entry.label === 'Station main line' || entry.label === 'Main line'
-              ? ('phone' as const)
-              : null;
-          const meta = field ? getFieldPublicationMeta(station, field) : null;
-          return (
-            <div key={`${entry.label}-${entry.number}`}>
-              <a
-                href={phoneToTelHref(entry.number)}
-                className="font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
-              >
-                {entry.number}
-              </a>
-              <span className="ml-2 text-[10px] text-[var(--muted)]">{stationPhoneEntryHint(entry)}</span>
-              {!entry.verified && (
-                <span className="ml-2 inline-block rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-amber-900">
-                  Unverified
-                </span>
-              )}
-              {meta?.sourceUrl ? (
-                <a
-                  href={meta.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-2 text-[10px] font-semibold text-[var(--gold-link)] underline hover:text-[var(--gold)]"
-                >
-                  View official source
-                </a>
-              ) : null}
-              {field ? (
-                <Link
-                  href={stationPhoneReportHref(station.id, {
-                    field,
-                    number: entry.number,
-                    reason: field === 'custodyPhone' ? 'not_custody' : 'wrong',
-                  })}
-                  className="ml-2 text-[10px] font-semibold text-[var(--gold-link)] hover:underline"
-                >
-                  {field === 'custodyPhone' ? 'Not the custody desk?' : 'Wrong number?'}
-                </Link>
-              ) : null}
-            </div>
-          );
-        })}
-        {custody && !hasCustodyLine && (
-          <p className="text-xs font-semibold text-amber-800">{CUSTODY_NOT_PUBLISHED_TEXT}</p>
-        )}
-        {custodyDisplay?.published && custodyDisplay.number && (
-          <p className="text-xs text-[var(--muted)]">
-            Published custody line:{' '}
-            <a
-              href={phoneToTelHref(custodyDisplay.number)}
-              className="font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
-            >
-              {custodyDisplay.number}
-            </a>
-          </p>
-        )}
-        <p className="text-[10px] leading-snug text-[var(--muted)]">{STATION_PHONE_CALL_GUIDANCE}</p>
-        <p className="text-[10px] text-[var(--muted)]">
-          Emergency: <strong className="text-[var(--navy)]">999</strong>
-          {' · '}
-          Force:{' '}
-          <a
-            href={phoneToTelHref(neNumber)}
-            className="font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
-          >
-            {neNumber}
-          </a>{' '}
-          ({neHint})
-        </p>
-      </dd>
-    </div>
   );
 }

@@ -1,31 +1,41 @@
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs/promises';
 
-describe('StationSearchSpotlight', () => {
-  it('renders call links and copy actions in spotlight component', async () => {
-    const spotlight = await fs.readFile('components/stations/StationSearchSpotlight.tsx', 'utf-8');
-    const actions = await fs.readFile('components/stations/StationPhoneActions.tsx', 'utf-8');
-
-    expect(spotlight).toContain('StationPhoneActions');
-    expect(actions).toContain('phoneToTelHref');
-    expect(actions).toContain('Call ');
-    expect(actions).toContain('Copy number');
-    expect(actions).toContain('Custody desk');
-    expect(actions).toContain('Station main line');
+describe('Station search → one page', () => {
+  it('auto-navigates clear matches to the station page', async () => {
+    const explorer = await fs.readFile('components/StationsDirectoryExplorer.tsx', 'utf-8');
+    expect(explorer).toContain('findClearStationMatch');
+    expect(explorer).toContain('router.push');
+    expect(explorer).toContain('/police-station/');
+    expect(explorer).toContain('StationSearchPickList');
   });
 
-  it('shows custody published badge state', async () => {
-    const spotlight = await fs.readFile('components/stations/StationSearchSpotlight.tsx', 'utf-8');
-    expect(spotlight).toContain('Custody published');
-    expect(spotlight).toContain('Custody not published');
+  it('pick list links to station pages without embedding Call grids', async () => {
+    const pick = await fs.readFile('components/stations/StationSearchPickList.tsx', 'utf-8');
+    expect(pick).toContain('/police-station/');
+    expect(pick).not.toContain('StationPhoneActions');
+    expect(pick).toContain('Open page');
   });
 });
 
-describe('StationDirectoryCard search variant', () => {
-  it('places phone actions before station name in search mode', async () => {
+describe('StationDirectoryCard', () => {
+  it('always links to the station page', async () => {
     const card = await fs.readFile('components/stations/StationDirectoryCard.tsx', 'utf-8');
-    expect(card).toContain("variant === 'search'");
-    expect(card).toContain('StationPhoneActions');
-    expect(card).toContain('ring-2 ring-[var(--gold)]');
+    expect(card).toContain('/police-station/');
+    expect(card).not.toContain('shouldIndexPoliceStationPage');
+    expect(card).toContain('View station');
+  });
+});
+
+describe('Station page contact hero', () => {
+  it('uses bright Call/Copy actions in the hero', async () => {
+    const page = await fs.readFile('app/police-station/[station]/page.tsx', 'utf-8');
+    const actions = await fs.readFile('components/stations/StationPhoneActions.tsx', 'utf-8');
+    expect(page).toContain('StationPhoneActions');
+    expect(page).toContain('bright');
+    expect(page).toContain('Contact numbers');
+    expect(actions).toContain('bright');
+    expect(actions).toContain('Call ');
+    expect(actions).toContain('Copy number');
   });
 });

@@ -24,7 +24,28 @@ describe('shouldIndexPoliceStationPage', () => {
     expect(shouldIndexPoliceStationPage(station({ custodySuite: true }), 0)).toBe(true);
   });
 
-  it('noindexes thin stations with zero reps and no custody flag', () => {
+  it('indexes stations with a published direct phone line', () => {
+    expect(
+      shouldIndexPoliceStationPage(
+        station({
+          forceName: 'Devon and Cornwall Police',
+          custodyPhone: '01392 290820',
+          verificationMeta: {
+            fields: {
+              custodyPhone: {
+                status: 'verified',
+                sourceUrl: 'https://www.devon-cornwall.police.uk/contact/custody-information/',
+                dateVerified: '2026-06-02',
+              },
+            },
+          },
+        }),
+        0,
+      ),
+    ).toBe(true);
+  });
+
+  it('noindexes thin stations with zero reps, no custody, and no direct number', () => {
     expect(shouldIndexPoliceStationPage(station(), 0)).toBe(false);
   });
 });

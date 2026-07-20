@@ -1,13 +1,15 @@
 import type { PoliceStation, Representative } from '@/lib/types';
+import { hasDirectNumber } from '@/lib/station-browse';
+import { getCustodyPublicDisplay } from '@/lib/station-contacts/publish';
+import { isCustodyStation } from '@/lib/custody-station';
 
 /**
  * Central rules for police station URL indexing (Google crawl budget).
  *
- * HIGH VALUE (index + sitemap): at least one rep lists this station, OR the row is flagged as a custody suite.
- * LOW VALUE (noindex + omit sitemap): zero matching reps and not custody — avoids “Discovered – currently not indexed” churn on thin templates.
- *
- * Future: when adding new station pages or imports, keep `isCustodyStation` / `custodySuite` accurate in `stations.json`
- * so major suites stay discoverable even before reps register.
+ * HIGH VALUE (index + sitemap): reps cover the station, OR custody suite, OR a
+ * dialable published station/custody phone line.
+ * LOW VALUE (noindex + omit sitemap): no reps, not custody, no publishable
+ * station-specific number — avoids thin empty templates.
  */
 
 export function buildStationMatchKeys(
@@ -44,10 +46,17 @@ export function countRepsForStation(
   ).length;
 }
 
+function hasIndexablePhone(station: PoliceStation): boolean {
+  if (hasDirectNumber(station)) return true;
+  if (isCustodyStation(station) && getCustodyPublicDisplay(station).published) return true;
+  return false;
+}
+
 /** Pages Google should spend crawl budget indexing. */
 export function shouldIndexPoliceStationPage(station: PoliceStation, repCount: number): boolean {
   if (repCount > 0) return true;
   if (station.isCustodyStation || station.custodySuite) return true;
+  if (hasIndexablePhone(station)) return true;
   return false;
 }
 

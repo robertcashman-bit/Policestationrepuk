@@ -36,6 +36,13 @@ import {
   saveFinding,
   getFinding,
 } from './storage';
+import { loadStationVerification } from '@/lib/station-verification';
+
+/** Block auto-publish when the station custody field is admin-locked. */
+export function isCustodyPhoneManuallyLocked(custodySuiteId: string): boolean {
+  const rec = loadStationVerification()[custodySuiteId];
+  return rec?.fields?.custodyPhone?.manualLock === true;
+}
 
 export function autoPublishEnabled(): boolean {
   return process.env.CUSTODY_AI_AUTO_PUBLISH !== 'false';
@@ -239,6 +246,10 @@ async function tryAutoPublish(
   );
   if (!gates.ok) {
     return { action: 'queued', reason: gates.reason };
+  }
+
+  if (isCustodyPhoneManuallyLocked(finding.custodySuiteId)) {
+    return { action: 'queued', reason: 'manual_lock' };
   }
 
   const pathNote =
@@ -617,6 +628,10 @@ export async function resolveSuiteConflicts(
   );
   if (!gates.ok) {
     return { action: 'none', rejectedCount: 0, reason: gates.reason };
+  }
+
+  if (isCustodyPhoneManuallyLocked(custodySuiteId)) {
+    return { action: 'none', rejectedCount: 0, reason: 'manual_lock' };
   }
 
   const winningNumber = winner.finding.normalizedPhoneNumber;

@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-07-20T00:00:00.000Z",
+  "note": "Phase 1 contact-data baseline freeze",
+  "stations": {
+    "total": 896,
+    "dialablePhone": 773,
+    "custodyStations": 95
+  },
+  "verificationMeta": {
+    "entries": 896,
+    "phoneVerified": 256
+  }
+}

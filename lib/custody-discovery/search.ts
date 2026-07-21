@@ -1,4 +1,12 @@
 import type { SearchResult } from './types';
+import {
+  getDefaultWebSearchProvider,
+  isWebSearchConfigured,
+  isWebSearchError,
+  serperSearch as sharedSerperSearch,
+  type WebSearchProvider,
+  type WebSearchResult,
+} from '@/lib/web-search/provider';
 
 export type SearchProvider = (query: string) => Promise<SearchQueryResult>;
 
@@ -13,39 +21,18 @@ export function isSearchQueryError(result: SearchQueryResult): result is SearchQ
   return !Array.isArray(result) && 'ok' in result && result.ok === false;
 }
 
-const SERPER_URL = 'https://google.serper.dev/search';
-
-async function serperSearch(query: string): Promise<SearchQueryResult> {
-  const key = process.env.SERPER_API_KEY?.trim();
-  if (!key) {
-    return { ok: false, reason: 'SERPER_API_KEY missing' };
-  }
-
-  const res = await fetch(SERPER_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-KEY': key,
-    },
-    body: JSON.stringify({ q: query, gl: 'uk', hl: 'en', num: 10 }),
-  });
-
-  if (!res.ok) {
-    return { ok: false, reason: `Serper HTTP ${res.status}` };
-  }
-  const data = (await res.json()) as {
-    organic?: Array<{ title?: string; link?: string; snippet?: string; date?: string }>;
-  };
-
-  return (data.organic ?? [])
-    .filter((r) => r.link?.startsWith('http'))
-    .map((r) => ({
-      title: r.title ?? '',
-      url: r.link!,
-      snippet: r.snippet ?? '',
-      date: r.date,
-    }));
+async function adaptProvider(provider: WebSearchProvider, query: string): Promise<SearchQueryResult> {
+  const result: WebSearchResult = await provider(query);
+  if (isWebSearchError(result)) return result;
+  return result.map((r) => ({
+    title: r.title,
+    url: r.url,
+    snippet: r.snippet,
+    date: r.date,
+  }));
 }
+
+const serperSearch: SearchProvider = (query) => adaptProvider(sharedSerperSearch, query);
 
 function stationSearchLabel(name: string): string {
   return name
@@ -91,7 +78,7 @@ export function buildSearchQueries(suite: import('./types').CustodySuite): strin
 }
 
 export function isSerperConfigured(): boolean {
-  return Boolean(process.env.SERPER_API_KEY?.trim());
+  return isWebSearchConfigured();
 }
 
 export async function searchForSuite(
@@ -122,4 +109,4 @@ export async function searchForSuite(
   return results;
 }
 
-export { serperSearch };
+export { serperSearch, getDefaultWebSearchProvider };

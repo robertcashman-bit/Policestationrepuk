@@ -56,6 +56,8 @@ export const FORCE_CUSTODY_PAGES: Record<string, string[]> = {
   'humberside police': ['https://www.humberside.police.uk/contact/custody-information'],
   'north yorkshire police': ['https://www.northyorkshire.police.uk/contact/custody-information'],
   'city of london police': ['https://www.cityoflondon.police.uk/contact/'],
+  'gwent police': ['https://www.gwent.police.uk/contact/'],
+  'west mercia police': ['https://www.westmercia.police.uk/contact/'],
 };
 
 function htmlToText(html: string): string {

@@ -43,4 +43,13 @@ describe('vercel.json cron routes', () => {
     expect(byPath.get('/api/cron/automation-healthcheck')).toBe('15 7 * * *');
     expect(byPath.get('/api/cron/automation-watchdog')).toBe('20 * * * *');
   });
+
+  it('schedules station-contact-research weekly (disabled by env flag)', () => {
+    const vercel = JSON.parse(
+      readFileSync(join(ROOT, 'vercel.json'), 'utf8'),
+    ) as { crons?: Array<{ path: string; schedule: string }> };
+    const byPath = new Map((vercel.crons ?? []).map((c) => [c.path, c.schedule]));
+    expect(byPath.get('/api/cron/station-contact-research')).toBe('30 5 * * 2');
+    expect(byPath.get('/api/cron/custody-discovery-outstanding')).toBe('15 19 * * *');
+  });
 });

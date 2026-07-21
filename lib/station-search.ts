@@ -1,5 +1,6 @@
 import type { PoliceStation } from '@/lib/types';
 import { levenshtein } from '@/lib/rep-search';
+import { normalizePhoneDigits } from '@/lib/phone-format';
 import { isDialablePhone } from '@/lib/station-phone-dialable';
 import {
   isAlwaysPublishableForceContact,
@@ -100,16 +101,12 @@ const SWITCHBOARD_NUMBERS = new Set([
 const GENERIC_NUMBERS = new Set(['101', '0800 40 50 40']);
 
 /* ------------------------------------------------------------------ */
-/*  Phone normalisation                                                */
-/*  Strip spaces/punctuation and normalise +44 / 0044 to a leading 0   */
-/*  so format variants match the switchboard/generic sets.             */
+/*  Phone normalisation — canonical implementation is phone-format.ts  */
 /* ------------------------------------------------------------------ */
 
+/** @deprecated Prefer `normalizePhoneDigits` from `@/lib/phone-format`. */
 export function normalizePhone(value: string): string {
-  let t = value.trim().replace(/\s+/g, '');
-  if (t.startsWith('+44')) t = '0' + t.slice(3);
-  else if (t.startsWith('0044')) t = '0' + t.slice(4);
-  return t.replace(/\D/g, '');
+  return normalizePhoneDigits(value);
 }
 
 const SWITCHBOARD_NUMBERS_NORM = new Set(

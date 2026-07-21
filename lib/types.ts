@@ -166,6 +166,10 @@ export interface PoliceStation {
           secondarySourceUrl?: string;
           dateVerified?: string;
           notes?: string;
+          manualLock?: boolean;
+          lockedAt?: string;
+          lockedBy?: string;
+          lockedReason?: string;
         }
       >
     >;

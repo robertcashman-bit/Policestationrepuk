@@ -20,11 +20,15 @@ finalizeStations() → public station pages + directory
 
 Community forms (`/UpdateStation`, `/contribute-custody-numbers`) queue to separate admin paths with the same publish gate.
 
+Continuous main-line research (Phases 4–7): [station-research-ops.md](./station-research-ops.md) — disabled + dry-run by default.
+
 ## Cron jobs
 
 | Schedule | Route | Purpose |
 |----------|-------|---------|
 | Every 6 hours | `/api/cron/custody-number-discovery` | Seed official JSON, crawl suites, AI review, digest |
+| Daily 19:00 UTC | `/api/cron/custody-discovery-digest` | New-findings or auto-approve digest email |
+| Daily 19:15 UTC | `/api/cron/custody-discovery-outstanding` | Full open-queue backlog digest |
 | Mondays 04:00 UTC | `/api/cron/station-contact-health` | Metrics snapshot only (never publishes) |
 
 Auth: `Authorization: Bearer $CRON_SECRET`

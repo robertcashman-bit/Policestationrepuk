@@ -70,6 +70,8 @@
     "test:ci:audit": "npm run audit:site",
     "ci:fix": "bash scripts/ci-autofix.sh",
     "custody:discover": "npx tsx scripts/run-custody-discovery.ts",
+    "station-research": "npx tsx scripts/run-station-contact-research.ts",
+    "station-research:force": "npx tsx scripts/run-station-contact-research.ts --force",
     "custody:setup": "node scripts/setup-custody-discovery.mjs",
     "custody:seed": "npx tsx scripts/seed-custody-discovery.ts",
     "custody:ai-review": "npx tsx scripts/review-custody-findings-ai.ts",

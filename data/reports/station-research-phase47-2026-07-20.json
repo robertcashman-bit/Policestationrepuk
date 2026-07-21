@@ -1,0 +1,32 @@
+{
+  "generatedAt": "2026-07-21T06:44:23.119Z",
+  "phase": "phases-4-7-implementation",
+  "note": "Post Phase 4–7 scaffold. Research flags remain OFF/dry-run. No bulk publication performed.",
+  "beforeAfter": {
+    "stations": 896,
+    "dialablePhone": 773,
+    "dialableCustodyPhone": 22,
+    "custodyStations": 95,
+    "phoneVerified": 256,
+    "phoneUnverified": 616,
+    "phoneWithSourceUrl": 256
+  },
+  "newCapabilities": [
+    "force source registry",
+    "web search provider abstraction (serper/brave/bing)",
+    "safe allowlisted fetch",
+    "main-line research pipeline (dry-run)",
+    "confidence + autonomy decisions",
+    "priority + next-recheck scheduling",
+    "admin research candidate API",
+    "weekly research cron (no-op until enabled)",
+    "data.police.uk force list helper"
+  ],
+  "remainingRisks": [
+    "616 unverified main phones still lack provenance",
+    "auto-publish for main lines deferred to admin",
+    "PDF/OCR not implemented in v1",
+    "Scotland/PSNI/port forces not in stations.json",
+    "preview vs prod KV discipline still operator-owned"
+  ]
+}

@@ -121,4 +121,28 @@ describe('cron route auth smoke', () => {
     const json = await res.json();
     expect(json.error).toBe('custody_env_invalid');
   });
+
+  it('station-contact-research returns 401 without cron secret in production', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.CRON_SECRET = 'test-secret';
+    const { GET } = await import('@/app/api/cron/station-contact-research/route');
+    const res = await GET(new Request('http://localhost/api/cron/station-contact-research'));
+    expect(res.status).toBe(401);
+  });
+
+  it('station-contact-research skips when research disabled', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.CRON_SECRET = 'test-secret';
+    delete process.env.STATION_RESEARCH_ENABLED;
+    vi.resetModules();
+    const { GET } = await import('@/app/api/cron/station-contact-research/route');
+    const res = await GET(
+      new Request('http://localhost/api/cron/station-contact-research', {
+        headers: { authorization: 'Bearer test-secret' },
+      }),
+    );
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.skipped).toBe(true);
+  });
 });

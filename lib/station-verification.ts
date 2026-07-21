@@ -16,6 +16,14 @@ export interface FieldVerification {
   sourceUrl?: string;
   dateVerified?: string;
   notes?: string;
+  /**
+   * When true, automated pipelines must not change this field value or status
+   * without an explicit admin unlock. Community forms still queue for review.
+   */
+  manualLock?: boolean;
+  lockedAt?: string;
+  lockedBy?: string;
+  lockedReason?: string;
 }
 
 export type StationVerificationFieldKey =
@@ -121,6 +129,18 @@ export function getStationVerificationRecord(
 ): StationVerificationRecord | null {
   const key = stationVerificationKey(station);
   return file[key] ?? null;
+}
+
+/** True when automated writers must not change this field without admin unlock. */
+export function isFieldManuallyLocked(
+  station: PoliceStation | { id?: string; stationId?: string; slug: string; verificationMeta?: PoliceStation['verificationMeta'] },
+  field: StationVerificationFieldKey,
+  file: StationVerificationFile = loadStationVerification(),
+): boolean {
+  const fromMeta = station.verificationMeta?.fields?.[field]?.manualLock;
+  if (fromMeta === true) return true;
+  const rec = getStationVerificationRecord(station as PoliceStation, file);
+  return rec?.fields?.[field]?.manualLock === true;
 }
 
 export function applyStationVerificationMeta(

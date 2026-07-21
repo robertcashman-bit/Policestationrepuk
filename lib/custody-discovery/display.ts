@@ -23,8 +23,11 @@ export function custodyFallbackMessage(station: PoliceStation): string {
 }
 
 /**
- * Public custody phone display — only admin-approved discovery numbers or
- * other verified custody lines are shown as dialable custody numbers.
+ * Internal custody display state (verified / unverified / 101 fallback).
+ *
+ * Public pages and directory UI must use `getCustodyPublicDisplay` from
+ * `@/lib/station-contacts/publish` — that applies the publish gate and the
+ * “Not publicly published” copy. This helper only classifies state.
  */
 export function getCustodyPhoneDisplay(station: PoliceStation): CustodyPhoneDisplay {
   const discovery = station.verificationMeta?.custodyDiscovery;

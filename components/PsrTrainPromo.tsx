@@ -150,6 +150,9 @@ export function PsrTrainPromo({
             <AdvertisementLabel variant="gold" label="Partner" />
             <h3 className="mt-2 text-lg font-bold text-[var(--navy)]">{PSRTRAIN_HEADLINE}</h3>
             <p className="mt-1 text-sm text-[var(--muted)]">{PSRTRAIN_SUBHEAD}</p>
+            {showFreeTesting && (
+              <p className="mt-2 text-xs font-medium text-emerald-700">{PSRTRAIN_FREE_TESTING_NOTE}</p>
+            )}
           </div>
           <PsrTrainOutboundLink href={href} campaign={placement} className="btn-gold shrink-0 no-underline">
             {PSRTRAIN_CTA}

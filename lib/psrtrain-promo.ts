@@ -21,9 +21,10 @@ export const PSRTRAIN_SUBHEAD =
   'Interactive practice on a partner platform — timed MCQs, learning modules, and scenario training aligned with PACE.';
 export const PSRTRAIN_DISCLAIMER =
   'Training guidance only — completion does not confer PSRAS accreditation.';
-export const PSRTRAIN_FREE_TESTING_NOTE = 'Free access whilst testing on psrtrain.com';
-export const PSRTRAIN_CTA = 'Try PSR Train';
-export const PSRTRAIN_CTA_START = 'Start training';
+export const PSRTRAIN_FREE_TESTING_NOTE =
+  'Free access whilst we’re testing on psrtrain.com — no card required';
+export const PSRTRAIN_CTA = 'Try PSR Train free';
+export const PSRTRAIN_CTA_START = 'Start training free';
 
 export const PSRTRAIN_BULLETS = [
   'Timed MCQ practice with instant feedback',

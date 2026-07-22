@@ -20,11 +20,9 @@ import { directoryHrefForAreaName } from '@/lib/county-links';
 import { legalDirectoryHrefForAreaName } from '@/lib/legal-directory/area-links';
 import { LEGAL_DIRECTORY_BASE } from '@/lib/legal-directory/constants';
 import {
+  CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DISCOUNT_CODE,
-  CUSTODYNOTE_MEMBER_PRICE_GBP,
-  CUSTODYNOTE_PLATFORM_LINE,
-  CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
 
@@ -275,8 +273,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
                   </p>
                   <h3 className="mt-1 font-bold text-[var(--navy)]">{CUSTODYNOTE_BRAND_NAME}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/85">
-                    Free during beta · Pro after beta £{CUSTODYNOTE_PRICE_GBP}/mo · members ~£{CUSTODYNOTE_MEMBER_PRICE_GBP} with{' '}
-                    <span className="font-mono font-bold">{CUSTODYNOTE_DISCOUNT_CODE}</span>.
+                    {CUSTODYNOTE_FREE_LABEL}. {CUSTODYNOTE_BETA_REASON}
                   </p>
                   <a
                     href={CUSTODYNOTE_TRIAL_HREF}

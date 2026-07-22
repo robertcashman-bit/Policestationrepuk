@@ -1,12 +1,10 @@
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import {
+  CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DISCOUNT_CODE,
-  CUSTODYNOTE_DISCOUNT_PCT,
-  CUSTODYNOTE_MEMBER_PRICE_GBP,
+  CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_PLATFORM_LINE,
-  CUSTODYNOTE_PRICE_GBP,
   CUSTODYNOTE_DOWNLOAD_HREF,
 } from '@/lib/custodynote-promo';
 import { POLICESTATIONAGENT_HOME_HREF } from '@/lib/policestationagent-promo';
@@ -64,11 +62,8 @@ export default function AdvertisingPage() {
                   Desktop attendance note software for criminal defence solicitors and accredited
                   police station representatives. Available for {CUSTODYNOTE_PLATFORM_LINE.toLowerCase()}.
                   Developed by Defence Legal Services Ltd (trading as
-                  Police Station Agent). Headline pricing: free during beta, Pro £{CUSTODYNOTE_PRICE_GBP}/month,
-                  with 6-month and annual options at checkout. PoliceStationRepUK readers pay ~£
-                  {CUSTODYNOTE_MEMBER_PRICE_GBP}/month using code{' '}
-                  <span className="font-mono font-semibold text-[var(--navy)]">{CUSTODYNOTE_DISCOUNT_CODE}</span>{' '}
-                  ({CUSTODYNOTE_DISCOUNT_PCT}% off).
+                  Police Station Agent). Currently promoted as {CUSTODYNOTE_FREE_LABEL} —{' '}
+                  {CUSTODYNOTE_BETA_REASON} Paid plans are not the focus of current promotions.
                 </p>
                 <p className="mt-2 text-xs text-[var(--muted)]">
                   Website:{' '}

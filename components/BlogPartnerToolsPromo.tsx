@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_MEMBER_PRICE_GBP,
   CUSTODYNOTE_DOWNLOAD_CTA,
   CUSTODYNOTE_PROMO_PRICE_LINE,
   CUSTODYNOTE_TRIAL_HREF,
@@ -26,7 +25,7 @@ export function BlogPartnerToolsPromo({ className = '' }: { className?: string }
           <h3 className="mt-1 text-base font-bold">{CUSTODYNOTE_BRAND_NAME}</h3>
           <p className="mt-2 text-xs leading-relaxed text-slate-200">{INLINE_CTA_HEADLINE}</p>
           <p className="mt-2 text-[11px] text-white/80">
-            {CUSTODYNOTE_PROMO_PRICE_LINE} · PSR UK readers ~£{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo
+            {CUSTODYNOTE_PROMO_PRICE_LINE} — free while we test
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <a

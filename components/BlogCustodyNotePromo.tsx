@@ -1,11 +1,9 @@
 import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DISCOUNT_CODE,
   CUSTODYNOTE_DOWNLOAD_CTA,
   CUSTODYNOTE_FREE_LABEL,
-  CUSTODYNOTE_MEMBER_PRICE_GBP,
-  CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
 
@@ -41,15 +39,9 @@ export function BlogCustodyNotePromo({ className }: { className?: string }) {
       </p>
 
       <div className="mt-4 rounded-lg border border-[var(--gold)]/40 bg-black/20 px-4 py-3 text-sm text-white">
-        <span className="font-bold text-white">Free during beta</span>
+        <span className="font-bold text-white">{CUSTODYNOTE_FREE_LABEL}</span>
         <span className="mx-2 text-white/40">·</span>
-        <span className="font-bold text-white">Pro £{CUSTODYNOTE_PRICE_GBP}/mo</span>
-        <span className="mx-2 text-white/40">·</span>
-        <span className="font-bold text-[var(--gold)]">PSR UK readers ~£{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo</span>{' '}
-        <span className="text-slate-200">with code</span>{' '}
-        <span className="rounded bg-[var(--gold)] px-1.5 py-0.5 font-mono text-xs font-bold text-[var(--navy)]">
-          {CUSTODYNOTE_DISCOUNT_CODE}
-        </span>
+        <span className="text-slate-200">{CUSTODYNOTE_BETA_REASON}</span>
       </div>
 
       <div className="mt-5 flex flex-wrap gap-3">

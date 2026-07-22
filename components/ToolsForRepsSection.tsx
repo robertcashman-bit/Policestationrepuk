@@ -2,10 +2,7 @@ import Link from 'next/link';
 import {
   CUSTODYNOTE_APPS_LINE,
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DISCOUNT_CODE,
   CUSTODYNOTE_DOWNLOAD_APPS_CTA,
-  CUSTODYNOTE_MEMBER_PRICE_GBP,
-  CUSTODYNOTE_PRICE_GBP,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
 import {
@@ -59,14 +56,9 @@ export function ToolsForRepsSection() {
                 </li>
               </ul>
               <div className="mt-5 rounded-lg border border-[var(--gold)]/40 bg-black/25 px-4 py-3 text-sm">
-                <p className="text-white">
-                  Free during beta · Pro <span className="font-bold">£{CUSTODYNOTE_PRICE_GBP}/mo</span>
-                </p>
+                <p className="font-semibold text-white">Free during beta</p>
                 <p className="mt-1 text-[var(--gold)]">
-                  PSR UK readers £{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
-                  <span className="rounded bg-[var(--gold)] px-1.5 py-0.5 font-mono text-xs font-bold text-[var(--navy)]">
-                    {CUSTODYNOTE_DISCOUNT_CODE}
-                  </span>
+                  In beta — free while we test. No credit card.
                 </p>
               </div>
               <div className="mt-5 flex flex-wrap gap-3">

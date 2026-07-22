@@ -63,7 +63,7 @@ const SITE_INTENT_ENTRIES: AssistantEntry[] = [
     id: 'site-custody-note',
     question: 'What is Custody Note attendance note software?',
     answer:
-      'Custody Note is desktop software for structured police station attendance notes on Windows and Mac. Free during beta for note-taking; Pro from £9.99/mo. See our Custody Note page for features and pricing.',
+      'Custody Note is desktop software for structured police station attendance notes on Windows and Mac. Free during beta while we test with real police station work. See our Custody Note page for features and download.',
     category: 'Tools',
     href: '/CustodyNote',
     keywords: ['custody note', 'custodynote', 'attendance note', 'note software', 'digital notes', 'pace notes'],

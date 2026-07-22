@@ -3,8 +3,6 @@ import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import {
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DISCOUNT_CODE,
-  CUSTODYNOTE_DISCOUNT_PCT,
   CUSTODYNOTE_DOWNLOAD_CTA,
   CUSTODYNOTE_DOWNLOAD_HREF,
   CUSTODYNOTE_CHECKLIST_HREF,
@@ -14,9 +12,7 @@ import {
   CUSTODYNOTE_DOWNLOAD_APPS_CTA,
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_BETA_REASON,
-  CUSTODYNOTE_MEMBER_PRICE_GBP,
   CUSTODYNOTE_PLATFORM_LINE,
-  CUSTODYNOTE_PRICE_GBP,
   CUSTODYNOTE_PRICING_HREF,
   CUSTODYNOTE_SHORT_DESCRIPTION,
   CUSTODYNOTE_TAGLINE,
@@ -33,9 +29,6 @@ export const metadata = buildMetadata({
 
 const CUSTODYNOTE_PRICING = CUSTODYNOTE_PRICING_HREF;
 const CUSTODYNOTE_DOWNLOAD = CUSTODYNOTE_DOWNLOAD_HREF;
-const DISCOUNT_CODE = CUSTODYNOTE_DISCOUNT_CODE;
-const SUBSCRIPTION_GBP = CUSTODYNOTE_PRICE_GBP;
-const MEMBER_GBP = CUSTODYNOTE_MEMBER_PRICE_GBP;
 const APP_VERSION = CUSTODYNOTE_VERSION;
 
 const RECORD_TYPES = [
@@ -245,8 +238,7 @@ export default function CustodyNotePage() {
               {CUSTODYNOTE_FREE_LABEL}
             </p>
             <p className="mt-2 text-sm text-white/85">
-              {CUSTODYNOTE_BETA_REASON} No credit card. Paid Pro (planned ~£
-              {SUBSCRIPTION_GBP}/mo) comes after beta.
+              {CUSTODYNOTE_BETA_REASON} No credit card required.
             </p>
           </div>
 
@@ -533,7 +525,7 @@ export default function CustodyNotePage() {
                 {CUSTODYNOTE_FREE_LABEL}
               </p>
               <p className="mt-2 text-center text-sm text-[var(--muted)]">
-                No credit card · Pro planned after beta (~£{SUBSCRIPTION_GBP}/mo)
+                No credit card · {CUSTODYNOTE_BETA_REASON}
               </p>
               <ul className="mt-6 space-y-3">
                 {PRICING_FEATURES.map((pf) => (

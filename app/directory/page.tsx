@@ -17,11 +17,10 @@ import { FeaturedListingFaq } from '@/components/FeaturedListingFaq';
 import { LegalDirectoryPromo } from '@/components/legal-directory/LegalDirectoryPromo';
 import {
   CUSTODYNOTE_APPS_LINE,
+  CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DISCOUNT_CODE,
   CUSTODYNOTE_DOWNLOAD_APPS_CTA,
-  CUSTODYNOTE_MEMBER_PRICE_GBP,
-  CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
 
@@ -197,9 +196,7 @@ export default async function DirectoryPage() {
                 {CUSTODYNOTE_BRAND_NAME} — {CUSTODYNOTE_APPS_LINE}
               </p>
               <p className="mt-0.5 text-xs text-white/70">
-                Free during beta &middot; Pro &pound;{CUSTODYNOTE_PRICE_GBP}/mo &middot; PSR UK readers ~&pound;
-                {CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
-                <span className="font-mono font-semibold text-[var(--gold)]">{CUSTODYNOTE_DISCOUNT_CODE}</span>
+                {CUSTODYNOTE_FREE_LABEL} &middot; {CUSTODYNOTE_BETA_REASON}
               </p>
             </div>
           </div>

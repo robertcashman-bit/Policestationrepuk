@@ -3,13 +3,12 @@
 import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DISCOUNT_CODE,
   CUSTODYNOTE_APPS_LINE,
   CUSTODYNOTE_DOWNLOAD_APPS_CTA,
   CUSTODYNOTE_DOWNLOAD_HREF,
-  CUSTODYNOTE_MEMBER_PRICE_GBP,
   CUSTODYNOTE_PLATFORM_LINE,
-  CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_PROMO_PRICE_LINE,
+  CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
 import { PSRTRAIN_CTA, PSRTRAIN_FREE_TESTING_NOTE, PSRTRAIN_NAME, PSRTRAIN_TRAINING_HREF } from '@/lib/psrtrain-promo';
@@ -142,12 +141,9 @@ export function Footer() {
             <div className="rounded-lg border border-white/15 bg-black/20 p-4">
               <p className="text-sm font-bold text-white">{CUSTODYNOTE_BRAND_NAME} — at the station</p>
               <p className="mt-1 text-xs text-slate-200">
-                Structured custody notes, offline-first, PDF + LAA billing. Free forever · Pro £
-                {CUSTODYNOTE_PRICE_GBP}/mo · PSR UK readers ~£{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
-                <span className="rounded bg-[var(--gold)]/20 px-1.5 py-0.5 font-mono font-bold text-[var(--gold)]">
-                  {CUSTODYNOTE_DISCOUNT_CODE}
-                </span>
-                · {CUSTODYNOTE_PLATFORM_LINE}
+                Structured custody notes, offline-first, PDF + LAA billing.{' '}
+                {CUSTODYNOTE_PROMO_PRICE_LINE} — {CUSTODYNOTE_BETA_REASON} ·{' '}
+                {CUSTODYNOTE_PLATFORM_LINE}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <a
@@ -242,13 +238,8 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-bold text-white">{CUSTODYNOTE_BRAND_NAME} — PACE attendance note software</h4>
             <p className="mt-1 text-xs text-white">
-              PACE-aligned notes, offline-first, PDF + LAA billing, AES-256 encryption. £
-              Free forever · Pro £{CUSTODYNOTE_PRICE_GBP}/mo. PSR UK readers ~£
-              {CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
-              <span className="rounded bg-[var(--gold)]/20 px-1.5 py-0.5 font-mono font-bold text-[var(--gold)]">
-                {CUSTODYNOTE_DISCOUNT_CODE}
-              </span>
-              .
+              PACE-aligned notes, offline-first, PDF + LAA billing, AES-256 encryption.{' '}
+              {CUSTODYNOTE_PROMO_PRICE_LINE} — {CUSTODYNOTE_BETA_REASON}
             </p>
             <a
               href={CUSTODYNOTE_TRIAL_HREF}

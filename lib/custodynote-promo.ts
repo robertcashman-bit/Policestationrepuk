@@ -32,7 +32,7 @@ export const CUSTODYNOTE_APPS_LINE = 'Native desktop apps for Windows PC and Mac
 export const CUSTODYNOTE_PLATFORM_LINE =
   'Windows 10+ and macOS 11+ (Apple Silicon and Intel)';
 
-/** Headline Pro subscription price as advertised on custodynote.com. */
+/** Planned Pro price after beta (GBP). */
 export const CUSTODYNOTE_PRICE_GBP = '9.99';
 /** Discounted Pro price for PSR UK readers using the member code (9.99 × 0.80 ≈ 7.99). */
 export const CUSTODYNOTE_MEMBER_PRICE_GBP = '7.99';
@@ -40,14 +40,16 @@ export const CUSTODYNOTE_MEMBER_PRICE_GBP = '7.99';
 export const CUSTODYNOTE_DISCOUNT_CODE = 'A2MJY2NQ';
 export const CUSTODYNOTE_DISCOUNT_PCT = 20;
 
-/** Free tier label and CTAs — kept in one place so banners/CTAs cannot drift. */
-export const CUSTODYNOTE_FREE_LABEL = 'Free forever';
+/** Free tier label during public beta. */
+export const CUSTODYNOTE_FREE_LABEL = 'Free during beta';
 export const CUSTODYNOTE_TRIAL_LABEL = CUSTODYNOTE_FREE_LABEL;
 export const CUSTODYNOTE_TRIAL_CTA = 'Download Free';
 export const CUSTODYNOTE_DOWNLOAD_CTA = 'Download Free';
+export const CUSTODYNOTE_BETA_REASON =
+  "Custody Note is in beta — that's why it's free while we test with real police station work.";
 
 /** Reusable pricing line for promos and banners. */
-export const CUSTODYNOTE_PROMO_PRICE_LINE = `Free forever · Pro £${CUSTODYNOTE_PRICE_GBP}/mo`;
+export const CUSTODYNOTE_PROMO_PRICE_LINE = 'Free during beta';
 
 /** Short reusable phrases for headers / banners — aligned with custodynote.com product copy. */
 export const CUSTODYNOTE_TAGLINE =
@@ -57,7 +59,7 @@ export const CUSTODYNOTE_SHORT_DESCRIPTION =
   'Digital note-taking and workflow tool for criminal defence professionals attending police stations and managing pre-charge case preparation.';
 
 export const CUSTODYNOTE_MEMBER_DEAL =
-  `PSR UK readers pay ~£${CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code ${CUSTODYNOTE_DISCOUNT_CODE} (${CUSTODYNOTE_DISCOUNT_PCT}% off Pro)`;
+  `After beta, PSR UK readers ~£${CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code ${CUSTODYNOTE_DISCOUNT_CODE} (${CUSTODYNOTE_DISCOUNT_PCT}% off Pro)`;
 
 export const CUSTODYNOTE_DOWNLOAD_APPS_CTA = 'Download for Windows & Mac';
 
@@ -65,10 +67,10 @@ export const CUSTODYNOTE_APPS_DETAIL =
   'Install on your Windows PC or Mac (Apple Silicon and Intel). Signed Mac builds, automatic updates on both platforms.';
 
 export const TOP_BANNER_TEXT =
-  'Custody Note for Windows PC & Mac — structured attendance notes, free forever';
+  'Custody Note for Windows PC & Mac — in beta, free while we test';
 
 /** Shorter line for narrow phone screens (full text from `TOP_BANNER_TEXT` on sm+). */
-export const TOP_BANNER_TEXT_MOBILE = 'Custody Note — free forever';
+export const TOP_BANNER_TEXT_MOBILE = 'Custody Note — free during beta';
 
 export const INLINE_CTA_HEADLINE = 'Stop rewriting custody notes at 2am';
 export const INLINE_CTA_BULLETS = [

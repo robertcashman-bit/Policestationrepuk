@@ -5,9 +5,8 @@ import { usePathname } from 'next/navigation';
 import { PartnerOutboundLink } from '@/components/PartnerOutboundLink';
 import {
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DISCOUNT_CODE,
-  CUSTODYNOTE_MEMBER_PRICE_GBP,
-  CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_BETA_REASON,
+  CUSTODYNOTE_PROMO_PRICE_LINE,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
 import {
@@ -55,11 +54,7 @@ export function SiteWidePromoStrip() {
               built in.
             </p>
             <p className="mt-3 text-xs font-semibold text-[var(--navy)]">
-              Free forever · Pro £{CUSTODYNOTE_PRICE_GBP}/mo · PSR UK readers ~£
-              {CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
-              <span className="rounded bg-[var(--gold)]/15 px-1.5 py-0.5 font-mono font-bold text-[var(--navy)]">
-                {CUSTODYNOTE_DISCOUNT_CODE}
-              </span>
+              {CUSTODYNOTE_PROMO_PRICE_LINE} — {CUSTODYNOTE_BETA_REASON}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <PartnerOutboundLink

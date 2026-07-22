@@ -161,7 +161,7 @@ export const LINKS_HUB_SECTIONS: LinksHubSection[] = [
       {
         href: CUSTODYNOTE_TRIAL_HREF,
         label: 'Custody Note',
-        description: 'Structured custody attendance notes — free forever · Pro £9.99/mo.',
+        description: 'Structured custody attendance notes — free during beta · Pro £9.99/mo.',
         external: true,
       },
       {

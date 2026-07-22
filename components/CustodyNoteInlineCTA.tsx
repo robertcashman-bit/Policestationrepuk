@@ -33,7 +33,7 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
           ))}
         </ul>
         <p className="mt-3 text-[11px] text-white/85">
-          Free forever · Windows PC &amp; Mac · Pro £{CUSTODYNOTE_PRICE_GBP}/mo · PSR UK readers ~£
+          Free during beta · Windows PC &amp; Mac · Pro £{CUSTODYNOTE_PRICE_GBP}/mo · PSR UK readers ~£
           {CUSTODYNOTE_MEMBER_PRICE_GBP} with code{' '}
           <span className="rounded bg-[var(--gold)]/20 px-1 font-mono text-[var(--gold)]">
             {CUSTODYNOTE_DISCOUNT_CODE}
@@ -85,7 +85,7 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
           ))}
         </ul>
         <div className="mt-5 inline-flex flex-wrap items-center gap-2 rounded-lg border border-[var(--gold)]/30 bg-black/20 px-3 py-2 text-xs text-white sm:text-sm">
-          <span className="font-bold">Free forever</span>
+          <span className="font-bold">Free during beta</span>
           <span className="text-white/40">·</span>
           <span className="font-bold">Pro £{CUSTODYNOTE_PRICE_GBP}/mo</span>
           <span className="text-white/40">·</span>

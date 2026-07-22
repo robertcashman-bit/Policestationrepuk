@@ -4,11 +4,10 @@ import {
   CUSTODYNOTE_APPS_DETAIL,
   CUSTODYNOTE_APPS_LINE,
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DISCOUNT_CODE,
-  CUSTODYNOTE_DISCOUNT_PCT,
+  CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_DOWNLOAD_APPS_CTA,
-  CUSTODYNOTE_MEMBER_PRICE_GBP,
-  CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_FREE_LABEL,
+  CUSTODYNOTE_PROMO_PRICE_LINE,
   CUSTODYNOTE_PRICING_HREF,
   CUSTODYNOTE_TAGLINE,
   CUSTODYNOTE_TRIAL_HREF,
@@ -52,28 +51,14 @@ export function HomeCustodyNote() {
 
             <div className="mt-8 rounded-xl border-2 border-[var(--gold)]/40 bg-[var(--gold)]/10 px-6 py-5">
               <p className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">
-                Free forever · Pro from £{CUSTODYNOTE_PRICE_GBP}/mo
+                {CUSTODYNOTE_PROMO_PRICE_LINE}
               </p>
               <p className="mt-2 text-2xl font-extrabold leading-tight text-white sm:text-3xl">
-                £{CUSTODYNOTE_PRICE_GBP}
-                <span className="text-base font-medium text-white/80">/month</span>
-                <span className="mx-2 text-white/40">·</span>
-                <span className="text-[var(--gold)]">
-                  £{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo for PSR UK readers
-                </span>
+                {CUSTODYNOTE_FREE_LABEL}
               </p>
               <p className="mt-1 text-sm text-white/80">
-                Cancel anytime. Save more with 6-month or annual billing at checkout.
+                {CUSTODYNOTE_BETA_REASON} No credit card required.
               </p>
-            </div>
-
-            <div className="mt-5 inline-flex max-w-full flex-wrap items-center justify-center gap-2 rounded-full border-2 border-[var(--gold)]/60 bg-black/30 px-5 py-2.5 text-sm font-semibold text-white">
-              <span aria-hidden>🎁</span>
-              {CUSTODYNOTE_DISCOUNT_PCT}% off for PSR UK readers — use code{' '}
-              <span className="rounded bg-[var(--gold)] px-2 py-0.5 font-mono font-bold text-[var(--navy)]">
-                {CUSTODYNOTE_DISCOUNT_CODE}
-              </span>{' '}
-              at checkout on custodynote.com
             </div>
 
             <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">

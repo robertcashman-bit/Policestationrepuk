@@ -41,7 +41,7 @@ export function BlogCustodyNotePromo({ className }: { className?: string }) {
       </p>
 
       <div className="mt-4 rounded-lg border border-[var(--gold)]/40 bg-black/20 px-4 py-3 text-sm text-white">
-        <span className="font-bold text-white">Free forever</span>
+        <span className="font-bold text-white">Free during beta</span>
         <span className="mx-2 text-white/40">·</span>
         <span className="font-bold text-white">Pro £{CUSTODYNOTE_PRICE_GBP}/mo</span>
         <span className="mx-2 text-white/40">·</span>

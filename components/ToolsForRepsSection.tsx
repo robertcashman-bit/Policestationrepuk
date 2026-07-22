@@ -60,7 +60,7 @@ export function ToolsForRepsSection() {
               </ul>
               <div className="mt-5 rounded-lg border border-[var(--gold)]/40 bg-black/25 px-4 py-3 text-sm">
                 <p className="text-white">
-                  Free forever · Pro <span className="font-bold">£{CUSTODYNOTE_PRICE_GBP}/mo</span>
+                  Free during beta · Pro <span className="font-bold">£{CUSTODYNOTE_PRICE_GBP}/mo</span>
                 </p>
                 <p className="mt-1 text-[var(--gold)]">
                   PSR UK readers £{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}

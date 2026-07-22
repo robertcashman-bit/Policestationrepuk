@@ -595,7 +595,7 @@ export default function CustodyNotePage() {
             rel="noopener noreferrer"
             className="btn-gold inline-flex min-h-[44px] items-center no-underline"
           >
-            Download Free 30-Day Trial →
+            Download Free →
           </a>
           <a
             href={CUSTODYNOTE_PRICING}
@@ -603,11 +603,11 @@ export default function CustodyNotePage() {
             rel="noopener noreferrer"
             className="btn-outline inline-flex min-h-[44px] items-center !border-white !text-white no-underline hover:!bg-white hover:!text-[var(--navy)]"
           >
-            View pricing & trial →
+            Upgrade to Pro — £{SUBSCRIPTION_GBP}/mo →
           </a>
         </div>
         <p className="mt-3 text-xs text-[var(--muted)]">
-          No credit card for trial · {CUSTODYNOTE_PLATFORM_LINE} · £{SUBSCRIPTION_GBP}/mo (PSR UK £{MEMBER_GBP}/mo) · Cancel any time · v{APP_VERSION}
+          Free forever on core features · No credit card to start · {CUSTODYNOTE_PLATFORM_LINE} · Pro £{SUBSCRIPTION_GBP}/mo (PSR UK £{MEMBER_GBP}/mo) · Cancel any time · v{APP_VERSION}
         </p>
       </section>
 

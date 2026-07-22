@@ -13,8 +13,9 @@ const ROOT = path.join(__dirname, '..');
 const REPLACEMENTS = [
   [/CustodyNote/g, 'Custody Note'],
   [/Version 1\.4\.\d+/g, 'Version 1.9.11'],
-  [/Windows 10\+ · From £15\.99\/mo/g, 'Windows 10+ and macOS 11+ · From £15.99/mo'],
-  [/No credit card for trial · Windows 10\+ ·/g, 'No credit card for trial · Windows 10+ and macOS 11+ ·'],
+  [/Windows 10\+ · From £15\.99\/mo/g, 'Windows 10+ and macOS 11+ · Free forever · Pro £9.99/mo'],
+  [/From £15\.99\/mo/g, 'Free forever · Pro £9.99/mo'],
+  [/No credit card for trial · Windows 10\+ ·/g, 'No credit card to start · Windows 10+ and macOS 11+ ·'],
   [/in one Windows app/g, 'on Windows and Mac'],
   [/one Windows app/g, 'Windows and Mac desktop apps'],
   [/Custody Note Anywhere[^\n]*/gi, 'Custody Note for Windows PC and Mac — download at custodynote.com/download'],
@@ -23,12 +24,15 @@ const REPLACEMENTS = [
   [/one Windows app/gi, 'Windows PC and Mac desktop apps'],
   [
     /try Custody Note free for 30 days PSR UK readers £11\.99\/mo · code A2MJY2NQ/g,
-    'try Custody Note free for 30 days — download for Windows and Mac at custodynote.com/download',
+    'download Custody Note free forever — Pro £9.99/mo · PSR UK ~£7.99 with code A2MJY2NQ',
   ],
   [
     /Write structured PACE custody notes in 3 minutes — try Custody Note free for 30 days/g,
-    'Structured custody attendance notes for criminal defence work — try Custody Note free for 30 days',
+    'Structured custody attendance notes for criminal defence work — free forever on core features',
   ],
+  [/Start 30-Day Free Trial/g, 'Download free'],
+  [/30-Day Free Trial/g, 'Free forever'],
+  [/free 30-day trial/gi, 'free forever on core features'],
 ];
 
 const DEDICATED_MIRROR_PATHS = new Set(['/CustodyNote', '/custodynote']);

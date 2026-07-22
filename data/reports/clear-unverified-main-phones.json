@@ -1,0 +1,372 @@
+{
+  "generatedAt": "2026-07-22T12:49:41.020Z",
+  "mode": "write",
+  "clearedCount": 615,
+  "keptPublishedCount": 157,
+  "samples": [
+    {
+      "id": "68af781484b8f00da0b8db1a",
+      "name": "Norwich Police Station",
+      "slug": "norwich-police-station",
+      "force": "British Transport Police",
+      "phone": "01603 675496"
+    },
+    {
+      "id": "68af781484b8f00da0b8db08",
+      "name": "Reading Police Station",
+      "slug": "reading-police-station",
+      "force": "British Transport Police",
+      "phone": "0118 957 2022"
+    },
+    {
+      "id": "68af781484b8f00da0b8db19",
+      "name": "Cambridge Police Station",
+      "slug": "cambridge-police-station",
+      "force": "British Transport Police",
+      "phone": "01223 352031"
+    },
+    {
+      "id": "68af781484b8f00da0b8db0c",
+      "name": "Peterborough Police Station",
+      "slug": "peterborough-police-station",
+      "force": "British Transport Police",
+      "phone": "01223 536153"
+    },
+    {
+      "id": "68af781484b8f00da0b8db17",
+      "name": "Exeter St Davids Police Station",
+      "slug": "exeter-st-davids-police-station",
+      "force": "British Transport Police",
+      "phone": "01392 433 500"
+    },
+    {
+      "id": "68af781484b8f00da0b8db10",
+      "name": "Preston Police Station",
+      "slug": "preston-police-station",
+      "force": "British Transport Police",
+      "phone": "01772 236000"
+    },
+    {
+      "id": "68af781484b8f00da0b8daff",
+      "name": "Manchester Piccadilly Police Station",
+      "slug": "manchester-piccadilly-police-station",
+      "force": "British Transport Police",
+      "phone": "0161 832 5000"
+    },
+    {
+      "id": "68af781484b8f00da0b8db02",
+      "name": "Edinburgh Waverley Police Station",
+      "slug": "edinburgh-waverley-police-station",
+      "force": "British Transport Police",
+      "phone": "0131 556 3931"
+    },
+    {
+      "id": "68af781484b8f00da0b8db12",
+      "name": "Aberdeen Police Station",
+      "slug": "aberdeen-police-station",
+      "force": "British Transport Police",
+      "phone": "01224 328001"
+    },
+    {
+      "id": "68af781484b8f00da0b8db1b",
+      "name": "Ministry of Defence Headquarters",
+      "slug": "ministry-of-defence-headquarters",
+      "force": "Ministry of Defence Police",
+      "phone": "01371 854000"
+    },
+    {
+      "id": "68af781484b8f00da0b8db03",
+      "name": "Bristol Temple Meads Police Station",
+      "slug": "bristol-temple-meads-police-station",
+      "force": "British Transport Police",
+      "phone": "0117 927 7222"
+    },
+    {
+      "id": "68af781484b8f00da0b8db1c",
+      "name": "Civil Nuclear Constabulary Headquarters",
+      "slug": "civil-nuclear-constabulary-headquarters",
+      "force": "Civil Nuclear Constabulary",
+      "phone": "01235 466606"
+    },
+    {
+      "id": "68af781484b8f00da0b8db0b",
+      "name": "Sheffield Police Station",
+      "slug": "sheffield-police-station",
+      "force": "British Transport Police",
+      "phone": "0114 259 2001"
+    },
+    {
+      "id": "68af781484b8f00da0b8dafe",
+      "name": "Birmingham New Street Police Station",
+      "slug": "birmingham-new-street-police-station",
+      "force": "British Transport Police",
+      "phone": "0121 634 2040"
+    },
+    {
+      "id": "68af781484b8f00da0b8db14",
+      "name": "Swansea Police Station",
+      "slug": "swansea-police-station",
+      "force": "British Transport Police",
+      "phone": "01792 456 000"
+    },
+    {
+      "id": "68af781484b8f00da0b8dab5",
+      "name": "Swanage Police Station",
+      "slug": "swanage-police-station",
+      "force": "Dorset Police",
+      "phone": "01305 222 222"
+    },
+    {
+      "id": "68af781484b8f00da0b8dad9",
+      "name": "Sheerness Police Station",
+      "slug": "sheerness-police-station",
+      "force": "Kent Police",
+      "phone": "01795 477 111"
+    },
+    {
+      "id": "68af781484b8f00da0b8daa0",
+      "name": "Truro Police Station",
+      "slug": "truro-police-station",
+      "force": "Devon and Cornwall Police",
+      "phone": "01872 222020"
+    },
+    {
+      "id": "68af781484b8f00da0b8dae0",
+      "name": "Chichester Police Station",
+      "slug": "chichester-police-station",
+      "force": "Sussex Police",
+      "phone": "01243 785 999"
+    },
+    {
+      "id": "68af781484b8f00da0b8dab8",
+      "name": "Portsmouth Central Police Station",
+      "slug": "portsmouth-central-police-station",
+      "force": "Hampshire Constabulary",
+      "phone": "023 9282 6700"
+    },
+    {
+      "id": "68af781484b8f00da0b8dad8",
+      "name": "Tunbridge Wells Police Station",
+      "slug": "tunbridge-wells-police-station",
+      "force": "Kent Police",
+      "phone": "01892 533 333"
+    },
+    {
+      "id": "68af781484b8f00da0b8daa6",
+      "name": "Bideford Police Station",
+      "slug": "bideford-police-station",
+      "force": "Devon and Cornwall Police",
+      "phone": "01237 428700"
+    },
+    {
+      "id": "68af781484b8f00da0b8dadc",
+      "name": "Crawley Police Station",
+      "slug": "crawley-police-station",
+      "force": "Sussex Police",
+      "phone": "01293 564100"
+    },
+    {
+      "id": "68af781484b8f00da0b8daea",
+      "name": "Milton Keynes Police Station",
+      "slug": "milton-keynes-police-station",
+      "force": "Thames Valley Police",
+      "phone": "01908 276 999"
+    },
+    {
+      "id": "68af781484b8f00da0b8daa5",
+      "name": "Penzance Police Station",
+      "slug": "penzance-police-station",
+      "force": "Devon and Cornwall Police",
+      "phone": "01736 363200"
+    },
+    {
+      "id": "68af781484b8f00da0b8daaa",
+      "name": "Paignton Police Station",
+      "slug": "paignton-police-station",
+      "force": "Devon and Cornwall Police",
+      "phone": "01803 665 400"
+    },
+    {
+      "id": "68af781484b8f00da0b8dab7",
+      "name": "Basingstoke Police Station",
+      "slug": "basingstoke-police-station",
+      "force": "Hampshire Constabulary",
+      "phone": "01256 474 444"
+    },
+    {
+      "id": "68af781484b8f00da0b8daac",
+      "name": "Bournemouth Police Station",
+      "slug": "bournemouth-police-station",
+      "force": "Dorset Police",
+      "phone": "01202 222 222"
+    },
+    {
+      "id": "68af781484b8f00da0b8dac7",
+      "name": "Staines Police Station",
+      "slug": "staines-police-station",
+      "force": "Surrey Police",
+      "phone": "01784 451 212"
+    },
+    {
+      "id": "68af781484b8f00da0b8dace",
+      "name": "Medway Police Station",
+      "slug": "medway-police-station",
+      "force": "Kent Police",
+      "phone": "01634 792 000"
+    },
+    {
+      "id": "68af781484b8f00da0b8dab1",
+      "name": "Gillingham Police Station",
+      "slug": "gillingham-police-station",
+      "force": "Dorset Police",
+      "phone": "01202 222 222"
+    },
+    {
+      "id": "68af781484b8f00da0b8dabf",
+      "name": "Newport Police Station",
+      "slug": "newport-police-station",
+      "force": "Hampshire Constabulary",
+      "phone": "01983 526 581"
+    },
+    {
+      "id": "68af781484b8f00da0b8dad5",
+      "name": "Ashford Police Station",
+      "slug": "ashford-police-station",
+      "force": "Kent Police",
+      "phone": "01233 896 000"
+    },
+    {
+      "id": "68af781484b8f00da0b8dab3",
+      "name": "Wareham Police Station",
+      "slug": "wareham-police-station",
+      "force": "Dorset Police",
+      "phone": "01202 222 222"
+    },
+    {
+      "id": "68af781484b8f00da0b8dade",
+      "name": "Hastings Police Station",
+      "slug": "hastings-police-station",
+      "force": "Sussex Police",
+      "phone": "01424 456111"
+    },
+    {
+      "id": "68af781484b8f00da0b8daa4",
+      "name": "Falmouth Police Station",
+      "slug": "falmouth-police-station",
+      "force": "Devon and Cornwall Police",
+      "phone": "01326 213 700"
+    },
+    {
+      "id": "68af781484b8f00da0b8dad3",
+      "name": "Folkestone Police Station",
+      "slug": "folkestone-police-station",
+      "force": "Kent Police",
+      "phone": "01303 850 550"
+    },
+    {
+      "id": "68af781484b8f00da0b8dad4",
+      "name": "Margate Police Station",
+      "slug": "margate-police-station",
+      "force": "Kent Police",
+      "phone": "01843 222 222"
+    },
+    {
+      "id": "68af781484b8f00da0b8dad6",
+      "name": "Dover Police Station",
+      "slug": "dover-police-station",
+      "force": "Kent Police",
+      "phone": "01304 240055"
+    },
+    {
+      "id": "68af781484b8f00da0b8daaf",
+      "name": "Bridport Police Station",
+      "slug": "bridport-police-station",
+      "force": "Dorset Police",
+      "phone": "01308 423 111"
+    }
+  ],
+  "keptPublishedSamples": [
+    {
+      "name": "Surrey Headquarters",
+      "phone": "01483 571212"
+    },
+    {
+      "name": "Winchester Police Station",
+      "phone": "01962 841 534"
+    },
+    {
+      "name": "Aldershot Police Station",
+      "phone": "01962 841534"
+    },
+    {
+      "name": "Guildford Police Station",
+      "phone": "01483 571212"
+    },
+    {
+      "name": "Southampton Central Police Station",
+      "phone": "01962 841 534"
+    },
+    {
+      "name": "Andover Police Station",
+      "phone": "01962 841534"
+    },
+    {
+      "name": "Camberley Police Station",
+      "phone": "01483 571212"
+    },
+    {
+      "name": "Ryde Police Station",
+      "phone": "01962 841534"
+    },
+    {
+      "name": "Maesteg Police Station",
+      "phone": "01656 655555"
+    },
+    {
+      "name": "Merthyr Tydfil Police Station",
+      "phone": "01656 655555"
+    },
+    {
+      "name": "Caerphilly Police Station",
+      "phone": "01656 655555"
+    },
+    {
+      "name": "Penarth Police Station",
+      "phone": "01656 655555"
+    },
+    {
+      "name": "Aberdare Police Station",
+      "phone": "01656 655555"
+    },
+    {
+      "name": "Porthcawl Police Station",
+      "phone": "01656 655555"
+    },
+    {
+      "name": "Pontypridd Police Station",
+      "phone": "01656 655555"
+    },
+    {
+      "name": "Port Talbot Police Station",
+      "phone": "01656 655555"
+    },
+    {
+      "name": "Bridgend Police Station",
+      "phone": "01656 655555"
+    },
+    {
+      "name": "Ton Pentre Police Station",
+      "phone": "01656 655555"
+    },
+    {
+      "name": "Oakham Police Station",
+      "phone": "0116 222 2222"
+    },
+    {
+      "name": "Melton Mowbray Police Station",
+      "phone": "0116 222 2222"
+    }
+  ],
+  "base44RawCleared": 625,
+  "base44StationCleared": 625
+}

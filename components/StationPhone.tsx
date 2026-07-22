@@ -18,7 +18,11 @@ import {
   DEFAULT_NON_EMERGENCY,
   getOfficialContact,
 } from '@/lib/official-force-contacts';
-import { getCustodyPublicDisplay, getFieldPublicationMeta } from '@/lib/station-contacts/publish';
+import {
+  getCustodyPublicDisplay,
+  getFieldPublicationMeta,
+  getPublishedPhoneValue,
+} from '@/lib/station-contacts/publish';
 import {
   CUSTODY_NOT_PUBLISHED_TEXT,
   STATION_CONTACT_DISCLAIMER,
@@ -184,10 +188,18 @@ export function StationPhone({
   const custodyDisplay = custody ? getCustodyPublicDisplay(station) : null;
   const { number: neNumber, hint } = forceNonEmergency(station);
 
-  const mainEntry = entries.find(isMainLineEntry);
+  const publishedMain = getPublishedPhoneValue(station, 'phone');
+  const mainEntry =
+    publishedMain &&
+    (entries.find(isMainLineEntry) ?? {
+      label: 'Station main line',
+      number: publishedMain,
+      className: 'station' as PhoneClass,
+      verified: true,
+    });
   const custodyEntry = entries.find((e) => e.label.startsWith('Custody'));
 
-  if (entries.length > 0 || custody) {
+  if (entries.length > 0 || custody || publishedMain) {
     return (
       <div className={wrapperClass}>
         {custody ? (

@@ -158,6 +158,8 @@ export function stationPhoneNumbers(station: PoliceStation): StationPhoneEntry[]
   for (const { label, field, value } of candidates) {
     const trimmed = (value || '').trim();
     if (!isDialablePhone(trimmed)) continue;
+    // Never surface unverified main lines as dialable facts (Long Eaton house-number case).
+    if (field === 'phone' && !isVerifiedStationPhoneField(station, field, trimmed)) continue;
     const verified = isVerifiedStationPhoneField(station, field, trimmed);
     const norm = normalizePhone(trimmed);
     if (!norm || seen.has(norm)) continue;
@@ -195,14 +197,18 @@ export function extractPhoneDigitsFromQuery(query: string): string | null {
 }
 
 function stationMatchesPhoneDigits(station: PoliceStation, digits: string): boolean {
-  const fields = [
-    station.phone,
-    station.custodyPhone,
-    station.custodyPhone2,
-    station.nonEmergencyPhone,
+  const fields: Array<{ field: 'phone' | 'custodyPhone' | 'custodyPhone2' | 'nonEmergencyPhone'; value?: string }> = [
+    { field: 'phone', value: station.phone },
+    { field: 'custodyPhone', value: station.custodyPhone },
+    { field: 'custodyPhone2', value: station.custodyPhone2 },
+    { field: 'nonEmergencyPhone', value: station.nonEmergencyPhone },
   ];
-  for (const value of fields) {
+  for (const { field, value } of fields) {
     if (!value?.trim()) continue;
+    // Only match publicly publishable numbers — do not route callers via unpublished legacy lines.
+    if (field === 'phone' || field === 'custodyPhone' || field === 'custodyPhone2') {
+      if (!isVerifiedStationPhoneField(station, field, value)) continue;
+    }
     const n = normalizePhone(value);
     if (!n) continue;
     if (n === digits || n.includes(digits) || digits.includes(n)) return true;

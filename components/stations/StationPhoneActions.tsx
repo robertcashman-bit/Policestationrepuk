@@ -10,7 +10,11 @@ import {
   DEFAULT_NON_EMERGENCY,
   getOfficialContact,
 } from '@/lib/official-force-contacts';
-import { getCustodyPublicDisplay, getFieldPublicationMeta } from '@/lib/station-contacts/publish';
+import {
+  getCustodyPublicDisplay,
+  getFieldPublicationMeta,
+  getPublishedPhoneValue,
+} from '@/lib/station-contacts/publish';
 import { isCustodyStation } from '@/lib/custody-station';
 import { CUSTODY_NOT_PUBLISHED_TEXT } from '@/lib/station-contacts/types';
 import { STATION_PHONE_CALL_GUIDANCE } from '@/lib/station-phone-labels';
@@ -170,9 +174,17 @@ export function StationPhoneActions({
   const custodyMeta = getFieldPublicationMeta(station, 'custodyPhone');
   const phoneMeta = getFieldPublicationMeta(station, 'phone');
 
-  const mainEntry = entries.find(
-    (e) => e.label === 'Station main line' || e.label === 'Main line' || e.label === 'Station',
-  );
+  const publishedMain = getPublishedPhoneValue(station, 'phone');
+  const mainEntry =
+    publishedMain &&
+    (entries.find(
+      (e) => e.label === 'Station main line' || e.label === 'Main line' || e.label === 'Station',
+    ) ?? {
+      label: 'Station main line',
+      number: publishedMain,
+      className: 'station' as const,
+      verified: true,
+    });
   const custodyEntry = entries.find((e) => e.label.startsWith('Custody'));
 
   const spacing = compact ? 'space-y-2' : bright ? 'space-y-5' : 'space-y-4';

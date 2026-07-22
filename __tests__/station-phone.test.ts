@@ -204,7 +204,7 @@ describe('stationPhoneNumbers', () => {
     expect(entries[0]).toMatchObject({ className: 'generic', number: '0800 40 50 40', verified: true });
   });
 
-  it('includes unverified station lines with verified flag false', () => {
+  it('excludes unverified station main lines from dialable entries', () => {
     const entries = stationPhoneNumbers(
       stub({
         forceName: 'British Transport Police',
@@ -219,12 +219,7 @@ describe('stationPhoneNumbers', () => {
         },
       }),
     );
-    expect(entries).toHaveLength(1);
-    expect(entries[0]).toMatchObject({
-      number: '0118 957 2022',
-      className: 'station',
-      verified: false,
-    });
+    expect(entries).toHaveLength(0);
   });
 });
 

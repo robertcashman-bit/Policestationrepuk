@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DISCOUNT_CODE,
   CUSTODYNOTE_MEMBER_PRICE_GBP,
-  CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_DOWNLOAD_CTA,
+  CUSTODYNOTE_PROMO_PRICE_LINE,
   CUSTODYNOTE_TRIAL_HREF,
   INLINE_CTA_HEADLINE,
 } from '@/lib/custodynote-promo';
@@ -26,7 +26,7 @@ export function BlogPartnerToolsPromo({ className = '' }: { className?: string }
           <h3 className="mt-1 text-base font-bold">{CUSTODYNOTE_BRAND_NAME}</h3>
           <p className="mt-2 text-xs leading-relaxed text-slate-200">{INLINE_CTA_HEADLINE}</p>
           <p className="mt-2 text-[11px] text-white/80">
-            30-day free trial · PSR UK readers £{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo
+            {CUSTODYNOTE_PROMO_PRICE_LINE} · PSR UK readers ~£{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <a
@@ -35,7 +35,7 @@ export function BlogPartnerToolsPromo({ className = '' }: { className?: string }
               rel="noopener noreferrer"
               className="inline-flex min-h-[36px] items-center rounded-lg bg-[var(--gold)] px-3 text-xs font-bold text-[var(--navy)] no-underline"
             >
-              Start free trial
+              {CUSTODYNOTE_DOWNLOAD_CTA}
             </a>
             <Link href="/CustodyNote" className="text-xs font-semibold text-white underline">
               Learn more

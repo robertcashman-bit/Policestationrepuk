@@ -2,6 +2,8 @@ import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_DISCOUNT_CODE,
+  CUSTODYNOTE_DOWNLOAD_CTA,
+  CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_MEMBER_PRICE_GBP,
   CUSTODYNOTE_PRICE_GBP,
   CUSTODYNOTE_TRIAL_HREF,
@@ -26,22 +28,24 @@ export function BlogCustodyNotePromo({ className }: { className?: string }) {
         <Link href="/CustodyNote" className="font-semibold text-white underline hover:text-[var(--gold)]">
           {CUSTODYNOTE_BRAND_NAME} overview
         </Link>{' '}
-        or start a{' '}
+        or download free on{' '}
         <a
           href={CUSTODYNOTE_TRIAL_HREF}
           target="_blank"
           rel="noopener noreferrer"
           className="font-semibold text-[var(--gold)] underline hover:text-white"
         >
-          30-day free trial on custodynote.com
+          custodynote.com
         </a>
-        . Built for accredited UK police station representatives and defence solicitors.
+        {' '}({CUSTODYNOTE_FREE_LABEL}). Built for accredited UK police station representatives and defence solicitors.
       </p>
 
       <div className="mt-4 rounded-lg border border-[var(--gold)]/40 bg-black/20 px-4 py-3 text-sm text-white">
-        <span className="font-bold text-white">£{CUSTODYNOTE_PRICE_GBP}/mo</span>
+        <span className="font-bold text-white">Free forever</span>
         <span className="mx-2 text-white/40">·</span>
-        <span className="font-bold text-[var(--gold)]">PSR UK readers £{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo</span>{' '}
+        <span className="font-bold text-white">Pro £{CUSTODYNOTE_PRICE_GBP}/mo</span>
+        <span className="mx-2 text-white/40">·</span>
+        <span className="font-bold text-[var(--gold)]">PSR UK readers ~£{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo</span>{' '}
         <span className="text-slate-200">with code</span>{' '}
         <span className="rounded bg-[var(--gold)] px-1.5 py-0.5 font-mono text-xs font-bold text-[var(--navy)]">
           {CUSTODYNOTE_DISCOUNT_CODE}
@@ -55,7 +59,7 @@ export function BlogCustodyNotePromo({ className }: { className?: string }) {
           rel="noopener noreferrer"
           className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-[var(--gold)] px-5 py-2.5 text-sm font-bold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
         >
-          Start free trial →
+          {CUSTODYNOTE_DOWNLOAD_CTA} →
         </a>
         <Link
           href="/CustodyNote"

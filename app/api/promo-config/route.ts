@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import {
   CUSTODYNOTE_DISCOUNT_CODE,
   CUSTODYNOTE_DISCOUNT_PCT,
+  CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_MEMBER_PRICE_GBP,
   CUSTODYNOTE_PRICE_GBP,
-  CUSTODYNOTE_TRIAL_DAYS,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
 
@@ -18,7 +18,7 @@ export async function GET() {
       discountPct: CUSTODYNOTE_DISCOUNT_PCT,
       priceGbp: CUSTODYNOTE_PRICE_GBP,
       memberPriceGbp: CUSTODYNOTE_MEMBER_PRICE_GBP,
-      trialDays: CUSTODYNOTE_TRIAL_DAYS,
+      freeLabel: CUSTODYNOTE_FREE_LABEL,
       trialHref: CUSTODYNOTE_TRIAL_HREF,
     },
     updatedAt: new Date().toISOString(),

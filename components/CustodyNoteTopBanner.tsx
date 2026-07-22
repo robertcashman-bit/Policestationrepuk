@@ -5,6 +5,7 @@ import {
   CUSTODYNOTE_APPS_LINE,
   CUSTODYNOTE_DISCOUNT_CODE,
   CUSTODYNOTE_MEMBER_PRICE_GBP,
+  CUSTODYNOTE_DOWNLOAD_CTA,
   CUSTODYNOTE_TRIAL_HREF,
   TOP_BANNER_TEXT,
   TOP_BANNER_TEXT_MOBILE,
@@ -69,8 +70,8 @@ export function CustodyNoteTopBanner({ onDismissChange }: CustodyNoteTopBannerPr
           rel="noopener noreferrer"
           className="inline-flex shrink-0 items-center rounded-full bg-[var(--gold)] px-3 py-1.5 text-xs font-bold text-[var(--navy)] no-underline shadow-sm transition-colors hover:bg-[var(--gold-hover)] sm:px-4"
         >
-          <span className="sm:hidden">Free trial →</span>
-          <span className="hidden sm:inline">Start free trial →</span>
+          <span className="sm:hidden">{CUSTODYNOTE_DOWNLOAD_CTA} →</span>
+          <span className="hidden sm:inline">{CUSTODYNOTE_DOWNLOAD_CTA} →</span>
         </PartnerOutboundLink>
         <button
           type="button"

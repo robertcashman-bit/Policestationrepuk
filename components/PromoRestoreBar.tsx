@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { CUSTODYNOTE_TRIAL_HREF } from '@/lib/custodynote-promo';
+import { CUSTODYNOTE_DOWNLOAD_CTA, CUSTODYNOTE_TRIAL_HREF } from '@/lib/custodynote-promo';
 import { WHATSAPP_PAGE_REPS } from '@/lib/site-navigation';
 
 type PromoRestoreBarProps = {
@@ -28,7 +28,7 @@ export function PromoRestoreBar({ cnDismissed, onExpand }: PromoRestoreBarProps)
             rel="noopener noreferrer"
             className="inline-flex h-8 min-h-[2rem] max-w-[45%] shrink-0 items-center justify-center truncate rounded-full bg-[var(--gold)] px-2.5 py-0.5 text-[10px] font-bold text-[var(--navy)] no-underline transition-colors hover:bg-[var(--gold-hover)] sm:h-9 sm:max-w-none sm:px-3 sm:text-[11px]"
           >
-            Custody Note trial
+            {CUSTODYNOTE_DOWNLOAD_CTA}
           </a>
         )}
         <button

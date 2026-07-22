@@ -275,8 +275,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
                   </p>
                   <h3 className="mt-1 font-bold text-[var(--navy)]">{CUSTODYNOTE_BRAND_NAME}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/85">
-                    PACE-aligned attendance notes — {CUSTODYNOTE_PLATFORM_LINE.toLowerCase()}. £
-                    {CUSTODYNOTE_PRICE_GBP}/mo · members £{CUSTODYNOTE_MEMBER_PRICE_GBP} with{' '}
+                    Free forever · Pro £{CUSTODYNOTE_PRICE_GBP}/mo · members ~£{CUSTODYNOTE_MEMBER_PRICE_GBP} with{' '}
                     <span className="font-mono font-bold">{CUSTODYNOTE_DISCOUNT_CODE}</span>.
                   </p>
                   <a
@@ -285,7 +284,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
                     rel="noopener noreferrer"
                     className="btn-gold mt-3 inline-flex !text-sm no-underline"
                   >
-                    Start free trial →
+                    Download free →
                   </a>
                 </section>
               </div>

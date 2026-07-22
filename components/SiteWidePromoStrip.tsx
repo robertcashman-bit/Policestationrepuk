@@ -55,7 +55,7 @@ export function SiteWidePromoStrip() {
               built in.
             </p>
             <p className="mt-3 text-xs font-semibold text-[var(--navy)]">
-              £{CUSTODYNOTE_PRICE_GBP}/mo after a 30-day free trial · PSR UK readers £
+              Free forever · Pro £{CUSTODYNOTE_PRICE_GBP}/mo · PSR UK readers ~£
               {CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
               <span className="rounded bg-[var(--gold)]/15 px-1.5 py-0.5 font-mono font-bold text-[var(--navy)]">
                 {CUSTODYNOTE_DISCOUNT_CODE}
@@ -70,7 +70,7 @@ export function SiteWidePromoStrip() {
                 rel="noopener noreferrer"
                 className="inline-flex min-h-[40px] flex-1 items-center justify-center rounded-lg bg-[var(--gold)] px-3 text-xs font-bold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
               >
-                Start free trial
+                Download free
               </PartnerOutboundLink>
               <Link
                 href="/CustodyNote"

@@ -142,8 +142,8 @@ export function Footer() {
             <div className="rounded-lg border border-white/15 bg-black/20 p-4">
               <p className="text-sm font-bold text-white">{CUSTODYNOTE_BRAND_NAME} — at the station</p>
               <p className="mt-1 text-xs text-slate-200">
-                Structured custody notes, offline-first, PDF + LAA billing. 30-day free trial · £
-                {CUSTODYNOTE_PRICE_GBP}/mo · PSR UK readers £{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
+                Structured custody notes, offline-first, PDF + LAA billing. Free forever · Pro £
+                {CUSTODYNOTE_PRICE_GBP}/mo · PSR UK readers ~£{CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
                 <span className="rounded bg-[var(--gold)]/20 px-1.5 py-0.5 font-mono font-bold text-[var(--gold)]">
                   {CUSTODYNOTE_DISCOUNT_CODE}
                 </span>
@@ -243,7 +243,7 @@ export function Footer() {
             <h4 className="text-sm font-bold text-white">{CUSTODYNOTE_BRAND_NAME} — PACE attendance note software</h4>
             <p className="mt-1 text-xs text-white">
               PACE-aligned notes, offline-first, PDF + LAA billing, AES-256 encryption. £
-              {CUSTODYNOTE_PRICE_GBP}/mo after a 30-day free trial. PSR UK readers £
+              Free forever · Pro £{CUSTODYNOTE_PRICE_GBP}/mo. PSR UK readers ~£
               {CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code{' '}
               <span className="rounded bg-[var(--gold)]/20 px-1.5 py-0.5 font-mono font-bold text-[var(--gold)]">
                 {CUSTODYNOTE_DISCOUNT_CODE}
@@ -256,7 +256,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
             >
-              Start free trial →
+              Download free →
             </a>
             <span className="mx-1 text-xs text-slate-500">·</span>
             <Link

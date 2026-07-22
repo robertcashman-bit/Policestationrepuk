@@ -13,7 +13,7 @@ export const CUSTODYNOTE_BRAND_NAME = 'Custody Note';
 
 export const CUSTODYNOTE_SITE = 'https://custodynote.com';
 export const CUSTODYNOTE_DOWNLOAD_HREF = cnHref('directory', '/download');
-/** Primary trial CTA — custodynote.com/download is the canonical install path. */
+/** Primary download CTA — custodynote.com/download is the canonical install path. */
 export const CUSTODYNOTE_TRIAL_HREF = CUSTODYNOTE_DOWNLOAD_HREF;
 export const CUSTODYNOTE_PRICING_HREF = cnHref('directory', '/pricing');
 /** Free practitioner resources — linkable checklists and templates. */
@@ -32,19 +32,22 @@ export const CUSTODYNOTE_APPS_LINE = 'Native desktop apps for Windows PC and Mac
 export const CUSTODYNOTE_PLATFORM_LINE =
   'Windows 10+ and macOS 11+ (Apple Silicon and Intel)';
 
-/** Headline subscription price as advertised on custodynote.com. */
-export const CUSTODYNOTE_PRICE_GBP = '15.99';
-/** Discounted price for PSR UK readers using the member code (15.99 × 0.75 ≈ 11.99). */
-export const CUSTODYNOTE_MEMBER_PRICE_GBP = '11.99';
+/** Headline Pro subscription price as advertised on custodynote.com. */
+export const CUSTODYNOTE_PRICE_GBP = '9.99';
+/** Discounted Pro price for PSR UK readers using the member code (9.99 × 0.80 ≈ 7.99). */
+export const CUSTODYNOTE_MEMBER_PRICE_GBP = '7.99';
 /** Member discount code surfaced exclusively on PoliceStationRepUK. */
 export const CUSTODYNOTE_DISCOUNT_CODE = 'A2MJY2NQ';
-export const CUSTODYNOTE_DISCOUNT_PCT = 25;
+export const CUSTODYNOTE_DISCOUNT_PCT = 20;
 
-/** Trial length, kept in one place so banners/CTAs cannot drift. */
-export const CUSTODYNOTE_TRIAL_DAYS = 30;
-export const CUSTODYNOTE_TRIAL_LABEL = '30-day free trial';
-export const CUSTODYNOTE_TRIAL_CTA = 'Start 30-Day Free Trial';
-export const CUSTODYNOTE_DOWNLOAD_CTA = 'Download Free 30-Day Trial';
+/** Free tier label and CTAs — kept in one place so banners/CTAs cannot drift. */
+export const CUSTODYNOTE_FREE_LABEL = 'Free forever';
+export const CUSTODYNOTE_TRIAL_LABEL = CUSTODYNOTE_FREE_LABEL;
+export const CUSTODYNOTE_TRIAL_CTA = 'Download Free';
+export const CUSTODYNOTE_DOWNLOAD_CTA = 'Download Free';
+
+/** Reusable pricing line for promos and banners. */
+export const CUSTODYNOTE_PROMO_PRICE_LINE = `Free forever · Pro £${CUSTODYNOTE_PRICE_GBP}/mo`;
 
 /** Short reusable phrases for headers / banners — aligned with custodynote.com product copy. */
 export const CUSTODYNOTE_TAGLINE =
@@ -54,7 +57,7 @@ export const CUSTODYNOTE_SHORT_DESCRIPTION =
   'Digital note-taking and workflow tool for criminal defence professionals attending police stations and managing pre-charge case preparation.';
 
 export const CUSTODYNOTE_MEMBER_DEAL =
-  `PSR UK readers pay £${CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code ${CUSTODYNOTE_DISCOUNT_CODE} (${CUSTODYNOTE_DISCOUNT_PCT}% off)`;
+  `PSR UK readers pay ~£${CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code ${CUSTODYNOTE_DISCOUNT_CODE} (${CUSTODYNOTE_DISCOUNT_PCT}% off Pro)`;
 
 export const CUSTODYNOTE_DOWNLOAD_APPS_CTA = 'Download for Windows & Mac';
 
@@ -62,10 +65,10 @@ export const CUSTODYNOTE_APPS_DETAIL =
   'Install on your Windows PC or Mac (Apple Silicon and Intel). Signed Mac builds, automatic updates on both platforms.';
 
 export const TOP_BANNER_TEXT =
-  'Custody Note for Windows PC & Mac — structured attendance notes, 30-day free trial';
+  'Custody Note for Windows PC & Mac — structured attendance notes, free forever';
 
 /** Shorter line for narrow phone screens (full text from `TOP_BANNER_TEXT` on sm+). */
-export const TOP_BANNER_TEXT_MOBILE = 'Custody Note — 30-day free trial';
+export const TOP_BANNER_TEXT_MOBILE = 'Custody Note — free forever';
 
 export const INLINE_CTA_HEADLINE = 'Stop rewriting custody notes at 2am';
 export const INLINE_CTA_BULLETS = [

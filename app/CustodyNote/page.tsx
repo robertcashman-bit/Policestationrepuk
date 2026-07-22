@@ -12,6 +12,7 @@ import {
   CUSTODYNOTE_APPS_DETAIL,
   CUSTODYNOTE_APPS_LINE,
   CUSTODYNOTE_DOWNLOAD_APPS_CTA,
+  CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_MEMBER_PRICE_GBP,
   CUSTODYNOTE_PLATFORM_LINE,
   CUSTODYNOTE_PRICE_GBP,
@@ -25,7 +26,7 @@ import { buildMetadata } from '@/lib/seo';
 export const metadata = buildMetadata({
   title: `${CUSTODYNOTE_BRAND_NAME} — UK Police Station Attendance Note Software (£${CUSTODYNOTE_PRICE_GBP}/mo)`,
   description:
-    `${CUSTODYNOTE_BRAND_NAME}: PACE-aligned desktop software for criminal solicitors and accredited police station reps — structured custody, voluntary and telephone notes, PDF export, LAA billing fields, offline-first. ${CUSTODYNOTE_PLATFORM_LINE}. £${CUSTODYNOTE_PRICE_GBP}/mo (PSR UK readers £${CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code ${CUSTODYNOTE_DISCOUNT_CODE}). 30-day free trial, no credit card.`,
+    `${CUSTODYNOTE_BRAND_NAME}: PACE-aligned desktop software for criminal solicitors and accredited police station reps — structured custody, voluntary and telephone notes, PDF export, LAA billing fields, offline-first. ${CUSTODYNOTE_PLATFORM_LINE}. Free forever; Pro £${CUSTODYNOTE_PRICE_GBP}/mo (PSR UK readers ~£${CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code ${CUSTODYNOTE_DISCOUNT_CODE}).`,
   path: '/CustodyNote',
 });
 
@@ -208,7 +209,7 @@ export default function CustodyNotePage() {
               Windows PC &amp; Mac
             </span>
             <span className="inline-flex items-center rounded-full bg-green-600 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
-              30-Day Free Trial
+              {CUSTODYNOTE_FREE_LABEL}
             </span>
           </div>
 
@@ -240,15 +241,17 @@ export default function CustodyNotePage() {
               Simple, all-in-one pricing
             </p>
             <p className="mt-2 text-2xl font-extrabold text-white sm:text-3xl">
-              £{SUBSCRIPTION_GBP}
+              {CUSTODYNOTE_FREE_LABEL}
+              <span className="mx-2 text-white/40">·</span>
+              Pro £{SUBSCRIPTION_GBP}
               <span className="text-base font-medium text-white/80">/month</span>
               <span className="mx-2 text-white/40">·</span>
-              <span className="text-[var(--gold)]">PSR UK readers £{MEMBER_GBP}/mo</span>
+              <span className="text-[var(--gold)]">PSR UK readers ~£{MEMBER_GBP}/mo</span>
             </p>
             <p className="mt-2 text-sm text-white/85">
-              One plan, everything included — notes, billing, PDF export, AES-256 encryption and
-              optional UK cloud backup. 30-day free trial, no credit card. Cancel anytime. Save more
-              with 6-month or annual billing at checkout on custodynote.com.
+              Free tier for core note-taking — upgrade to Pro for cloud backup, multi-device sync, and
+              priority support. Cancel anytime. Save more with 6-month or annual billing at checkout on
+              custodynote.com.
             </p>
             <p className="mt-3 text-sm text-slate-300">
               {CUSTODYNOTE_DISCOUNT_PCT}% off for PoliceStationRepUK readers — use code{' '}
@@ -278,7 +281,7 @@ export default function CustodyNotePage() {
             </a>
           </div>
           <p className="mt-3 text-xs text-slate-300">
-            No credit card for trial · {CUSTODYNOTE_PLATFORM_LINE} · £{SUBSCRIPTION_GBP}/mo (PSR UK £{MEMBER_GBP}/mo) · Cancel any time · v{APP_VERSION}
+            {CUSTODYNOTE_PLATFORM_LINE} · Free forever · Pro £{SUBSCRIPTION_GBP}/mo (PSR UK ~£{MEMBER_GBP}/mo) · Cancel any time · v{APP_VERSION}
           </p>
 
           <div className="mt-6 rounded-[var(--radius-lg)] border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 sm:p-5">
@@ -287,7 +290,7 @@ export default function CustodyNotePage() {
             </p>
             <p className="mt-2 text-sm font-semibold text-white">{CUSTODYNOTE_APPS_LINE}</p>
             <p className="mt-1 text-xs leading-relaxed text-white/90">
-              {CUSTODYNOTE_APPS_DETAIL} 30-day free trial on both platforms — no credit card.
+              {CUSTODYNOTE_APPS_DETAIL} {CUSTODYNOTE_FREE_LABEL} on both platforms — upgrade to Pro when you need cloud backup.
             </p>
             <a
               href={CUSTODYNOTE_DOWNLOAD_HREF}
@@ -530,22 +533,25 @@ export default function CustodyNotePage() {
         <div className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-8 shadow-[var(--card-shadow)] sm:p-10">
           <h2 className="text-h2 text-center text-[var(--navy)]">Simple Pricing</h2>
           <p className="mx-auto mt-3 max-w-2xl text-center text-[var(--muted)]">
-            One desktop subscription, a free 30-day trial, and no need to stitch together extra tools
-            just to get from attendance to invoice.
+            Free forever for core note-taking — upgrade to Pro when you need cloud backup and sync.
+            No need to stitch together extra tools just to get from attendance to invoice.
           </p>
           <div className="mx-auto mt-8 max-w-md">
             <div className="rounded-[var(--radius-lg)] border-2 border-[var(--gold)]/40 bg-[var(--gold)]/5 p-6">
               <p className="mb-1 text-center text-xs font-bold uppercase tracking-wider text-[var(--gold-link)]">
-                One plan · everything included
+                Free forever · Pro upgrade
               </p>
               <p className="text-center text-3xl font-extrabold text-[var(--navy)]">
-                £{SUBSCRIPTION_GBP}<span className="text-base font-normal text-[var(--muted)]">/mo</span>
+                {CUSTODYNOTE_FREE_LABEL}
+              </p>
+              <p className="mt-1 text-center text-lg font-semibold text-[var(--navy)]">
+                Pro £{SUBSCRIPTION_GBP}<span className="text-base font-normal text-[var(--muted)]">/mo</span>
               </p>
               <p className="mt-1 text-center text-sm font-semibold text-[var(--gold-link)]">
-                PSR UK readers £{MEMBER_GBP}/mo with code {DISCOUNT_CODE}
+                PSR UK readers ~£{MEMBER_GBP}/mo with code {DISCOUNT_CODE}
               </p>
               <p className="mt-2 text-center text-sm text-[var(--muted)]">
-                30-day free trial included · no credit card to try · cancel anytime
+                {CUSTODYNOTE_FREE_LABEL} · upgrade to Pro anytime · cancel anytime
               </p>
               <p className="mt-1 text-center text-xs text-[var(--muted)]">
                 Save more with 6-month or annual billing at checkout on custodynote.com.
@@ -564,7 +570,7 @@ export default function CustodyNotePage() {
                 rel="noopener noreferrer"
                 className="btn-gold mt-6 flex min-h-[44px] items-center justify-center no-underline"
               >
-                View Pricing & Trial →
+                View Pricing →
               </a>
             </div>
           </div>
@@ -575,8 +581,8 @@ export default function CustodyNotePage() {
       <section className="mb-14 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center sm:p-10">
         <h2 className="text-h2 text-white">Ready to try {CUSTODYNOTE_BRAND_NAME}?</h2>
         <p className="mx-auto mt-3 max-w-xl text-slate-300">
-          Start a 30-day free trial today — no credit card, all features included. £{SUBSCRIPTION_GBP}/mo
-          after the trial. PSR UK readers pay £{MEMBER_GBP}/mo with code{' '}
+          Download {CUSTODYNOTE_BRAND_NAME} free today — {CUSTODYNOTE_FREE_LABEL} for core note-taking. Pro £{SUBSCRIPTION_GBP}/mo
+          for cloud backup and sync. PSR UK readers pay ~£{MEMBER_GBP}/mo with code{' '}
           <span className="rounded bg-[var(--gold)] px-2.5 py-0.5 font-mono text-sm text-[var(--navy)]">
             {DISCOUNT_CODE}
           </span>{' '}

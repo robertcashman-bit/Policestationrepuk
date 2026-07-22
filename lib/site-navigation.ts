@@ -194,7 +194,7 @@ export const HEADER_NAV_MORE: HeaderNavLink[] = dedupeNavLinks([
   ...footerLinksToNav(FOOTER_COMMUNITY),
   ...footerLinksToNav(FOOTER_LEGAL),
   { href: '/CustodyNote', text: 'Custody Note — overview' },
-  { href: CUSTODYNOTE_TRIAL_HREF, text: 'Custody Note — free trial', external: true },
+  { href: CUSTODYNOTE_TRIAL_HREF, text: 'Custody Note — download free', external: true },
   { href: PSRTRAIN_TRAINING_HREF, text: 'PSR Train (PSRAS prep)', external: true },
   { href: POLICESTATIONAGENT_HOME_HREF, text: 'Police Station Agent — Kent solicitors', external: true },
   { href: '/police-station-representative', text: 'Police station representative' },
@@ -223,7 +223,7 @@ export const FOOTER_FEES_FORMS: FooterLink[] = HEADER_NAV_FEES_FORMS.map(({ href
 export const FOOTER_PARTNERS: FooterLink[] = [
   { href: '/links', label: 'Quick links hub' },
   { href: '/CustodyNote', label: 'Custody Note — overview' },
-  { href: CUSTODYNOTE_TRIAL_HREF, label: 'Custody Note — free trial', external: true },
+  { href: CUSTODYNOTE_TRIAL_HREF, label: 'Custody Note — download free', external: true },
   { href: PSRTRAIN_TRAINING_HREF, label: 'PSR Train (PSRAS prep)', external: true },
   { href: POLICESTATIONAGENT_HOME_HREF, label: 'Police Station Agent — Kent solicitors', external: true },
   { href: '/police-station-representative', label: 'Police station representative' },

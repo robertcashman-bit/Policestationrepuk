@@ -52,7 +52,7 @@ export function HomeCustodyNote() {
 
             <div className="mt-8 rounded-xl border-2 border-[var(--gold)]/40 bg-[var(--gold)]/10 px-6 py-5">
               <p className="text-xs font-bold uppercase tracking-wider text-[var(--gold)]">
-                30-day free trial · no credit card
+                Free forever · Pro from £{CUSTODYNOTE_PRICE_GBP}/mo
               </p>
               <p className="mt-2 text-2xl font-extrabold leading-tight text-white sm:text-3xl">
                 £{CUSTODYNOTE_PRICE_GBP}

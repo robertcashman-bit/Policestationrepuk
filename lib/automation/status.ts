@@ -81,7 +81,7 @@ export async function getAutomationAdminStatus() {
     nextScheduled: {
       bufferBlogPosts: '5 5 * * * UTC',
       healthcheck: '15 7 * * * UTC',
-      watchdog: '20 * * * * UTC',
+      watchdog: '20 */6 * * * UTC',
     },
   };
 }

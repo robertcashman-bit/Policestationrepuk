@@ -5,6 +5,7 @@ const CANDIDATE_PREFIX = 'stationresearch:candidate:';
 const CANDIDATE_INDEX = 'stationresearch:candidate:index';
 const RUN_PREFIX = 'stationresearch:run:';
 const LATEST_RUN = 'stationresearch:run:latest';
+const MGET_CHUNK = 100;
 
 function candidateKey(id: string): string {
   return `${CANDIDATE_PREFIX}${id}`;
@@ -27,12 +28,25 @@ export async function listOpenResearchCandidates(limit = 100): Promise<ResearchC
   const kv = getKV();
   if (!kv) return [];
   const ids = (await kv.smembers(CANDIDATE_INDEX)) as string[];
+  if (ids.length === 0) return [];
+
+  // Cap how many keys we fetch: open candidates are a subset; over-fetch then filter.
+  const fetchIds = ids.slice(0, Math.max(limit * 3, limit));
   const out: ResearchCandidate[] = [];
-  for (const id of ids.slice(0, limit * 3)) {
-    const c = await kv.get<ResearchCandidate>(candidateKey(id));
-    if (c && c.status === 'open') out.push(c);
-    if (out.length >= limit) break;
+
+  for (let i = 0; i < fetchIds.length; i += MGET_CHUNK) {
+    const chunk = fetchIds.slice(i, i + MGET_CHUNK);
+    const values = await kv.mget<(ResearchCandidate | null)[]>(
+      ...chunk.map((id) => candidateKey(id)),
+    );
+    for (const c of values) {
+      if (c && c.status === 'open') out.push(c);
+      if (out.length >= limit) {
+        return out.sort((a, b) => b.confidenceScore - a.confidenceScore);
+      }
+    }
   }
+
   return out.sort((a, b) => b.confidenceScore - a.confidenceScore);
 }
 

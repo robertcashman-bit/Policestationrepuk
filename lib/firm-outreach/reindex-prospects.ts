@@ -4,7 +4,7 @@
  */
 import { getKV } from '@/lib/kv';
 import type { FirmProspectStatus } from './types';
-import { getProspect, listAllProspectIds } from './storage';
+import { getProspectsByIds, listAllProspectIds } from './storage';
 
 const PROSPECT_STATUS_INDEX = 'firmprospect:status:';
 
@@ -33,23 +33,37 @@ export async function reindexProspectStatuses(): Promise<{
   if (!kv) throw new Error('KV not configured');
 
   const byStatus: Record<string, number> = {};
+  const buckets: Record<string, string[]> = {};
   for (const s of ALL_STATUSES) {
     byStatus[s] = 0;
-    await kv.set(statusIndexKey(s), []);
+    buckets[s] = [];
   }
 
   const ids = await listAllProspectIds();
+  const prospects = await getProspectsByIds(ids);
+
   for (const id of ids) {
-    const p = await getProspect(id);
+    const p = prospects.get(id);
     if (!p) continue;
-    const key = statusIndexKey(p.status);
-    const current = (await kv.get<string[]>(key)) ?? [];
-    if (!current.includes(id)) {
-      current.push(id);
-      await kv.set(key, current);
+    if (!buckets[p.status]) {
+      buckets[p.status] = [];
+      byStatus[p.status] = 0;
     }
+    buckets[p.status].push(id);
     byStatus[p.status] = (byStatus[p.status] ?? 0) + 1;
   }
+
+  // One write per status (plus clears for empty statuses) instead of get/set per prospect.
+  const pipeline = kv.pipeline();
+  for (const s of ALL_STATUSES) {
+    pipeline.set(statusIndexKey(s), buckets[s] ?? []);
+  }
+  for (const s of Object.keys(buckets)) {
+    if (!ALL_STATUSES.includes(s as FirmProspectStatus)) {
+      pipeline.set(statusIndexKey(s as FirmProspectStatus), buckets[s] ?? []);
+    }
+  }
+  await pipeline.exec();
 
   return { scanned: ids.length, byStatus };
 }

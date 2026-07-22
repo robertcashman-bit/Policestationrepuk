@@ -65,7 +65,7 @@ async function inspectSchedulerHealth(
       continue;
     }
     const def = getJobDefinition(job.name);
-    if (!def) continue;
+    if (!def || !def.enabled) continue;
 
     const cronLog = await getCronRunLog(job.name);
     const day = utcDay(now);

@@ -41,7 +41,22 @@ describe('vercel.json cron routes', () => {
     ) as { crons?: Array<{ path: string; schedule: string }> };
     const byPath = new Map((vercel.crons ?? []).map((c) => [c.path, c.schedule]));
     expect(byPath.get('/api/cron/automation-healthcheck')).toBe('15 7 * * *');
-    expect(byPath.get('/api/cron/automation-watchdog')).toBe('20 * * * *');
+    expect(byPath.get('/api/cron/automation-watchdog')).toBe('20 */6 * * *');
+  });
+
+  it('uses cost-aware schedules for high-frequency jobs', () => {
+    const vercel = JSON.parse(
+      readFileSync(join(ROOT, 'vercel.json'), 'utf8'),
+    ) as { crons?: Array<{ path: string; schedule: string }> };
+    const enrich = (vercel.crons ?? []).filter((c) => c.path === '/api/cron/firm-outreach-enrich');
+    const send = (vercel.crons ?? []).filter((c) => c.path === '/api/cron/firm-outreach-send');
+    const byPath = new Map((vercel.crons ?? []).map((c) => [c.path, c.schedule]));
+    expect(enrich).toHaveLength(2);
+    expect(send).toHaveLength(2);
+    expect(byPath.get('/api/cron/custody-number-discovery')).toBe('0 6 * * *');
+    expect(byPath.get('/api/cron/custody-discovery-ai-review')).toBe('30 9 * * *');
+    expect(byPath.get('/api/cron/buffer-selftest')).toBe('0 6 * * 1');
+    expect(byPath.has('/api/cron/buffer-cross-site-report')).toBe(false);
   });
 
   it('schedules station-contact-research weekly (disabled by env flag)', () => {

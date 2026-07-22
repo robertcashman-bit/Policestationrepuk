@@ -7,8 +7,8 @@ export const runtime = 'nodejs';
 export const maxDuration = 120;
 
 /**
- * Lightweight hourly watchdog — overdue critical jobs, stuck locks, auth failures.
- * Schedule: 20 * * * * UTC
+ * Lightweight overdue/stuck/auth watchdog (every 6 hours).
+ * Schedule: minute 20 of every 6th hour UTC (Vercel cron: 20 star-slash-6 * * *).
  */
 export async function GET(request: Request) {
   if (!isCronAuthorized(request)) {

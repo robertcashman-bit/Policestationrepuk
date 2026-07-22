@@ -27,7 +27,7 @@ export interface WatchdogOptions {
 }
 
 /**
- * Lightweight hourly watchdog — overdue critical jobs, stuck locks, auth failure.
+ * Lightweight overdue/stuck/auth watchdog (every 6 hours).
  * Does not run a full audit.
  */
 export async function runAutomationWatchdog(

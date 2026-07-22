@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 export const maxDuration = 300;
 
 function aiBatchLimit(): number {
-  return Math.max(1, Number(process.env.CUSTODY_AI_BATCH_LIMIT ?? 12));
+  return Math.max(1, Number(process.env.CUSTODY_AI_BATCH_LIMIT ?? 8));
 }
 
 /**

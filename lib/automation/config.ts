@@ -70,7 +70,7 @@ export function getAutomationConfig(): AutomationConfig {
     stuckJobTimeoutMinutes: envInt('STUCK_JOB_TIMEOUT_MINUTES', 120, 5, 1440),
     lockTimeoutMinutes: envInt('LOCK_TIMEOUT_MINUTES', 30, 1, 240),
     alertReminderHours: envInt('ALERT_REMINDER_HOURS', 24, 1, 168),
-    dailySuccessEmailEnabled: envFlag('DAILY_SUCCESS_EMAIL_ENABLED', true),
+    dailySuccessEmailEnabled: envFlag('DAILY_SUCCESS_EMAIL_ENABLED', false),
     alertEmail: getAutomationAlertEmail(),
     crossSiteRemoteRepairEnabled: envFlag('CROSS_SITE_REMOTE_REPAIR_ENABLED', false),
     allowNonProd: envFlag('AUTOMATION_ALLOW_NON_PROD', false),

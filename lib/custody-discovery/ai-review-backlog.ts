@@ -14,7 +14,7 @@ export interface AiReviewBatchResult {
 }
 
 function aiBatchLimit(): number {
-  return Math.max(1, Number(process.env.CUSTODY_AI_BATCH_LIMIT ?? 12));
+  return Math.max(1, Number(process.env.CUSTODY_AI_BATCH_LIMIT ?? 8));
 }
 
 function isReviewable(finding: CustodyNumberFinding): boolean {
@@ -86,7 +86,7 @@ export async function runAiReviewBatch(opts?: {
     targets = selectFindingsNeedingAiReview(all, limit, opts);
   }
 
-  const result: AiReviewBatchResult = {
+  const empty: AiReviewBatchResult = {
     reviewed: 0,
     autoPublished: 0,
     autoRejected: 0,
@@ -96,6 +96,13 @@ export async function runAiReviewBatch(opts?: {
     evidenceFetchFailed: 0,
     remainingBacklog: 0,
   };
+
+  // No OpenAI / evidence fetch when the backlog is empty.
+  if (targets.length === 0) {
+    return empty;
+  }
+
+  const result: AiReviewBatchResult = { ...empty };
 
   for (const target of targets) {
     // Weak-evidence retry candidates already have a review; force a fresh pass.

@@ -5,7 +5,7 @@ import { isCronAuthorized } from '@/lib/cron-auth';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-/** Daily self-test — confirm yesterday sent >=5; ingest Buffer click metrics. */
+/** Weekly self-test — confirm recent Buffer sends; ingest click metrics. */
 export async function GET(request: Request) {
   if (!isCronAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

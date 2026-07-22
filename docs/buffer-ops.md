@@ -15,6 +15,8 @@ Daily social scheduling for blog content across Twitter, LinkedIn, and Google Bu
 | `0 6 * * *` | `/api/cron/buffer-selftest` | Buffer self-test |
 | `0 6 * * 1` | `/api/cron/buffer-health` | Weekly GBP scheduled-image verification (manual cron entry) |
 
+Overnight watchdogs do **not** flag `buffer-blog-posts` overdue until after today's UTC schedule (`5 5 * * *`) plus the job's grace window (`maxToleratedDelayMinutes`, 45). That prevents false alerts after Europe/London midnight before the morning run.
+
 **Authoritative scheduler:** Vercel Cron → `/api/cron/buffer-blog-posts` → `runRepukBufferScheduler` (buffer-engine). Do not run a second competing scheduler in production.
 
 Auth: `Authorization: Bearer $CRON_SECRET` (or `x-cron-secret` locally). Preview deployments cannot schedule live posts.

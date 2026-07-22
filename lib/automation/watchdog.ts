@@ -15,6 +15,7 @@ import { getJobState, markJobHealthChecked } from './job-registry';
 import { acquireJobLock, clearExpiredJobLock, getJobLock, releaseJobLock } from './lock';
 import { buildIncidentFingerprint, notifyIncident } from './notifications';
 import { logAutomationEvent } from './observability';
+import { isPastBufferOverdueGate } from './overdue-gate';
 import type { RepairAction, WatchdogResult } from './types';
 
 const CRITICAL_JOBS = ['buffer-blog-posts', 'buffer-verify'] as const;
@@ -150,10 +151,9 @@ export async function runAutomationWatchdog(
       }
     }
 
-    // Overdue buffer-blog-posts after 06:30 UTC
-    const hour = now.getUTCHours();
-    const minute = now.getUTCMinutes();
-    if (hour > 6 || (hour === 6 && minute >= 30)) {
+    // Overdue buffer-blog-posts only after today's schedule + grace (scheduler TZ).
+    // Do not use UTC hour alone — that false-alerts after London midnight before 05:05 UTC.
+    if (isPastBufferOverdueGate(now)) {
       const state = await getJobState('buffer-blog-posts');
       const timezone = getSchedulerTimezone();
       const today = localDateInTimezone(now, timezone);
@@ -236,6 +236,8 @@ export async function runAutomationWatchdog(
           if (result.suppressed) notes.push('overdue alert suppressed (dedup)');
         }
       }
+    } else {
+      notes.push('buffer-blog-posts overdue check skipped — before schedule+grace in scheduler TZ');
     }
 
     const ok = overdueJobs.length === 0 && !authFailure;

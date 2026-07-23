@@ -79,6 +79,33 @@ Confirm:
 - Content-supply exhaustion / editorial issues
 - Changing quotas, recipients, or production domains
 
+## Sibling under-quota (psrtrain / custodynote / PSA)
+
+REPUK production posts **local content only**. Sibling sites run their own Buffer crons. Cross-site alerts count Buffer posts whose text contains that site’s hostname (e.g. `custodynote.com`). Shared channels (LinkedIn / GBP) also carry other sites’ posts — those do **not** count toward a sibling’s quota.
+
+When REPUK emails `custodynote.com under quota: N/5`:
+
+1. **Confirm the count** (from REPUK repo, with Buffer env loaded):
+   ```bash
+   npx tsx scripts/diagnose-custodynote-buffer.ts YYYY-MM-DD
+   npm run buffer:verify-cross-site
+   ```
+2. **On the sibling site** (Bearer `CRON_SECRET`):
+   ```bash
+   curl -sS -H "Authorization: Bearer $CRON_SECRET" \
+     "https://custodynote.com/api/buffer/schedule?dryRun=1" | jq .
+   curl -sS -H "Authorization: Bearer $CRON_SECRET" \
+     "https://custodynote.com/api/buffer/verify" | jq .
+   ```
+   Same pattern for `psrtrain.com` / `policestationagent.com` (`/api/buffer/schedule` + `/api/buffer/verify`).
+3. **If dry-run schedules 0 posts:** check RSS/local feed, cooldown KV, and Buffer channel connectivity; publish new blog content if the feed is exhausted.
+4. **Do not** re-enable REPUK multi-feed posting for siblings while sibling crons remain — that duplicates posts.
+5. **Ignore historical “scheduled 0/5” from old alerts** that used REPUK scheduler KV `feedIds` for siblings; that metric was always wrong after REPUK went local-feed-only. Current reports use Buffer scheduled+sent hostname counts instead.
+
+### 2026-07-21 CustodyNote note
+
+Diagnosis: CustodyNote channels had many *sent* posts that day, but only **1** text contained `custodynote.com` (other traffic was REPUK/PSA/psrtrain content on shared LinkedIn/GBP/Facebook). Sibling self-scheduler under-delivered CustodyNote links. By 2026-07-23 host-matched count was ≥5 again after normal crons + verify.
+
 ## NPM scripts
 
 ```bash

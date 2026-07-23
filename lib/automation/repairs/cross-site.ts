@@ -125,7 +125,7 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
         summary: `${site.hostname} under quota on ${report.date}: ${site.sentCount}/${site.requiredCount}`,
         details:
           site.issue ??
-          'Sibling site self-scheduler may have failed; repair on that site (remote repair disabled by default).',
+          `Sibling site self-scheduler may have failed. On that site run /api/buffer/verify (Bearer CRON_SECRET), then see docs/buffer-ops.md “Sibling under-quota”.`,
         recoverable: false,
         requiresHumanAction: true,
       });

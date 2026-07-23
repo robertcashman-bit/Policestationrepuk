@@ -13,6 +13,7 @@ export interface CrossSiteSiteReport {
   hostname: string;
   sentCount: number;
   requiredCount: number;
+  /** Buffer scheduled+sent posts with this site's hostname in text (not REPUK KV). */
   scheduledCount?: number;
   ok: boolean;
   issue?: string;
@@ -78,58 +79,64 @@ export async function verifyCrossSiteBufferPosts(
   const targets = opts?.targets ?? CROSS_SITE_BUFFER_TARGETS;
   const allChannelIds = [...new Set(targets.flatMap((t) => t.channelIds))];
 
-  const sent = await listPostsInWindow(apiKey, orgId, {
-    status: ['sent'],
-    dueAtStart: dayStart,
-    dueAtEnd: dayEnd,
-    channelIds: allChannelIds,
-  });
+  const [sent, scheduledOrSent] = await Promise.all([
+    listPostsInWindow(apiKey, orgId, {
+      status: ['sent'],
+      dueAtStart: dayStart,
+      dueAtEnd: dayEnd,
+      channelIds: allChannelIds,
+    }),
+    listPostsInWindow(apiKey, orgId, {
+      status: ['scheduled', 'sent'],
+      dueAtStart: dayStart,
+      dueAtEnd: dayEnd,
+      channelIds: allChannelIds,
+    }),
+  ]);
+
+  // REPUK-only: optional KV feed breakdown for local-feed debugging (never used for siblings).
+  const schedulerRun = await getSchedulerRunForDate(yesterday);
+  const repukKvScheduled = schedulerRun?.feedIds
+    ? schedulerRun.feedIds.filter((id) => id === 'policestationrepuk').length
+    : 0;
 
   const sites: CrossSiteSiteReport[] = targets.map((target) => {
     const required = target.requiredPostsPerDay ?? MIN_POSTS_PER_DAY;
     const sentCount = countSiteSentPosts(sent, target.hostname);
+    // Count Buffer posts that link to this site — siblings self-schedule; do not use REPUK KV.
+    const bufferCount = countSiteSentPosts(scheduledOrSent, target.hostname);
+    const scheduledCount =
+      target.id === 'policestationrepuk'
+        ? Math.max(bufferCount, repukKvScheduled)
+        : bufferCount;
     const ok = sentCount >= required;
+    let issue: string | undefined;
+    if (!ok) {
+      issue = `only ${sentCount}/${required} posts sent yesterday`;
+      if (scheduledCount < required) {
+        issue += `; Buffer scheduled+sent with ${target.hostname} link: ${scheduledCount}/${required} (sibling self-scheduler)`;
+      }
+    }
     return {
       id: target.id,
       hostname: target.hostname,
       sentCount,
       requiredCount: required,
+      scheduledCount,
       ok,
-      issue: ok ? undefined : `only ${sentCount}/${required} posts sent yesterday`,
+      issue,
     };
   });
 
   const problems = sites.filter((s) => !s.ok);
 
-  const schedulerRun = await getSchedulerRunForDate(yesterday);
-  const scheduledByFeed = new Map<string, number>();
-  if (schedulerRun?.feedIds) {
-    for (const feedId of schedulerRun.feedIds) {
-      scheduledByFeed.set(feedId, (scheduledByFeed.get(feedId) ?? 0) + 1);
-    }
-  }
-
-  const feedBreakdown = targets.map((target) => {
-    const required = target.requiredPostsPerDay ?? MIN_POSTS_PER_DAY;
-    const sentCount = countSiteSentPosts(sent, target.hostname);
-    return {
-      feedId: target.id,
-      hostname: target.hostname,
-      scheduledCount: scheduledByFeed.get(target.id) ?? 0,
-      sentCount,
-      requiredCount: required,
-    };
-  });
-
-  for (const site of sites) {
-    const breakdown = feedBreakdown.find((f) => f.feedId === site.id);
-    if (breakdown) {
-      site.scheduledCount = breakdown.scheduledCount;
-      if (!site.ok && breakdown.scheduledCount < site.requiredCount) {
-        site.issue = `${site.issue ?? 'below quota'}; scheduled ${breakdown.scheduledCount}/${site.requiredCount}`;
-      }
-    }
-  }
+  const feedBreakdown = sites.map((site) => ({
+    feedId: site.id,
+    hostname: site.hostname,
+    scheduledCount: site.scheduledCount ?? 0,
+    sentCount: site.sentCount,
+    requiredCount: site.requiredCount,
+  }));
 
   return {
     ok: problems.length === 0,

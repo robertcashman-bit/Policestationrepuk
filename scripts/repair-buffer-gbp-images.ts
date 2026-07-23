@@ -22,7 +22,7 @@ import {
   parseFeedFromArticleUrl,
   slugFromPostText,
 } from '../lib/buffer/article-url';
-import { isDisallowedGbpAssetUrl } from '../lib/buffer/gbp-preflight';
+import { isAllowedGbpAssetUrl, isDisallowedGbpAssetUrl } from '../lib/buffer/gbp-preflight';
 import { probeGoogleBusinessImageUrl } from '../lib/buffer/image-url';
 import {
   buildSchedulablePostTextForService,
@@ -84,6 +84,11 @@ async function needsRepair(item: {
   if (/\.webp(\?|$)/i.test(item.imageUrl)) return { bad: true, reason: 'WebP asset URL' };
   if (item.mimeType && /webp/i.test(item.mimeType)) return { bad: true, reason: `WebP mimeType (${item.mimeType})` };
   if (isDisallowedGbpAssetUrl(item.imageUrl)) return { bad: true, reason: 'disallowed asset URL' };
+  // External blog PNGs (e.g. policestationagent.com/blog-images/*) often fail at
+  // Google publish time with a generic "Google Business API" Buffer error.
+  if (!isAllowedGbpAssetUrl(item.imageUrl)) {
+    return { bad: true, reason: 'asset not on allowed GBP host/path' };
+  }
   const probe = await probeGoogleBusinessImageUrl(item.imageUrl);
   if (!probe.ok) return { bad: true, reason: probe.reason ?? 'probe failed' };
   return { bad: false };

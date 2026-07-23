@@ -11,7 +11,13 @@ import { maybeNotifyOutreachSendFailure } from './outreach/send-failure-email';
 import { runFirmOutreach } from './outreach/run-outreach';
 import { claimOutreachRunLock } from './run-lock';
 import { requalifyAllProspects } from './requalify-prospects';
-import { countProspectsByStatus } from './storage';
+import { psaSendReserve } from './send-quota-split';
+import { FIRM_OUTREACH_CAMPAIGN_ID } from './site-config';
+import {
+  countProspectsByStatus,
+  getGlobalResendQuotaRemaining,
+  listProspectIdsByRecordStatus,
+} from './storage';
 import type {
   DiscoveryRunStats,
   EnrichmentRunStats,
@@ -30,6 +36,8 @@ export interface FirmOutreachPipelineResult {
   enrich: EnrichmentRunStats;
   agentCoverEnrich?: EnrichmentRunStats;
   send: OutreachRunStats;
+  /** PSA Kent campaign send stats (agent_cover_kent_v1). */
+  agentCoverSend?: OutreachRunStats;
   counts: Record<string, number>;
   elapsedMs: number;
 }
@@ -126,35 +134,61 @@ export async function runFirmOutreachPipeline(opts?: {
     }
   }
 
-  const send =
-    opts?.skipSend || !outreachSendEnabled()
-      ? emptySend()
-      : await (async () => {
-          const locked = await claimOutreachRunLock('send');
-          if (!locked) {
-            const skipped = emptySend();
-            skipped.skippedReason = 'overlap';
-            return skipped;
-          }
-          return runFirmOutreach({
-            limit: opts?.sendLimit,
-            maxElapsedMs: 240_000,
-          });
-        })();
+  let send = emptySend();
+  let agentCoverSend: OutreachRunStats | undefined;
+
+  if (!opts?.skipSend && outreachSendEnabled()) {
+    const locked = await claimOutreachRunLock('send');
+    if (!locked) {
+      send = { ...emptySend(), skippedReason: 'overlap' };
+      agentCoverSend = { ...emptySend(), skippedReason: 'overlap' };
+    } else {
+      const date = new Date().toISOString().slice(0, 10);
+      const globalRemaining = await getGlobalResendQuotaRemaining(date);
+      const psaReadyIds = await listProspectIdsByRecordStatus('ready_to_send', {
+        campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+      });
+      const { psaLimit, repukLimit } = psaSendReserve({
+        globalRemaining,
+        psaReadyCount: psaReadyIds.length,
+        sendLimit: opts?.sendLimit,
+      });
+
+      // PSA first so shared Resend budget cannot be fully consumed by RepUK.
+      agentCoverSend =
+        psaLimit > 0
+          ? await runFirmOutreach({
+              campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+              limit: psaLimit,
+              maxElapsedMs: 240_000,
+            })
+          : emptySend();
+
+      send =
+        repukLimit > 0
+          ? await runFirmOutreach({
+              campaignId: FIRM_OUTREACH_CAMPAIGN_ID,
+              limit: repukLimit,
+              maxElapsedMs: 240_000,
+            })
+          : emptySend();
+    }
+  }
 
   const counts = opts?.skipCounts ? {} : await countProspectsByStatus();
+  const combinedSend = mergeSendStats(send, agentCoverSend);
 
   if (!opts?.skipSend && !opts?.skipCounts) {
     const sendHealth = await getOutreachSendHealth();
     if (!sendHealth.sendHealthy) {
       await maybeNotifyOutreachSendFailure({
-        stats: send,
+        stats: combinedSend,
         readyToSend: counts.ready_to_send ?? 0,
         reason: `Outreach send config unhealthy: ${sendHealth.sendBlockers.join('; ')}. PSA may use RepUK from-address until policestationagent.com is verified on Resend.`,
       });
     } else {
       await maybeNotifyOutreachSendFailure({
-        stats: send,
+        stats: combinedSend,
         readyToSend: counts.ready_to_send ?? 0,
       });
     }
@@ -166,6 +200,7 @@ export async function runFirmOutreachPipeline(opts?: {
         discovery,
         enrich,
         send,
+        agentCoverSend,
         counts,
         laaRefreshed: laaResult.refreshed,
       },
@@ -190,8 +225,27 @@ export async function runFirmOutreachPipeline(opts?: {
     enrich,
     agentCoverEnrich,
     send,
+    agentCoverSend,
     counts,
     elapsedMs: Date.now() - started,
+  };
+}
+
+function mergeSendStats(
+  repuk: OutreachRunStats,
+  psa: OutreachRunStats | undefined,
+): OutreachRunStats {
+  if (!psa) return repuk;
+  return {
+    queued: (repuk.queued ?? 0) + (psa.queued ?? 0),
+    sent: (repuk.sent ?? 0) + (psa.sent ?? 0),
+    skipped: (repuk.skipped ?? 0) + (psa.skipped ?? 0),
+    suppressed: (repuk.suppressed ?? 0) + (psa.suppressed ?? 0),
+    errors: (repuk.errors ?? 0) + (psa.errors ?? 0),
+    elapsedMs: (repuk.elapsedMs ?? 0) + (psa.elapsedMs ?? 0),
+    attempted: (repuk.attempted ?? 0) + (psa.attempted ?? 0),
+    partial: Boolean(repuk.partial || psa.partial),
+    skippedReason: repuk.skippedReason ?? psa.skippedReason,
   };
 }
 

@@ -162,6 +162,7 @@ export async function sendDailyOutreachDigest(opts?: {
     discovery: DiscoveryRunStats;
     enrich: EnrichmentRunStats;
     send: OutreachRunStats;
+    agentCoverSend?: OutreachRunStats;
     counts: Record<string, number>;
     laaRefreshed: boolean;
   };
@@ -205,7 +206,8 @@ export async function sendDailyOutreachDigest(opts?: {
       <ul>
         <li>LAA: ${opts.pipeline.laaRefreshed ? 'refreshed' : 'cache'}</li>
         <li>Enriched: ${opts.pipeline.enrich.processed} · emails found: ${opts.pipeline.enrich.emailsFound}</li>
-        <li>Sent this run: ${opts.pipeline.send.sent} · skipped: ${opts.pipeline.send.skipped}</li>
+        <li>Sent this run (RepUK): ${opts.pipeline.send.sent} · skipped: ${opts.pipeline.send.skipped}</li>
+        <li>Sent this run (PSA Kent): ${opts.pipeline.agentCoverSend?.sent ?? 0} · skipped: ${opts.pipeline.agentCoverSend?.skipped ?? 0}</li>
       </ul>
     `
     : '';

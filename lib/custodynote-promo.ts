@@ -78,5 +78,3 @@ export const INLINE_CTA_BULLETS = [
   'Works offline at the custody desk',
   'PDF + LAA billing in one record',
 ] as const;
-
-export const LEAD_MAGNET_TITLE = 'Free UK police station attendance note template';

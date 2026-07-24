@@ -1,6 +1,6 @@
 /**
  * Full production audit: sitemap HEAD/GET, sampled HTML internal links,
- * API smoke tests (register, contact, station-update, lead-magnet).
+ * API smoke tests (register, contact, station-update).
  *
  * Usage:
  *   node scripts/audit/full-site-audit.mjs
@@ -274,14 +274,6 @@ async function runFormAudits() {
     _startedAt: started,
   });
 
-  results.leadMagnet = await postJson('/api/lead-magnet', {
-    email: 'qa-audit-lead@example.com',
-    source: 'full-site-audit',
-    leadMagnet: 'QA audit',
-    _hp: '',
-    _startedAt: started,
-  });
-
   let stationPayload = { skip: true, reason: 'could not load /api/stations' };
   try {
     const ctrl = new AbortController();
@@ -377,7 +369,6 @@ async function main() {
     forms: {
       register: { ...forms.register, verdict: formVerdict(forms.register) },
       contact: { ...forms.contact, verdict: formVerdict(forms.contact) },
-      leadMagnet: { ...forms.leadMagnet, verdict: formVerdict(forms.leadMagnet) },
       stationUpdate: {
         ...forms.stationUpdate,
         verdict: formVerdict(forms.stationUpdate),
@@ -423,7 +414,6 @@ async function main() {
   const badForms =
     formFail(report.forms.register.verdict) ||
     formFail(report.forms.contact.verdict) ||
-    formFail(report.forms.leadMagnet.verdict) ||
     (report.forms.stationUpdate.verdict !== 'SKIPPED' && formFail(report.forms.stationUpdate.verdict));
 
   const THRESH_SITEMAP = parseInt(process.env.AUDIT_FAIL_SITEMAP_THRESHOLD || '25', 10);

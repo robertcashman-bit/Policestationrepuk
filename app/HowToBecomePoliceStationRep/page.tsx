@@ -4,7 +4,6 @@ import { ContentReliabilityNotice } from '@/components/ContentReliabilityNotice'
 import { ResolvedContentSources } from '@/components/ContentSourcesFooter';
 import { PsrTrainPromo } from '@/components/PsrTrainPromo';
 import { CustodyNotePagePromo } from '@/components/CustodyNotePagePromo';
-import { GuideEmailCapture } from '@/components/GuideEmailCapture';
 import { JsonLd } from '@/components/JsonLd';
 import { buildMetadata, faqPageSchema } from '@/lib/seo';
 
@@ -676,15 +675,6 @@ export default function HowToBecomePage() {
               ))}
             </div>
           </section>
-
-          <GuideEmailCapture
-            className="mb-12"
-            title="Get the 'how to become a rep' roadmap by email"
-            description="The full route — accreditation steps, costs, timelines, and finding a supervising firm — in one summary. No spam."
-            source="become-a-rep"
-            leadMagnet="How to become a police station rep — roadmap"
-            buttonLabel="Email me the roadmap"
-          />
 
           {/* Related */}
           <section className="mb-12">

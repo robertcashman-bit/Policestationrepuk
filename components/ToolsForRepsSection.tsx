@@ -13,8 +13,6 @@ import {
   PSRTRAIN_TRAINING_HREF,
 } from '@/lib/psrtrain-promo';
 import { FOOTER_TOOLS } from '@/lib/site-navigation';
-import { LeadMagnetEmailCapture } from '@/components/LeadMagnetEmailCapture';
-
 /**
  * “Tools for Police Station Reps” — CustodyNote + PSR Train partner cards; other tools from site nav.
  */
@@ -153,7 +151,6 @@ export function ToolsForRepsSection() {
           </div>
         </div>
 
-        <LeadMagnetEmailCapture />
       </div>
     </section>
   );

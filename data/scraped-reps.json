@@ -1874,19 +1874,6 @@
     "websiteUrl": ""
   },
   {
-    "name": "Russell Rouse",
-    "phone": "(07734) 261121",
-    "email": "",
-    "county": "Kent",
-    "availability": "Any",
-    "accreditation": "Accredited Police Station Rep",
-    "featured": false,
-    "stations": [],
-    "bio": "",
-    "slug": "russell-rouse",
-    "websiteUrl": ""
-  },
-  {
     "name": "Adil Sadygov",
     "phone": "07835034496",
     "email": "adils.psr@gmail.com",
@@ -2307,7 +2294,10 @@
     "phone": "07759 348024",
     "email": "sdglegalservices@outlook.com",
     "county": "Devon",
-    "counties": ["Devon", "Cornwall"],
+    "counties": [
+      "Devon",
+      "Cornwall"
+    ],
     "availability": "24/7",
     "accreditation": "Accredited Representative",
     "featured": true,

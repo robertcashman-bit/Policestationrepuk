@@ -4,6 +4,7 @@ import { dailySendCap } from './constants';
 import { sortProspectsForSend } from './enrichment/scorer';
 import { validateEmailForSend } from './enrichment/validator';
 import { qualifyProspectForOutreach } from './qualification';
+import { reconcileReadyProspectStatus } from './reconcile-ready-status';
 import {
   getDailySendCount,
   getGlobalResendQuotaRemaining,
@@ -45,15 +46,25 @@ function daysSince(iso: string | undefined): number {
   return (Date.now() - Date.parse(iso)) / (1000 * 60 * 60 * 24);
 }
 
+function dueForFollowUp(prospect: FirmProspect): boolean {
+  // Match run-outreach: engaged prospects are not due for follow-up.
+  if (prospect.waLinkClickedAt || prospect.joinedWhatsAppAt) return false;
+  if (!prospect.lastEmailAt) return prospect.status === 'ready_to_send';
+  const days = daysSince(prospect.lastEmailAt);
+  if (prospect.sequenceStep === 0 && days >= FOLLOWUP_DAY_1) return true;
+  if (prospect.sequenceStep === 1 && days >= FOLLOWUP_DAY_2 - FOLLOWUP_DAY_1) return true;
+  return false;
+}
+
 function nextStep(prospect: FirmProspect): number | null {
-  if (prospect.status === 'ready_to_send' && prospect.sequenceStep === 0 && !prospect.lastEmailAt) {
+  // Preview as if requalify already healed ready_to_send + lastEmailAt → sent.
+  const reconciled = reconcileReadyProspectStatus(prospect);
+  const status = reconciled ?? prospect.status;
+  if (status === 'ready_to_send' && prospect.sequenceStep === 0 && !prospect.lastEmailAt) {
     return 0;
   }
-  const days = daysSince(prospect.lastEmailAt);
-  if (prospect.status === 'sent' && prospect.sequenceStep === 0 && days >= FOLLOWUP_DAY_1) return 1;
-  if (prospect.status === 'sent' && prospect.sequenceStep === 1 && days >= FOLLOWUP_DAY_2 - FOLLOWUP_DAY_1) {
-    return 2;
-  }
+  if (status === 'sent' && prospect.sequenceStep === 0 && dueForFollowUp(prospect)) return 1;
+  if (status === 'sent' && prospect.sequenceStep === 1 && dueForFollowUp(prospect)) return 2;
   return null;
 }
 

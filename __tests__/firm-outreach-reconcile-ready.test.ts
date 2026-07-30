@@ -31,6 +31,16 @@ describe('reconcileReadyProspectStatus', () => {
     expect(reconcileReadyProspectStatus(p)).toBe('sent');
   });
 
+  it('moves ready_to_send with lastEmailAt and follow-up sequenceStep to sent', () => {
+    const p = {
+      ...base(),
+      sequenceStep: 2,
+      lastEmailAt: '2026-07-15T17:13:06.591Z',
+    };
+    expect(prospectHasInitialSend(p)).toBe(true);
+    expect(reconcileReadyProspectStatus(p)).toBe('sent');
+  });
+
   it('downgrades ready_to_send with malformed email to discovered', () => {
     expect(
       reconcileReadyProspectStatus({

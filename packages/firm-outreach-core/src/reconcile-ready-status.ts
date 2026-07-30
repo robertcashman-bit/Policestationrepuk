@@ -8,14 +8,17 @@ function daysSince(iso: string | undefined): number {
   return (Date.now() - Date.parse(iso)) / (1000 * 60 * 60 * 24);
 }
 
-/** Whether an initial outreach email was already recorded on this prospect. */
+/** Whether any outreach email was already recorded on this prospect. */
 export function prospectHasInitialSend(prospect: Pick<FirmProspect, 'lastEmailAt' | 'sequenceStep'>): boolean {
-  return Boolean(prospect.lastEmailAt) && prospect.sequenceStep === 0;
+  // Any lastEmailAt means contact already happened (step 0 initial or later follow-ups).
+  // sequenceStep is ignored: stale ready_to_send rows often keep step 1/2 after sends.
+  return Boolean(prospect.lastEmailAt);
 }
 
 /**
- * ready_to_send + lastEmailAt is a stale index state: the initial send already happened
- * but status was not moved to sent. That blocks the morning cron from picking new firms.
+ * ready_to_send + lastEmailAt is a stale index state: a send already happened
+ * but status was not moved to sent (or was re-promoted). That floods the send
+ * queue with no_step skips and blocks genuine ready initials + due follow-ups.
  */
 export function reconcileReadyProspectStatus(
   prospect: Pick<FirmProspect, 'status' | 'lastEmailAt' | 'sequenceStep' | 'email'>,

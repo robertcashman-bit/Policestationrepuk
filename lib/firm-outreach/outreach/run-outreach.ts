@@ -7,6 +7,7 @@ import {
   qualifyProspectForOutreach,
   resolveStatusWithQualification,
 } from '../qualification';
+import { reconcileReadyProspectStatus } from '../reconcile-ready-status';
 import {
   addSuppression,
   createSendRecord,
@@ -195,6 +196,17 @@ export async function runFirmOutreach(opts?: {
     }
 
     try {
+      // Heal stale ready_to_send + lastEmailAt before step selection so due
+      // follow-ups are not stuck behind a wall of no_step skips.
+      // Only apply the sent heal here; invalid-email downgrades stay in requalify.
+      const reconciled = reconcileReadyProspectStatus(prospect);
+      if (reconciled === 'sent') {
+        const prev = prospect.status;
+        prospect.status = reconciled;
+        prospect.updatedAt = new Date().toISOString();
+        await saveProspect(prospect, prev);
+      }
+
       const step = nextStep(prospect);
       if (step === null) {
         recordSkip(stats, 'no_step');

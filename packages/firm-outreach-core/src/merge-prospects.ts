@@ -147,7 +147,9 @@ export function mergeProspect(existing: FirmProspect, incoming: FirmProspect): F
 
   const outreachMutable = ['discovered', 'no_email', 'enriched', 'enriching', 'ready_to_send'];
   if (outreachMutable.includes(merged.status) && merged.email) {
-    merged.status = resolveStatusWithQualification(merged, 'ready_to_send');
+    // Never re-promote already-contacted prospects back to ready_to_send.
+    const preferred = merged.lastEmailAt ? 'sent' : 'ready_to_send';
+    merged.status = resolveStatusWithQualification(merged, preferred);
   }
 
   return merged;

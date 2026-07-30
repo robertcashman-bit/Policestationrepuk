@@ -48,7 +48,25 @@ vi.mock('../lib/firm-outreach/enrichment/validator', () => ({
 vi.mock('../lib/firm-outreach/constants', () => ({
   dailySendCap: () => 50,
   outreachSendEnabled: () => true,
+  outreachEnabled: () => true,
 }));
+
+vi.mock('../lib/firm-outreach/pause-state', () => ({
+  isOutreachSendAllowed: vi.fn(async () => true),
+  isOutreachPaused: vi.fn(async () => false),
+  getAdminPauseState: vi.fn(async () => null),
+}));
+
+vi.mock('../lib/firm-outreach/outreach/from-address', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../lib/firm-outreach/outreach/from-address')>();
+  return {
+    ...actual,
+    assertOutreachSendReady: vi.fn(async () => ({
+      ok: true,
+      from: 'PoliceStationRepUK <noreply@policestationrepuk.org>',
+    })),
+  };
+});
 
 function readyProspect(id: string) {
   return {

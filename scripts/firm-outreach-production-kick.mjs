@@ -5,13 +5,70 @@
  * Usage:
  *   FIRM_OUTREACH_KICK_BASE_URL=https://policestationrepuk.org \
  *   CRON_SECRET=... node scripts/firm-outreach-production-kick.mjs
+ *
+ * Optionally loads `.env.production` (from `vercel env pull`) via dotenv so
+ * bash `source` quoting/expansion cannot drop CRON_SECRET.
  */
+import { existsSync, readFileSync } from 'node:fs';
 import {
   DEFAULT_PRODUCTION_KICK_STEPS,
   resolveKickAuth,
   runProductionKickSteps,
   waitForVercelProductionDeploy,
 } from '../lib/firm-outreach/production-kick.ts';
+
+function parseDotenv(src) {
+  const text = Buffer.isBuffer(src) ? src.toString('utf8') : String(src ?? '');
+  const out = {};
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) continue;
+    const match = /^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(line);
+    if (!match) continue;
+
+    const key = match[1];
+    let value = match[2] ?? '';
+
+    // If value is unquoted, strip inline comments.
+    const firstChar = value.trimStart().slice(0, 1);
+    const isQuoted = firstChar === '"' || firstChar === "'";
+    if (!isQuoted) {
+      value = value.replace(/\s+#.*$/, '');
+    }
+
+    value = value.trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    out[key] = value;
+  }
+  return out;
+}
+
+function loadEnvFileIfPresent(path) {
+  if (!existsSync(path)) return { loaded: false, filled: [] };
+  const parsed = parseDotenv(readFileSync(path));
+  const filled = [];
+  for (const [key, value] of Object.entries(parsed)) {
+    const current = process.env[key];
+    // Fill missing/empty only — never overwrite a non-empty GH secret.
+    if (current == null || current === '') {
+      process.env[key] = value;
+      if (value) filled.push(key);
+    }
+  }
+  return { loaded: true, filled };
+}
+
+const envLoad = loadEnvFileIfPresent('.env.production');
+if (envLoad.loaded) {
+  console.log(
+    `Loaded .env.production (filled empty keys: ${envLoad.filled.length}; cron_len=${(process.env.CRON_SECRET || '').length})`,
+  );
+}
 
 const baseUrl = process.env.FIRM_OUTREACH_KICK_BASE_URL?.trim();
 if (!baseUrl) {

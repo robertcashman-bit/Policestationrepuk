@@ -104,11 +104,15 @@ Outreach uses Resend. Only **verified** domains can send.
 
 **Permanent auto-fix:** before each batch, the send path resolves from-address against Resend verified domains. If `policestationagent.com` is not verified, PSA emails send from the verified RepUK domain automatically (content and links remain PSA). On a Resend domain error, the send retries once with the verified fallback.
 
-**Verify PSA domain (optional):** Resend dashboard → Domains → add `policestationagent.com` (DNS records). Then set on Vercel:
+**Both campaigns auto-send:** cron/pipeline/`send-approved` call `runFirmOutreachAllCampaigns` so `whatsapp_invite_v1` **and** `agent_cover_kent_v1` flush their `ready_to_send` queues (each with its own daily cap). Until PSA domain verification, agent-cover still sends via the RepUK fallback from-address.
+
+**Verify PSA domain (optional but preferred):** Resend dashboard → Domains → add `policestationagent.com` (DNS records). Then set on Vercel:
 
 ```bash
 FIRM_OUTREACH_PSA_FROM_EMAIL=Police Station Agent <noreply@policestationagent.com>
 ```
+
+Unset production blockers: `FIRM_OUTREACH_DRY_RUN`, `FIRM_OUTREACH_PAUSED`, `FIRM_OUTREACH_SEND_ENABLED=false`, and prefer `FIRM_OUTREACH_REQUIRE_APPROVAL` unset/`false` for auto-send.
 
 **Health check:** `GET /api/cron/firm-outreach-status` (with `CRON_SECRET`) reports `sendHealthy`, `sendBlockers`, and `campaignSendHealth` per campaign.
 

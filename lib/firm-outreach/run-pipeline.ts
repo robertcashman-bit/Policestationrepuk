@@ -8,7 +8,11 @@ import { runFirmEnrichment } from './enrichment/run-enrich';
 import { sendDailyOutreachDigest } from './outreach/digest-email';
 import { getOutreachSendHealth } from './outreach/from-address';
 import { maybeNotifyOutreachSendFailure } from './outreach/send-failure-email';
-import { runFirmOutreach } from './outreach/run-outreach';
+import {
+  emptyOutreachRunStats,
+  runFirmOutreachAllCampaigns,
+} from './outreach/run-outreach';
+import { isOutreachSendAllowed } from './pause-state';
 import { claimOutreachRunLock } from './run-lock';
 import { requalifyAllProspects } from './requalify-prospects';
 import { countProspectsByStatus } from './storage';
@@ -29,7 +33,11 @@ export interface FirmOutreachPipelineResult {
   requalify: Awaited<ReturnType<typeof requalifyAllProspects>>;
   enrich: EnrichmentRunStats;
   agentCoverEnrich?: EnrichmentRunStats;
+  /** Combined send stats across RepUK + PSA campaigns. */
   send: OutreachRunStats;
+  /** Per-campaign send stats (whatsapp_invite_v1 + agent_cover_kent_v1). */
+  sendByCampaign?: Record<string, OutreachRunStats>;
+  agentCoverSend?: OutreachRunStats;
   counts: Record<string, number>;
   elapsedMs: number;
 }
@@ -69,7 +77,7 @@ export async function runFirmOutreachPipeline(opts?: {
       discovery: emptyDiscovery(),
       requalify: emptyRequalify(),
       enrich: emptyEnrich(),
-      send: emptySend(),
+      send: emptyOutreachRunStats(),
       counts: {},
       elapsedMs: Date.now() - started,
     };
@@ -126,31 +134,44 @@ export async function runFirmOutreachPipeline(opts?: {
     }
   }
 
+  let sendByCampaign: Record<string, OutreachRunStats> | undefined;
+  let agentCoverSend: OutreachRunStats | undefined;
+  const sendAllowed = await isOutreachSendAllowed();
   const send =
-    opts?.skipSend || !outreachSendEnabled()
-      ? emptySend()
+    opts?.skipSend || !outreachSendEnabled() || !sendAllowed
+      ? emptyOutreachRunStats()
       : await (async () => {
           const locked = await claimOutreachRunLock('send');
           if (!locked) {
-            const skipped = emptySend();
+            const skipped = emptyOutreachRunStats();
             skipped.skippedReason = 'overlap';
             return skipped;
           }
-          return runFirmOutreach({
+          // Send both RepUK WhatsApp invites and PSA agent-cover Kent emails.
+          const multi = await runFirmOutreachAllCampaigns({
             limit: opts?.sendLimit,
             maxElapsedMs: 240_000,
           });
+          sendByCampaign = multi.byCampaign;
+          agentCoverSend = multi.byCampaign[AGENT_COVER_KENT_CAMPAIGN_ID];
+          return multi.combined;
         })();
 
   const counts = opts?.skipCounts ? {} : await countProspectsByStatus();
 
   if (!opts?.skipSend && !opts?.skipCounts) {
     const sendHealth = await getOutreachSendHealth();
+    const psaHealth = sendHealth.campaigns.find(
+      (c) => c.campaignId === AGENT_COVER_KENT_CAMPAIGN_ID,
+    );
+    const psaNote = psaHealth?.usedFallbackDefault
+      ? ' PSA agent-cover is sending from the verified RepUK domain until policestationagent.com is verified on Resend.'
+      : '';
     if (!sendHealth.sendHealthy) {
       await maybeNotifyOutreachSendFailure({
         stats: send,
         readyToSend: counts.ready_to_send ?? 0,
-        reason: `Outreach send config unhealthy: ${sendHealth.sendBlockers.join('; ')}. PSA may use RepUK from-address until policestationagent.com is verified on Resend.`,
+        reason: `Outreach send config unhealthy: ${sendHealth.sendBlockers.join('; ')}.${psaNote}`,
       });
     } else {
       await maybeNotifyOutreachSendFailure({
@@ -190,6 +211,8 @@ export async function runFirmOutreachPipeline(opts?: {
     enrich,
     agentCoverEnrich,
     send,
+    sendByCampaign,
+    agentCoverSend,
     counts,
     elapsedMs: Date.now() - started,
   };
@@ -234,13 +257,3 @@ function emptyEnrich(): EnrichmentRunStats {
   };
 }
 
-function emptySend(): OutreachRunStats {
-  return {
-    queued: 0,
-    sent: 0,
-    skipped: 0,
-    suppressed: 0,
-    errors: 0,
-    elapsedMs: 0,
-  };
-}

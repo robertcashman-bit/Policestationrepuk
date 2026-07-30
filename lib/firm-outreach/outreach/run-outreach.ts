@@ -3,10 +3,12 @@ import { activeOutreachCampaignId, isCampaignProspect } from '../campaign-scope'
 import { dailySendCap, outreachSendEnabled } from '../constants';
 import { sortProspectsForSend } from '../enrichment/scorer';
 import { isPlausibleOutreachEmail, validateEmailForSend } from '../enrichment/validator';
+import { isOutreachSendAllowed } from '../pause-state';
 import {
   qualifyProspectForOutreach,
   resolveStatusWithQualification,
 } from '../qualification';
+import { OUTREACH_CAMPAIGN_IDS } from '../site-config';
 import {
   addSuppression,
   createSendRecord,
@@ -25,6 +27,7 @@ import {
 } from '../storage';
 import type { FirmProspect, OutreachRunStats } from '../types';
 import { normalizeEmail } from '../normalize';
+import { assertOutreachSendReady } from './from-address';
 import {
   buildOutreachRunLog,
   initExtendedRunStats,
@@ -150,8 +153,15 @@ export async function runFirmOutreach(opts?: {
     return stats;
   };
 
-  if (!outreachSendEnabled()) {
+  if (!outreachSendEnabled() || !(await isOutreachSendAllowed())) {
     recordSkip(stats, 'send_disabled');
+    return finish(0, 0, dailySendCap());
+  }
+
+  const readyCheck = await assertOutreachSendReady(campaignId);
+  if (!readyCheck.ok) {
+    recordSkip(stats, 'send_disabled');
+    stats.skippedReason = readyCheck.reason;
     return finish(0, 0, dailySendCap());
   }
 
@@ -349,4 +359,85 @@ export async function runFirmOutreach(opts?: {
 
   const finalQuota = await getGlobalResendQuotaRemaining(date);
   return finish(finalQuota, alreadySent, dailyCap);
+}
+
+export function emptyOutreachRunStats(): OutreachRunStats {
+  return {
+    queued: 0,
+    sent: 0,
+    skipped: 0,
+    suppressed: 0,
+    errors: 0,
+    elapsedMs: 0,
+  };
+}
+
+export function mergeOutreachRunStats(
+  ...parts: OutreachRunStats[]
+): OutreachRunStats {
+  const out = emptyOutreachRunStats();
+  for (const part of parts) {
+    out.queued += part.queued;
+    out.sent += part.sent;
+    out.skipped += part.skipped;
+    out.suppressed += part.suppressed;
+    out.errors += part.errors;
+    out.elapsedMs += part.elapsedMs;
+    out.attempted = (out.attempted ?? 0) + (part.attempted ?? 0);
+    out.failed = (out.failed ?? 0) + (part.failed ?? 0);
+    if (part.skipReasons) {
+      out.skipReasons = out.skipReasons ?? {};
+      for (const [k, v] of Object.entries(part.skipReasons)) {
+        const key = k as keyof NonNullable<OutreachRunStats['skipReasons']>;
+        out.skipReasons[key] = (out.skipReasons[key] ?? 0) + (v ?? 0);
+      }
+    }
+    if (part.failures?.length) {
+      out.failures = [...(out.failures ?? []), ...part.failures];
+    }
+    if (!out.skippedReason && part.skippedReason) {
+      out.skippedReason = part.skippedReason;
+    }
+    if (part.resendQuotaRemaining !== undefined) {
+      out.resendQuotaRemaining = Math.min(
+        out.resendQuotaRemaining ?? part.resendQuotaRemaining,
+        part.resendQuotaRemaining,
+      );
+    }
+  }
+  return out;
+}
+
+/**
+ * Send for every shared KV campaign (RepUK WhatsApp + PSA agent-cover).
+ * Each campaign keeps its own daily cap / queue; stats are returned per campaign and combined.
+ */
+export async function runFirmOutreachAllCampaigns(opts?: {
+  dryRun?: boolean;
+  limit?: number;
+  maxElapsedMs?: number;
+  campaignIds?: readonly string[];
+}): Promise<{
+  byCampaign: Record<string, OutreachRunStats>;
+  combined: OutreachRunStats;
+}> {
+  const campaignIds = opts?.campaignIds ?? OUTREACH_CAMPAIGN_IDS;
+  const byCampaign: Record<string, OutreachRunStats> = {};
+  const perCampaignElapsed = opts?.maxElapsedMs
+    ? Math.max(30_000, Math.floor(opts.maxElapsedMs / Math.max(1, campaignIds.length)))
+    : undefined;
+
+  for (const campaignId of campaignIds) {
+    byCampaign[campaignId] = await runFirmOutreach({
+      campaignId,
+      dryRun: opts?.dryRun,
+      limit: opts?.limit,
+      maxElapsedMs: perCampaignElapsed,
+    });
+  }
+
+  return {
+    byCampaign,
+    combined: mergeOutreachRunStats(...Object.values(byCampaign)),
+  };
 }

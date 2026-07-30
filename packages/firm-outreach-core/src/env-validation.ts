@@ -47,5 +47,11 @@ export function validateOutreachEnv(opts?: { requireCronSecret?: boolean }): Out
     );
   }
 
+  if (!process.env.FIRM_OUTREACH_PSA_FROM_EMAIL?.trim()) {
+    warnings.push(
+      'FIRM_OUTREACH_PSA_FROM_EMAIL unset — PSA prefers noreply@policestationagent.com and falls back to verified RepUK domain until that domain is verified on Resend',
+    );
+  }
+
   return { ok: errors.length === 0, errors, warnings };
 }

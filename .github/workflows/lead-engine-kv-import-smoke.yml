@@ -1,0 +1,65 @@
+# Proves Lead engine KV import path can read Redis SET indexes (WRONGTYPE guard).
+# Triggered on master pushes that touch the import/index stack, or manually.
+name: Lead engine KV import smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'lib/kv-atomic.ts'
+      - 'lib/firm-outreach/storage.ts'
+      - 'lib/firm-outreach/import-lead-engine.ts'
+      - 'scripts/firm-outreach-import-lead-engine.ts'
+      - 'scripts/firm-outreach-probe-index.ts'
+      - '.github/workflows/lead-engine-kv-import-smoke.yml'
+      - '.github/workflows/lead-engine.yml'
+
+jobs:
+  probe-index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull RepUK production KV env
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel env pull .env.production --environment=production --yes --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Probe firmprospect:index (WRONGTYPE regression)
+        run: |
+          set -a
+          # shellcheck disable=SC1091
+          source .env.production
+          set +a
+          if [ -z "${KV_REST_API_URL:-}" ] && [ -z "${UPSTASH_REDIS_REST_URL:-}" ]; then
+            echo "KV env missing from Vercel production — cannot smoke import index"
+            exit 1
+          fi
+          npx tsx scripts/firm-outreach-probe-index.ts
+
+      - name: Soft import ready_to_send.csv when artifact CSV exists
+        run: |
+          CSV="lead_engine/data/exports/ready_to_send.csv"
+          if [ ! -f "$CSV" ]; then
+            echo "No committed $CSV — skipping full import (index probe is the gate)"
+            exit 0
+          fi
+          set -a
+          # shellcheck disable=SC1091
+          source .env.production
+          set +a
+          npx tsx scripts/firm-outreach-import-lead-engine.ts --file="$CSV" --dry-run

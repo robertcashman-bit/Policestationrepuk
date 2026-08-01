@@ -16,6 +16,10 @@ const JOB_INDEX = 'firmoutreach:job:index';
 const JOB_STATUS_PREFIX = 'firmoutreach:job:status:';
 const JOB_IDEM_PREFIX = 'firmoutreach:job:idem:';
 const JOB_PENDING_ZSET = 'firmoutreach:job:pending_z';
+/** O(1) lookup by Resend message id — mirrors SEND_RESEND_INDEX for sends. */
+const JOB_RESEND_INDEX = 'firmoutreach:job:resend:';
+/** O(1) lookup by firm-outreach send id. */
+const JOB_SEND_INDEX = 'firmoutreach:job:send:';
 
 function jobKey(id: string): string {
   return `${JOB_PREFIX}${id}`;
@@ -27,6 +31,14 @@ function statusKey(status: EmailJobStatus): string {
 
 function idemKey(idempotencyKey: string): string {
   return `${JOB_IDEM_PREFIX}${idempotencyKey}`;
+}
+
+function jobResendKey(providerMessageId: string): string {
+  return `${JOB_RESEND_INDEX}${providerMessageId}`;
+}
+
+function jobSendKey(sendId: string): string {
+  return `${JOB_SEND_INDEX}${sendId}`;
 }
 
 function newJobId(): string {
@@ -104,6 +116,12 @@ export async function saveEmailJob(
   await addToSet(statusKey(job.status), job.id);
   if (previousStatus && previousStatus !== job.status) {
     await removeFromSet(statusKey(previousStatus), job.id);
+  }
+  if (job.providerMessageId) {
+    await kv.set(jobResendKey(job.providerMessageId), job.id);
+  }
+  if (job.sendId) {
+    await kv.set(jobSendKey(job.sendId), job.id);
   }
   // Score pending/retry by nextRetryAt or createdAt for ordered claim.
   if (EMAIL_JOB_CLAIMABLE_STATUSES.has(job.status)) {
@@ -468,6 +486,90 @@ export async function markJobSuppressed(
   job.completedAt = new Date().toISOString();
   await saveEmailJob(job, prev);
   return job;
+}
+
+/**
+ * Advance an accepted (or in-flight) job from a Resend delivery webhook.
+ * No-ops when the job is already at a later terminal delivery state.
+ */
+export async function markJobFromWebhookEvent(
+  job: EmailJob,
+  eventType: string,
+): Promise<EmailJob | null> {
+  let next: EmailJobStatus | null = null;
+  if (eventType === 'email.delivered') next = 'delivered';
+  else if (eventType === 'email.bounced') next = 'bounced';
+  else if (eventType === 'email.complained') next = 'complained';
+  else return null;
+
+  if (job.status === next) return job;
+  // Do not rewind a bounce/complaint back to delivered.
+  if (
+    (job.status === 'bounced' || job.status === 'complained') &&
+    next === 'delivered'
+  ) {
+    return job;
+  }
+
+  const prev = job.status;
+  job.status = next;
+  job.completedAt = job.completedAt ?? new Date().toISOString();
+  await saveEmailJob(job, prev);
+  return job;
+}
+
+/** Find an accepted/delivered job by Resend message id or firm-outreach send id. */
+export async function findEmailJobForWebhook(opts: {
+  providerMessageId?: string;
+  sendId?: string;
+  limit?: number;
+}): Promise<EmailJob | null> {
+  const kv = getKV();
+  if (kv) {
+    if (opts.providerMessageId) {
+      const byResend = await kv.get<string>(jobResendKey(opts.providerMessageId));
+      if (byResend) {
+        const job = await getEmailJob(byResend);
+        if (job) return job;
+      }
+    }
+    if (opts.sendId) {
+      const bySend = await kv.get<string>(jobSendKey(opts.sendId));
+      if (bySend) {
+        const job = await getEmailJob(bySend);
+        if (job) return job;
+      }
+    }
+  }
+
+  // Legacy fallback for jobs accepted before provider/send indexes existed.
+  const limit = opts.limit ?? 200;
+  const statuses: EmailJobStatus[] = [
+    'accepted',
+    'delivered',
+    'bounced',
+    'complained',
+    'processing',
+    'claimed',
+  ];
+  for (const status of statuses) {
+    const ids = await listEmailJobIdsByStatus(status, limit);
+    for (const id of ids) {
+      const job = await getEmailJob(id);
+      if (!job) continue;
+      if (
+        opts.providerMessageId &&
+        job.providerMessageId &&
+        job.providerMessageId === opts.providerMessageId
+      ) {
+        return job;
+      }
+      if (opts.sendId && job.sendId && job.sendId === opts.sendId) {
+        return job;
+      }
+    }
+  }
+  return null;
 }
 
 export function isTerminalEmailJob(job: EmailJob): boolean {

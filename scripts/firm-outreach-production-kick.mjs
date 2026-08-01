@@ -16,6 +16,7 @@ import {
   runProductionKickSteps,
   waitForVercelProductionDeploy,
 } from '../lib/firm-outreach/production-kick.ts';
+import { probeSignedResendWebhook } from '../lib/firm-outreach/resend-webhook-probe.ts';
 
 function parseDotenv(src) {
   const text = Buffer.isBuffer(src) ? src.toString('utf8') : String(src ?? '');
@@ -109,6 +110,28 @@ if (token && projectId) {
   } else {
     console.warn('Deploy wait timed out — continuing with kick anyway');
   }
+}
+
+const webhookSecret = process.env.RESEND_WEBHOOK_SECRET?.trim();
+if (!webhookSecret) {
+  console.error(
+    'RESEND_WEBHOOK_SECRET missing after prepare — cannot prove webhook signature verify',
+  );
+  process.exit(1);
+}
+
+console.log('Probing signed Resend webhook on production…');
+const probe = await probeSignedResendWebhook({
+  baseUrl,
+  webhookSecret,
+});
+console.log(
+  `[${probe.ok ? 'ok' : 'fail'}] Signed Resend webhook probe — HTTP ${probe.status}`,
+);
+if (probe.body) console.log(probe.body.slice(0, 500));
+if (!probe.ok) {
+  console.error('Signed webhook probe failed — RESEND_WEBHOOK_SECRET likely drifted or endpoint disabled');
+  process.exit(1);
 }
 
 const { results, failed } = await runProductionKickSteps({

@@ -61,8 +61,7 @@ describe('runProductionKickSteps', () => {
 
     expect(failed).toBe(false);
     expect(results.length).toBe(DEFAULT_PRODUCTION_KICK_STEPS.length);
-    expect(results[1]?.path).toContain('firm-outreach-probe');
-    expect(results[1]?.ok).toBe(true);
+    expect(results.find((r) => r.path.includes('firm-outreach-probe'))?.ok).toBe(true);
   });
 
   it('starts with optional outreach status health check', () => {
@@ -70,9 +69,11 @@ describe('runProductionKickSteps', () => {
     expect(DEFAULT_PRODUCTION_KICK_STEPS[0]?.optional).toBe(true);
   });
 
-  it('requires pre-flight email probes before flush', () => {
-    expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.path).toBe('/api/cron/firm-outreach-probe');
+  it('backfills delivery then requires pre-flight email probes before flush', () => {
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.path).toContain('firm-outreach-backfill-delivery');
     expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.optional).toBeFalsy();
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.path).toBe('/api/cron/firm-outreach-probe');
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.optional).toBeFalsy();
   });
 
   it('flushes early (required) then again after enrich', () => {

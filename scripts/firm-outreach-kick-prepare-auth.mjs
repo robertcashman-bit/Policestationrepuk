@@ -164,14 +164,28 @@ async function productionAcceptsBootstrap(secret) {
 const RESEND_WEBHOOK_URL =
   process.env.RESEND_WEBHOOK_URL_OVERRIDE || 'https://policestationrepuk.org/api/webhooks/resend';
 
+const RESEND_WEBHOOK_EVENTS = [
+  'email.sent',
+  'email.delivered',
+  'email.opened',
+  'email.clicked',
+  'email.bounced',
+  'email.complained',
+];
+
+function resendWebhookEventsMatch(existing) {
+  if (!existing?.length) return false;
+  const have = new Set(existing);
+  return RESEND_WEBHOOK_EVENTS.every((e) => have.has(e));
+}
+
 /**
- * Pull signing_secret from Resend for our production webhook URL and upsert
- * RESEND_WEBHOOK_SECRET on Vercel when it drifts. Returns true when env changed.
+ * Ensure production webhook is enabled, events are complete, and
+ * RESEND_WEBHOOK_SECRET matches Resend. Returns { needsRedeploy, signingSecret }.
  */
-async function syncResendWebhookSecret(apiKey, currentSecret, existingIds) {
-  const listRes = await fetch('https://api.resend.com/webhooks', {
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-  });
+async function ensureResendWebhookHealthy(apiKey, currentSecret, existingIds) {
+  const headers = { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' };
+  const listRes = await fetch('https://api.resend.com/webhooks', { headers });
   const listText = await listRes.text();
   let listJson = null;
   try {
@@ -183,15 +197,59 @@ async function syncResendWebhookSecret(apiKey, currentSecret, existingIds) {
     throw new Error(`Resend webhooks list HTTP ${listRes.status}: ${listText.slice(0, 300)}`);
   }
   const hooks = listJson?.data ?? listJson?.webhooks ?? [];
-  const ours = hooks.find((h) => h.endpoint === RESEND_WEBHOOK_URL);
+  let ours = hooks.find((h) => h.endpoint === RESEND_WEBHOOK_URL);
+  let needsRedeploy = false;
+  let reenabled = false;
+
   if (!ours?.id) {
-    console.log(`[kick prepare] No Resend webhook at ${RESEND_WEBHOOK_URL} — run configure-resend`);
-    return false;
+    console.log(`[kick prepare] Creating Resend webhook at ${RESEND_WEBHOOK_URL}`);
+    const createRes = await fetch('https://api.resend.com/webhooks', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        endpoint: RESEND_WEBHOOK_URL,
+        events: RESEND_WEBHOOK_EVENTS,
+      }),
+    });
+    const createText = await createRes.text();
+    let created = null;
+    try {
+      created = createText ? JSON.parse(createText) : null;
+    } catch {
+      created = null;
+    }
+    if (!createRes.ok) {
+      throw new Error(`Resend webhook create HTTP ${createRes.status}: ${createText.slice(0, 300)}`);
+    }
+    ours = created?.data ?? created;
+    reenabled = true;
+  } else if (ours.status !== 'enabled' || !resendWebhookEventsMatch(ours.events)) {
+    console.log(
+      `[kick prepare] Re-enabling Resend webhook ${ours.id} (status=${ours.status || 'unknown'})`,
+    );
+    const patchRes = await fetch(`https://api.resend.com/webhooks/${ours.id}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({
+        endpoint: RESEND_WEBHOOK_URL,
+        events: RESEND_WEBHOOK_EVENTS,
+        status: 'enabled',
+      }),
+    });
+    const patchText = await patchRes.text();
+    if (!patchRes.ok) {
+      throw new Error(`Resend webhook update HTTP ${patchRes.status}: ${patchText.slice(0, 300)}`);
+    }
+    reenabled = true;
+  } else {
+    console.log(`[kick prepare] Resend webhook enabled at ${RESEND_WEBHOOK_URL} (${ours.id})`);
   }
 
-  const getRes = await fetch(`https://api.resend.com/webhooks/${ours.id}`, {
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-  });
+  if (!ours?.id) {
+    return { needsRedeploy: false, signingSecret: '' };
+  }
+
+  const getRes = await fetch(`https://api.resend.com/webhooks/${ours.id}`, { headers });
   const getText = await getRes.text();
   let detail = null;
   try {
@@ -202,24 +260,30 @@ async function syncResendWebhookSecret(apiKey, currentSecret, existingIds) {
   if (!getRes.ok) {
     throw new Error(`Resend webhook get HTTP ${getRes.status}: ${getText.slice(0, 300)}`);
   }
-  const signingSecret = (detail?.data?.signing_secret || detail?.signing_secret || '').trim();
+  const signingSecret = (
+    detail?.data?.signing_secret ||
+    detail?.signing_secret ||
+    ours.signing_secret ||
+    ''
+  ).trim();
   if (!signingSecret) {
     console.log('[kick prepare] Resend webhook has no signing_secret in API response');
-    return false;
+    return { needsRedeploy: reenabled, signingSecret: '' };
   }
 
   if (currentSecret && currentSecret === signingSecret) {
     console.log(
       `[kick prepare] RESEND_WEBHOOK_SECRET matches Resend (${ours.id}, len=${signingSecret.length})`,
     );
-    return false;
+    return { needsRedeploy: reenabled, signingSecret };
   }
 
   console.log(
     `[kick prepare] Syncing RESEND_WEBHOOK_SECRET from Resend ${ours.id} (was_len=${currentSecret.length || 0} → ${signingSecret.length})`,
   );
   await upsertProductionEnv('RESEND_WEBHOOK_SECRET', signingSecret, existingIds);
-  return true;
+  needsRedeploy = true;
+  return { needsRedeploy, signingSecret };
 }
 
 async function main() {
@@ -227,6 +291,7 @@ async function main() {
   let cron = process.env.CRON_SECRET?.trim() || '';
   let bootstrap = process.env.FIRM_OUTREACH_BOOTSTRAP_SECRET?.trim() || '';
   let needsRedeploy = false;
+  let webhookSigningSecretOut = process.env.RESEND_WEBHOOK_SECRET?.trim() || '';
 
   if (vercelEnabled) {
     console.log('Fetching Vercel production env (decrypt=true)…');
@@ -316,28 +381,30 @@ async function main() {
       );
     }
 
-    // Keep Resend webhook signing secret in sync — a stale Vercel value makes
-    // every delivery event 401 and Resend marks the endpoint as failing.
+    // Re-enable Resend webhook if auto-disabled; keep signing secret in sync.
     const resendKeyPick = pickEnvValue(envs, 'RESEND_API_KEY');
     const webhookSecretPick = pickEnvValue(envs, 'RESEND_WEBHOOK_SECRET');
     const resendApiKey =
       process.env.RESEND_API_KEY?.trim() || resendKeyPick.value || '';
+    webhookSigningSecretOut =
+      process.env.RESEND_WEBHOOK_SECRET?.trim() || webhookSecretPick.value || '';
     if (resendApiKey) {
       try {
-        const synced = await syncResendWebhookSecret(
+        const ensured = await ensureResendWebhookHealthy(
           resendApiKey,
           webhookSecretPick.value || '',
           webhookSecretPick.entries.map((e) => e.id).filter(Boolean),
         );
-        if (synced) needsRedeploy = true;
+        if (ensured.needsRedeploy) needsRedeploy = true;
+        if (ensured.signingSecret) webhookSigningSecretOut = ensured.signingSecret;
       } catch (err) {
         console.warn(
-          '[kick prepare] Resend webhook secret sync failed:',
+          '[kick prepare] Resend webhook ensure failed:',
           err instanceof Error ? err.message : err,
         );
       }
     } else {
-      console.log('[kick prepare] RESEND_API_KEY missing — skip webhook secret sync');
+      console.log('[kick prepare] RESEND_API_KEY missing — skip webhook ensure');
     }
 
     // Bootstrap may already exist in Vercel from a prior kick that failed before redeploy.
@@ -358,13 +425,17 @@ async function main() {
 
   process.env.CRON_SECRET = cron;
   process.env.FIRM_OUTREACH_BOOTSTRAP_SECRET = bootstrap;
+  if (webhookSigningSecretOut) {
+    process.env.RESEND_WEBHOOK_SECRET = webhookSigningSecretOut;
+  }
   writeGithubEnv({
     CRON_SECRET: cron,
     FIRM_OUTREACH_BOOTSTRAP_SECRET: bootstrap,
+    RESEND_WEBHOOK_SECRET: webhookSigningSecretOut,
   });
 
   console.log(
-    `Kick auth ready: cron=${cron ? 'yes' : 'no'} bootstrap=${bootstrap ? 'yes' : 'no'} redeployed=${needsRedeploy}`,
+    `Kick auth ready: cron=${cron ? 'yes' : 'no'} bootstrap=${bootstrap ? 'yes' : 'no'} webhook_secret=${webhookSigningSecretOut ? 'yes' : 'no'} redeployed=${needsRedeploy}`,
   );
 
   if (!cron && !bootstrap) {

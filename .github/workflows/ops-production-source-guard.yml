@@ -1,0 +1,63 @@
+# If production drifts onto a SHA that is not on origin/master (typically a
+# droid-mirror promote), re-promote the current bit master tip.
+name: Ops — production source guard
+
+on:
+  schedule:
+    # Every 30 minutes
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: production-source-guard
+  cancel-in-progress: true
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Check live version is on bit master
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          HEALTH=$(curl -sS "https://policestationrepuk.org/api/health")
+          VER=$(echo "$HEALTH" | jq -r '.version // empty')
+          echo "Live version: ${VER}"
+          echo "version=${VER}" >> "$GITHUB_OUTPUT"
+
+          if [ -z "$VER" ] || [ "$VER" = "local" ]; then
+            echo "drift=true" >> "$GITHUB_OUTPUT"
+            echo "reason=missing-or-local-version" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Resolve short SHA against bit repo tip ancestry
+          MATCH=$(gh api "repos/${{ github.repository }}/commits?sha=master&per_page=50" \
+            --jq --arg v "$VER" '[.[] | select(.sha|startswith($v))] | length')
+          if [ "$MATCH" != "0" ]; then
+            echo "drift=false" >> "$GITHUB_OUTPUT"
+            echo "Live SHA is on bit master history"
+            exit 0
+          fi
+
+          echo "drift=true" >> "$GITHUB_OUTPUT"
+          echo "reason=sha-not-on-bit-master" >> "$GITHUB_OUTPUT"
+
+      - name: Re-promote bit master
+        if: steps.check.outputs.drift == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHA=$(gh api "repos/${{ github.repository }}/commits/master" --jq .sha)
+          echo "Production drifted (live=${{ steps.check.outputs.version }} reason=${{ steps.check.outputs.reason }})"
+          echo "Dispatching production deploy for ${SHA}"
+          gh workflow run "Deploy to Vercel (production)" \
+            --repo "${{ github.repository }}" \
+            -f sha="$SHA" \
+            -f confirm_production=PRODUCTION

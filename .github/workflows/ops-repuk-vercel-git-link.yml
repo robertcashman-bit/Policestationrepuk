@@ -119,7 +119,15 @@ jobs:
               -H "${AUTH}" | jq -r '.readyState // "UNKNOWN"')
             echo "[$i/60] state=${STATE}"
             if [ "$STATE" = "READY" ]; then
-              vercel promote "$DEPLOY_URL" --yes --scope="$VERCEL_SCOPE" --timeout=15m --token="$VERCEL_TOKEN"
+              set +e
+              promo_out=$(vercel promote "$DEPLOY_URL" --yes --scope="$VERCEL_SCOPE" --timeout=15m --token="$VERCEL_TOKEN" 2>&1)
+              promo_code=$?
+              set -e
+              echo "$promo_out"
+              # 409 = already current production (treat as success)
+              if [ "$promo_code" -ne 0 ] && ! echo "$promo_out" | grep -qi 'already the current production'; then
+                exit "$promo_code"
+              fi
               echo "sha=${SHA}" >> "$GITHUB_OUTPUT"
               echo "short=${SHA:0:7}" >> "$GITHUB_OUTPUT"
               exit 0

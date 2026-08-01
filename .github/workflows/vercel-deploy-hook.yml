@@ -242,7 +242,14 @@ jobs:
               # READY only means the build finished — production may still point at
               # another git remote/SHA (e.g. droid). Always promote explicitly.
               echo "Deployment READY — promoting to production alias"
-              vercel promote "$DEPLOY_URL" --yes --scope="$VERCEL_SCOPE" --timeout=15m --token="$VERCEL_TOKEN"
+              set +e
+              promo_out=$(vercel promote "$DEPLOY_URL" --yes --scope="$VERCEL_SCOPE" --timeout=15m --token="$VERCEL_TOKEN" 2>&1)
+              promo_code=$?
+              set -e
+              echo "$promo_out"
+              if [ "$promo_code" -ne 0 ] && ! echo "$promo_out" | grep -qi 'already the current production'; then
+                exit "$promo_code"
+              fi
               exit 0
             fi
             if [ "$STATE" = "ERROR" ] || [ "$STATE" = "CANCELED" ]; then
@@ -253,7 +260,14 @@ jobs:
           done
 
           echo "Still blocked after wait — attempting explicit promote"
-          vercel promote "$DEPLOY_URL" --yes --scope="$VERCEL_SCOPE" --timeout=15m --token="$VERCEL_TOKEN"
+          set +e
+          promo_out=$(vercel promote "$DEPLOY_URL" --yes --scope="$VERCEL_SCOPE" --timeout=15m --token="$VERCEL_TOKEN" 2>&1)
+          promo_code=$?
+          set -e
+          echo "$promo_out"
+          if [ "$promo_code" -ne 0 ] && ! echo "$promo_out" | grep -qi 'already the current production'; then
+            exit "$promo_code"
+          fi
 
       - name: Wait for production health endpoints
         run: |

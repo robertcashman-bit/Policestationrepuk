@@ -4,7 +4,7 @@ import { backfillDeliveryFromResend } from '@/lib/firm-outreach/backfill-deliver
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 /**
  * Reconcile delivery/bounce status from Resend emails.get when webhooks were down.

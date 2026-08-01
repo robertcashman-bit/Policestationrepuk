@@ -35,11 +35,16 @@ import {
 } from './run-log';
 import { sendOutreachEmail } from './send';
 import { claimProspectSend } from '../run-lock';
-import { firmCooldownEligibleAt, isSendableReadyProspect } from '../sendable-ready';
+import {
+  FIRM_SEND_COOLDOWN_DAYS,
+  firmCooldownEligibleAt,
+  isSendableReadyProspect,
+} from '../sendable-ready';
+
+export { FIRM_SEND_COOLDOWN_DAYS };
 
 const FOLLOWUP_DAY_1 = 7;
 const FOLLOWUP_DAY_2 = 21;
-export const FIRM_SEND_COOLDOWN_DAYS = 90;
 const MAX_CANDIDATE_SCAN = 500;
 const DEFAULT_MAX_ELAPSED_MS = 240_000;
 
@@ -53,28 +58,34 @@ function daysSince(iso: string | undefined): number {
   return (Date.now() - Date.parse(iso)) / (1000 * 60 * 60 * 24);
 }
 
+/**
+ * Cooldown is per inbox only (same normalized email), max 21 days.
+ * Different solicitors — or a personal address after a generic firm inbox —
+ * at the same firm must not block each other.
+ */
 async function firmCooldownHold(
   prospect: FirmProspect,
   campaignId: string,
 ): Promise<{ blocked: boolean; nextEligibleAt?: string }> {
+  const email = normalizeEmail(prospect.email ?? '');
+  if (!email || FIRM_SEND_COOLDOWN_DAYS <= 0) return { blocked: false };
+
   const siblings = await listProspectsForFirmKey(prospect.firmKey);
-  let latestSiblingEmailAt: string | undefined;
+  let latestSameInboxAt: string | undefined;
   for (const s of siblings) {
     if (s.id === prospect.id || !isCampaignProspect(s, campaignId)) continue;
     if (!s.lastEmailAt) continue;
+    if (normalizeEmail(s.email ?? '') !== email) continue;
     if (daysSince(s.lastEmailAt) < FIRM_SEND_COOLDOWN_DAYS) {
-      if (
-        !latestSiblingEmailAt ||
-        Date.parse(s.lastEmailAt) > Date.parse(latestSiblingEmailAt)
-      ) {
-        latestSiblingEmailAt = s.lastEmailAt;
+      if (!latestSameInboxAt || Date.parse(s.lastEmailAt) > Date.parse(latestSameInboxAt)) {
+        latestSameInboxAt = s.lastEmailAt;
       }
     }
   }
-  if (!latestSiblingEmailAt) return { blocked: false };
+  if (!latestSameInboxAt) return { blocked: false };
   return {
     blocked: true,
-    nextEligibleAt: firmCooldownEligibleAt(latestSiblingEmailAt, FIRM_SEND_COOLDOWN_DAYS),
+    nextEligibleAt: firmCooldownEligibleAt(latestSameInboxAt, FIRM_SEND_COOLDOWN_DAYS),
   };
 }
 

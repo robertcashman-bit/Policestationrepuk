@@ -14,6 +14,8 @@ export interface QualificationResult {
     qualified: boolean;
     reason: string;
 }
+/** Exclusions that requalify may lift when the prospect otherwise qualifies. */
+export declare const RESTORABLE_EXCLUDED_REASONS: Set<string>;
 type OutreachQualificationProspect = Pick<FirmProspect, 'prospectType' | 'sources' | 'status' | 'excludedReason' | 'firmName' | 'regulatoryNumber' | 'crimeWebsiteVerified'>;
 export declare function qualifyProspectForOutreach(prospect: OutreachQualificationProspect, registry?: CrimeRegistry): QualificationResult;
 /** Apply outreach qualification when deciding ready_to_send vs discovered. */

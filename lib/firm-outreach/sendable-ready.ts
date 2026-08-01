@@ -1,6 +1,12 @@
 import { isPlausibleOutreachEmail } from './enrichment/validator';
 import type { FirmProspect } from './types';
 
+/**
+ * Max gap before the same inbox may be contacted again via another prospect row.
+ * Must not block different solicitors (or personal vs generic inboxes) at the same firm.
+ */
+export const FIRM_SEND_COOLDOWN_DAYS = 21;
+
 /** True when a ready_to_send prospect should be counted/sent (not parked or junk). */
 export function isSendableReadyProspect(prospect: FirmProspect): boolean {
   if (prospect.status !== 'ready_to_send') return false;

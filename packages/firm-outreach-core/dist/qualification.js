@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VERIFIED_CRIME_SOURCES = void 0;
+exports.RESTORABLE_EXCLUDED_REASONS = exports.VERIFIED_CRIME_SOURCES = void 0;
 exports.buildCrimeRegistry = buildCrimeRegistry;
 exports.isOnCrimeRegistry = isOnCrimeRegistry;
 exports.hasVerifiedCrimeSource = hasVerifiedCrimeSource;
@@ -46,12 +46,17 @@ function isOnCrimeRegistry(firmName, registry, sraNumber) {
 function hasVerifiedCrimeSource(sources) {
     return sources.some((s) => exports.VERIFIED_CRIME_SOURCES.includes(s));
 }
+/** Exclusions that requalify may lift when the prospect otherwise qualifies. */
+exports.RESTORABLE_EXCLUDED_REASONS = new Set([
+    'archive_only_not_on_laa_or_dscc',
+    'duplicate_firm_ready',
+]);
 function qualifyProspectForOutreach(prospect, registry) {
     if (prospect.crimeWebsiteVerified) {
         return { qualified: true, reason: 'website_crime_verified' };
     }
     if ((prospect.status === 'excluded' || prospect.excludedReason) &&
-        prospect.excludedReason !== 'archive_only_not_on_laa_or_dscc') {
+        !(prospect.excludedReason && exports.RESTORABLE_EXCLUDED_REASONS.has(prospect.excludedReason))) {
         return { qualified: false, reason: prospect.excludedReason ?? 'excluded' };
     }
     if (prospect.prospectType === 'solicitor') {
@@ -74,15 +79,17 @@ function qualifyProspectForOutreach(prospect, registry) {
 }
 /** Apply outreach qualification when deciding ready_to_send vs discovered. */
 function resolveStatusWithQualification(prospect, preferred, registry) {
-    if ((prospect.status === 'excluded' || prospect.excludedReason) &&
-        !prospect.crimeWebsiteVerified) {
+    const nonRestorableExclusion = !!prospect.excludedReason && !exports.RESTORABLE_EXCLUDED_REASONS.has(prospect.excludedReason);
+    if (nonRestorableExclusion && !prospect.crimeWebsiteVerified) {
         return 'excluded';
     }
     if (!prospect.email)
         return preferred === 'ready_to_send' ? 'discovered' : preferred;
     if (preferred !== 'ready_to_send')
         return preferred;
-    const q = qualifyProspectForOutreach(prospect, registry);
+    const q = qualifyProspectForOutreach(prospect.status === 'excluded'
+        ? { ...prospect, status: 'discovered' }
+        : prospect, registry);
     if (q.qualified)
         return 'ready_to_send';
     return 'discovered';

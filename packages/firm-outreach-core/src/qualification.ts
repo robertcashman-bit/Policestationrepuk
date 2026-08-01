@@ -60,6 +60,12 @@ export interface QualificationResult {
   reason: string;
 }
 
+/** Exclusions that requalify may lift when the prospect otherwise qualifies. */
+export const RESTORABLE_EXCLUDED_REASONS = new Set([
+  'archive_only_not_on_laa_or_dscc',
+  'duplicate_firm_ready',
+]);
+
 type OutreachQualificationProspect = Pick<
   FirmProspect,
   | 'prospectType'
@@ -81,7 +87,7 @@ export function qualifyProspectForOutreach(
 
   if (
     (prospect.status === 'excluded' || prospect.excludedReason) &&
-    prospect.excludedReason !== 'archive_only_not_on_laa_or_dscc'
+    !(prospect.excludedReason && RESTORABLE_EXCLUDED_REASONS.has(prospect.excludedReason))
   ) {
     return { qualified: false, reason: prospect.excludedReason ?? 'excluded' };
   }
@@ -116,16 +122,20 @@ export function resolveStatusWithQualification(
   preferred: FirmProspectStatus,
   registry?: CrimeRegistry,
 ): FirmProspectStatus {
-  if (
-    (prospect.status === 'excluded' || prospect.excludedReason) &&
-    !prospect.crimeWebsiteVerified
-  ) {
+  const nonRestorableExclusion =
+    !!prospect.excludedReason && !RESTORABLE_EXCLUDED_REASONS.has(prospect.excludedReason);
+  if (nonRestorableExclusion && !prospect.crimeWebsiteVerified) {
     return 'excluded';
   }
   if (!prospect.email) return preferred === 'ready_to_send' ? 'discovered' : preferred;
   if (preferred !== 'ready_to_send') return preferred;
 
-  const q = qualifyProspectForOutreach(prospect, registry);
+  const q = qualifyProspectForOutreach(
+    prospect.status === 'excluded'
+      ? { ...prospect, status: 'discovered' }
+      : prospect,
+    registry,
+  );
   if (q.qualified) return 'ready_to_send';
   return 'discovered';
 }

@@ -55,8 +55,15 @@ describe('isSendableReadyProspect', () => {
 });
 
 describe('firmCooldownEligibleAt', () => {
-  it('adds cooldown days to sibling send time', () => {
-    const at = firmCooldownEligibleAt('2026-01-01T00:00:00.000Z', 90);
-    expect(at.startsWith('2026-04-01')).toBe(true);
+  it('adds cooldown days to same-inbox send time', () => {
+    const at = firmCooldownEligibleAt('2026-01-01T00:00:00.000Z', 21);
+    expect(at.startsWith('2026-01-22')).toBe(true);
+  });
+});
+
+describe('FIRM_SEND_COOLDOWN_DAYS', () => {
+  it('is capped at 21 days', async () => {
+    const { FIRM_SEND_COOLDOWN_DAYS } = await import('@/lib/firm-outreach/sendable-ready');
+    expect(FIRM_SEND_COOLDOWN_DAYS).toBe(21);
   });
 });

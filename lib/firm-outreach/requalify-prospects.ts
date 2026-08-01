@@ -17,11 +17,13 @@ import {
   saveProspect,
 } from './storage';
 import { isPlausibleOutreachEmail, validateEmailForSend } from './enrichment/validator';
-import { firmCooldownEligibleAt, isSendableReadyProspect } from './sendable-ready';
+import {
+  FIRM_SEND_COOLDOWN_DAYS,
+  firmCooldownEligibleAt,
+  isSendableReadyProspect,
+} from './sendable-ready';
 import { normalizeEmail } from './normalize';
 import { isCampaignProspect } from './campaign-scope';
-
-const FIRM_SEND_COOLDOWN_DAYS = 90;
 
 export interface RequalifyResult {
   scanned: number;
@@ -209,21 +211,29 @@ export async function requalifyAllProspects(opts?: {
       }
     }
 
-    if (p.status === 'excluded' && p.excludedReason === 'archive_only_not_on_laa_or_dscc') {
+    if (
+      p.status === 'excluded' &&
+      (p.excludedReason === 'archive_only_not_on_laa_or_dscc' ||
+        p.excludedReason === 'duplicate_firm_ready')
+    ) {
+      const restoreReason =
+        p.excludedReason === 'duplicate_firm_ready' ? 'restore_same_firm_ready' : q.reason;
       if (q.qualified) {
         if (websiteVerifiedNow || p.crimeWebsiteVerified) result.websiteVerified++;
         p.excludedReason = undefined;
+        p.nextEligibleAt = undefined;
         const preferred = p.lastEmailAt ? 'sent' : 'ready_to_send';
         p.status = resolveStatusWithQualification(p, preferred, registry);
         p.updatedAt = new Date().toISOString();
         await saveProspect(p, prevStatus);
+        if (p.status === 'ready_to_send') result.promotedToReady++;
         if (result.samples.length < sampleLimit) {
           result.samples.push({
             id: p.id,
             firmName: p.firmName,
             from: prevStatus,
             to: p.status,
-            reason: q.reason,
+            reason: restoreReason,
           });
         }
       } else if (websiteVerifiedNow) {
@@ -278,27 +288,32 @@ export async function requalifyAllProspects(opts?: {
       continue;
     }
 
-    // Park solicitors blocked by firm-level cooldown so ready counts stay honest.
+    // Park only when the same inbox was emailed within FIRM_SEND_COOLDOWN_DAYS.
+    // Different solicitors / personal vs generic inboxes at the same firm stay sendable.
     if (
       p.status === 'ready_to_send' &&
       q.qualified &&
       p.prospectType === 'solicitor' &&
       p.firmKey
     ) {
-      const siblings = await listProspectsForFirmKey(p.firmKey);
-      let latest: string | undefined;
-      for (const s of siblings) {
-        if (s.id === p.id || !isCampaignProspect(s, p.campaignId)) continue;
-        if (!s.lastEmailAt) continue;
-        const days = (Date.now() - Date.parse(s.lastEmailAt)) / 86_400_000;
-        if (days < FIRM_SEND_COOLDOWN_DAYS) {
-          if (!latest || Date.parse(s.lastEmailAt) > Date.parse(latest)) {
-            latest = s.lastEmailAt;
+      const email = normalizeEmail(p.email ?? '');
+      const siblings = email ? await listProspectsForFirmKey(p.firmKey) : [];
+      let latestSameInbox: string | undefined;
+      if (email && FIRM_SEND_COOLDOWN_DAYS > 0) {
+        for (const s of siblings) {
+          if (s.id === p.id || !isCampaignProspect(s, p.campaignId)) continue;
+          if (!s.lastEmailAt) continue;
+          if (normalizeEmail(s.email ?? '') !== email) continue;
+          const days = (Date.now() - Date.parse(s.lastEmailAt)) / 86_400_000;
+          if (days < FIRM_SEND_COOLDOWN_DAYS) {
+            if (!latestSameInbox || Date.parse(s.lastEmailAt) > Date.parse(latestSameInbox)) {
+              latestSameInbox = s.lastEmailAt;
+            }
           }
         }
       }
-      if (latest) {
-        const nextEligibleAt = firmCooldownEligibleAt(latest, FIRM_SEND_COOLDOWN_DAYS);
+      if (latestSameInbox) {
+        const nextEligibleAt = firmCooldownEligibleAt(latestSameInbox, FIRM_SEND_COOLDOWN_DAYS);
         if (p.nextEligibleAt !== nextEligibleAt || p.excludedReason !== 'firm_cooldown') {
           p.nextEligibleAt = nextEligibleAt;
           p.excludedReason = 'firm_cooldown';
@@ -315,6 +330,12 @@ export async function requalifyAllProspects(opts?: {
             });
           }
         }
+      } else if (p.excludedReason === 'firm_cooldown' || p.nextEligibleAt) {
+        // Clear legacy firm-wide parks and expired same-inbox holds.
+        p.nextEligibleAt = undefined;
+        if (p.excludedReason === 'firm_cooldown') p.excludedReason = undefined;
+        p.updatedAt = new Date().toISOString();
+        await saveProspect(p, prevStatus);
       }
     }
 
@@ -323,7 +344,8 @@ export async function requalifyAllProspects(opts?: {
     }
   }
 
-  // Collapse duplicate ready rows: one solicitor per firmKey, then one per email (per campaign).
+  // Collapse duplicate ready rows by email only (per campaign).
+  // Multiple solicitors at the same firm stay ready when they have distinct inboxes.
   const readyIds = await listProspectIdsByStatus('ready_to_send');
   type ReadyPick = { id: string; score: number; updatedAt: string };
   const better = (a: ReadyPick, b: ReadyPick) =>
@@ -350,38 +372,9 @@ export async function requalifyAllProspects(opts?: {
     }
   }
 
-  const byFirm = new Map<string, ReadyPick>();
-  const firmLosers: string[] = [];
-  for (const id of readyIds) {
-    if (deadline != null && Date.now() >= deadline) {
-      result.stoppedEarly = true;
-      break;
-    }
-    const p = await getProspect(id);
-    if (!p || p.status !== 'ready_to_send') continue;
-    if (p.prospectType !== 'solicitor' || !p.firmKey) continue;
-    const key = `${p.campaignId}:firm:${p.firmKey}`;
-    const pick: ReadyPick = {
-      id: p.id,
-      score: p.priorityScore ?? 0,
-      updatedAt: p.updatedAt ?? '',
-    };
-    const cur = byFirm.get(key);
-    if (!cur || better(cur, pick) > 0) {
-      if (cur) firmLosers.push(cur.id);
-      byFirm.set(key, pick);
-    } else {
-      firmLosers.push(p.id);
-    }
-  }
-  for (const id of firmLosers) {
-    await demoteDuplicateReady(id, 'duplicate_firm_ready');
-  }
-
   const byEmail = new Map<string, ReadyPick>();
   const emailLosers: string[] = [];
-  const readyAfterFirm = await listProspectIdsByStatus('ready_to_send');
-  for (const id of readyAfterFirm) {
+  for (const id of readyIds) {
     if (deadline != null && Date.now() >= deadline) {
       result.stoppedEarly = true;
       break;

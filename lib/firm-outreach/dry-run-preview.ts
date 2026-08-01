@@ -15,10 +15,10 @@ import {
 } from './storage';
 import type { FirmProspect } from './types';
 import { normalizeEmail } from './normalize';
+import { FIRM_SEND_COOLDOWN_DAYS } from './sendable-ready';
 
 const FOLLOWUP_DAY_1 = 7;
 const FOLLOWUP_DAY_2 = 21;
-const FIRM_SEND_COOLDOWN_DAYS = 90;
 
 export interface DryRunPreviewRow {
   prospectId: string;
@@ -68,13 +68,17 @@ function nextStep(prospect: FirmProspect): number | null {
   return null;
 }
 
+/** Same-inbox cooldown only — different solicitors at the firm are not blocked. */
 async function firmRecentlyContacted(
   prospect: FirmProspect,
   campaignId: string,
 ): Promise<boolean> {
+  const email = normalizeEmail(prospect.email ?? '');
+  if (!email || FIRM_SEND_COOLDOWN_DAYS <= 0) return false;
   const siblings = await listProspectsForFirmKey(prospect.firmKey);
   for (const s of siblings) {
     if (s.id === prospect.id || !isCampaignProspect(s, campaignId)) continue;
+    if (normalizeEmail(s.email ?? '') !== email) continue;
     if (s.lastEmailAt && daysSince(s.lastEmailAt) < FIRM_SEND_COOLDOWN_DAYS) {
       return true;
     }

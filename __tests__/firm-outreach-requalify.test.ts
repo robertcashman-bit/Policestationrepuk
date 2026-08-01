@@ -124,4 +124,102 @@ describe('requalifyAllProspects', () => {
     expect(result.downgradedFromReady).toBe(1);
     expect(saveProspect).toHaveBeenCalled();
   });
+
+  it('restores solicitors excluded as duplicate_firm_ready', async () => {
+    const prospect: FirmProspect = {
+      ...baseProspect(),
+      id: 'p-firm-dup',
+      prospectType: 'firm',
+      status: 'excluded',
+      excludedReason: 'duplicate_firm_ready',
+      email: 'alice@acmelaw.co.uk',
+      lastEmailAt: undefined,
+    };
+    const saveProspect = vi.fn();
+    vi.doMock('@/lib/dscc-register-lookup', () => ({
+      ensureDsccRegisterCache: vi.fn().mockResolvedValue({ entries: [] }),
+    }));
+    vi.doMock('@/lib/legal-directory/laa-fetch', () => ({
+      readLaaCrimeJson: vi.fn().mockReturnValue([]),
+    }));
+    vi.doMock('@/lib/firm-outreach/storage', () => ({
+      listAllProspectIds: vi.fn().mockResolvedValue(['p-firm-dup']),
+      listProspectIdsByStatus: vi.fn().mockResolvedValue([]),
+      listProspectsForFirmKey: vi.fn().mockResolvedValue([]),
+      getProspect: vi.fn().mockResolvedValue(structuredClone(prospect)),
+      saveProspect,
+    }));
+    vi.doMock('@/lib/firm-outreach/crime-website-verify', () => ({
+      websiteIndicatesCrimePractice: vi.fn().mockResolvedValue(false),
+    }));
+
+    const { requalifyAllProspects } = await import('@/lib/firm-outreach/requalify-prospects');
+    const result = await requalifyAllProspects({ verifyWebsites: false });
+
+    expect(result.promotedToReady).toBe(1);
+    expect(saveProspect).toHaveBeenCalled();
+    const saved = saveProspect.mock.calls[0][0] as FirmProspect;
+    expect(saved.status).toBe('ready_to_send');
+    expect(saved.excludedReason).toBeUndefined();
+  });
+
+  it('keeps multiple solicitors at the same firm ready when emails differ', async () => {
+    const alice: FirmProspect = {
+      ...baseProspect(),
+      id: 'p-alice',
+      prospectType: 'firm',
+      firmKey: 'acme',
+      email: 'alice@acmelaw.co.uk',
+      priorityScore: 20,
+    };
+    const bob: FirmProspect = {
+      ...baseProspect(),
+      id: 'p-bob',
+      prospectType: 'firm',
+      firmKey: 'acme',
+      email: 'info@acmelaw.co.uk',
+      priorityScore: 10,
+    };
+    const byId: Record<string, FirmProspect> = {
+      'p-alice': structuredClone(alice),
+      'p-bob': structuredClone(bob),
+    };
+    const saveProspect = vi.fn(async (p: FirmProspect) => {
+      byId[p.id] = p;
+    });
+    vi.doMock('@/lib/dscc-register-lookup', () => ({
+      ensureDsccRegisterCache: vi.fn().mockResolvedValue({ entries: [] }),
+    }));
+    vi.doMock('@/lib/legal-directory/laa-fetch', () => ({
+      readLaaCrimeJson: vi.fn().mockReturnValue([]),
+    }));
+    vi.doMock('@/lib/firm-outreach/storage', () => ({
+      listAllProspectIds: vi.fn().mockResolvedValue(['p-alice', 'p-bob']),
+      listProspectIdsByStatus: vi.fn().mockImplementation(async (status: string) =>
+        Object.values(byId)
+          .filter((p) => p.status === status)
+          .map((p) => p.id),
+      ),
+      listProspectsForFirmKey: vi.fn().mockResolvedValue([alice, bob]),
+      getProspect: vi.fn().mockImplementation(async (id: string) => structuredClone(byId[id])),
+      saveProspect,
+    }));
+    vi.doMock('@/lib/firm-outreach/crime-website-verify', () => ({
+      websiteIndicatesCrimePractice: vi.fn().mockResolvedValue(false),
+    }));
+    vi.doMock('@/lib/firm-outreach/enrichment/validator', async (importOriginal) => {
+      const actual = await importOriginal<typeof import('@/lib/firm-outreach/enrichment/validator')>();
+      return {
+        ...actual,
+        validateEmailForSend: vi.fn().mockResolvedValue({ ok: true }),
+      };
+    });
+
+    const { requalifyAllProspects } = await import('@/lib/firm-outreach/requalify-prospects');
+    const result = await requalifyAllProspects({ verifyWebsites: false, readyOnly: true });
+
+    expect(result.dedupedFromReady).toBe(0);
+    expect(byId['p-alice']!.status).toBe('ready_to_send');
+    expect(byId['p-bob']!.status).toBe('ready_to_send');
+  });
 });

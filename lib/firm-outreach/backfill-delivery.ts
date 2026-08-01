@@ -1,7 +1,10 @@
 import { Resend } from 'resend';
 import {
+  addSuppression,
   applySendWebhookEvent,
+  getProspect,
   listRecentSends,
+  saveProspect,
 } from '@/lib/firm-outreach/storage';
 import {
   findEmailJobForWebhook,
@@ -58,18 +61,33 @@ export async function backfillDeliveryFromResend(opts?: {
   const resend = new Resend(key);
   const recent = await listRecentSends(Math.max(limit * 3, 100));
   const stuck = recent.filter((s) => s.resendMessageId && s.status === 'sent');
-  const targets = stuck.slice(0, limit);
+  const stuckMessageIds = stuck
+    .map((s) => s.resendMessageId!)
+    .filter(Boolean);
 
   // Also cover accepted jobs whose send row may already say delivered but job did not.
   const acceptedIds = await listEmailJobIdsByStatus('accepted', limit);
-  const messageIds = new Set(targets.map((s) => s.resendMessageId!).filter(Boolean));
+  const acceptedMessageIds: string[] = [];
   for (const id of acceptedIds) {
-    if (messageIds.size >= limit) break;
     const job = await getEmailJob(id);
-    if (job?.providerMessageId) messageIds.add(job.providerMessageId);
+    if (job?.providerMessageId) acceptedMessageIds.push(job.providerMessageId);
   }
 
-  for (const messageId of [...messageIds].slice(0, limit)) {
+  // Reserve half the budget for accepted-only jobs so a stuck-send backlog
+  // cannot starve job reconciliation in a single cron run.
+  const stuckSet = new Set(stuckMessageIds);
+  const acceptedOnly = acceptedMessageIds.filter((id) => !stuckSet.has(id));
+  const acceptedSlots = Math.min(acceptedOnly.length, Math.ceil(limit / 2));
+  const pickedAccepted = acceptedOnly.slice(0, acceptedSlots);
+  const pickedStuck = stuckMessageIds.slice(0, limit - pickedAccepted.length);
+  const leftover = limit - pickedStuck.length - pickedAccepted.length;
+  const messageIds = [
+    ...pickedStuck,
+    ...pickedAccepted,
+    ...acceptedOnly.slice(acceptedSlots, acceptedSlots + leftover),
+  ];
+
+  for (const messageId of messageIds) {
     result.scanned++;
     try {
       const { data, error } = await resend.emails.get(messageId);
@@ -104,6 +122,18 @@ export async function backfillDeliveryFromResend(opts?: {
         const updated = await markJobFromWebhookEvent(job, eventType);
         jobUpdated = Boolean(updated && updated.status !== 'accepted');
         if (jobUpdated) result.jobsUpdated++;
+      }
+
+      if (send && (eventType === 'email.bounced' || eventType === 'email.complained')) {
+        const reason = eventType === 'email.complained' ? 'complaint' : 'bounce';
+        await addSuppression(send.email, reason);
+        const prospect = await getProspect(send.prospectId);
+        if (prospect) {
+          const prev = prospect.status;
+          prospect.status = reason === 'complaint' ? 'unsubscribed' : 'bounced';
+          prospect.updatedAt = new Date().toISOString();
+          await saveProspect(prospect, prev);
+        }
       }
 
       if (send || jobUpdated) {

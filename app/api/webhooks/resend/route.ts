@@ -71,6 +71,11 @@ export async function POST(request: Request) {
     ) {
       const reason = type === 'email.complained' ? 'complaint' : 'bounce';
       const targets = emails.length > 0 ? emails : [undefined];
+      // Resolve the email job once — providerMessageId/sendId do not vary by recipient.
+      let job = resendMessageId
+        ? await findEmailJobForWebhook({ providerMessageId: resendMessageId })
+        : null;
+      let jobMarked = false;
       for (const email of targets) {
         const send = await applySendWebhookEvent({
           resendMessageId,
@@ -79,12 +84,15 @@ export async function POST(request: Request) {
           at,
         });
 
-        const job = await findEmailJobForWebhook({
-          providerMessageId: resendMessageId,
-          sendId: send?.id,
-        });
-        if (job) {
+        if (!job && send?.id) {
+          job = await findEmailJobForWebhook({
+            providerMessageId: resendMessageId,
+            sendId: send.id,
+          });
+        }
+        if (job && !jobMarked) {
           await markJobFromWebhookEvent(job, type);
+          jobMarked = true;
         }
 
         if (send && (type === 'email.bounced' || type === 'email.complained')) {

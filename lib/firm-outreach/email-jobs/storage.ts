@@ -16,6 +16,10 @@ const JOB_INDEX = 'firmoutreach:job:index';
 const JOB_STATUS_PREFIX = 'firmoutreach:job:status:';
 const JOB_IDEM_PREFIX = 'firmoutreach:job:idem:';
 const JOB_PENDING_ZSET = 'firmoutreach:job:pending_z';
+/** O(1) lookup by Resend message id — mirrors SEND_RESEND_INDEX for sends. */
+const JOB_RESEND_INDEX = 'firmoutreach:job:resend:';
+/** O(1) lookup by firm-outreach send id. */
+const JOB_SEND_INDEX = 'firmoutreach:job:send:';
 
 function jobKey(id: string): string {
   return `${JOB_PREFIX}${id}`;
@@ -27,6 +31,14 @@ function statusKey(status: EmailJobStatus): string {
 
 function idemKey(idempotencyKey: string): string {
   return `${JOB_IDEM_PREFIX}${idempotencyKey}`;
+}
+
+function jobResendKey(providerMessageId: string): string {
+  return `${JOB_RESEND_INDEX}${providerMessageId}`;
+}
+
+function jobSendKey(sendId: string): string {
+  return `${JOB_SEND_INDEX}${sendId}`;
 }
 
 function newJobId(): string {
@@ -104,6 +116,12 @@ export async function saveEmailJob(
   await addToSet(statusKey(job.status), job.id);
   if (previousStatus && previousStatus !== job.status) {
     await removeFromSet(statusKey(previousStatus), job.id);
+  }
+  if (job.providerMessageId) {
+    await kv.set(jobResendKey(job.providerMessageId), job.id);
+  }
+  if (job.sendId) {
+    await kv.set(jobSendKey(job.sendId), job.id);
   }
   // Score pending/retry by nextRetryAt or createdAt for ordered claim.
   if (EMAIL_JOB_CLAIMABLE_STATUSES.has(job.status)) {
@@ -506,6 +524,25 @@ export async function findEmailJobForWebhook(opts: {
   sendId?: string;
   limit?: number;
 }): Promise<EmailJob | null> {
+  const kv = getKV();
+  if (kv) {
+    if (opts.providerMessageId) {
+      const byResend = await kv.get<string>(jobResendKey(opts.providerMessageId));
+      if (byResend) {
+        const job = await getEmailJob(byResend);
+        if (job) return job;
+      }
+    }
+    if (opts.sendId) {
+      const bySend = await kv.get<string>(jobSendKey(opts.sendId));
+      if (bySend) {
+        const job = await getEmailJob(bySend);
+        if (job) return job;
+      }
+    }
+  }
+
+  // Legacy fallback for jobs accepted before provider/send indexes existed.
   const limit = opts.limit ?? 200;
   const statuses: EmailJobStatus[] = [
     'accepted',

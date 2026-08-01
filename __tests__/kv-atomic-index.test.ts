@@ -123,4 +123,27 @@ describe('kv-atomic index WRONGTYPE hardening', () => {
       expect([...after.members].sort()).toEqual(['a', 'b']);
     }
   });
+
+  /**
+   * Lead engine #88: production indexes are Redis SETs. Legacy readers called
+   * kv.get (WRONGTYPE). readIndexMembers must return SET members instead.
+   */
+  it('Lead engine #88: firmprospect:index SET is readable when get throws WRONGTYPE', async () => {
+    const key = 'firmprospect:index';
+    state.store.set(key, {
+      kind: 'set',
+      members: new Set(['fp_alpha', 'fp_beta']),
+    });
+    // Direct get must throw (bit-fork legacy path).
+    await expect(
+      (async () => {
+        const entry = state.store.get(key);
+        if (entry?.kind === 'set') throw wrongType();
+        return entry;
+      })(),
+    ).rejects.toThrow(/WRONGTYPE/);
+
+    const ids = await readIndexMembers(key);
+    expect(ids.sort()).toEqual(['fp_alpha', 'fp_beta']);
+  });
 });

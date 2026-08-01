@@ -71,8 +71,10 @@ export async function requalifyAllProspects(opts?: {
     result.scanned++;
 
     // Stale: ready_to_send rows sometimes carried excludedReason=firm_cooldown.
+    let clearedStaleFirmCooldown = false;
     if (p.status === 'ready_to_send' && p.excludedReason === 'firm_cooldown') {
       p.excludedReason = undefined;
+      clearedStaleFirmCooldown = true;
     }
 
     let websiteVerifiedNow = false;
@@ -143,12 +145,12 @@ export async function requalifyAllProspects(opts?: {
     // firm_cooldown is a send skip, not a permanent exclusion — clear and restore.
     if (p.status === 'excluded' && p.excludedReason === 'firm_cooldown') {
       p.excludedReason = undefined;
+      // Leave excluded before resolve; bare status=excluded is treated as permanent.
+      p.status = 'discovered';
       if (p.email && isPlausibleOutreachEmail(p.email) && q.qualified) {
         const preferred = p.lastEmailAt ? 'sent' : 'ready_to_send';
         p.status = resolveStatusWithQualification(p, preferred, registry);
         if (p.status === 'ready_to_send') result.promotedToReady++;
-      } else if (!p.email) {
-        p.status = 'discovered';
       }
       p.updatedAt = new Date().toISOString();
       await saveProspect(p, prevStatus);
@@ -235,6 +237,10 @@ export async function requalifyAllProspects(opts?: {
 
     if (p.status === 'ready_to_send' && q.qualified) {
       result.stillReady++;
+      if (clearedStaleFirmCooldown) {
+        p.updatedAt = new Date().toISOString();
+        await saveProspect(p, prevStatus);
+      }
     }
   }
 

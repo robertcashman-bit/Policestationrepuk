@@ -59,7 +59,8 @@ export async function backfillDeliveryFromResend(opts?: {
   }
 
   const resend = new Resend(key);
-  const recent = await listRecentSends(Math.max(limit * 3, 100));
+  // Bound KV reads tightly — full SEND_INDEX scans previously caused 504s on cron.
+  const recent = await listRecentSends(Math.min(80, Math.max(limit * 2, 30)));
   const stuck = recent.filter((s) => s.resendMessageId && s.status === 'sent');
   const stuckMessageIds = stuck
     .map((s) => s.resendMessageId!)

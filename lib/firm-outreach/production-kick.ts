@@ -85,9 +85,11 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     optional: true,
   },
   // Reconcile delivery events missed while the Resend webhook was failing/disabled.
+  // Optional: Resend emails.get fan-out can exceed function timeout; kick must not fail.
   {
-    path: '/api/cron/firm-outreach-backfill-delivery?limit=50',
+    path: '/api/cron/firm-outreach-backfill-delivery?limit=15',
     label: 'Backfill delivery status from Resend',
+    optional: true,
   },
   // Operator-only Resend probes for both websites (fails kick if either path cannot send).
   {

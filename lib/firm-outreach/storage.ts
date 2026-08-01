@@ -290,8 +290,26 @@ export async function getSend(id: string): Promise<FirmOutreachSend | null> {
 }
 
 export async function listRecentSends(limit = 50): Promise<FirmOutreachSend[]> {
-  const all = await listAllSends();
-  return all.slice(0, limit);
+  const kv = getKV();
+  if (!kv) return [];
+  const cap = Math.max(0, Math.floor(limit));
+  if (cap === 0) return [];
+  // Newest-first without loading the entire SEND_INDEX into memory.
+  const ids = [...(await readStringList(SEND_INDEX))].reverse().slice(0, cap);
+  if (ids.length === 0) return [];
+
+  const out: FirmOutreachSend[] = [];
+  const BATCH = 100;
+  for (let i = 0; i < ids.length; i += BATCH) {
+    const batch = ids.slice(i, i + BATCH);
+    const pipeline = kv.pipeline();
+    for (const id of batch) pipeline.get(sendKey(id));
+    const rows = await pipeline.exec<(FirmOutreachSend | null)[]>();
+    for (const row of rows) {
+      if (row && typeof row === 'object' && row.id) out.push(row);
+    }
+  }
+  return out;
 }
 
 export async function listAllSends(): Promise<FirmOutreachSend[]> {

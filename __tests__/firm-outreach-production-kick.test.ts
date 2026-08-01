@@ -69,9 +69,9 @@ describe('runProductionKickSteps', () => {
     expect(DEFAULT_PRODUCTION_KICK_STEPS[0]?.optional).toBe(true);
   });
 
-  it('backfills delivery then requires pre-flight email probes before flush', () => {
+  it('backfills delivery (optional) then requires pre-flight email probes before flush', () => {
     expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.path).toContain('firm-outreach-backfill-delivery');
-    expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.optional).toBeFalsy();
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.optional).toBe(true);
     expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.path).toBe('/api/cron/firm-outreach-probe');
     expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.optional).toBeFalsy();
   });
@@ -97,10 +97,13 @@ describe('runProductionKickSteps', () => {
   });
 
   it('fails when required probe is non-200', async () => {
-    const fetchFn = vi
-      .fn()
-      .mockResolvedValueOnce({ status: 200, text: async () => '{"ok":true}' })
-      .mockResolvedValueOnce({ status: 503, text: async () => '{"ok":false}' });
+    const fetchFn = vi.fn().mockImplementation(async (url: string) => {
+      const u = String(url);
+      if (u.includes('firm-outreach-probe')) {
+        return { status: 503, text: async () => '{"ok":false}' };
+      }
+      return { status: 200, text: async () => '{"ok":true}' };
+    });
 
     const { failed, results } = await runProductionKickSteps({
       baseUrl: 'https://example.com',
@@ -110,8 +113,10 @@ describe('runProductionKickSteps', () => {
     });
 
     expect(failed).toBe(true);
-    expect(results).toHaveLength(2);
-    expect(results[1]?.ok).toBe(false);
+    // status (optional) + backfill (optional) + failed required probe
+    expect(results).toHaveLength(3);
+    expect(results[2]?.path).toBe('/api/cron/firm-outreach-probe');
+    expect(results[2]?.ok).toBe(false);
   });
 
   it('fails when required enrich batch is non-200', async () => {

@@ -125,7 +125,8 @@ export async function runFirmOutreachPipeline(opts?: {
       limit: enrichLimit,
       maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
     });
-    const kentLimit = Math.min(15, Math.max(1, Math.floor(enrichLimit / 4)));
+    // Floor PSA enrich so Kent campaign is not starved when RepUK backlog is large.
+    const kentLimit = Math.max(25, Math.min(40, Math.floor(enrichLimit / 3)));
     agentCoverEnrich = await runFirmEnrichment({
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
       limit: kentLimit,
@@ -259,6 +260,10 @@ function emptyRequalify() {
     heldForReview: 0,
     websiteVerified: 0,
     stillReady: 0,
+    dedupedFromReady: 0,
+    junkDemotedFromReady: 0,
+    cooldownParked: 0,
+    sendableReady: 0,
     samples: [],
   };
 }

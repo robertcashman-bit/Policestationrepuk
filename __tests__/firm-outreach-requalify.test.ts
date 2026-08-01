@@ -23,7 +23,8 @@ describe('requalifyAllProspects', () => {
     vi.clearAllMocks();
   });
 
-  it('downgrades ready_to_send with implausible email via reconcile', async () => {
+  it('downgrades ready_to_send with implausible/junk email', async () => {
+    const saveProspect = vi.fn();
     vi.doMock('@/lib/dscc-register-lookup', () => ({
       ensureDsccRegisterCache: vi.fn().mockResolvedValue({ entries: [] }),
     }));
@@ -32,8 +33,10 @@ describe('requalifyAllProspects', () => {
     }));
     vi.doMock('@/lib/firm-outreach/storage', () => ({
       listAllProspectIds: vi.fn().mockResolvedValue(['p1']),
+      listProspectIdsByStatus: vi.fn().mockResolvedValue([]),
+      listProspectsForFirmKey: vi.fn().mockResolvedValue([]),
       getProspect: vi.fn().mockResolvedValue(structuredClone(baseProspect())),
-      saveProspect: vi.fn(),
+      saveProspect,
     }));
     vi.doMock('@/lib/firm-outreach/crime-website-verify', () => ({
       websiteIndicatesCrimePractice: vi.fn().mockResolvedValue(false),
@@ -42,8 +45,9 @@ describe('requalifyAllProspects', () => {
     const { requalifyAllProspects } = await import('@/lib/firm-outreach/requalify-prospects');
     const result = await requalifyAllProspects({ verifyWebsites: false });
 
-    expect(result.reconciledFromReady).toBe(1);
-    expect(result.downgradedFromReady).toBe(0);
+    expect(result.junkDemotedFromReady).toBe(1);
+    expect(result.downgradedFromReady).toBe(1);
+    expect(saveProspect).toHaveBeenCalled();
   });
 
   it('promotes a qualified discovered prospect with email to ready_to_send', async () => {
@@ -64,6 +68,8 @@ describe('requalifyAllProspects', () => {
     }));
     vi.doMock('@/lib/firm-outreach/storage', () => ({
       listAllProspectIds: vi.fn().mockResolvedValue(['p2']),
+      listProspectIdsByStatus: vi.fn().mockResolvedValue([]),
+      listProspectsForFirmKey: vi.fn().mockResolvedValue([]),
       getProspect: vi.fn().mockResolvedValue(structuredClone(prospect)),
       saveProspect,
     }));
@@ -95,6 +101,8 @@ describe('requalifyAllProspects', () => {
     }));
     vi.doMock('@/lib/firm-outreach/storage', () => ({
       listAllProspectIds: vi.fn().mockResolvedValue(['p1']),
+      listProspectIdsByStatus: vi.fn().mockResolvedValue([]),
+      listProspectsForFirmKey: vi.fn().mockResolvedValue([]),
       getProspect: vi.fn().mockResolvedValue(structuredClone(prospect)),
       saveProspect,
     }));

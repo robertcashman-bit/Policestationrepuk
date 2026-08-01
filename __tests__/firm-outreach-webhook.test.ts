@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FirmOutreachSend } from '@/lib/firm-outreach/types';
 
 const store = new Map<string, unknown>();
+const sets = new Map<string, Set<string>>();
 
 vi.mock('@/lib/kv', () => ({
   getKV: () => ({
@@ -11,7 +12,27 @@ vi.mock('@/lib/kv', () => ({
     },
     del: async (key: string) => {
       store.delete(key);
+      sets.delete(key);
     },
+    type: async (key: string) => {
+      if (sets.has(key)) return 'set';
+      if (store.has(key)) return 'string';
+      return 'none';
+    },
+    sadd: async (key: string, member: string, ...rest: string[]) => {
+      const set = sets.get(key) ?? new Set<string>();
+      for (const m of [member, ...rest]) set.add(m);
+      sets.set(key, set);
+      return set.size;
+    },
+    srem: async (key: string, member: string) => {
+      const set = sets.get(key);
+      if (!set) return 0;
+      const had = set.delete(member);
+      if (set.size === 0) sets.delete(key);
+      return had ? 1 : 0;
+    },
+    smembers: async (key: string) => [...(sets.get(key) ?? [])],
     mget: async (...keys: string[]) => keys.map((k) => store.get(k) ?? null),
     pipeline: () => {
       const ops: Array<{ op: 'get'; key: string }> = [];
@@ -46,6 +67,7 @@ function send(overrides: Partial<FirmOutreachSend>): FirmOutreachSend {
 describe('applySendWebhookEvent cross-campaign fallback', () => {
   beforeEach(() => {
     store.clear();
+    sets.clear();
     vi.resetModules();
   });
 

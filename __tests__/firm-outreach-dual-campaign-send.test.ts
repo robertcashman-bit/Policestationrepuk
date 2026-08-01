@@ -68,6 +68,10 @@ vi.mock('@/lib/firm-outreach/requalify-prospects', () => ({
     heldForReview: 0,
     websiteVerified: 0,
     stillReady: 0,
+    dedupedFromReady: 0,
+    junkDemotedFromReady: 0,
+    cooldownParked: 0,
+    sendableReady: 0,
     samples: [],
   })),
 }));

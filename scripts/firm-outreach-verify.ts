@@ -7,6 +7,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
+  checkOutreachIndexTypes,
   runHttpChecks,
   runRepoChecks,
   runSendHealthChecks,
@@ -47,9 +48,14 @@ async function main() {
   }
 
   const sendHealthResults = await runSendHealthChecks();
-  const sendHealthSummary = summarizeResults(sendHealthResults);
+  const indexResults = await checkOutreachIndexTypes();
+  const sendHealthSummary = summarizeResults([...sendHealthResults, ...indexResults]);
   console.log('\n==> Send health checks (Resend live when API key set)');
   for (const r of sendHealthResults) {
+    console.log(r.ok ? '  OK' : '  FAIL', r.name, r.detail ?? '');
+  }
+  console.log('\n==> KV index checks');
+  for (const r of indexResults) {
     console.log(r.ok ? '  OK' : '  FAIL', r.name, r.detail ?? '');
   }
 

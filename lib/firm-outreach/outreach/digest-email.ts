@@ -192,13 +192,16 @@ export async function sendDailyOutreachDigest(opts?: {
   const remaining = Math.max(0, cap - sentToday);
   const readyCount = report.summary.readyToSend;
   const sendableReady = report.readyToSendProspects.filter((r) => !r.suppressed && r.email);
+  const parkedReady = Math.max(0, readyCount - sendableReady.length);
 
   const subject =
     sentToday > 0
       ? `[Firm outreach] ${sentToday} sent today — ${date}`
-      : readyCount > 0
-        ? `[Firm outreach] ${readyCount} ready to send — ${date}`
-        : `[Firm outreach] Daily digest — ${date}`;
+      : sendableReady.length > 0
+        ? `[Firm outreach] ${sendableReady.length} sendable ready — ${date}`
+        : readyCount > 0
+          ? `[Firm outreach] ${readyCount} ready (0 sendable) — ${date}`
+          : `[Firm outreach] Daily digest — ${date}`;
 
   const pipelineSection = opts?.pipeline
     ? `
@@ -231,7 +234,7 @@ export async function sendDailyOutreachDigest(opts?: {
       <h2>Firm WhatsApp outreach — daily digest</h2>
       <p><strong>Date:</strong> ${escapeHtml(date)}</p>
       <ul>
-        <li><strong>Ready to send:</strong> ${readyCount} (${sendableReady.length} with email, not suppressed)</li>
+        <li><strong>Ready to send:</strong> ${readyCount} raw · <strong>${sendableReady.length} sendable</strong>${parkedReady > 0 ? ` · ${parkedReady} parked/cooldown/junk` : ''}</li>
         <li><strong>Sent today:</strong> ${sentToday} / ${cap} daily cap (${remaining} remaining)</li>
         <li><strong>Sent last 7 days:</strong> ${report.summary.sentLast7Days}</li>
       </ul>

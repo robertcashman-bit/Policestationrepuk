@@ -58,6 +58,11 @@ export interface FirmProspect {
   status: FirmProspectStatus;
   priorityScore: number;
   excludedReason?: string;
+  /**
+   * When set in the future, prospect is not sendable (e.g. firm_cooldown hold).
+   * ISO timestamp. Cleared when eligibility returns.
+   */
+  nextEligibleAt?: string;
   sequenceStep: number;
   lastEmailAt?: string;
   waLinkClickedAt?: string;

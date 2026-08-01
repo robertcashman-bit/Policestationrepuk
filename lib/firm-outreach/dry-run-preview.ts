@@ -130,6 +130,17 @@ export async function buildOutreachDryRunPreview(opts?: {
       continue;
     }
 
+    if (
+      prospect.status === 'ready_to_send' &&
+      prospect.nextEligibleAt &&
+      Date.parse(prospect.nextEligibleAt) > Date.now()
+    ) {
+      row.skipReason = 'firm_cooldown';
+      bumpSkipReason(skipReasons, 'firm_cooldown');
+      preview.push(row);
+      continue;
+    }
+
     const email = prospect.email?.trim();
     if (!email) {
       row.skipReason = 'no_email';

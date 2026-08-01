@@ -1,21 +1,37 @@
-import { describe, expect, it, vi } from 'vitest';
-import { maybeNotifyOutreachSendFailure, sendOutreachSendFailureEmail } from '@/lib/firm-outreach/outreach/send-failure-email';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('resend', () => ({
-  Resend: vi.fn().mockImplementation(() => ({
-    emails: { send: vi.fn().mockResolvedValue({ data: { id: 'x' } }) },
-  })),
-}));
+const sendMock = vi.fn().mockResolvedValue({ data: { id: 'x' } });
+
+vi.mock('resend', () => {
+  return {
+    Resend: class MockResend {
+      emails = { send: sendMock };
+    },
+  };
+});
+
+import {
+  maybeNotifyOutreachSendFailure,
+} from '@/lib/firm-outreach/outreach/send-failure-email';
+
+const ENV = process.env;
 
 describe('maybeNotifyOutreachSendFailure', () => {
+  beforeEach(() => {
+    process.env = { ...ENV, RESEND_API_KEY: 'test-key' };
+    sendMock.mockClear();
+  });
+
+  afterEach(() => {
+    process.env = ENV;
+  });
+
   it('notifies when errors > 0', async () => {
-    const spy = vi.spyOn({ sendOutreachSendFailureEmail }, 'sendOutreachSendFailureEmail');
     await maybeNotifyOutreachSendFailure({
       stats: { queued: 5, sent: 0, skipped: 0, suppressed: 0, errors: 2, elapsedMs: 0 },
       readyToSend: 10,
     });
-    // function calls sendOutreachSendFailureEmail internally — no throw
-    expect(spy).toBeDefined();
+    expect(sendMock).toHaveBeenCalled();
   });
 
   it('notifies when sent zero but queue had items', async () => {
@@ -23,6 +39,7 @@ describe('maybeNotifyOutreachSendFailure', () => {
       stats: { queued: 3, sent: 0, skipped: 0, suppressed: 0, errors: 0, elapsedMs: 0 },
       readyToSend: 10,
     });
+    expect(sendMock).toHaveBeenCalled();
   });
 
   it('does not notify on successful send', async () => {
@@ -30,5 +47,6 @@ describe('maybeNotifyOutreachSendFailure', () => {
       stats: { queued: 5, sent: 5, skipped: 0, suppressed: 0, errors: 0, elapsedMs: 0 },
       readyToSend: 10,
     });
+    expect(sendMock).not.toHaveBeenCalled();
   });
 });

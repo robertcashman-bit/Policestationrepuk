@@ -9,8 +9,19 @@ import {
   resolveStatusWithQualification,
 } from './qualification';
 import { reconcileReadyProspectStatus } from './reconcile-ready-status';
-import { getProspect, listAllProspectIds, listProspectIdsByStatus, saveProspect } from './storage';
+import {
+  getProspect,
+  listAllProspectIds,
+  listProspectIdsByStatus,
+  listProspectsForFirmKey,
+  saveProspect,
+} from './storage';
 import { isPlausibleOutreachEmail, validateEmailForSend } from './enrichment/validator';
+import { firmCooldownEligibleAt, isSendableReadyProspect } from './sendable-ready';
+import { normalizeEmail } from './normalize';
+import { isCampaignProspect } from './campaign-scope';
+
+const FIRM_SEND_COOLDOWN_DAYS = 90;
 
 export interface RequalifyResult {
   scanned: number;
@@ -21,6 +32,10 @@ export interface RequalifyResult {
   heldForReview: number;
   websiteVerified: number;
   stillReady: number;
+  dedupedFromReady: number;
+  junkDemotedFromReady: number;
+  cooldownParked: number;
+  sendableReady: number;
   stoppedEarly?: boolean;
   samples: Array<{ id: string; firmName: string; from: string; to: string; reason: string }>;
 }
@@ -51,6 +66,10 @@ export async function requalifyAllProspects(opts?: {
     heldForReview: 0,
     websiteVerified: 0,
     stillReady: 0,
+    dedupedFromReady: 0,
+    junkDemotedFromReady: 0,
+    cooldownParked: 0,
+    sendableReady: 0,
     stoppedEarly: false,
     samples: [],
   };
@@ -71,6 +90,35 @@ export async function requalifyAllProspects(opts?: {
     const p = await getProspect(id);
     if (!p) continue;
     result.scanned++;
+
+    // Demote press/junk emails that slipped into ready_to_send.
+    if (
+      p.status === 'ready_to_send' &&
+      p.email &&
+      !isPlausibleOutreachEmail(p.email)
+    ) {
+      const prev = p.status;
+      p.email = undefined;
+      p.emailConfidence = undefined;
+      p.emailScore = undefined;
+      p.status = 'discovered';
+      p.excludedReason = 'junk_email';
+      p.nextEligibleAt = undefined;
+      p.updatedAt = new Date().toISOString();
+      await saveProspect(p, prev);
+      result.downgradedFromReady++;
+      result.junkDemotedFromReady++;
+      if (result.samples.length < sampleLimit) {
+        result.samples.push({
+          id: p.id,
+          firmName: p.firmName,
+          from: prev,
+          to: p.status,
+          reason: 'junk_email',
+        });
+      }
+      continue;
+    }
 
     // PSA Kent campaign must not keep non-Kent junk in ready_to_send.
     if (
@@ -230,10 +278,143 @@ export async function requalifyAllProspects(opts?: {
       continue;
     }
 
+    // Park solicitors blocked by firm-level cooldown so ready counts stay honest.
+    if (
+      p.status === 'ready_to_send' &&
+      q.qualified &&
+      p.prospectType === 'solicitor' &&
+      p.firmKey
+    ) {
+      const siblings = await listProspectsForFirmKey(p.firmKey);
+      let latest: string | undefined;
+      for (const s of siblings) {
+        if (s.id === p.id || !isCampaignProspect(s, p.campaignId)) continue;
+        if (!s.lastEmailAt) continue;
+        const days = (Date.now() - Date.parse(s.lastEmailAt)) / 86_400_000;
+        if (days < FIRM_SEND_COOLDOWN_DAYS) {
+          if (!latest || Date.parse(s.lastEmailAt) > Date.parse(latest)) {
+            latest = s.lastEmailAt;
+          }
+        }
+      }
+      if (latest) {
+        const nextEligibleAt = firmCooldownEligibleAt(latest, FIRM_SEND_COOLDOWN_DAYS);
+        if (p.nextEligibleAt !== nextEligibleAt || p.excludedReason !== 'firm_cooldown') {
+          p.nextEligibleAt = nextEligibleAt;
+          p.excludedReason = 'firm_cooldown';
+          p.updatedAt = new Date().toISOString();
+          await saveProspect(p, prevStatus);
+          result.cooldownParked++;
+          if (result.samples.length < sampleLimit) {
+            result.samples.push({
+              id: p.id,
+              firmName: p.firmName,
+              from: prevStatus,
+              to: p.status,
+              reason: 'firm_cooldown',
+            });
+          }
+        }
+      }
+    }
+
     if (p.status === 'ready_to_send' && q.qualified) {
       result.stillReady++;
     }
   }
+
+  // Collapse duplicate ready rows: one solicitor per firmKey, then one per email (per campaign).
+  const readyIds = await listProspectIdsByStatus('ready_to_send');
+  type ReadyPick = { id: string; score: number; updatedAt: string };
+  const better = (a: ReadyPick, b: ReadyPick) =>
+    b.score - a.score || b.updatedAt.localeCompare(a.updatedAt);
+
+  async function demoteDuplicateReady(id: string, reason: string): Promise<void> {
+    const p = await getProspect(id);
+    if (!p || p.status !== 'ready_to_send') return;
+    const prev = p.status;
+    p.status = 'excluded';
+    p.excludedReason = reason;
+    p.updatedAt = new Date().toISOString();
+    await saveProspect(p, prev);
+    result.dedupedFromReady++;
+    result.downgradedFromReady++;
+    if (result.samples.length < sampleLimit) {
+      result.samples.push({
+        id: p.id,
+        firmName: p.firmName,
+        from: prev,
+        to: p.status,
+        reason,
+      });
+    }
+  }
+
+  const byFirm = new Map<string, ReadyPick>();
+  const firmLosers: string[] = [];
+  for (const id of readyIds) {
+    if (deadline != null && Date.now() >= deadline) {
+      result.stoppedEarly = true;
+      break;
+    }
+    const p = await getProspect(id);
+    if (!p || p.status !== 'ready_to_send') continue;
+    if (p.prospectType !== 'solicitor' || !p.firmKey) continue;
+    const key = `${p.campaignId}:firm:${p.firmKey}`;
+    const pick: ReadyPick = {
+      id: p.id,
+      score: p.priorityScore ?? 0,
+      updatedAt: p.updatedAt ?? '',
+    };
+    const cur = byFirm.get(key);
+    if (!cur || better(cur, pick) > 0) {
+      if (cur) firmLosers.push(cur.id);
+      byFirm.set(key, pick);
+    } else {
+      firmLosers.push(p.id);
+    }
+  }
+  for (const id of firmLosers) {
+    await demoteDuplicateReady(id, 'duplicate_firm_ready');
+  }
+
+  const byEmail = new Map<string, ReadyPick>();
+  const emailLosers: string[] = [];
+  const readyAfterFirm = await listProspectIdsByStatus('ready_to_send');
+  for (const id of readyAfterFirm) {
+    if (deadline != null && Date.now() >= deadline) {
+      result.stoppedEarly = true;
+      break;
+    }
+    const p = await getProspect(id);
+    if (!p || p.status !== 'ready_to_send' || !p.email) continue;
+    const key = `${p.campaignId}:email:${normalizeEmail(p.email)}`;
+    const pick: ReadyPick = {
+      id: p.id,
+      score: p.priorityScore ?? 0,
+      updatedAt: p.updatedAt ?? '',
+    };
+    const cur = byEmail.get(key);
+    if (!cur || better(cur, pick) > 0) {
+      if (cur) emailLosers.push(cur.id);
+      byEmail.set(key, pick);
+    } else {
+      emailLosers.push(p.id);
+    }
+  }
+  for (const id of emailLosers) {
+    await demoteDuplicateReady(id, 'duplicate_email_ready');
+  }
+
+  // Recount sendable ready after demotions.
+  const finalReadyIds = await listProspectIdsByStatus('ready_to_send');
+  let sendable = 0;
+  for (const id of finalReadyIds) {
+    const p = await getProspect(id);
+    if (p && isSendableReadyProspect(p)) sendable++;
+  }
+  result.sendableReady = sendable;
+  result.stillReady = finalReadyIds.length;
 
   return result;
 }

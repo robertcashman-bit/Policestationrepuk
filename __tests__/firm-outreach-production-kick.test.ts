@@ -140,6 +140,7 @@ describe('requalifyAllProspects readyOnly', () => {
     vi.doMock('@/lib/firm-outreach/storage', () => ({
       listProspectIdsByStatus,
       listAllProspectIds,
+      listProspectsForFirmKey: vi.fn().mockResolvedValue([]),
       getProspect: vi.fn().mockResolvedValue({
         id: 'ready-1',
         firmName: 'Acme',

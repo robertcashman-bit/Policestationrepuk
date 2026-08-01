@@ -63,29 +63,97 @@ function newSendId(): string {
   return `fos_${Date.now().toString(36)}_${crypto.randomBytes(4).toString('hex')}`;
 }
 
+function asStringIds(values: unknown): string[] {
+  if (!Array.isArray(values)) return [];
+  return values.filter((x): x is string => typeof x === 'string' && x.length > 0);
+}
+
+/**
+ * Read an id-index that may be a Redis SET (preferred) or a legacy JSON array string.
+ * Production indexes were observed as SETs while older code used GET/SET arrays.
+ */
 async function readStringList(key: string): Promise<string[]> {
   const kv = getKV();
   if (!kv) return [];
-  const raw = await kv.get<string[]>(key);
-  return Array.isArray(raw) ? raw : [];
+  try {
+    const type = await kv.type(key);
+    if (type === 'none') return [];
+    if (type === 'set') {
+      return asStringIds(await kv.smembers(key));
+    }
+    const raw = await kv.get<string[] | string>(key);
+    if (Array.isArray(raw)) return asStringIds(raw);
+    if (typeof raw === 'string') {
+      try {
+        return asStringIds(JSON.parse(raw) as unknown);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  } catch {
+    // WRONGTYPE or transient — try SET read as last resort.
+    try {
+      return asStringIds(await kv.smembers(key));
+    } catch {
+      return [];
+    }
+  }
 }
 
-async function appendIndex(key: string, id: string): Promise<void> {
+const SADD_CHUNK = 100;
+
+async function writeSetIndex(key: string, ids: string[]): Promise<void> {
   const kv = getKV();
   if (!kv) return;
-  const ids = await readStringList(key);
-  if (!ids.includes(id)) {
-    ids.push(id);
-    await kv.set(key, ids);
+  await kv.del(key);
+  const unique = [...new Set(ids.filter((x) => typeof x === 'string' && x.length > 0))];
+  for (let i = 0; i < unique.length; i += SADD_CHUNK) {
+    const chunk = unique.slice(i, i + SADD_CHUNK);
+    if (chunk.length === 1) await kv.sadd(key, chunk[0]!);
+    else await kv.sadd(key, chunk[0]!, ...chunk.slice(1));
   }
+}
+
+/** Migrate legacy JSON-array indexes to Redis SETs, then SADD. */
+async function appendIndex(key: string, id: string): Promise<void> {
+  const kv = getKV();
+  if (!kv || !id) return;
+  const type = await kv.type(key);
+  if (type === 'set' || type === 'none') {
+    await kv.sadd(key, id);
+    return;
+  }
+  // Legacy JSON array (or other) → migrate to SET including the new id.
+  const existing = await readStringList(key);
+  if (!existing.includes(id)) existing.push(id);
+  await writeSetIndex(key, existing);
 }
 
 async function removeFromIndex(key: string, id: string): Promise<void> {
   const kv = getKV();
-  if (!kv) return;
+  if (!kv || !id) return;
+  const type = await kv.type(key);
+  if (type === 'set') {
+    await kv.srem(key, id);
+    return;
+  }
+  if (type === 'none') return;
   const ids = await readStringList(key);
   const next = ids.filter((x) => x !== id);
-  if (next.length !== ids.length) await kv.set(key, next);
+  if (next.length === ids.length) return;
+  await writeSetIndex(key, next);
+}
+
+/** Expected Redis TYPE for outreach id indexes (SET). */
+export async function getIndexRedisType(key: string): Promise<string> {
+  const kv = getKV();
+  if (!kv) return 'none';
+  return (await kv.type(key)) as string;
+}
+
+export async function replaceSetIndex(key: string, ids: string[]): Promise<void> {
+  await writeSetIndex(key, ids);
 }
 
 export async function saveProspect(prospect: FirmProspect, previousStatus?: FirmProspectStatus): Promise<void> {

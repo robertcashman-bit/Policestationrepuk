@@ -35,10 +35,11 @@ import {
 } from './run-log';
 import { sendOutreachEmail } from './send';
 import { claimProspectSend } from '../run-lock';
+import { firmCooldownEligibleAt, isSendableReadyProspect } from '../sendable-ready';
 
 const FOLLOWUP_DAY_1 = 7;
 const FOLLOWUP_DAY_2 = 21;
-const FIRM_SEND_COOLDOWN_DAYS = 90;
+export const FIRM_SEND_COOLDOWN_DAYS = 90;
 const MAX_CANDIDATE_SCAN = 500;
 const DEFAULT_MAX_ELAPSED_MS = 240_000;
 
@@ -52,18 +53,57 @@ function daysSince(iso: string | undefined): number {
   return (Date.now() - Date.parse(iso)) / (1000 * 60 * 60 * 24);
 }
 
-async function firmRecentlyContacted(
+async function firmCooldownHold(
   prospect: FirmProspect,
   campaignId: string,
-): Promise<boolean> {
+): Promise<{ blocked: boolean; nextEligibleAt?: string }> {
   const siblings = await listProspectsForFirmKey(prospect.firmKey);
+  let latestSiblingEmailAt: string | undefined;
   for (const s of siblings) {
     if (s.id === prospect.id || !isCampaignProspect(s, campaignId)) continue;
-    if (s.lastEmailAt && daysSince(s.lastEmailAt) < FIRM_SEND_COOLDOWN_DAYS) {
-      return true;
+    if (!s.lastEmailAt) continue;
+    if (daysSince(s.lastEmailAt) < FIRM_SEND_COOLDOWN_DAYS) {
+      if (
+        !latestSiblingEmailAt ||
+        Date.parse(s.lastEmailAt) > Date.parse(latestSiblingEmailAt)
+      ) {
+        latestSiblingEmailAt = s.lastEmailAt;
+      }
     }
   }
-  return false;
+  if (!latestSiblingEmailAt) return { blocked: false };
+  return {
+    blocked: true,
+    nextEligibleAt: firmCooldownEligibleAt(latestSiblingEmailAt, FIRM_SEND_COOLDOWN_DAYS),
+  };
+}
+
+async function parkFirmCooldown(
+  prospect: FirmProspect,
+  nextEligibleAt: string,
+): Promise<void> {
+  if (prospect.status !== 'ready_to_send') return;
+  const alreadyParked =
+    prospect.excludedReason === 'firm_cooldown' &&
+    prospect.nextEligibleAt === nextEligibleAt;
+  if (alreadyParked) return;
+  prospect.nextEligibleAt = nextEligibleAt;
+  prospect.excludedReason = 'firm_cooldown';
+  prospect.updatedAt = new Date().toISOString();
+  await saveProspect(prospect);
+}
+
+async function demoteJunkReadyEmail(prospect: FirmProspect): Promise<void> {
+  if (prospect.status !== 'ready_to_send') return;
+  const prev = prospect.status;
+  prospect.email = undefined;
+  prospect.emailConfidence = undefined;
+  prospect.emailScore = undefined;
+  prospect.status = 'discovered';
+  prospect.excludedReason = 'junk_email';
+  prospect.nextEligibleAt = undefined;
+  prospect.updatedAt = new Date().toISOString();
+  await saveProspect(prospect, prev);
 }
 
 function dueForFollowUp(prospect: FirmProspect): boolean {
@@ -180,7 +220,11 @@ export async function runFirmOutreach(opts?: {
   const scanLimit = Math.min(2000, Math.max(MAX_CANDIDATE_SCAN, remaining * 40, 200));
   const ready = await listProspectsByRecordStatus('ready_to_send', scanLimit, campaignOpts);
   const sent = await listProspectsByRecordStatus('sent', scanLimit, campaignOpts);
-  const candidates = sortProspectsForSend([...ready, ...sent]);
+  // Prefer sendable ready first so parked firm_cooldown rows do not starve the batch.
+  const readySorted = sortProspectsForSend(ready);
+  const sendableReady = readySorted.filter((p) => isSendableReadyProspect(p));
+  const parkedReady = readySorted.filter((p) => !isSendableReadyProspect(p));
+  const candidates = [...sendableReady, ...sortProspectsForSend(sent), ...parkedReady];
   const emailsSentThisRun = new Set<string>();
   let resendQuota = globalQuota;
 
@@ -207,6 +251,16 @@ export async function runFirmOutreach(opts?: {
         await saveProspect(prospect, prev);
       }
 
+      // Fast-path: parked firm_cooldown / future nextEligibleAt.
+      if (
+        prospect.status === 'ready_to_send' &&
+        prospect.nextEligibleAt &&
+        Date.parse(prospect.nextEligibleAt) > Date.now()
+      ) {
+        recordSkip(stats, 'firm_cooldown');
+        continue;
+      }
+
       const step = nextStep(prospect);
       if (step === null) {
         recordSkip(stats, 'no_step');
@@ -220,6 +274,12 @@ export async function runFirmOutreach(opts?: {
       }
 
       const normalizedEmail = normalizeEmail(email);
+
+      if (!isPlausibleOutreachEmail(email)) {
+        recordSkip(stats, 'mx_invalid');
+        await demoteJunkReadyEmail(prospect);
+        continue;
+      }
 
       const qualification = qualifyProspectForOutreach(prospect);
       if (!qualification.qualified) {
@@ -262,17 +322,26 @@ export async function runFirmOutreach(opts?: {
         continue;
       }
 
-      if (prospect.prospectType === 'solicitor' && (await firmRecentlyContacted(prospect, campaignId))) {
-        recordSkip(stats, 'firm_cooldown');
-        continue;
-      }
-
-      if (emailPrevalidatedForSend(prospect)) {
-        if (!isPlausibleOutreachEmail(email)) {
-          recordSkip(stats, 'mx_invalid');
+      if (prospect.prospectType === 'solicitor') {
+        const cooldown = await firmCooldownHold(prospect, campaignId);
+        if (cooldown.blocked) {
+          recordSkip(stats, 'firm_cooldown');
+          if (cooldown.nextEligibleAt) {
+            await parkFirmCooldown(prospect, cooldown.nextEligibleAt);
+          }
           continue;
         }
-      } else {
+        // Clear expired hold markers so ready counts stay honest.
+        if (prospect.excludedReason === 'firm_cooldown' || prospect.nextEligibleAt) {
+          prospect.excludedReason =
+            prospect.excludedReason === 'firm_cooldown' ? undefined : prospect.excludedReason;
+          prospect.nextEligibleAt = undefined;
+          prospect.updatedAt = new Date().toISOString();
+          await saveProspect(prospect);
+        }
+      }
+
+      if (!emailPrevalidatedForSend(prospect)) {
         const validation = await validateEmailForSend(email);
         if (!validation.ok) {
           recordSkip(stats, 'mx_invalid');

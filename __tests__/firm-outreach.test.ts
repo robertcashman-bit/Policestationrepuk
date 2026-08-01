@@ -140,6 +140,9 @@ describe('firm-outreach email extract', () => {
     expect(isPlausibleOutreachEmail('crime@192.com')).toBe(false);
     expect(isPlausibleOutreachEmail('crime@findsolicitor.co.uk')).toBe(false);
     expect(isPlausibleOutreachEmail('addressaccounts@rhodescavendish.co.uk')).toBe(false);
+    expect(isPlausibleOutreachEmail('feedback@thetimes.com')).toBe(false);
+    expect(isPlausibleOutreachEmail('crime@telegraph.co.uk')).toBe(false);
+    expect(isPlausibleOutreachEmail('news@theguardian.com')).toBe(false);
     expect(isPlausibleOutreachEmail('info@realcriminalfirm.co.uk')).toBe(true);
   });
 });

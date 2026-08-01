@@ -5,6 +5,15 @@ on:
     - cron: "0 4 * * *"   # 04:00 UTC daily
     - cron: "30 9 * * 1-5" # 09:30 UTC weekdays (campaign dry-run / live per config)
   workflow_dispatch:
+  # Allow merge/push verification when Actions dispatch token lacks workflow_dispatch scope.
+  push:
+    branches: [master]
+    paths:
+      - 'lib/kv-atomic.ts'
+      - 'lib/firm-outreach/storage.ts'
+      - 'lib/firm-outreach/import-lead-engine.ts'
+      - 'scripts/firm-outreach-import-lead-engine.ts'
+      - '.github/workflows/lead-engine.yml'
 
 jobs:
   run-pipeline:

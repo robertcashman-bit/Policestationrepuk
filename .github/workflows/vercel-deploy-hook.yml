@@ -239,7 +239,10 @@ jobs:
               -H "${AUTH}" | jq -r '.readyState // "UNKNOWN"')
             echo "[$i/60] deployment state=${STATE}"
             if [ "$STATE" = "READY" ]; then
-              echo "Deployment promoted"
+              # READY only means the build finished — production may still point at
+              # another git remote/SHA (e.g. droid). Always promote explicitly.
+              echo "Deployment READY — promoting to production alias"
+              vercel promote "$DEPLOY_URL" --yes --scope="$VERCEL_SCOPE" --timeout=15m --token="$VERCEL_TOKEN"
               exit 0
             fi
             if [ "$STATE" = "ERROR" ] || [ "$STATE" = "CANCELED" ]; then

@@ -329,26 +329,25 @@ export async function listSendsForProspect(prospectId: string): Promise<FirmOutr
   return all.filter((s) => s.prospectId === prospectId);
 }
 
-/** Sends recorded for a normalised email address (newest first). */
+/**
+ * Sends recorded for a normalised email address (newest first).
+ *
+ * Uses the per-email index only. A full SEND_INDEX scan is intentionally
+ * omitted — webhook handlers call this path and a full scan can exceed
+ * Resend's delivery timeout, marking the endpoint as failing.
+ */
 export async function listSendsForEmail(email: string): Promise<FirmOutreachSend[]> {
   const normalized = normalizeEmail(email);
+  if (!normalized) return [];
   const ids = await readStringList(SEND_EMAIL_INDEX + emailHash(normalized));
   const out: FirmOutreachSend[] = [];
   for (const id of ids) {
     const s = await getSend(id);
     if (s && normalizeEmail(s.email) === normalized) out.push(s);
   }
-  if (out.length > 0) {
-    return out.sort((a, b) =>
-      (b.sentAt ?? b.createdAt).localeCompare(a.sentAt ?? a.createdAt),
-    );
-  }
-
-  // Fallback for sends recorded before per-email indexing.
-  const all = await listAllSends();
-  return all
-    .filter((s) => normalizeEmail(s.email) === normalized)
-    .sort((a, b) => (b.sentAt ?? b.createdAt).localeCompare(a.sentAt ?? a.createdAt));
+  return out.sort((a, b) =>
+    (b.sentAt ?? b.createdAt).localeCompare(a.sentAt ?? a.createdAt),
+  );
 }
 
 /** True when another prospect already received the initial outreach at this email. */

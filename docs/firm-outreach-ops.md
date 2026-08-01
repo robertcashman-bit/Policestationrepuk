@@ -81,16 +81,21 @@ Recommended to set explicitly (otherwise code defaults apply):
 
 ## Resend webhook
 
-Register automatically (idempotent):
+Register automatically (idempotent) and sync `RESEND_WEBHOOK_SECRET` to Vercel when `VERCEL_TOKEN` + `VERCEL_PROJECT_ID` are set:
 
 ```bash
 node scripts/resend-configure-webhook.mjs
+# force re-upsert secret even if lengths already match:
+node scripts/resend-configure-webhook.mjs --sync-secret
 ```
+
+The firm-outreach production kick also re-checks the Resend signing secret against Vercel and redeploys when it drifts (stale secret → every event 401 → Resend marks the endpoint failing).
 
 Or manually in the Resend dashboard:
 
 - **URL:** `https://policestationrepuk.org/api/webhooks/resend`
 - **Events:** `email.delivered`, `email.opened`, `email.clicked`, `email.bounced`, `email.complained`
+- Copy the endpoint **signing secret** into Vercel production `RESEND_WEBHOOK_SECRET`, then redeploy.
 
 Updates the admin Send log with delivery/open/click/bounce status. Webhook matching uses `resendMessageId` first, then falls back to the newest in-flight send for that email across **all** campaigns (`whatsapp_invite_v1` and `agent_cover_kent_v1`).
 

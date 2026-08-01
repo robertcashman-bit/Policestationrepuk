@@ -161,6 +161,67 @@ async function productionAcceptsBootstrap(secret) {
   }
 }
 
+const RESEND_WEBHOOK_URL =
+  process.env.RESEND_WEBHOOK_URL_OVERRIDE || 'https://policestationrepuk.org/api/webhooks/resend';
+
+/**
+ * Pull signing_secret from Resend for our production webhook URL and upsert
+ * RESEND_WEBHOOK_SECRET on Vercel when it drifts. Returns true when env changed.
+ */
+async function syncResendWebhookSecret(apiKey, currentSecret, existingIds) {
+  const listRes = await fetch('https://api.resend.com/webhooks', {
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+  });
+  const listText = await listRes.text();
+  let listJson = null;
+  try {
+    listJson = listText ? JSON.parse(listText) : null;
+  } catch {
+    listJson = null;
+  }
+  if (!listRes.ok) {
+    throw new Error(`Resend webhooks list HTTP ${listRes.status}: ${listText.slice(0, 300)}`);
+  }
+  const hooks = listJson?.data ?? listJson?.webhooks ?? [];
+  const ours = hooks.find((h) => h.endpoint === RESEND_WEBHOOK_URL);
+  if (!ours?.id) {
+    console.log(`[kick prepare] No Resend webhook at ${RESEND_WEBHOOK_URL} — run configure-resend`);
+    return false;
+  }
+
+  const getRes = await fetch(`https://api.resend.com/webhooks/${ours.id}`, {
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+  });
+  const getText = await getRes.text();
+  let detail = null;
+  try {
+    detail = getText ? JSON.parse(getText) : null;
+  } catch {
+    detail = null;
+  }
+  if (!getRes.ok) {
+    throw new Error(`Resend webhook get HTTP ${getRes.status}: ${getText.slice(0, 300)}`);
+  }
+  const signingSecret = (detail?.data?.signing_secret || detail?.signing_secret || '').trim();
+  if (!signingSecret) {
+    console.log('[kick prepare] Resend webhook has no signing_secret in API response');
+    return false;
+  }
+
+  if (currentSecret && currentSecret === signingSecret) {
+    console.log(
+      `[kick prepare] RESEND_WEBHOOK_SECRET matches Resend (${ours.id}, len=${signingSecret.length})`,
+    );
+    return false;
+  }
+
+  console.log(
+    `[kick prepare] Syncing RESEND_WEBHOOK_SECRET from Resend ${ours.id} (was_len=${currentSecret.length || 0} → ${signingSecret.length})`,
+  );
+  await upsertProductionEnv('RESEND_WEBHOOK_SECRET', signingSecret, existingIds);
+  return true;
+}
+
 async function main() {
   // Prefer non-empty values already in the process env (GH secrets / env pull).
   let cron = process.env.CRON_SECRET?.trim() || '';
@@ -253,6 +314,30 @@ async function main() {
       console.log(
         `TEMPORARY firm cooldown override ${currentCooldown || '(unset/90)'} → ${TEMP_FIRM_COOLDOWN_DAYS} (restore to 90 after flush)`,
       );
+    }
+
+    // Keep Resend webhook signing secret in sync — a stale Vercel value makes
+    // every delivery event 401 and Resend marks the endpoint as failing.
+    const resendKeyPick = pickEnvValue(envs, 'RESEND_API_KEY');
+    const webhookSecretPick = pickEnvValue(envs, 'RESEND_WEBHOOK_SECRET');
+    const resendApiKey =
+      process.env.RESEND_API_KEY?.trim() || resendKeyPick.value || '';
+    if (resendApiKey) {
+      try {
+        const synced = await syncResendWebhookSecret(
+          resendApiKey,
+          webhookSecretPick.value || '',
+          webhookSecretPick.entries.map((e) => e.id).filter(Boolean),
+        );
+        if (synced) needsRedeploy = true;
+      } catch (err) {
+        console.warn(
+          '[kick prepare] Resend webhook secret sync failed:',
+          err instanceof Error ? err.message : err,
+        );
+      }
+    } else {
+      console.log('[kick prepare] RESEND_API_KEY missing — skip webhook secret sync');
     }
 
     // Bootstrap may already exist in Vercel from a prior kick that failed before redeploy.

@@ -9,7 +9,9 @@
 | **Vercel project** | `policestationrepuk-new` (`prj_lZ0zL8uq5cBDFosKovyF0n8FmlCn`) |
 | **Live site** | https://policestationrepuk.org |
 
-The `droid` remote (`robertdavidcashman-droid/Policestationrepuk`) is **read-only** for this workflow. Do not push there for production — Vercel is linked to **robertcashman-bit**.
+The `droid` remote (`robertdavidcashman-droid/Policestationrepuk`) is **read-only** for this workflow. Do not push there for production — Vercel must stay linked to **robertcashman-bit**.
+
+If production health (`/api/health` → `version`) shows a SHA that only exists on `droid`, re-run **Ops — RepUK Vercel git link (bit)** (`.github/workflows/ops-repuk-vercel-git-link.yml`) to unlink droid, link bit, and promote `master`.
 
 Backup of the previous bit `master` tip (before prod-sync): branch `backup/bit-master-pre-prod-sync`.
 

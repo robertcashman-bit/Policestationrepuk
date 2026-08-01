@@ -5,6 +5,10 @@ import {
   getProspect,
   saveProspect,
 } from '@/lib/firm-outreach/storage';
+import {
+  findEmailJobForWebhook,
+  markJobFromWebhookEvent,
+} from '@/lib/firm-outreach/email-jobs/storage';
 import { verifyResendWebhookSignature } from '@/lib/firm-outreach/resend-webhook-verify';
 
 export const dynamic = 'force-dynamic';
@@ -66,7 +70,6 @@ export async function POST(request: Request) {
       type === 'email.complained'
     ) {
       const reason = type === 'email.complained' ? 'complaint' : 'bounce';
-      // Prefer message-id match; only fall back to email when present.
       const targets = emails.length > 0 ? emails : [undefined];
       for (const email of targets) {
         const send = await applySendWebhookEvent({
@@ -75,6 +78,15 @@ export async function POST(request: Request) {
           eventType: type,
           at,
         });
+
+        const job = await findEmailJobForWebhook({
+          providerMessageId: resendMessageId,
+          sendId: send?.id,
+        });
+        if (job) {
+          await markJobFromWebhookEvent(job, type);
+        }
+
         if (send && (type === 'email.bounced' || type === 'email.complained')) {
           await addSuppression(send.email, reason);
           const prospect = await getProspect(send.prospectId);
@@ -89,7 +101,6 @@ export async function POST(request: Request) {
     }
   } catch (err) {
     // Signature was valid — ack so Resend does not mark the endpoint failing.
-    // Retryable KV blips can be reconciled later from Resend's event log.
     console.error('[resend webhook] handler error after verify:', err);
   }
 

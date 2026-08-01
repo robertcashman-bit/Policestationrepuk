@@ -470,6 +470,71 @@ export async function markJobSuppressed(
   return job;
 }
 
+/**
+ * Advance an accepted (or in-flight) job from a Resend delivery webhook.
+ * No-ops when the job is already at a later terminal delivery state.
+ */
+export async function markJobFromWebhookEvent(
+  job: EmailJob,
+  eventType: string,
+): Promise<EmailJob | null> {
+  let next: EmailJobStatus | null = null;
+  if (eventType === 'email.delivered') next = 'delivered';
+  else if (eventType === 'email.bounced') next = 'bounced';
+  else if (eventType === 'email.complained') next = 'complained';
+  else return null;
+
+  if (job.status === next) return job;
+  // Do not rewind a bounce/complaint back to delivered.
+  if (
+    (job.status === 'bounced' || job.status === 'complained') &&
+    next === 'delivered'
+  ) {
+    return job;
+  }
+
+  const prev = job.status;
+  job.status = next;
+  job.completedAt = job.completedAt ?? new Date().toISOString();
+  await saveEmailJob(job, prev);
+  return job;
+}
+
+/** Find an accepted/delivered job by Resend message id or firm-outreach send id. */
+export async function findEmailJobForWebhook(opts: {
+  providerMessageId?: string;
+  sendId?: string;
+  limit?: number;
+}): Promise<EmailJob | null> {
+  const limit = opts.limit ?? 200;
+  const statuses: EmailJobStatus[] = [
+    'accepted',
+    'delivered',
+    'bounced',
+    'complained',
+    'processing',
+    'claimed',
+  ];
+  for (const status of statuses) {
+    const ids = await listEmailJobIdsByStatus(status, limit);
+    for (const id of ids) {
+      const job = await getEmailJob(id);
+      if (!job) continue;
+      if (
+        opts.providerMessageId &&
+        job.providerMessageId &&
+        job.providerMessageId === opts.providerMessageId
+      ) {
+        return job;
+      }
+      if (opts.sendId && job.sendId && job.sendId === opts.sendId) {
+        return job;
+      }
+    }
+  }
+  return null;
+}
+
 export function isTerminalEmailJob(job: EmailJob): boolean {
   return EMAIL_JOB_TERMINAL_STATUSES.has(job.status);
 }

@@ -84,6 +84,11 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Outreach send health (status)',
     optional: true,
   },
+  // Reconcile delivery events missed while the Resend webhook was failing/disabled.
+  {
+    path: '/api/cron/firm-outreach-backfill-delivery?limit=50',
+    label: 'Backfill delivery status from Resend',
+  },
   // Operator-only Resend probes for both websites (fails kick if either path cannot send).
   {
     path: '/api/cron/firm-outreach-probe',

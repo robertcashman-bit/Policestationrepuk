@@ -89,7 +89,11 @@ node scripts/resend-configure-webhook.mjs
 node scripts/resend-configure-webhook.mjs --sync-secret
 ```
 
-The firm-outreach production kick also re-checks the Resend signing secret against Vercel and redeploys when it drifts (stale secret → every event 401 → Resend marks the endpoint failing).
+The firm-outreach production kick also:
+- re-enables the Resend webhook if Resend auto-disabled it after failures
+- syncs the signing secret to Vercel and redeploys when it drifts
+- POSTs a signed probe (must return 200) before flush
+- backfills delivery/bounce status via Resend `emails.get` for sends missed while the webhook was down
 
 Or manually in the Resend dashboard:
 

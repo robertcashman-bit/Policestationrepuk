@@ -75,20 +75,24 @@ describe('runProductionKickSteps', () => {
     expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.optional).toBeFalsy();
   });
 
-  it('ends with dual send flushes after both-campaign dry-run', () => {
-    const last = DEFAULT_PRODUCTION_KICK_STEPS.at(-1);
-    const prior = DEFAULT_PRODUCTION_KICK_STEPS.at(-2);
-    const dryRun = DEFAULT_PRODUCTION_KICK_STEPS.find((s) => s.path.includes('dryRunPreview=1'));
-    const discovery = DEFAULT_PRODUCTION_KICK_STEPS.find((s) =>
-      s.path.includes('/api/cron/firm-outreach-discovery'),
+  it('flushes early (required) then again after enrich', () => {
+    const sends = DEFAULT_PRODUCTION_KICK_STEPS.filter((s) =>
+      s.path.startsWith('/api/cron/firm-outreach-send'),
     );
-    expect(discovery?.optional).toBe(true);
-    expect(dryRun?.path).toContain('allCampaigns=1');
-    expect(dryRun?.optional).toBe(true);
-    expect(prior?.path).toBe('/api/cron/firm-outreach-send?limit=150');
-    expect(last?.path).toBe('/api/cron/firm-outreach-send?limit=150');
-    expect(last?.label).toContain('flush 2');
-    expect(last?.optional).toBe(true);
+    const dryRunIdx = DEFAULT_PRODUCTION_KICK_STEPS.findIndex((s) =>
+      s.path.includes('dryRunPreview=1'),
+    );
+    const firstSendIdx = DEFAULT_PRODUCTION_KICK_STEPS.findIndex((s) =>
+      s.path.startsWith('/api/cron/firm-outreach-send'),
+    );
+    const requalifyIdx = DEFAULT_PRODUCTION_KICK_STEPS.findIndex((s) =>
+      s.path.includes('requalifyOnly=1'),
+    );
+    expect(sends).toHaveLength(2);
+    expect(sends.every((s) => !s.optional)).toBe(true);
+    expect(dryRunIdx).toBeGreaterThan(0);
+    expect(firstSendIdx).toBeLessThan(requalifyIdx);
+    expect(DEFAULT_PRODUCTION_KICK_STEPS.at(-1)?.label).toContain('flush 2');
   });
 
   it('fails when required probe is non-200', async () => {

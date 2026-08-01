@@ -213,6 +213,31 @@ describe('outreach qualification', () => {
       resolveStatusWithQualification(brachers, 'ready_to_send', registry()),
     ).toBe('discovered');
   });
+
+  it('does not treat firm_cooldown as a permanent exclusion', () => {
+    const cooled: Pick<
+      FirmProspect,
+      | 'prospectType'
+      | 'sources'
+      | 'status'
+      | 'firmName'
+      | 'email'
+      | 'excludedReason'
+      | 'regulatoryNumber'
+    > = {
+      prospectType: 'firm',
+      firmName: 'On Crime Registry LLP',
+      sources: ['laa'],
+      status: 'excluded',
+      email: 'info@oncrime.co.uk',
+      excludedReason: 'firm_cooldown',
+      regulatoryNumber: undefined,
+    };
+    expect(qualifyProspectForOutreach(cooled, registry()).qualified).toBe(true);
+    expect(resolveStatusWithQualification(cooled, 'ready_to_send', registry())).toBe(
+      'ready_to_send',
+    );
+  });
 });
 
 describe('enrichment status gate', () => {

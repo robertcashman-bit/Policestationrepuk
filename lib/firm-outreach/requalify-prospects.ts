@@ -70,6 +70,13 @@ export async function requalifyAllProspects(opts?: {
     if (!p) continue;
     result.scanned++;
 
+    // Stale: ready_to_send rows sometimes carried excludedReason=firm_cooldown.
+    let clearedStaleFirmCooldown = false;
+    if (p.status === 'ready_to_send' && p.excludedReason === 'firm_cooldown') {
+      p.excludedReason = undefined;
+      clearedStaleFirmCooldown = true;
+    }
+
     let websiteVerifiedNow = false;
     if (
       verifyWebsites &&
@@ -133,6 +140,30 @@ export async function requalifyAllProspects(opts?: {
         }
         continue;
       }
+    }
+
+    // firm_cooldown is a send skip, not a permanent exclusion — clear and restore.
+    if (p.status === 'excluded' && p.excludedReason === 'firm_cooldown') {
+      p.excludedReason = undefined;
+      // Leave excluded before resolve; bare status=excluded is treated as permanent.
+      p.status = 'discovered';
+      if (p.email && isPlausibleOutreachEmail(p.email) && q.qualified) {
+        const preferred = p.lastEmailAt ? 'sent' : 'ready_to_send';
+        p.status = resolveStatusWithQualification(p, preferred, registry);
+        if (p.status === 'ready_to_send') result.promotedToReady++;
+      }
+      p.updatedAt = new Date().toISOString();
+      await saveProspect(p, prevStatus);
+      if (result.samples.length < sampleLimit) {
+        result.samples.push({
+          id: p.id,
+          firmName: p.firmName,
+          from: prevStatus,
+          to: p.status,
+          reason: 'cleared_stale_firm_cooldown_exclusion',
+        });
+      }
+      continue;
     }
 
     if (p.status === 'excluded' && p.excludedReason === 'archive_only_not_on_laa_or_dscc') {
@@ -206,6 +237,10 @@ export async function requalifyAllProspects(opts?: {
 
     if (p.status === 'ready_to_send' && q.qualified) {
       result.stillReady++;
+      if (clearedStaleFirmCooldown) {
+        p.updatedAt = new Date().toISOString();
+        await saveProspect(p, prevStatus);
+      }
     }
   }
 

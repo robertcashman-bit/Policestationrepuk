@@ -5,6 +5,7 @@ import { readLaaCrimeJson } from '@/lib/legal-directory/laa-fetch';
 import { listApprovedListings } from '@/lib/legal-directory/storage';
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from '../campaign-scope';
 import { countyAllowlist } from '../constants';
+import { applyFirmGeoToInputs, buildFirmGeoMap } from '../dscc-geo-join';
 import { filterKentInputs } from '../kent-filter';
 import {
   archiveFirmsToInputs,
@@ -88,14 +89,20 @@ export async function runFirmDiscovery(opts?: {
   const dscc = await ensureDsccRegisterCache();
   const directory = await directoryInputs();
 
-  const dsccInputs = dscc?.entries?.length ? dsccEntriesToInputs(dscc.entries) : [];
-  const dsccFirms = dsccInputs.filter((i) => i.prospectType === 'firm').length;
-  const dsccSolicitors = dsccInputs.filter((i) => i.prospectType === 'solicitor').length;
+  const dsccRaw = dscc?.entries?.length ? dsccEntriesToInputs(dscc.entries) : [];
   const crimeRegistry = buildCrimeRegistry(laa, dscc?.entries ?? []);
   const archiveInputs = archiveFirmsToInputs(archive, crimeRegistry);
+  const laaInputs = laaRecordsToInputs(laa);
+
+  // DSCC rows have no county/postcode; inherit geo from LAA/archive/directory
+  // so Kent DSCC solicitors/firms survive filterKentInputs for PSA.
+  const geoMap = buildFirmGeoMap([...laaInputs, ...archiveInputs, ...directory]);
+  const dsccInputs = applyFirmGeoToInputs(dsccRaw, geoMap);
+  const dsccFirms = dsccInputs.filter((i) => i.prospectType === 'firm').length;
+  const dsccSolicitors = dsccInputs.filter((i) => i.prospectType === 'solicitor').length;
 
   let allInputs = filterByCounty(
-    [...laaRecordsToInputs(laa), ...archiveInputs, ...dsccInputs, ...directory],
+    [...laaInputs, ...archiveInputs, ...dsccInputs, ...directory],
     allowlist,
   );
   if (isAgentCover) {

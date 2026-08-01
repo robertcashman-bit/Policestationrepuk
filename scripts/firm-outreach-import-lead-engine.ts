@@ -2,6 +2,7 @@
  * Import lead_engine ready_to_send.csv into firm-outreach KV prospects.
  *
  * npx tsx scripts/firm-outreach-import-lead-engine.ts [--dry-run] [--include-guessed]
+ * npx tsx scripts/firm-outreach-import-lead-engine.ts --campaign=agent_cover_kent_v1
  * npx tsx scripts/firm-outreach-import-lead-engine.ts --file=lead_engine/data/exports/ready_to_send.csv
  */
 import { config } from 'dotenv';
@@ -16,6 +17,8 @@ const dryRun = process.argv.includes('--dry-run');
 const includeGuessed = process.argv.includes('--include-guessed');
 const fileArg = process.argv.find((a) => a.startsWith('--file='));
 const csvPath = fileArg?.split('=')[1];
+const campaignArg = process.argv.find((a) => a.startsWith('--campaign='));
+const campaignId = campaignArg?.slice('--campaign='.length)?.trim() || undefined;
 
 async function main() {
   const { DEFAULT_LEAD_ENGINE_CSV, importLeadEngineCsv } = await import(
@@ -25,6 +28,7 @@ async function main() {
   const stats = await importLeadEngineCsv(csvPath ?? DEFAULT_LEAD_ENGINE_CSV, {
     dryRun,
     includeGuessed,
+    campaignId,
   });
 
   console.log('[firm-outreach import-lead-engine]', JSON.stringify(stats, null, 2));

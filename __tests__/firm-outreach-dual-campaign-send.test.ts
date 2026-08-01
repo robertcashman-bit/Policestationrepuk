@@ -48,6 +48,19 @@ vi.mock('@/lib/firm-outreach/discovery/run-discovery', () => ({
     elapsedMs: 0,
   })),
 }));
+vi.mock('@/lib/firm-outreach/sync-kent-to-agent-cover', () => ({
+  syncKentProspectsToAgentCover: vi.fn(async () => ({
+    scanned: 0,
+    kentEligible: 0,
+    created: 0,
+    updated: 0,
+    skippedNoEmail: 0,
+    skippedSuppressed: 0,
+    skippedDuplicate: 0,
+    skippedExistingSent: 0,
+    dryRun: false,
+  })),
+}));
 vi.mock('@/lib/firm-outreach/enrichment/run-enrich', () => ({
   runFirmEnrichment: vi.fn(async () => ({
     processed: 0,

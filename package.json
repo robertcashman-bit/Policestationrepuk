@@ -147,6 +147,7 @@
     "firm-outreach:verify": "npx tsx scripts/firm-outreach-verify.ts",
     "firm-outreach:send-approval-email": "npx tsx scripts/firm-outreach-send-approval-email.ts",
     "firm-outreach:import-lead-engine": "npx tsx scripts/firm-outreach-import-lead-engine.ts",
+    "firm-outreach:ensure-psa-domain": "node scripts/resend-ensure-psa-domain.mjs",
     "firm-outreach:configure-resend": "node scripts/resend-configure-webhook.mjs",
     "firm-outreach:enrich": "npx tsx scripts/firm-outreach-enrich.ts",
     "firm-outreach:enrich-backfill": "npx tsx scripts/firm-outreach-enrich.ts --limit=60 --batches=10 --max-ms=270000",

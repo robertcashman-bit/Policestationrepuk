@@ -14,6 +14,10 @@ import { requalifyAllProspects } from './requalify-prospects';
 import { psaSendReserve } from './send-quota-split';
 import { FIRM_OUTREACH_CAMPAIGN_ID } from './site-config';
 import {
+  syncKentProspectsToAgentCover,
+  type SyncKentToAgentCoverStats,
+} from './sync-kent-to-agent-cover';
+import {
   countProspectsByStatus,
   getGlobalResendQuotaRemaining,
   listProspectIdsByRecordStatus,
@@ -24,6 +28,9 @@ import type {
   OutreachRunStats,
 } from './types';
 
+/** When PSA ready queue is below this after enrich, run an extra Kent enrich pass. */
+const PSA_READY_REFILL_FLOOR = 20;
+
 export interface FirmOutreachPipelineResult {
   skipped: boolean;
   reason?: string;
@@ -32,6 +39,7 @@ export interface FirmOutreachPipelineResult {
   dscc: { count: number; syncedAt: string | null };
   discovery: DiscoveryRunStats;
   agentCoverDiscovery?: DiscoveryRunStats;
+  agentCoverSync?: SyncKentToAgentCoverStats;
   requalify: Awaited<ReturnType<typeof requalifyAllProspects>>;
   enrich: EnrichmentRunStats;
   agentCoverEnrich?: EnrichmentRunStats;
@@ -93,6 +101,7 @@ export async function runFirmOutreachPipeline(opts?: {
   let dsccSyncedAt: string | null = null;
   let discovery = emptyDiscovery();
   let agentCoverDiscovery: DiscoveryRunStats | undefined;
+  let agentCoverSync: SyncKentToAgentCoverStats | undefined;
   let requalify: Awaited<ReturnType<typeof requalifyAllProspects>> = emptyRequalify();
   let enrich = emptyEnrich();
   let agentCoverEnrich: EnrichmentRunStats | undefined;
@@ -112,6 +121,7 @@ export async function runFirmOutreachPipeline(opts?: {
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
       countyAllowlist: ['kent'],
     });
+    agentCoverSync = await syncKentProspectsToAgentCover();
     requalify = await requalifyAllProspects();
   }
 
@@ -120,18 +130,36 @@ export async function runFirmOutreachPipeline(opts?: {
     if (!enrichLocked) {
       enrich = { ...emptyEnrich(), skippedReason: 'overlap' };
     } else {
-    const enrichLimit = opts?.enrichLimit ?? (opts?.skipSend ? 120 : 60);
-    enrich = await runFirmEnrichment({
-      limit: enrichLimit,
-      maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
-    });
-    // Floor PSA enrich so Kent campaign is not starved when RepUK backlog is large.
-    const kentLimit = Math.max(25, Math.min(40, Math.floor(enrichLimit / 3)));
-    agentCoverEnrich = await runFirmEnrichment({
-      campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-      limit: kentLimit,
-      maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
-    });
+      const enrichLimit = opts?.enrichLimit ?? (opts?.skipSend ? 120 : 60);
+      enrich = await runFirmEnrichment({
+        limit: enrichLimit,
+        maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
+      });
+      // PSA enrich floor — keep Kent campaign fed even when RepUK backlog is large.
+      const kentLimit = Math.max(40, Math.min(80, enrichLimit));
+      agentCoverEnrich = await runFirmEnrichment({
+        campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+        limit: kentLimit,
+        maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
+      });
+      const psaReadyAfter = await listProspectIdsByRecordStatus('ready_to_send', {
+        campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+      });
+      if (psaReadyAfter.length < PSA_READY_REFILL_FLOOR) {
+        const extra = await runFirmEnrichment({
+          campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+          limit: kentLimit,
+          maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
+        });
+        agentCoverEnrich = {
+          processed: (agentCoverEnrich.processed ?? 0) + (extra.processed ?? 0),
+          emailsFound: (agentCoverEnrich.emailsFound ?? 0) + (extra.emailsFound ?? 0),
+          readyToSend: (agentCoverEnrich.readyToSend ?? 0) + (extra.readyToSend ?? 0),
+          noEmail: (agentCoverEnrich.noEmail ?? 0) + (extra.noEmail ?? 0),
+          errors: (agentCoverEnrich.errors ?? 0) + (extra.errors ?? 0),
+          elapsedMs: (agentCoverEnrich.elapsedMs ?? 0) + (extra.elapsedMs ?? 0),
+        };
+      }
     }
   }
 
@@ -222,6 +250,7 @@ export async function runFirmOutreachPipeline(opts?: {
     },
     discovery,
     agentCoverDiscovery,
+    agentCoverSync,
     requalify,
     enrich,
     agentCoverEnrich,

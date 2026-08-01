@@ -104,7 +104,13 @@ Outreach uses Resend. Only **verified** domains can send.
 
 **Permanent auto-fix:** before each batch, the send path resolves from-address against Resend verified domains. If `policestationagent.com` is not verified, PSA emails send from the verified RepUK domain automatically (content and links remain PSA). On a Resend domain error, the send retries once with the verified fallback.
 
-**Verify PSA domain (optional):** Resend dashboard → Domains → add `policestationagent.com` (DNS records). Then set on Vercel:
+**Verify PSA domain:** prefer the idempotent script (Resend create → Cloudflare DNS when available → verify → set Vercel env):
+
+```bash
+npm run firm-outreach:ensure-psa-domain
+```
+
+Or Resend dashboard → Domains → add `policestationagent.com`, then set on Vercel:
 
 ```bash
 FIRM_OUTREACH_PSA_FROM_EMAIL=Police Station Agent <noreply@policestationagent.com>
@@ -132,6 +138,8 @@ CAMPAIGN_ID=agent_cover_kent_v1 npx tsx scripts/firm-outreach-cleanup-non-firm-e
 # Import lead_engine ready_to_send.csv into KV (after npm run lead-engine:auto)
 npx tsx scripts/firm-outreach-import-lead-engine.ts --dry-run
 npx tsx scripts/firm-outreach-import-lead-engine.ts
+# Kent-only into PSA campaign
+npx tsx scripts/firm-outreach-import-lead-engine.ts --campaign=agent_cover_kent_v1
 
 # PSA agent-cover Kent campaign (policestationagent.com)
 npx tsx scripts/firm-outreach-build-brochure-pdf.ts

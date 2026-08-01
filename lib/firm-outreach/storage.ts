@@ -329,16 +329,27 @@ export async function listSendsForProspect(prospectId: string): Promise<FirmOutr
   return all.filter((s) => s.prospectId === prospectId);
 }
 
-/** Sends recorded for a normalised email address (newest first). */
-export async function listSendsForEmail(email: string): Promise<FirmOutreachSend[]> {
+/**
+ * Sends recorded for a normalised email address (newest first).
+ *
+ * Uses the per-email index by default. Pass `allowFullScan: true` to fall
+ * back to SEND_INDEX for legacy sends recorded before per-email indexing.
+ * Webhook handlers must omit that option — a full scan can exceed Resend's
+ * delivery timeout, marking the endpoint as failing.
+ */
+export async function listSendsForEmail(
+  email: string,
+  opts?: { allowFullScan?: boolean },
+): Promise<FirmOutreachSend[]> {
   const normalized = normalizeEmail(email);
+  if (!normalized) return [];
   const ids = await readStringList(SEND_EMAIL_INDEX + emailHash(normalized));
   const out: FirmOutreachSend[] = [];
   for (const id of ids) {
     const s = await getSend(id);
     if (s && normalizeEmail(s.email) === normalized) out.push(s);
   }
-  if (out.length > 0) {
+  if (out.length > 0 || !opts?.allowFullScan) {
     return out.sort((a, b) =>
       (b.sentAt ?? b.createdAt).localeCompare(a.sentAt ?? a.createdAt),
     );
@@ -375,7 +386,9 @@ export async function isDuplicateInitialSend(
   campaignId?: string,
 ): Promise<boolean> {
   const cid = campaignId ?? activeOutreachCampaignId();
-  const sends = (await listSendsForEmail(email)).filter((s) => isCampaignSend(s, cid));
+  const sends = (await listSendsForEmail(email, { allowFullScan: true })).filter((s) =>
+    isCampaignSend(s, cid),
+  );
   return emailHasInitialOutreachFromOtherProspect(sends, email, prospectId);
 }
 

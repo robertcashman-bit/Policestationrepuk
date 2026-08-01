@@ -89,6 +89,16 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     path: '/api/cron/firm-outreach-probe',
     label: 'Pre-flight email probes (policestationrepuk + policestationagent)',
   },
+  // Flush FIRST while cooldown override is live — do not let requalify/enrich burn the window.
+  {
+    path: '/api/cron/firm-outreach-bootstrap?dryRunPreview=1&allCampaigns=1&limit=150',
+    label: 'Dry-run preview (both campaigns, safe send limit)',
+    optional: true,
+  },
+  {
+    path: '/api/cron/firm-outreach-send?limit=150',
+    label: 'Send flush 1 (whatsapp_invite_v1 + agent_cover_kent_v1)',
+  },
   {
     path: '/api/cron/firm-outreach-bootstrap?requalifyOnly=1',
     label: 'Requalify ready_to_send junk rows',
@@ -99,7 +109,7 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Cleanup non-firm / bad emails (both campaigns)',
     optional: true,
   },
-  // Grow never-contacted inventory — ready queue is mostly solicitors on firm_cooldown.
+  // Grow never-contacted inventory after the first flush.
   {
     path: '/api/cron/firm-outreach-discovery',
     label: 'Discovery (new firm prospects)',
@@ -136,23 +146,10 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Enrich batch 4 (RepUK bootstrap)',
     optional: true,
   },
-  // Production dry-run for BOTH flush campaigns (shared Resend budget).
-  {
-    path: '/api/cron/firm-outreach-bootstrap?dryRunPreview=1&allCampaigns=1&limit=150',
-    label: 'Dry-run preview (both campaigns, safe send limit)',
-    optional: true,
-  },
-  // Limit high; daily/hourly/Resend caps still bind actual accepts.
-  {
-    path: '/api/cron/firm-outreach-send?limit=150',
-    label: 'Send flush 1 (whatsapp_invite_v1 + agent_cover_kent_v1)',
-    optional: true,
-  },
   // Second flush catches anything enrich just promoted into ready_to_send.
   {
     path: '/api/cron/firm-outreach-send?limit=150',
     label: 'Send flush 2 (remaining safe capacity)',
-    optional: true,
   },
 ];
 

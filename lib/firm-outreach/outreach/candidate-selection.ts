@@ -1,5 +1,5 @@
 import {
-  FIRM_SEND_COOLDOWN_DAYS,
+  firmSendCooldownDays,
   daysSince,
   nextOutreachStep,
   sequenceStepOf,
@@ -21,7 +21,7 @@ export async function firmRecentlyContacted(
   const siblings = await listProspectsForFirmKey(prospect.firmKey);
   for (const s of siblings) {
     if (s.id === prospect.id || !isCampaignProspect(s, campaignId)) continue;
-    if (s.lastEmailAt && daysSince(s.lastEmailAt) < FIRM_SEND_COOLDOWN_DAYS) {
+    if (s.lastEmailAt && daysSince(s.lastEmailAt) < firmSendCooldownDays()) {
       return true;
     }
   }

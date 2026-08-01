@@ -79,6 +79,10 @@ describe('runProductionKickSteps', () => {
     const last = DEFAULT_PRODUCTION_KICK_STEPS.at(-1);
     const prior = DEFAULT_PRODUCTION_KICK_STEPS.at(-2);
     const dryRun = DEFAULT_PRODUCTION_KICK_STEPS.find((s) => s.path.includes('dryRunPreview=1'));
+    const discovery = DEFAULT_PRODUCTION_KICK_STEPS.find((s) =>
+      s.path.includes('/api/cron/firm-outreach-discovery'),
+    );
+    expect(discovery?.optional).toBe(true);
     expect(dryRun?.path).toContain('allCampaigns=1');
     expect(dryRun?.optional).toBe(true);
     expect(prior?.path).toBe('/api/cron/firm-outreach-send?limit=150');
@@ -137,7 +141,7 @@ describe('runProductionKickSteps', () => {
         !s.path.includes('requalifyOnly'),
     );
     expect(repukEnrich.length).toBeGreaterThanOrEqual(2);
-    expect(repukEnrich.every((s) => s.path.includes('limit=60'))).toBe(true);
+    expect(repukEnrich.every((s) => s.path.includes('limit=80'))).toBe(true);
   });
 });
 

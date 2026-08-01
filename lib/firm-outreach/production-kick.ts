@@ -99,25 +99,41 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Cleanup non-firm / bad emails (both campaigns)',
     optional: true,
   },
+  // Grow never-contacted inventory — ready queue is mostly solicitors on firm_cooldown.
+  {
+    path: '/api/cron/firm-outreach-discovery',
+    label: 'Discovery (new firm prospects)',
+    optional: true,
+  },
+  {
+    path: '/api/cron/firm-outreach-pipeline/maintain',
+    label: 'Pipeline maintain (requalify + inventory)',
+    optional: true,
+  },
   // PSA: seed Kent + larger enrich so agent_cover gains ready firm inboxes.
   {
-    path: '/api/cron/firm-outreach-bootstrap?seedAgentCover=1&campaignId=agent_cover_kent_v1&batches=2&limit=60',
+    path: '/api/cron/firm-outreach-bootstrap?seedAgentCover=1&campaignId=agent_cover_kent_v1&batches=3&limit=80',
     label: 'Seed + enrich PSA agent-cover Kent',
     optional: true,
   },
   // RepUK: larger enrich batches to surface firm-type emails before flush.
   {
-    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=60',
+    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',
     label: 'Enrich batch 1 (RepUK bootstrap)',
   },
   {
-    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=60',
+    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',
     label: 'Enrich batch 2 (RepUK bootstrap)',
     optional: true,
   },
   {
-    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=60',
+    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',
     label: 'Enrich batch 3 (RepUK bootstrap)',
+    optional: true,
+  },
+  {
+    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',
+    label: 'Enrich batch 4 (RepUK bootstrap)',
     optional: true,
   },
   // Production dry-run for BOTH flush campaigns (shared Resend budget).

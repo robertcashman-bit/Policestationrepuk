@@ -94,4 +94,8 @@ jobs:
             echo "KV env missing from Vercel production — skipping KV import"
             exit 0
           fi
-          npx tsx scripts/firm-outreach-import-lead-engine.ts --file="$CSV"
+          # Import must not fail the whole lead-engine job: exports are already uploaded.
+          if ! npx tsx scripts/firm-outreach-import-lead-engine.ts --file="$CSV"; then
+            echo "::warning::KV import failed — lead engine exports remain available as artifacts"
+            exit 0
+          fi

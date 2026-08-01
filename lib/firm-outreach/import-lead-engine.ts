@@ -204,7 +204,18 @@ export async function findProspectForLeadEngineRow(
 
 async function buildNameIndex(): Promise<Map<string, FirmProspect[]>> {
   const index = new Map<string, FirmProspect[]>();
-  const ids = await listAllProspectIds();
+  let ids: string[] = [];
+  try {
+    ids = await listAllProspectIds();
+  } catch (err) {
+    // Shared Redis may hold SET-typed indexes that older readers reject with WRONGTYPE.
+    // Continue import without fuzzy name matching rather than failing the whole job.
+    console.warn(
+      '[firm-outreach import-lead-engine] listAllProspectIds failed; continuing without name index:',
+      err instanceof Error ? err.message : err,
+    );
+    return index;
+  }
   for (const id of ids) {
     const p = await getProspect(id);
     if (!p) continue;

@@ -83,13 +83,20 @@ async function removeFromIndex(key: string, id: string): Promise<void> {
   }
   const ids = await readStringList(key);
   const next = ids.filter((x) => x !== id);
-  if (next.length !== ids.length) {
-    await kv.del(key);
-    if (next.length > 0) {
-      const pipeline = kv.pipeline();
-      for (const member of next) pipeline.sadd(key, member);
-      await pipeline.exec();
+  if (next.length === ids.length) return;
+  if (typeof kv.del === 'function') {
+    try {
+      await kv.del(key);
+    } catch {
+      return;
     }
+  } else {
+    return;
+  }
+  if (next.length > 0) {
+    const pipeline = kv.pipeline();
+    for (const member of next) pipeline.sadd(key, member);
+    await pipeline.exec();
   }
 }
 

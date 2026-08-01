@@ -37,7 +37,18 @@ export const DEFAULT_EMAIL_JOB_MAX_ATTEMPTS = 5;
 export const DEFAULT_EMAIL_JOB_LEASE_SECONDS = 120;
 export const FOLLOWUP_DAY_1 = 7;
 export const FOLLOWUP_DAY_2 = 21;
-export const FIRM_SEND_COOLDOWN_DAYS = 90;
+/** Default solicitor↔firm cooldown (days). Override with FIRM_OUTREACH_FIRM_COOLDOWN_DAYS. */
+export const FIRM_SEND_COOLDOWN_DAYS_DEFAULT = 90;
+
+/** @deprecated Prefer firmSendCooldownDays() so env overrides apply. */
+export const FIRM_SEND_COOLDOWN_DAYS = FIRM_SEND_COOLDOWN_DAYS_DEFAULT;
+
+/** Solicitor firm-level cooldown in days (env override, clamped 0–365). */
+export function firmSendCooldownDays(): number {
+  const raw = Number(process.env.FIRM_OUTREACH_FIRM_COOLDOWN_DAYS ?? FIRM_SEND_COOLDOWN_DAYS_DEFAULT);
+  if (!Number.isFinite(raw)) return FIRM_SEND_COOLDOWN_DAYS_DEFAULT;
+  return Math.min(365, Math.max(0, Math.floor(raw)));
+}
 
 export interface EmailJob {
   id: string;

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FIRM_SEND_COOLDOWN_DAYS = exports.FOLLOWUP_DAY_2 = exports.FOLLOWUP_DAY_1 = exports.DEFAULT_EMAIL_JOB_LEASE_SECONDS = exports.DEFAULT_EMAIL_JOB_MAX_ATTEMPTS = exports.EMAIL_JOB_CLAIMABLE_STATUSES = exports.EMAIL_JOB_TERMINAL_STATUSES = void 0;
+exports.FIRM_SEND_COOLDOWN_DAYS = exports.FIRM_SEND_COOLDOWN_DAYS_DEFAULT = exports.FOLLOWUP_DAY_2 = exports.FOLLOWUP_DAY_1 = exports.DEFAULT_EMAIL_JOB_LEASE_SECONDS = exports.DEFAULT_EMAIL_JOB_MAX_ATTEMPTS = exports.EMAIL_JOB_CLAIMABLE_STATUSES = exports.EMAIL_JOB_TERMINAL_STATUSES = void 0;
+exports.firmSendCooldownDays = firmSendCooldownDays;
 exports.buildOutreachIdempotencyKey = buildOutreachIdempotencyKey;
 exports.sequenceStepOf = sequenceStepOf;
 exports.daysSince = daysSince;
@@ -28,7 +29,17 @@ exports.DEFAULT_EMAIL_JOB_MAX_ATTEMPTS = 5;
 exports.DEFAULT_EMAIL_JOB_LEASE_SECONDS = 120;
 exports.FOLLOWUP_DAY_1 = 7;
 exports.FOLLOWUP_DAY_2 = 21;
-exports.FIRM_SEND_COOLDOWN_DAYS = 90;
+/** Default solicitor↔firm cooldown (days). Override with FIRM_OUTREACH_FIRM_COOLDOWN_DAYS. */
+exports.FIRM_SEND_COOLDOWN_DAYS_DEFAULT = 90;
+/** @deprecated Prefer firmSendCooldownDays() so env overrides apply. */
+exports.FIRM_SEND_COOLDOWN_DAYS = exports.FIRM_SEND_COOLDOWN_DAYS_DEFAULT;
+/** Solicitor firm-level cooldown in days (env override, clamped 0–365). */
+function firmSendCooldownDays() {
+    const raw = Number(process.env.FIRM_OUTREACH_FIRM_COOLDOWN_DAYS ?? exports.FIRM_SEND_COOLDOWN_DAYS_DEFAULT);
+    if (!Number.isFinite(raw))
+        return exports.FIRM_SEND_COOLDOWN_DAYS_DEFAULT;
+    return Math.min(365, Math.max(0, Math.floor(raw)));
+}
 function buildOutreachIdempotencyKey(campaignId, email, sequenceStep) {
     const normalized = (0, normalize_1.normalizeEmail)(email);
     const material = `${campaignId.trim().toLowerCase()}|${normalized}|${sequenceStep}`;

@@ -182,12 +182,13 @@ async function main() {
     const dailyCapPick = pickEnvValue(envs, 'FIRM_OUTREACH_DAILY_CAP');
     const resendLimitPick = pickEnvValue(envs, 'FIRM_OUTREACH_RESEND_DAILY_LIMIT');
     const resendHeadroomPick = pickEnvValue(envs, 'FIRM_OUTREACH_RESEND_HEADROOM');
+    const cooldownPick = pickEnvValue(envs, 'FIRM_OUTREACH_FIRM_COOLDOWN_DAYS');
 
     if (!cron && cronPick.value) cron = cronPick.value;
     if (!bootstrap && bootstrapPick.value) bootstrap = bootstrapPick.value;
 
     console.log(
-      `Decrypt load: cron_len=${cron.length} bootstrap_len=${bootstrap.length} require_approval=${JSON.stringify(approvalPick.value || '')} daily_cap=${JSON.stringify(dailyCapPick.value || '')}`,
+      `Decrypt load: cron_len=${cron.length} bootstrap_len=${bootstrap.length} require_approval=${JSON.stringify(approvalPick.value || '')} daily_cap=${JSON.stringify(dailyCapPick.value || '')} firm_cooldown=${JSON.stringify(cooldownPick.value || '')}`,
     );
 
     if (!cron && !bootstrap) {
@@ -234,6 +235,23 @@ async function main() {
       needsRedeploy = true;
       console.log(
         `Raised FIRM_OUTREACH_DAILY_CAP ${currentDailyCap || '(unset)'} → ${targetDailyCap} (Resend budget)`,
+      );
+    }
+
+    // TEMPORARY: unlock solicitor firm_cooldown so ready_to_send can flush.
+    // Restore to 90 after the backlog send (set FIRM_OUTREACH_FIRM_COOLDOWN_DAYS=90).
+    const TEMP_FIRM_COOLDOWN_DAYS = '0';
+    const currentCooldown = (cooldownPick.value || '').trim();
+    if (currentCooldown !== TEMP_FIRM_COOLDOWN_DAYS) {
+      const ids = cooldownPick.entries.map((e) => e.id).filter(Boolean);
+      await upsertProductionEnv(
+        'FIRM_OUTREACH_FIRM_COOLDOWN_DAYS',
+        TEMP_FIRM_COOLDOWN_DAYS,
+        ids,
+      );
+      needsRedeploy = true;
+      console.log(
+        `TEMPORARY firm cooldown override ${currentCooldown || '(unset/90)'} → ${TEMP_FIRM_COOLDOWN_DAYS} (restore to 90 after flush)`,
       );
     }
 

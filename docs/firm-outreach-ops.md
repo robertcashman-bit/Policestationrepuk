@@ -42,6 +42,7 @@ All cron routes require `Authorization: Bearer $CRON_SECRET` (Vercel adds this a
 | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | — | **Required** for prospect storage |
 | `CRON_SECRET` | — | Cron auth + unsubscribe token signing |
 | `FIRM_OUTREACH_DAILY_CAP` | `150` | Max outreach sends per UTC day |
+| `FIRM_OUTREACH_FIRM_COOLDOWN_DAYS` | `90` | Solicitor firm-level cooldown. Production kick may temporarily set `0` to flush backlog — restore to `90` afterward. |
 | `FIRM_OUTREACH_DIGEST_EMAIL` | `robertdavidcashman@gmail.com` | Approval + confirmation email recipient |
 | `FIRM_OUTREACH_REQUIRE_APPROVAL` | *(unset = auto-send)* | Default **auto-send** at 09:30/14:30/18:30 UTC. Set `true` for click-to-send approval emails |
 | `ADMIN_DECISION_TOKEN_SECRET` | — | Signs Ready to send links (or falls back to `CRON_SECRET`) |

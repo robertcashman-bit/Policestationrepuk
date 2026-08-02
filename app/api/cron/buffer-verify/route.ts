@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import { verifyRepukBufferSchedule } from '@/lib/buffer/engine-run';
 import { withAutomationJob } from '@/lib/automation/with-job';
-import { isCronAuthorized } from '@/lib/cron-auth';
+import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 /** Daily verify — confirm >=5 posts scheduled today; gap-fill if under quota. */
 export async function GET(request: Request) {
-  if (!isCronAuthorized(request)) {
+  // Cron Bearer or firm-outreach bootstrap header (post-deploy kick).
+  if (!isOutreachBootstrapAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

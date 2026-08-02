@@ -150,7 +150,8 @@ export async function runAutomationWatchdog(
       }
     }
 
-    // Overdue buffer-blog-posts after 06:30 UTC
+    // Buffer quota gate after 06:30 UTC — cron log alone is not enough.
+    // A `partial` morning run (e.g. 1/5) still needs gap-fill when under quota.
     const hour = now.getUTCHours();
     const minute = now.getUTCMinutes();
     if (hour > 6 || (hour === 6 && minute >= 30)) {
@@ -158,8 +159,7 @@ export async function runAutomationWatchdog(
       const timezone = getSchedulerTimezone();
       const today = localDateInTimezone(now, timezone);
       const cronLog = await getCronRunLog('buffer-blog-posts');
-      // `partial` still means the morning cron ran (e.g. 1/5 posts); Buffer quota is the final gate.
-      const successToday =
+      const cronRanToday =
         (state?.lastSuccessfulAt &&
           localDateInTimezone(new Date(state.lastSuccessfulAt), timezone) === today) ||
         (cronLog &&
@@ -168,16 +168,15 @@ export async function runAutomationWatchdog(
             cronLog.outcome === 'partial') &&
           localDateInTimezone(new Date(cronLog.finishedAt), timezone) === today);
 
-      if (!successToday) {
-        // Prefer Buffer truth over missing cron logs (e.g. mid-day deploy after morning run).
-        const inspect = await verifyRepukBufferSchedule({ now, gapFill: false }).catch(() => null);
-        const quotaMet =
-          Boolean(inspect?.ok) &&
-          typeof inspect?.scheduledCount === 'number' &&
-          typeof inspect?.requiredCount === 'number' &&
-          inspect.scheduledCount >= inspect.requiredCount;
+      const inspect = await verifyRepukBufferSchedule({ now, gapFill: false }).catch(() => null);
+      const quotaMet =
+        Boolean(inspect?.ok) &&
+        typeof inspect?.scheduledCount === 'number' &&
+        typeof inspect?.requiredCount === 'number' &&
+        inspect.scheduledCount >= inspect.requiredCount;
 
-        if (quotaMet) {
+      if (quotaMet) {
+        if (!cronRanToday) {
           notes.push(
             `buffer-blog-posts cron log missing but Buffer quota already met (${inspect!.scheduledCount}/${inspect!.requiredCount}) — not overdue`,
           );
@@ -186,39 +185,59 @@ export async function runAutomationWatchdog(
             suppressed: true,
             reason: 'buffer_quota_met',
           });
-        } else {
-          overdueJobs.push('buffer-blog-posts');
-          logAutomationEvent('automation.job.missed', { jobName: 'buffer-blog-posts' });
+        }
+      } else {
+        const quotaLabel = inspect
+          ? `${inspect.scheduledCount}/${inspect.requiredCount}`
+          : 'unknown';
+        overdueJobs.push('buffer-blog-posts');
+        logAutomationEvent('automation.job.missed', {
+          jobName: 'buffer-blog-posts',
+          cronRanToday,
+          quota: quotaLabel,
+        });
 
-          if (!dryRun && config.autoRepairEnabled && canPerformLiveSideEffects() && !authFailure) {
-            const verify = await verifyRepukBufferSchedule({ now, gapFill: true });
-            repairs.push({
-              id: 'watchdog-gap-fill',
-              kind: 'buffer_gap_fill',
-              target: today,
-              attempted: true,
-              verified: verify.ok,
-              dryRun: false,
-              summary: verify.ok
-                ? `Watchdog gap-fill OK ${verify.scheduledCount}/${verify.requiredCount}`
-                : `Watchdog gap-fill incomplete ${verify.scheduledCount}/${verify.requiredCount}`,
-            });
-            logAutomationEvent('automation.job.recovered', {
-              jobName: 'buffer-blog-posts',
-              ok: verify.ok,
-            });
-          } else {
-            repairs.push({
-              id: 'watchdog-gap-fill',
-              kind: 'buffer_gap_fill',
-              target: 'buffer-blog-posts',
-              attempted: false,
-              verified: false,
-              dryRun: true,
-              summary: 'Would gap-fill missed buffer-blog-posts',
-            });
+        let repairedOk = false;
+        if (!dryRun && config.autoRepairEnabled && canPerformLiveSideEffects() && !authFailure) {
+          const verify = await verifyRepukBufferSchedule({ now, gapFill: true });
+          repairedOk = Boolean(verify.ok);
+          repairs.push({
+            id: 'watchdog-gap-fill',
+            kind: 'buffer_gap_fill',
+            target: today,
+            attempted: true,
+            verified: repairedOk,
+            dryRun: false,
+            summary: repairedOk
+              ? `Watchdog gap-fill OK ${verify.scheduledCount}/${verify.requiredCount}`
+              : `Watchdog gap-fill incomplete ${verify.scheduledCount}/${verify.requiredCount}`,
+          });
+          logAutomationEvent('automation.job.recovered', {
+            jobName: 'buffer-blog-posts',
+            ok: repairedOk,
+          });
+          if (repairedOk) {
+            // Quota restored — drop from overdue list for this tick's health status.
+            const idx = overdueJobs.lastIndexOf('buffer-blog-posts');
+            if (idx >= 0) overdueJobs.splice(idx, 1);
+            notes.push(
+              `buffer-blog-posts under quota (${quotaLabel}); gap-fill restored ${verify.scheduledCount}/${verify.requiredCount}`,
+            );
           }
+        } else {
+          repairs.push({
+            id: 'watchdog-gap-fill',
+            kind: 'buffer_gap_fill',
+            target: 'buffer-blog-posts',
+            attempted: false,
+            verified: false,
+            dryRun: true,
+            summary: `Would gap-fill buffer-blog-posts (quota ${quotaLabel})`,
+          });
+        }
 
+        // Alert when unrepaired: missing cron, or gap-fill could not reach quota.
+        if (!repairedOk) {
           const result = await notifyIncident({
             fingerprint: buildIncidentFingerprint({
               jobName: 'buffer-blog-posts',
@@ -228,7 +247,9 @@ export async function runAutomationWatchdog(
             notificationType: 'job_overdue',
             jobName: 'buffer-blog-posts',
             severity: 'error',
-            summary: 'Critical job buffer-blog-posts appears overdue',
+            summary: cronRanToday
+              ? 'Critical job buffer-blog-posts under daily Buffer quota'
+              : 'Critical job buffer-blog-posts appears overdue',
             details: inspect
               ? `Buffer quota ${inspect.scheduledCount}/${inspect.requiredCount}`
               : 'Could not inspect Buffer quota',

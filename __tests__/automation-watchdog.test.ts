@@ -91,8 +91,11 @@ describe('automation watchdog buffer overdue', () => {
 
     expect(result.ok).toBe(true);
     expect(result.overdueJobs).toEqual([]);
-    // Ran today via partial cron — no need to inspect Buffer for overdue gate.
-    expect(verifyRepukBufferSchedule).not.toHaveBeenCalled();
+    // Buffer quota is the final gate — always inspect after 06:30 UTC.
+    expect(verifyRepukBufferSchedule).toHaveBeenCalledWith({
+      now: expect.any(Date),
+      gapFill: false,
+    });
   });
 
   it('suppresses overdue when cron log missing but Buffer quota already met', async () => {
@@ -110,5 +113,46 @@ describe('automation watchdog buffer overdue', () => {
       gapFill: false,
     });
     expect(result.notes.some((n) => /quota already met/i.test(n))).toBe(true);
+  });
+
+  it('gap-fills when partial cron left Buffer under quota (e.g. 1/5)', async () => {
+    vi.mocked(verifyRepukBufferSchedule)
+      .mockResolvedValueOnce({
+        ok: false,
+        date: '2026-07-19',
+        scheduledCount: 1,
+        requiredCount: 5,
+        gapFilled: 0,
+        issues: ['under quota'],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        date: '2026-07-19',
+        scheduledCount: 5,
+        requiredCount: 5,
+        gapFilled: 4,
+        issues: [],
+      });
+    vi.stubEnv('AUTOMATION_DRY_RUN', '0');
+    vi.stubEnv('AUTO_REPAIR_ENABLED', '1');
+    vi.stubEnv('VERCEL_ENV', 'production');
+
+    const result = await runAutomationWatchdog({
+      dryRun: false,
+      now: new Date('2026-07-19T08:00:00Z'),
+    });
+
+    expect(verifyRepukBufferSchedule).toHaveBeenCalledWith({
+      now: expect.any(Date),
+      gapFill: false,
+    });
+    expect(verifyRepukBufferSchedule).toHaveBeenCalledWith({
+      now: expect.any(Date),
+      gapFill: true,
+    });
+    expect(result.overdueJobs).toEqual([]);
+    expect(result.ok).toBe(true);
+    expect(result.repairs.some((r) => r.kind === 'buffer_gap_fill' && r.verified)).toBe(true);
+    expect(result.notes.some((n) => /gap-fill restored 5\/5/i.test(n))).toBe(true);
   });
 });

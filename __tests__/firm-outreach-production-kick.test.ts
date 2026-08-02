@@ -69,11 +69,13 @@ describe('runProductionKickSteps', () => {
     expect(DEFAULT_PRODUCTION_KICK_STEPS[0]?.optional).toBe(true);
   });
 
-  it('backfills delivery (optional) then requires pre-flight email probes before flush', () => {
-    expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.path).toContain('firm-outreach-backfill-delivery');
+  it('heals Buffer quota, backfills delivery, then requires pre-flight probes before flush', () => {
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.path).toBe('/api/cron/buffer-verify');
     expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.optional).toBe(true);
-    expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.path).toBe('/api/cron/firm-outreach-probe');
-    expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.optional).toBeFalsy();
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.path).toContain('firm-outreach-backfill-delivery');
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.optional).toBe(true);
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[3]?.path).toBe('/api/cron/firm-outreach-probe');
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[3]?.optional).toBeFalsy();
   });
 
   it('flushes early (required) then again after enrich', () => {
@@ -114,10 +116,10 @@ describe('runProductionKickSteps', () => {
     });
 
     expect(failed).toBe(true);
-    // status (optional) + backfill (optional) + failed required probe
-    expect(results).toHaveLength(3);
-    expect(results[2]?.path).toBe('/api/cron/firm-outreach-probe');
-    expect(results[2]?.ok).toBe(false);
+    // status + buffer-verify + backfill (optional) + failed required probe
+    expect(results).toHaveLength(4);
+    expect(results[3]?.path).toBe('/api/cron/firm-outreach-probe');
+    expect(results[3]?.ok).toBe(false);
   });
 
   it('fails when required enrich batch is non-200', async () => {

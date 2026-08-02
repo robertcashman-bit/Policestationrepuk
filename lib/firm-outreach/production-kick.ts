@@ -84,6 +84,12 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Outreach send health (status)',
     optional: true,
   },
+  // Heal Buffer day quota (e.g. morning cron left 1/5) before long outreach work.
+  {
+    path: '/api/cron/buffer-verify',
+    label: 'Buffer verify + gap-fill today',
+    optional: true,
+  },
   // Reconcile delivery events missed while the Resend webhook was failing/disabled.
   // Optional: Resend emails.get fan-out can exceed function timeout; kick must not fail.
   {

@@ -9,6 +9,8 @@ import type { FirmProspect } from '@/lib/firm-outreach/types';
 describe('kent-filter', () => {
   it('matches Kent county', () => {
     expect(isKentProspectInput({ county: 'Kent', postcode: '' })).toBe(true);
+    expect(isKentProspectInput({ county: 'Medway', postcode: '' })).toBe(true);
+    expect(isKentProspectInput({ county: '', postcode: '', town: 'Maidstone' })).toBe(true);
   });
 
   it('matches TN postcodes', () => {

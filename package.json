@@ -159,6 +159,9 @@
     "outreach:test-send": "npx tsx scripts/outreach-test-send.ts",
     "outreach:process": "npx tsx scripts/outreach-process.ts",
     "outreach:recover-stale": "npx tsx scripts/outreach-recover-stale.ts",
+    "outreach:psa-sync": "npx tsx scripts/firm-outreach-seed-agent-cover-kent.ts",
+    "outreach:psa-diagnose": "npx tsx scripts/outreach-kent-psa-diagnose.ts",
+    "outreach:psa-revive": "npx tsx scripts/outreach-psa-revive.ts",
     "test:outreach": "vitest run __tests__/firm-outreach*.test.ts __tests__/outreach-send-approved-route.test.ts __tests__/resend-webhook.test.ts"
   },
   "dependencies": {

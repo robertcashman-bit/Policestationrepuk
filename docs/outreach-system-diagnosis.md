@@ -29,6 +29,8 @@ Campaigns:
 5. **Root cause:** Phase 1 (ready-queue scan + suppress demotion) consumed the dual-campaign elapsed budget (~120s). Phase 2 (claim/send jobs) never ran. Pending jobs sat idle indefinitely.
 6. Secondary: PSA ready queue empty (Kent→PSA sync missing on droid tip). Polluted ready queue full of suppressed addresses slowed Phase 1 further.
 7. Historical: Redis `WRONGTYPE` on legacy indexes; Resend webhook secret drift (recently repaired in Vercel); bootstrap timeouts at 300s.
+8. **PSA still empty after job-first fix (2026-08-02):** maintain cron **HTTP 504 at 300s** before Kent→PSA sync ran (sync was after dual discovery). Sync also scanned the full prospect index with sequential GETs. PSA `sendableCandidates=0` while RepUK had ~80 ready. Fix: fast status-index sync, run sync before discovery and on send-only ticks, dedicated `/api/cron/firm-outreach-psa-sync` at 11:45/15:45 UTC.
+9. **PSA inventory exhaustion / stuck exclusions:** After sync repair, KV showed ~3868 PSA rows but `ready_to_send=0`. Kent-tagged PSA emails are mostly already `sent` / suppressed / duplicate; soft-excluded `send_failed` + missing geo hid a few. Fix: `reviveAgentCoverKentReady` + broader Kent town/Medway matching. Verified `sendableCandidates=2`; send then skipped only on `resend_quota` (daily Resend budget 0).
 
 ## Duplicate / obsolete paths
 

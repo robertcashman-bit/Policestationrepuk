@@ -16,6 +16,7 @@ import { isOutreachSendAllowed } from './pause-state';
 import { claimOutreachRunLock } from './run-lock';
 import { requalifyAllProspects } from './requalify-prospects';
 import { countProspectsByStatus } from './storage';
+import { reviveAgentCoverKentReady } from './revive-agent-cover-ready';
 import {
   syncKentProspectsToAgentCover,
   type SyncKentToAgentCoverStats,
@@ -104,6 +105,15 @@ export async function runFirmOutreachPipeline(opts?: {
   let agentCoverEnrich: EnrichmentRunStats | undefined;
 
   if (!opts?.skipDiscovery) {
+    // Kent→PSA sync FIRST: maintain often 504s during full discovery before sync ran.
+    agentCoverSync = await syncKentProspectsToAgentCover({
+      limit: 200,
+      maxElapsedMs: 55_000,
+    }).catch((err) => {
+      console.warn('[firm-outreach pipeline] Kent→PSA sync failed:', err);
+      return undefined;
+    });
+
     const forceLaa = opts?.forceLaaRefresh ?? isSundayUtc();
     laaResult = await fetchLaaCrimeProviders({ force: forceLaa }).catch((err) => {
       console.warn('[firm-outreach pipeline] LAA fetch failed, using cache:', err);
@@ -118,12 +128,19 @@ export async function runFirmOutreachPipeline(opts?: {
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
       countyAllowlist: ['kent'],
     });
-    // Keep PSA Kent inventory filled from RepUK Kent prospects (bit-only helper).
-    agentCoverSync = await syncKentProspectsToAgentCover().catch((err) => {
-      console.warn('[firm-outreach pipeline] Kent→PSA sync failed:', err);
+    requalify = await requalifyAllProspects();
+  } else if (!opts?.skipSend) {
+    // Send-only ticks never ran discovery/sync — warm PSA ready queue cheaply first.
+    agentCoverSync = await syncKentProspectsToAgentCover({
+      limit: 80,
+      maxElapsedMs: 25_000,
+    }).catch((err) => {
+      console.warn('[firm-outreach pipeline] Kent→PSA sync (send-only) failed:', err);
       return undefined;
     });
-    requalify = await requalifyAllProspects();
+    await reviveAgentCoverKentReady({ limit: 40, maxElapsedMs: 20_000 }).catch((err) => {
+      console.warn('[firm-outreach pipeline] PSA revive (send-only) failed:', err);
+    });
   }
 
   if (!opts?.skipEnrich) {

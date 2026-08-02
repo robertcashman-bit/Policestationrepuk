@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 config({ path: resolve(__dirname, '../.env.local') });
+config({ path: resolve(__dirname, '../.vercel/.env.production.local') });
 
 const apply = process.argv.includes('--apply');
 

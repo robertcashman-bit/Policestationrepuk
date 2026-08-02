@@ -15,7 +15,7 @@ Dependable production path for professional outreach to criminal defence firms /
 | Campaign ID | Brand | Purpose |
 |-------------|-------|---------|
 | `whatsapp_invite_v1` | PoliceStationRepUK | WhatsApp group + directory |
-| `agent_cover_kent_v1` | Police Station Agent | Kent custody cover |
+| `agent_cover_kent_v1` | Police Station Agent | Kent custody cover offer (nationwide recipients) |
 
 Selection is explicit per prospect `campaignId` — never random dual-send to the same person for both brands unless they exist as separate campaign rows.
 

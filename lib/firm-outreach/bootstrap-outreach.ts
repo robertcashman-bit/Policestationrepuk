@@ -91,7 +91,7 @@ export async function bootstrapOutreach(opts?: {
   if (opts?.seedAgentCover) {
     agentCoverDiscovery = await runFirmDiscovery({
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-      countyAllowlist: ['kent'],
+      countyAllowlist: null,
     });
   }
 

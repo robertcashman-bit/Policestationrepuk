@@ -124,21 +124,22 @@ export async function runFirmOutreachPipeline(opts?: {
     dsccCount = dscc?.count ?? 0;
     dsccSyncedAt = dscc?.syncedAt ?? null;
     discovery = await runFirmDiscovery();
+    // Nationwide recipients; email copy still offers Kent agency cover.
     agentCoverDiscovery = await runFirmDiscovery({
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-      countyAllowlist: ['kent'],
+      countyAllowlist: null,
     });
     requalify = await requalifyAllProspects();
   } else if (!opts?.skipSend) {
     // Send-only ticks never ran discovery/sync — warm PSA ready queue cheaply first.
     agentCoverSync = await syncKentProspectsToAgentCover({
-      limit: 80,
-      maxElapsedMs: 25_000,
+      limit: 200,
+      maxElapsedMs: 40_000,
     }).catch((err) => {
-      console.warn('[firm-outreach pipeline] Kent→PSA sync (send-only) failed:', err);
+      console.warn('[firm-outreach pipeline] RepUK→PSA sync (send-only) failed:', err);
       return undefined;
     });
-    await reviveAgentCoverKentReady({ limit: 40, maxElapsedMs: 20_000 }).catch((err) => {
+    await reviveAgentCoverKentReady({ limit: 120, maxElapsedMs: 25_000 }).catch((err) => {
       console.warn('[firm-outreach pipeline] PSA revive (send-only) failed:', err);
     });
   }

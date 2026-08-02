@@ -93,8 +93,10 @@ export async function runFirmDiscovery(opts?: {
   const started = Date.now();
   const campaignId = opts?.campaignId ?? FIRM_OUTREACH_CAMPAIGN_ID;
   const isAgentCover = campaignId === AGENT_COVER_KENT_CAMPAIGN_ID;
+  // PSA offer is Kent cover, but recipients are nationwide (England & Wales).
+  // Pass countyAllowlist: ['kent'] only for legacy Kent-only discovery runs.
   const allowlist = isAgentCover
-    ? (opts?.countyAllowlist ?? ['kent'])
+    ? (opts?.countyAllowlist !== undefined ? opts.countyAllowlist : null)
     : (opts?.countyAllowlist ?? countyAllowlist());
 
   const laa = readLaaCrimeJson();
@@ -112,7 +114,8 @@ export async function runFirmDiscovery(opts?: {
     [...laaRecordsToInputs(laa), ...archiveInputs, ...dsccInputs, ...directory],
     allowlist,
   );
-  if (isAgentCover) {
+  // Legacy opt-in: only when an explicit Kent allowlist is requested.
+  if (isAgentCover && allowlist?.some((a) => a.toLowerCase().includes('kent'))) {
     const kentLaaNames = new Set(
       filterKentInputs(laaRecordsToInputs(laa)).map((i) => normalizeFirmName(i.firmName)),
     );

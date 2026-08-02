@@ -1,8 +1,6 @@
 import { ensureDsccRegisterCache } from '@/lib/dscc-register-lookup';
 import { readLaaCrimeJson } from '@/lib/legal-directory/laa-fetch';
 import { websiteIndicatesCrimePractice } from './crime-website-verify';
-import { AGENT_COVER_KENT_CAMPAIGN_ID } from './campaign-scope';
-import { isKentProspectInput } from './kent-filter';
 import {
   buildCrimeRegistry,
   qualifyProspectForOutreach,
@@ -122,29 +120,8 @@ export async function requalifyAllProspects(opts?: {
       continue;
     }
 
-    // PSA Kent campaign must not keep non-Kent junk in ready_to_send.
-    if (
-      p.campaignId === AGENT_COVER_KENT_CAMPAIGN_ID &&
-      p.status === 'ready_to_send' &&
-      !isKentProspectInput({ county: p.county ?? '', postcode: p.postcode ?? '' })
-    ) {
-      const prevStatus = p.status;
-      p.status = 'excluded';
-      p.excludedReason = 'not_kent_for_agent_cover';
-      p.updatedAt = new Date().toISOString();
-      await saveProspect(p, prevStatus);
-      result.downgradedFromReady++;
-      if (result.samples.length < sampleLimit) {
-        result.samples.push({
-          id: p.id,
-          firmName: p.firmName,
-          from: prevStatus,
-          to: p.status,
-          reason: 'not_kent_for_agent_cover',
-        });
-      }
-      continue;
-    }
+    // PSA (agent_cover_kent_v1) emails nationwide — offer is Kent cover, audience is not
+    // geo-gated. Former not_kent_for_agent_cover demotion removed.
 
     let websiteVerifiedNow = false;
     if (

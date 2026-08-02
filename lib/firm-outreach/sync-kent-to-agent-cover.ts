@@ -1,5 +1,4 @@
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from './campaign-scope';
-import { isKentProspectInput } from './kent-filter';
 import { buildProspectForCampaign, mergeProspect, type RawProspectInput } from './merge-prospects';
 import { FIRM_OUTREACH_CAMPAIGN_ID } from './site-config';
 import {
@@ -14,7 +13,9 @@ import type { FirmProspect, FirmProspectSource, FirmProspectStatus } from './typ
 
 export interface SyncKentToAgentCoverStats {
   scanned: number;
+  /** Nationwide eligible RepUK rows with email (name kept for API compat). */
   kentEligible: number;
+  eligible: number;
   created: number;
   updated: number;
   skippedNoEmail: number;
@@ -58,8 +59,8 @@ function toInput(p: FirmProspect): RawProspectInput {
 
 /**
  * RepUK statuses worth cloning into PSA.
- * Include `excluded`: Kent firms are often demoted on RepUK as duplicate_email /
- * duplicate_firm while still valid for a separate PSA campaign send.
+ * Include `excluded`: firms demoted on RepUK as duplicate_email are still valid
+ * for a separate PSA campaign (Kent cover offer, nationwide recipients).
  */
 const SOURCE_STATUSES: FirmProspectStatus[] = [
   'ready_to_send',
@@ -79,16 +80,13 @@ function isRepukOnlyExclusion(reason: string | undefined): boolean {
 }
 
 /**
- * Mirror Kent-eligible RepUK prospects (with email) into agent_cover_kent_v1.
+ * Mirror RepUK prospects (with email) into agent_cover_kent_v1 nationwide.
+ * Campaign copy still offers Kent police-station cover; recipients are England & Wales.
  * Idempotent: merge when PSA row already exists; skip suppressed / already-sent PSA.
- *
- * Scans campaign-scoped status indexes (batched mget) — not the full prospect index —
- * so it can finish inside Vercel cron limits.
  */
 export async function syncKentProspectsToAgentCover(opts?: {
   dryRun?: boolean;
   limit?: number;
-  /** Wall-clock budget; stop cleanly when exceeded. */
   maxElapsedMs?: number;
 }): Promise<SyncKentToAgentCoverStats> {
   const dryRun = opts?.dryRun ?? false;
@@ -98,6 +96,7 @@ export async function syncKentProspectsToAgentCover(opts?: {
   const stats: SyncKentToAgentCoverStats = {
     scanned: 0,
     kentEligible: 0,
+    eligible: 0,
     created: 0,
     updated: 0,
     skippedNoEmail: 0,
@@ -154,8 +153,14 @@ export async function syncKentProspectsToAgentCover(opts?: {
         stats.skippedNoEmail++;
         continue;
       }
-      if (!isKentProspectInput(p)) continue;
-      stats.kentEligible++;
+
+      // Allow RepUK duplicate exclusions through — still valid PSA targets.
+      if (p.status === 'excluded' && !isRepukOnlyExclusion(p.excludedReason)) {
+        continue;
+      }
+
+      stats.eligible++;
+      stats.kentEligible = stats.eligible;
 
       if (await isSuppressed(p.email)) {
         stats.skippedSuppressed++;
@@ -164,11 +169,6 @@ export async function syncKentProspectsToAgentCover(opts?: {
 
       const built = buildProspectForCampaign(AGENT_COVER_KENT_CAMPAIGN_ID, toInput(p));
       if (!built) continue;
-
-      // Allow RepUK duplicate exclusions through — they are still valid PSA targets.
-      if (p.status === 'excluded' && !isRepukOnlyExclusion(p.excludedReason)) {
-        continue;
-      }
 
       const existing = await getProspect(built.id);
       if (existing?.lastEmailAt || existing?.status === 'sent') {
@@ -208,7 +208,11 @@ export async function syncKentProspectsToAgentCover(opts?: {
         merged.emailConfidence = built.emailConfidence;
         merged.emailScore = built.emailScore;
       }
-      // Revive PSA rows stuck in discovered/excluded/no_email when Kent+email exists.
+      if (!merged.websiteUrl && built.websiteUrl) {
+        merged.websiteUrl = built.websiteUrl;
+      }
+      // Revive PSA rows stuck in discovered/excluded/no_email when email exists.
+      // Includes former not_kent_for_agent_cover rows — recipients are now nationwide.
       if (
         !merged.lastEmailAt &&
         merged.email &&
@@ -225,5 +229,6 @@ export async function syncKentProspectsToAgentCover(opts?: {
   }
 
   stats.elapsedMs = Date.now() - started;
+  stats.kentEligible = stats.eligible;
   return stats;
 }

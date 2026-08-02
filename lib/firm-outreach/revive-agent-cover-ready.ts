@@ -1,7 +1,5 @@
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from './campaign-scope';
-import { isKentProspectInput } from './kent-filter';
 import { normalizeEmail } from './normalize';
-import { FIRM_OUTREACH_CAMPAIGN_ID } from './site-config';
 import {
   getProspectsByIds,
   isSuppressed,
@@ -19,6 +17,7 @@ export interface ReviveAgentCoverStats {
   skippedSuppressed: number;
   skippedTerminal: number;
   skippedHasSend: number;
+  /** Retained for API compat; always 0 (recipients are nationwide). */
   skippedNotKent: number;
   dryRun: boolean;
   elapsedMs: number;
@@ -48,16 +47,18 @@ function isSoftExclusion(reason: string | undefined): boolean {
 function scoreProspect(p: FirmProspect): number {
   let score = 0;
   if (p.email) score += 10;
-  if (isKentProspectInput(p)) score += 20;
   if (p.status === 'ready_to_send') score += 5;
   if (p.status === 'excluded' && p.excludedReason === 'send_failed') score += 3;
+  if (p.status === 'excluded' && p.excludedReason === 'not_kent_for_agent_cover') score += 4;
   if (p.websiteUrl) score += 1;
+  if (p.prospectType === 'firm') score += 2;
   return score;
 }
 
 /**
- * Revive Kent PSA prospects that have email but are stuck excluded
- * (send_failed / duplicate losers / missing geo) when no successful PSA send exists.
+ * Revive PSA prospects nationwide that have email but are stuck excluded
+ * (including former not_kent_for_agent_cover) when no successful PSA send exists.
+ * Offer copy remains Kent cover; audience is England & Wales criminal defence.
  */
 export async function reviveAgentCoverKentReady(opts?: {
   dryRun?: boolean;
@@ -65,7 +66,7 @@ export async function reviveAgentCoverKentReady(opts?: {
   maxElapsedMs?: number;
 }): Promise<ReviveAgentCoverStats> {
   const dryRun = opts?.dryRun ?? false;
-  const limit = opts?.limit ?? 80;
+  const limit = opts?.limit ?? 120;
   const maxElapsedMs = opts?.maxElapsedMs ?? 45_000;
   const started = Date.now();
   const stats: ReviveAgentCoverStats = {
@@ -81,31 +82,6 @@ export async function reviveAgentCoverKentReady(opts?: {
     elapsedMs: 0,
     samples: [],
   };
-
-  // RepUK Kent emails → geo repair for PSA rows missing county/postcode.
-  const repukKentGeo = new Map<string, { county?: string; postcode?: string; town?: string }>();
-  const repukReadyIds = await listProspectIdsByRecordStatus('ready_to_send', {
-    campaignId: FIRM_OUTREACH_CAMPAIGN_ID,
-  });
-  const repukSentIds = await listProspectIdsByRecordStatus('sent', {
-    campaignId: FIRM_OUTREACH_CAMPAIGN_ID,
-  });
-  const repukExcludedIds = await listProspectIdsByRecordStatus('excluded', {
-    campaignId: FIRM_OUTREACH_CAMPAIGN_ID,
-  });
-  const repukMap = await getProspectsByIds([
-    ...repukReadyIds,
-    ...repukSentIds,
-    ...repukExcludedIds.slice(0, 3000),
-  ]);
-  for (const p of repukMap.values()) {
-    if (!p.email || !isKentProspectInput(p)) continue;
-    repukKentGeo.set(normalizeEmail(p.email), {
-      county: p.county,
-      postcode: p.postcode,
-      town: p.town,
-    });
-  }
 
   const seenIds = new Set<string>();
   const byEmail = new Map<string, FirmProspect[]>();
@@ -126,21 +102,7 @@ export async function reviveAgentCoverKentReady(opts?: {
         if (p.status === 'excluded' && !isSoftExclusion(p.excludedReason)) continue;
         if (p.status === 'bounced' || p.status === 'unsubscribed') continue;
 
-        // Repair geo from RepUK Kent twin when PSA row lost county/postcode.
         const email = normalizeEmail(p.email);
-        const geo = repukKentGeo.get(email);
-        if (geo && !isKentProspectInput(p)) {
-          p.county = p.county || geo.county;
-          p.postcode = p.postcode || geo.postcode;
-          p.town = p.town || geo.town;
-        }
-
-        // Only consider Kent (after repair) — avoids burning the budget on non-Kent sends lookups.
-        if (!isKentProspectInput(p) && !repukKentGeo.has(email)) {
-          stats.skippedNotKent++;
-          continue;
-        }
-
         const list = byEmail.get(email) ?? [];
         list.push(p);
         byEmail.set(email, list);
@@ -153,24 +115,6 @@ export async function reviveAgentCoverKentReady(opts?: {
   for (const [email, rows] of byEmail) {
     if (stats.revived >= limit) break;
     if (Date.now() - started >= maxElapsedMs) break;
-
-    const kentRows = rows.filter(
-      (r) => isKentProspectInput(r) || repukKentGeo.has(normalizeEmail(r.email!)),
-    );
-    if (kentRows.length === 0) {
-      stats.skippedNotKent++;
-      continue;
-    }
-
-    // Apply RepUK geo onto winner candidates missing Kent fields.
-    for (const r of kentRows) {
-      const geo = repukKentGeo.get(normalizeEmail(r.email!));
-      if (geo && !isKentProspectInput(r)) {
-        r.county = r.county || geo.county;
-        r.postcode = r.postcode || geo.postcode;
-        r.town = r.town || geo.town;
-      }
-    }
 
     if (rows.some((r) => r.status === 'sent' || r.lastEmailAt)) {
       stats.skippedSent++;
@@ -193,7 +137,7 @@ export async function reviveAgentCoverKentReady(opts?: {
       continue;
     }
 
-    const winner = [...kentRows].sort((a, b) => scoreProspect(b) - scoreProspect(a))[0]!;
+    const winner = [...rows].sort((a, b) => scoreProspect(b) - scoreProspect(a))[0]!;
     if (winner.status === 'ready_to_send' && !winner.excludedReason) continue;
 
     const prev = winner.status;
@@ -203,7 +147,6 @@ export async function reviveAgentCoverKentReady(opts?: {
 
     if (!dryRun) {
       await saveProspect(winner, prev);
-      // Keep inbox uniqueness: demote other PSA rows for same email.
       for (const other of rows) {
         if (other.id === winner.id) continue;
         if (other.status === 'sent' || other.lastEmailAt) continue;

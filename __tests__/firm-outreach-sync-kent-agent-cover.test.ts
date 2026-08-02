@@ -115,7 +115,7 @@ describe('syncKentProspectsToAgentCover', () => {
     expect(saved.status).toBe('ready_to_send');
   });
 
-  it('ignores non-Kent RepUK prospects', async () => {
+  it('clones nationwide RepUK prospects into PSA (Kent cover offer, any region)', async () => {
     const repuk: FirmProspect = {
       id: 'fop_north',
       prospectType: 'firm',
@@ -133,11 +133,24 @@ describe('syncKentProspectsToAgentCover', () => {
       county: 'Greater Manchester',
       postcode: 'M1 1AE',
     };
+    const store = new Map<string, FirmProspect>([[repuk.id, structuredClone(repuk)]]);
+    const saveProspect = vi.fn(async (p: FirmProspect) => {
+      store.set(p.id, p);
+    });
     vi.doMock('@/lib/firm-outreach/storage', () => ({
-      listProspectIdsByRecordStatus: vi.fn().mockResolvedValue([repuk.id]),
-      getProspectsByIds: vi.fn().mockResolvedValue(new Map([[repuk.id, structuredClone(repuk)]])),
+      listProspectIdsByRecordStatus: vi.fn().mockImplementation(async (status: string) => {
+        if (status === 'ready_to_send') return [repuk.id];
+        return [];
+      }),
+      getProspectsByIds: vi.fn().mockImplementation(async (ids: string[]) => {
+        const map = new Map<string, FirmProspect>();
+        for (const id of ids) {
+          if (store.has(id)) map.set(id, structuredClone(store.get(id)!));
+        }
+        return map;
+      }),
       getProspect: vi.fn().mockResolvedValue(null),
-      saveProspect: vi.fn(),
+      saveProspect,
       isSuppressed: vi.fn().mockResolvedValue(false),
       isDuplicateInitialSend: vi.fn().mockResolvedValue(false),
     }));
@@ -145,7 +158,11 @@ describe('syncKentProspectsToAgentCover', () => {
       '@/lib/firm-outreach/sync-kent-to-agent-cover'
     );
     const stats = await syncKentProspectsToAgentCover();
-    expect(stats.kentEligible).toBe(0);
-    expect(stats.created).toBe(0);
+    expect(stats.eligible).toBe(1);
+    expect(stats.created).toBe(1);
+    const saved = saveProspect.mock.calls[0][0] as FirmProspect;
+    expect(saved.campaignId).toBe('agent_cover_kent_v1');
+    expect(saved.email).toBe('info@northern.co.uk');
+    expect(saved.status).toBe('ready_to_send');
   });
 });

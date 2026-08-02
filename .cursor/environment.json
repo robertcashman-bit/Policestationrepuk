@@ -1,4 +1,4 @@
 {
-  "install": "npm ci",
-  "start": "echo ready"
+  "install": "npm ci && npm install -g vercel@latest",
+  "start": "echo 'Cloud agent ready. For production outreach sends, set Cursor Runtime Secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID. Optional: CRON_SECRET or FIRM_OUTREACH_BOOTSTRAP_SECRET to call /api/cron/firm-outreach-send directly.'"
 }

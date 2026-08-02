@@ -89,8 +89,9 @@ describe('runProductionKickSteps', () => {
     const requalifyIdx = DEFAULT_PRODUCTION_KICK_STEPS.findIndex((s) =>
       s.path.includes('requalifyOnly=1'),
     );
-    expect(sends).toHaveLength(2);
-    expect(sends.every((s) => !s.optional)).toBe(true);
+    expect(sends).toHaveLength(3);
+    expect(sends.filter((s) => !s.optional)).toHaveLength(2);
+    expect(sends.some((s) => s.optional && s.label.includes('flush 1b'))).toBe(true);
     expect(dryRunIdx).toBeGreaterThan(0);
     expect(firstSendIdx).toBeLessThan(requalifyIdx);
     expect(DEFAULT_PRODUCTION_KICK_STEPS.at(-1)?.label).toContain('flush 2');

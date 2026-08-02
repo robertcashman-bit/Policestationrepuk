@@ -106,6 +106,13 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     path: '/api/cron/firm-outreach-send?limit=150',
     label: 'Send flush 1 (whatsapp_invite_v1 + agent_cover_kent_v1)',
   },
+  // Immediate second pass while Resend quota remains — large ready queues (200+)
+  // often leave capacity after flush 1 finishes early on skips/suppressions.
+  {
+    path: '/api/cron/firm-outreach-send?limit=150',
+    label: 'Send flush 1b (drain remaining quota)',
+    optional: true,
+  },
   {
     path: '/api/cron/firm-outreach-bootstrap?requalifyOnly=1',
     label: 'Requalify ready_to_send junk rows',

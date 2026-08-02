@@ -1,3 +1,5 @@
+import type { OutreachSkipReason } from './run-log-types';
+
 export type FirmProspectType = 'firm' | 'solicitor';
 
 export type FirmProspectSource =
@@ -58,10 +60,7 @@ export interface FirmProspect {
   status: FirmProspectStatus;
   priorityScore: number;
   excludedReason?: string;
-  /**
-   * When set in the future, prospect is not sendable (e.g. firm_cooldown hold).
-   * ISO timestamp. Cleared when eligibility returns.
-   */
+  /** When set and in the future, ready prospects are parked (e.g. inbox cooldown). */
   nextEligibleAt?: string;
   sequenceStep: number;
   lastEmailAt?: string;
@@ -134,12 +133,11 @@ export interface OutreachActivitySummary {
   sentToday: number;
   sentLast7Days: number;
   uniqueRecipients: number;
-  /** Raw current-status buckets (not a funnel — a send in `clicked` is not also in `opened`). */
   bySendStatus: Record<string, number>;
-  /** Cumulative funnel: delivered, opened, or clicked (timestamps or status). */
+  /** Funnel: delivered (includes opened/clicked). */
   delivered: number;
-  /** Cumulative funnel: opened or clicked (timestamps or status). */
   opened: number;
+  clicked: number;
   waClicks: number;
   joinedWhatsApp: number;
   bounced: number;
@@ -245,25 +243,19 @@ export interface OutreachRunStats {
   /** Prospects evaluated (send attempted or skipped with reason). */
   attempted?: number;
   failed?: number;
-  skipReasons?: Partial<
-    Record<
-      | 'no_step'
-      | 'no_email'
-      | 'not_qualified'
-      | 'suppressed'
-      | 'duplicate'
-      | 'firm_cooldown'
-      | 'mx_invalid'
-      | 'resend_quota'
-      | 'daily_cap'
-      | 'send_disabled'
-      | 'resend_error'
-      | 'transient_resend_error'
-      | 'permanent_resend_error'
-      | 'no_resend',
-      number
-    >
-  >;
+  /** Jobs created this run (durable outbox). */
+  jobsCreated?: number;
+  /** Jobs claimed/processed this run. */
+  jobsClaimed?: number;
+  /** Provider-accepted messages this run. */
+  accepted?: number;
+  /** Scheduled for retry. */
+  retryScheduled?: number;
+  /** Permanently failed. */
+  permanentlyFailed?: number;
+  /** Recovered abandoned claims. */
+  abandonedRecovered?: number;
+  skipReasons?: Partial<Record<OutreachSkipReason, number>>;
   failures?: Array<{
     email: string;
     firmName?: string;
@@ -276,4 +268,6 @@ export interface OutreachRunStats {
   partial?: boolean;
   /** Set when the cron skipped due to an overlapping run lock. */
   skippedReason?: string;
+  /** Correlation / run id for structured logs. */
+  runId?: string;
 }

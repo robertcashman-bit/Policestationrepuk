@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { GET } from '@/app/api/cron/firm-outreach-status/route';
 
 vi.mock('@/lib/firm-outreach/config-status', () => ({
   getOutreachConfigStatus: vi.fn().mockResolvedValue({
@@ -27,47 +28,61 @@ vi.mock('@/lib/firm-outreach/outreach/activity-report', () => ({
   }),
 }));
 
-vi.mock('@/lib/firm-outreach/storage', () => ({
-  getDailySendCount: vi.fn().mockResolvedValue(0),
-  getGlobalResendQuotaRemaining: vi.fn().mockResolvedValue(90),
-  getIndexRedisType: vi.fn().mockResolvedValue('set'),
-  getProspect: vi.fn().mockImplementation(async (id: string) => {
-    if (id === 'psa1') {
-      return {
-        id,
-        campaignId: 'agent_cover_kent_v1',
-        status: 'ready_to_send',
-        email: 'crime@kentfirm.co.uk',
-      };
-    }
-    return {
-      id,
-      campaignId: 'whatsapp_invite_v1',
-      status: 'ready_to_send',
-      email: 'crime@firm.co.uk',
-      nextEligibleAt: new Date(Date.now() + 86_400_000).toISOString(),
-      excludedReason: 'firm_cooldown',
-    };
-  }),
-  listProspectIdsByStatus: vi.fn().mockResolvedValue(['repuk1', 'psa1']),
-}));
-
-vi.mock('@/lib/firm-outreach/sendable-ready', () => ({
-  isSendableReadyProspect: vi.fn((p: { campaignId?: string; nextEligibleAt?: string }) => {
-    if (p.nextEligibleAt && Date.parse(p.nextEligibleAt) > Date.now()) return false;
-    return p.campaignId === 'agent_cover_kent_v1' || p.campaignId === 'whatsapp_invite_v1'
-      ? !p.nextEligibleAt
-      : true;
+vi.mock('@/lib/firm-outreach/email-jobs/storage', () => ({
+  countEmailJobsByStatus: vi.fn().mockResolvedValue({
+    pending: 0,
+    claimed: 0,
+    processing: 0,
+    accepted: 2,
+    retry_scheduled: 0,
+    permanently_failed: 0,
   }),
 }));
 
-import { GET } from '@/app/api/cron/firm-outreach-status/route';
+vi.mock('@/lib/firm-outreach/outreach/candidate-selection', () => ({
+  selectOutreachCandidates: vi.fn().mockResolvedValue({
+    candidates: [],
+    readyScanned: 10,
+    sentScanned: 5,
+    readyEligible: 8,
+    followUpEligible: 1,
+    firmCooldownSkipped: 0,
+  }),
+}));
+
+vi.mock('@/lib/firm-outreach/storage', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/firm-outreach/storage')>();
+  return {
+    ...actual,
+    getLatestOutreachRunLog: vi.fn().mockResolvedValue(null),
+  };
+});
+
+vi.mock('@robertcashman/firm-outreach-core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@robertcashman/firm-outreach-core')>();
+  return {
+    ...actual,
+    validateOutreachEnv: () => ({
+      ok: true,
+      errors: [],
+      warnings: [],
+      dryRun: false,
+      sendingEnabled: true,
+    }),
+  };
+});
 
 const ENV = process.env;
 
 describe('firm-outreach-status cron route', () => {
   beforeEach(() => {
-    process.env = { ...ENV, CRON_SECRET: 'cron-test-secret' };
+    process.env = {
+      ...ENV,
+      CRON_SECRET: 'cron-test-secret',
+      RESEND_API_KEY: 're_test',
+      KV_REST_API_URL: 'http://localhost',
+      KV_REST_API_TOKEN: 'token',
+    };
   });
 
   afterEach(() => {
@@ -79,7 +94,7 @@ describe('firm-outreach-status cron route', () => {
     expect(res.status).toBe(401);
   });
 
-  it('returns config and per-campaign sendable queue when authorized', async () => {
+  it('returns config and queue summary when authorized', async () => {
     const res = await GET(
       new Request('http://localhost/api/cron/firm-outreach-status', {
         headers: { authorization: 'Bearer cron-test-secret' },
@@ -90,8 +105,19 @@ describe('firm-outreach-status cron route', () => {
     expect(json.ok).toBe(true);
     expect(json.config.requireApproval).toBe(true);
     expect(json.queue.readyToSend).toBe(109);
-    expect(json.queue.campaigns).toHaveLength(2);
-    expect(json.queue.indexes.ready_to_send).toBe('set');
-    expect(json.queue.sendableReady).toBeGreaterThanOrEqual(0);
+  });
+
+  it('accepts outreach bootstrap secret header', async () => {
+    process.env = {
+      ...ENV,
+      CRON_SECRET: 'cron-test-secret',
+      FIRM_OUTREACH_BOOTSTRAP_SECRET: 'boot-test-secret',
+    };
+    const res = await GET(
+      new Request('http://localhost/api/cron/firm-outreach-status', {
+        headers: { 'x-firm-outreach-bootstrap-secret': 'boot-test-secret' },
+      }),
+    );
+    expect(res.status).toBe(200);
   });
 });

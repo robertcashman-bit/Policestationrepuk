@@ -3,17 +3,13 @@ import { resolve } from 'path';
 import { namesLikelyMatch } from '@/lib/name-match';
 import { ensureDsccRegisterCache } from '@/lib/dscc-register-lookup';
 import { readLaaCrimeJson } from '@/lib/legal-directory/laa-fetch';
-import { AGENT_COVER_KENT_CAMPAIGN_ID } from './campaign-scope';
-import { isKentProspectInput } from './kent-filter';
 import {
-  buildProspectForCampaign,
   buildProspectFromInput,
   mergeProspect,
   type RawProspectInput,
 } from './merge-prospects';
 import { firmKeyFromParts, normalizeFirmName } from './normalize';
 import { buildCrimeRegistry, isOnCrimeRegistry, resolveStatusWithQualification } from './qualification';
-import { FIRM_OUTREACH_CAMPAIGN_ID } from './site-config';
 import {
   getProspect,
   isDuplicateInitialSend,
@@ -50,7 +46,6 @@ export interface LeadEngineImportStats {
   rowsRead: number;
   skippedNoEmail: number;
   skippedGuessed: number;
-  skippedNotKent: number;
   matched: number;
   created: number;
   updated: number;
@@ -58,7 +53,6 @@ export interface LeadEngineImportStats {
   excluded: number;
   duplicateEmail: number;
   dryRun: boolean;
-  campaignId: string;
 }
 
 /** Minimal RFC-style CSV parser (handles quoted fields with commas). */
@@ -210,7 +204,18 @@ export async function findProspectForLeadEngineRow(
 
 async function buildNameIndex(): Promise<Map<string, FirmProspect[]>> {
   const index = new Map<string, FirmProspect[]>();
-  const ids = await listAllProspectIds();
+  let ids: string[] = [];
+  try {
+    ids = await listAllProspectIds();
+  } catch (err) {
+    // Shared Redis may hold SET-typed indexes that older readers reject with WRONGTYPE.
+    // Continue import without fuzzy name matching rather than failing the whole job.
+    console.warn(
+      '[firm-outreach import-lead-engine] listAllProspectIds failed; continuing without name index:',
+      err instanceof Error ? err.message : err,
+    );
+    return index;
+  }
   for (const id of ids) {
     const p = await getProspect(id);
     if (!p) continue;
@@ -224,16 +229,9 @@ async function buildNameIndex(): Promise<Map<string, FirmProspect[]>> {
 
 export async function importLeadEngineCsv(
   csvPath: string,
-  opts?: {
-    dryRun?: boolean;
-    includeGuessed?: boolean;
-    /** Default RepUK. Pass agent_cover_kent_v1 for Kent-only PSA import. */
-    campaignId?: string;
-  },
+  opts?: { dryRun?: boolean; includeGuessed?: boolean },
 ): Promise<LeadEngineImportStats> {
   const dryRun = opts?.dryRun ?? false;
-  const campaignId = opts?.campaignId ?? FIRM_OUTREACH_CAMPAIGN_ID;
-  const isPsa = campaignId === AGENT_COVER_KENT_CAMPAIGN_ID;
   const abs = resolve(csvPath);
   const text = readFileSync(abs, 'utf-8');
   const rows = csvRowsToObjects(text);
@@ -248,7 +246,6 @@ export async function importLeadEngineCsv(
     rowsRead: rows.length,
     skippedNoEmail: 0,
     skippedGuessed: 0,
-    skippedNotKent: 0,
     matched: 0,
     created: 0,
     updated: 0,
@@ -256,7 +253,6 @@ export async function importLeadEngineCsv(
     excluded: 0,
     duplicateEmail: 0,
     dryRun,
-    campaignId,
   };
 
   for (const row of rows) {
@@ -280,28 +276,15 @@ export async function importLeadEngineCsv(
       continue;
     }
 
-    if (isPsa && !isKentProspectInput(input)) {
-      stats.skippedNotKent++;
-      continue;
-    }
-
-    const built = isPsa
-      ? buildProspectForCampaign(campaignId, input)
-      : buildProspectFromInput(input);
+    const built = buildProspectFromInput(input);
     if (!built) continue;
 
-    const existing =
-      (await findProspectForLeadEngineRow(row, nameIndex)) ?? (await getProspect(built.id));
-    // When importing PSA, only match existing rows already in that campaign.
-    const existingForCampaign =
-      existing && existing.campaignId === campaignId
-        ? existing
-        : await getProspect(built.id);
+    const existing = (await findProspectForLeadEngineRow(row, nameIndex)) ?? (await getProspect(built.id));
 
-    if (existingForCampaign) {
+    if (existing) {
       stats.matched++;
-      const merged = mergeProspect(existingForCampaign, built);
-      if (!existingForCampaign.email && built.email) {
+      const merged = mergeProspect(existing, built);
+      if (!existing.email && built.email) {
         merged.email = built.email;
         merged.emailConfidence = built.emailConfidence;
         merged.emailScore = built.emailScore;
@@ -309,7 +292,7 @@ export async function importLeadEngineCsv(
       merged.status = resolveStatusWithQualification(merged, 'ready_to_send');
       if (
         merged.status === 'ready_to_send' &&
-        (await isDuplicateInitialSend(merged.email!, merged.id, campaignId))
+        (await isDuplicateInitialSend(merged.email!, merged.id))
       ) {
         merged.status = 'excluded';
         merged.excludedReason = 'duplicate_email';
@@ -317,7 +300,7 @@ export async function importLeadEngineCsv(
       }
       if (merged.status === 'ready_to_send') stats.readyToSend++;
       if (merged.status === 'excluded') stats.excluded++;
-      if (!dryRun) await saveProspect(merged, existingForCampaign.status);
+      if (!dryRun) await saveProspect(merged, existing.status);
       stats.updated++;
       continue;
     }
@@ -325,7 +308,7 @@ export async function importLeadEngineCsv(
     built.status = resolveStatusWithQualification(built, 'ready_to_send');
     if (
       built.status === 'ready_to_send' &&
-      (await isDuplicateInitialSend(built.email!, built.id, campaignId))
+      (await isDuplicateInitialSend(built.email!, built.id))
     ) {
       built.status = 'excluded';
       built.excludedReason = 'duplicate_email';

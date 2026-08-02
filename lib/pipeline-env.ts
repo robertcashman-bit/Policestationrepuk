@@ -86,11 +86,19 @@ export function validateAutomationEnv(): PipelineEnvValidation {
   if (!process.env.SERPER_API_KEY?.trim()) {
     errors.push('SERPER_API_KEY missing');
   }
-  if (!process.env.DECISION_TOKEN_SECRET?.trim()) {
-    errors.push('DECISION_TOKEN_SECRET missing');
+  // Prefer canonical names; accept legacy aliases used in older docs/.env.example.
+  const decisionSecret =
+    process.env.ADMIN_DECISION_TOKEN_SECRET?.trim() ||
+    process.env.DECISION_TOKEN_SECRET?.trim() ||
+    process.env.CRON_SECRET?.trim();
+  if (!decisionSecret) {
+    errors.push('ADMIN_DECISION_TOKEN_SECRET (or DECISION_TOKEN_SECRET / CRON_SECRET) missing');
   }
-  if (!process.env.FIRM_OUTREACH_WEBHOOK_SECRET?.trim()) {
-    errors.push('FIRM_OUTREACH_WEBHOOK_SECRET missing');
+  const webhookSecret =
+    process.env.RESEND_WEBHOOK_SECRET?.trim() ||
+    process.env.FIRM_OUTREACH_WEBHOOK_SECRET?.trim();
+  if (!webhookSecret) {
+    errors.push('RESEND_WEBHOOK_SECRET (or legacy FIRM_OUTREACH_WEBHOOK_SECRET) missing');
   }
 
   return { ok: errors.length === 0, errors };

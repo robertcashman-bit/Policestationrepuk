@@ -33,6 +33,8 @@ describe('sendOutreachApprovalRequestEmail', () => {
     vi.clearAllMocks();
     process.env.RESEND_API_KEY = 're_test';
     process.env.FIRM_OUTREACH_DIGEST_EMAIL = 'robertdavidcashman@gmail.com';
+    delete process.env.FIRM_OUTREACH_FROM_EMAIL;
+    delete process.env.FIRM_OUTREACH_PSA_FROM_EMAIL;
     mockWasSent.mockResolvedValue(false);
     mockGetDailySendCount.mockResolvedValue(0);
     mockIssueToken.mockResolvedValue({

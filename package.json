@@ -153,7 +153,13 @@
     "firm-outreach:enrich-backfill": "npx tsx scripts/firm-outreach-enrich.ts --limit=60 --batches=10 --max-ms=270000",
     "firm-outreach:reindex": "npx tsx scripts/firm-outreach-reindex.ts",
     "firm-outreach:cleanup-bad-emails": "npx tsx scripts/firm-outreach-cleanup-non-firm-emails.ts --apply",
-    "firm-outreach:backfill-resend-ids": "npx tsx scripts/firm-outreach-backfill-resend-ids.ts --apply"
+    "firm-outreach:backfill-resend-ids": "npx tsx scripts/firm-outreach-backfill-resend-ids.ts --apply",
+    "outreach:doctor": "npx tsx scripts/outreach-doctor.ts",
+    "outreach:dry-run": "npx tsx scripts/firm-outreach-dry-run-preview.ts",
+    "outreach:test-send": "npx tsx scripts/outreach-test-send.ts",
+    "outreach:process": "npx tsx scripts/outreach-process.ts",
+    "outreach:recover-stale": "npx tsx scripts/outreach-recover-stale.ts",
+    "test:outreach": "vitest run __tests__/firm-outreach*.test.ts __tests__/outreach-send-approved-route.test.ts __tests__/resend-webhook.test.ts"
   },
   "dependencies": {
     "@robertcashman/buffer-engine": "file:packages/buffer-engine",

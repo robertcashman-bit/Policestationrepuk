@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { incrementCounter } from '@/lib/kv-atomic';
+import { addToIndexSet, incrementCounter, readIndexMembers } from '@/lib/kv-atomic';
 import {
   resendQuotaKey,
   resendQuotaRemaining as calcResendQuotaRemaining,
@@ -63,97 +63,41 @@ function newSendId(): string {
   return `fos_${Date.now().toString(36)}_${crypto.randomBytes(4).toString('hex')}`;
 }
 
-function asStringIds(values: unknown): string[] {
-  if (!Array.isArray(values)) return [];
-  return values.filter((x): x is string => typeof x === 'string' && x.length > 0);
-}
-
-/**
- * Read an id-index that may be a Redis SET (preferred) or a legacy JSON array string.
- * Production indexes were observed as SETs while older code used GET/SET arrays.
- */
 async function readStringList(key: string): Promise<string[]> {
-  const kv = getKV();
-  if (!kv) return [];
-  try {
-    const type = await kv.type(key);
-    if (type === 'none') return [];
-    if (type === 'set') {
-      return asStringIds(await kv.smembers(key));
-    }
-    const raw = await kv.get<string[] | string>(key);
-    if (Array.isArray(raw)) return asStringIds(raw);
-    if (typeof raw === 'string') {
-      try {
-        return asStringIds(JSON.parse(raw) as unknown);
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  } catch {
-    // WRONGTYPE or transient — try SET read as last resort.
-    try {
-      return asStringIds(await kv.smembers(key));
-    } catch {
-      return [];
-    }
-  }
+  // Prefer Redis SET members; falls back to legacy JSON arrays and migrates.
+  return readIndexMembers(key);
 }
 
-const SADD_CHUNK = 100;
-
-async function writeSetIndex(key: string, ids: string[]): Promise<void> {
-  const kv = getKV();
-  if (!kv) return;
-  await kv.del(key);
-  const unique = [...new Set(ids.filter((x) => typeof x === 'string' && x.length > 0))];
-  for (let i = 0; i < unique.length; i += SADD_CHUNK) {
-    const chunk = unique.slice(i, i + SADD_CHUNK);
-    if (chunk.length === 1) await kv.sadd(key, chunk[0]!);
-    else await kv.sadd(key, chunk[0]!, ...chunk.slice(1));
-  }
-}
-
-/** Migrate legacy JSON-array indexes to Redis SETs, then SADD. */
 async function appendIndex(key: string, id: string): Promise<void> {
-  const kv = getKV();
-  if (!kv || !id) return;
-  const type = await kv.type(key);
-  if (type === 'set' || type === 'none') {
-    await kv.sadd(key, id);
-    return;
-  }
-  // Legacy JSON array (or other) → migrate to SET including the new id.
-  const existing = await readStringList(key);
-  if (!existing.includes(id)) existing.push(id);
-  await writeSetIndex(key, existing);
+  await addToIndexSet(key, id);
 }
 
 async function removeFromIndex(key: string, id: string): Promise<void> {
   const kv = getKV();
-  if (!kv || !id) return;
-  const type = await kv.type(key);
-  if (type === 'set') {
+  if (!kv) return;
+  try {
     await kv.srem(key, id);
     return;
+  } catch {
+    // Legacy JSON array — rewrite without the id, then migrate to SET.
   }
-  if (type === 'none') return;
   const ids = await readStringList(key);
   const next = ids.filter((x) => x !== id);
   if (next.length === ids.length) return;
-  await writeSetIndex(key, next);
-}
-
-/** Expected Redis TYPE for outreach id indexes (SET). */
-export async function getIndexRedisType(key: string): Promise<string> {
-  const kv = getKV();
-  if (!kv) return 'none';
-  return (await kv.type(key)) as string;
-}
-
-export async function replaceSetIndex(key: string, ids: string[]): Promise<void> {
-  await writeSetIndex(key, ids);
+  if (typeof kv.del === 'function') {
+    try {
+      await kv.del(key);
+    } catch {
+      return;
+    }
+  } else {
+    return;
+  }
+  if (next.length > 0) {
+    const pipeline = kv.pipeline();
+    for (const member of next) pipeline.sadd(key, member);
+    await pipeline.exec();
+  }
 }
 
 export async function saveProspect(prospect: FirmProspect, previousStatus?: FirmProspectStatus): Promise<void> {
@@ -346,8 +290,26 @@ export async function getSend(id: string): Promise<FirmOutreachSend | null> {
 }
 
 export async function listRecentSends(limit = 50): Promise<FirmOutreachSend[]> {
-  const all = await listAllSends();
-  return all.slice(0, limit);
+  const kv = getKV();
+  if (!kv) return [];
+  const cap = Math.max(0, Math.floor(limit));
+  if (cap === 0) return [];
+  // Newest-first without loading the entire SEND_INDEX into memory.
+  const ids = [...(await readStringList(SEND_INDEX))].reverse().slice(0, cap);
+  if (ids.length === 0) return [];
+
+  const out: FirmOutreachSend[] = [];
+  const BATCH = 100;
+  for (let i = 0; i < ids.length; i += BATCH) {
+    const batch = ids.slice(i, i + BATCH);
+    const pipeline = kv.pipeline();
+    for (const id of batch) pipeline.get(sendKey(id));
+    const rows = await pipeline.exec<(FirmOutreachSend | null)[]>();
+    for (const row of rows) {
+      if (row && typeof row === 'object' && row.id) out.push(row);
+    }
+  }
+  return out;
 }
 
 export async function listAllSends(): Promise<FirmOutreachSend[]> {
@@ -385,16 +347,27 @@ export async function listSendsForProspect(prospectId: string): Promise<FirmOutr
   return all.filter((s) => s.prospectId === prospectId);
 }
 
-/** Sends recorded for a normalised email address (newest first). */
-export async function listSendsForEmail(email: string): Promise<FirmOutreachSend[]> {
+/**
+ * Sends recorded for a normalised email address (newest first).
+ *
+ * Uses the per-email index by default. Pass `allowFullScan: true` to fall
+ * back to SEND_INDEX for legacy sends recorded before per-email indexing.
+ * Webhook handlers must omit that option — a full scan can exceed Resend's
+ * delivery timeout, marking the endpoint as failing.
+ */
+export async function listSendsForEmail(
+  email: string,
+  opts?: { allowFullScan?: boolean },
+): Promise<FirmOutreachSend[]> {
   const normalized = normalizeEmail(email);
+  if (!normalized) return [];
   const ids = await readStringList(SEND_EMAIL_INDEX + emailHash(normalized));
   const out: FirmOutreachSend[] = [];
   for (const id of ids) {
     const s = await getSend(id);
     if (s && normalizeEmail(s.email) === normalized) out.push(s);
   }
-  if (out.length > 0) {
+  if (out.length > 0 || !opts?.allowFullScan) {
     return out.sort((a, b) =>
       (b.sentAt ?? b.createdAt).localeCompare(a.sentAt ?? a.createdAt),
     );
@@ -431,7 +404,9 @@ export async function isDuplicateInitialSend(
   campaignId?: string,
 ): Promise<boolean> {
   const cid = campaignId ?? activeOutreachCampaignId();
-  const sends = (await listSendsForEmail(email)).filter((s) => isCampaignSend(s, cid));
+  const sends = (await listSendsForEmail(email, { allowFullScan: true })).filter((s) =>
+    isCampaignSend(s, cid),
+  );
   return emailHasInitialOutreachFromOtherProspect(sends, email, prospectId);
 }
 
@@ -530,6 +505,75 @@ export async function incrementDailySendCount(date: string, campaignId?: string)
     ? dailySendKeyForCampaignId(campaignId, date)
     : dailySendKey(date);
   return incrementCounter(key, 60 * 60 * 24 * 3);
+}
+
+async function decrementCounter(key: string): Promise<number> {
+  const kv = getKV();
+  if (!kv) return 0;
+  const next = await kv.decr(key);
+  return typeof next === 'number' ? next : 0;
+}
+
+/**
+ * Reserve a daily cap slot before calling the provider.
+ * Returns ok=false when the cap would be exceeded (and rolls back the increment).
+ */
+export async function reserveDailySendSlot(
+  date: string,
+  campaignId: string,
+  dailyCap: number,
+): Promise<{ ok: boolean; count: number }> {
+  const count = await incrementDailySendCount(date, campaignId);
+  if (count > dailyCap) {
+    await releaseDailySendSlot(date, campaignId);
+    return { ok: false, count: dailyCap };
+  }
+  return { ok: true, count };
+}
+
+export async function releaseDailySendSlot(date: string, campaignId: string): Promise<number> {
+  const key = dailySendKeyForCampaignId(campaignId, date);
+  return decrementCounter(key);
+}
+
+function hourlySendKey(campaignId: string, hourBucket: string): string {
+  return `firmoutreach:hourly:${campaignId}:${hourBucket}`;
+}
+
+/** UTC hour bucket YYYY-MM-DDTHH */
+export function utcHourBucket(now = new Date()): string {
+  return now.toISOString().slice(0, 13);
+}
+
+export async function getHourlySendCount(
+  campaignId: string,
+  hourBucket: string,
+): Promise<number> {
+  const kv = getKV();
+  if (!kv) return 0;
+  const n = await kv.get<number>(hourlySendKey(campaignId, hourBucket));
+  return typeof n === 'number' ? n : 0;
+}
+
+export async function reserveHourlySendSlot(
+  campaignId: string,
+  hourBucket: string,
+  hourlyCap: number,
+): Promise<{ ok: boolean; count: number }> {
+  if (hourlyCap <= 0) return { ok: true, count: 0 };
+  const count = await incrementCounter(hourlySendKey(campaignId, hourBucket), 60 * 60 * 3);
+  if (count > hourlyCap) {
+    await decrementCounter(hourlySendKey(campaignId, hourBucket));
+    return { ok: false, count: hourlyCap };
+  }
+  return { ok: true, count };
+}
+
+export async function releaseHourlySendSlot(
+  campaignId: string,
+  hourBucket: string,
+): Promise<void> {
+  await decrementCounter(hourlySendKey(campaignId, hourBucket));
 }
 
 export async function getPaidLookupCount(date: string): Promise<number> {
@@ -648,6 +692,12 @@ export function createSendRecord(input: {
   };
 }
 
+/**
+ * Count prospects by *record* status (not raw index length).
+ * Stale status-index members from legacy RMW races are ignored so
+ * ready_to_send is not inflated — that previously made digests/status
+ * report hundreds of "ready" rows while the send path found almost none.
+ */
 export async function countProspectsByStatus(): Promise<Record<string, number>> {
   const statuses: FirmProspectStatus[] = [
     'discovered',
@@ -663,7 +713,17 @@ export async function countProspectsByStatus(): Promise<Record<string, number>> 
   const out: Record<string, number> = {};
   for (const s of statuses) {
     const ids = await listProspectIdsByStatus(s);
-    out[s] = ids.length;
+    if (ids.length === 0) {
+      out[s] = 0;
+      continue;
+    }
+    const map = await getProspectsByIds(ids);
+    let n = 0;
+    for (const id of ids) {
+      const p = map.get(id);
+      if (p && p.status === s) n++;
+    }
+    out[s] = n;
   }
   return out;
 }

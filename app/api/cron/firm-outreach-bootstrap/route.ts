@@ -15,9 +15,16 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
 
   if (url.searchParams.get('dryRunPreview') === '1') {
-    const { buildOutreachDryRunPreview } = await import('@/lib/firm-outreach/dry-run-preview');
     const limit = Number(url.searchParams.get('limit') || 25) || 25;
-    const preview = await buildOutreachDryRunPreview({ limit });
+    const campaignId = url.searchParams.get('campaignId')?.trim() || undefined;
+    // Default: both flush campaigns with shared Resend budget (matches send flush).
+    if (!campaignId || url.searchParams.get('allCampaigns') === '1') {
+      const { buildAllCampaignsDryRunPreview } = await import('@/lib/firm-outreach/dry-run-preview');
+      const preview = await buildAllCampaignsDryRunPreview({ limit });
+      return NextResponse.json({ ok: true, mode: 'dryRunPreview', preview });
+    }
+    const { buildOutreachDryRunPreview } = await import('@/lib/firm-outreach/dry-run-preview');
+    const preview = await buildOutreachDryRunPreview({ limit, campaignId });
     return NextResponse.json({ ok: true, mode: 'dryRunPreview', preview });
   }
 
@@ -60,6 +67,8 @@ export async function GET(request: Request) {
   const unpauseOnly = url.searchParams.get('unpause') === '1';
   const reindex = url.searchParams.get('reindex') === '1';
   const reindexOnly = url.searchParams.get('reindexOnly') === '1';
+  const seedAgentCover = url.searchParams.get('seedAgentCover') === '1';
+  const campaignId = url.searchParams.get('campaignId')?.trim() || undefined;
   const batches = Number(url.searchParams.get('batches') || 2) || 2;
   const limit = Number(url.searchParams.get('limit') || 60) || 60;
 
@@ -71,6 +80,8 @@ export async function GET(request: Request) {
     unpauseOnly,
     reindex,
     reindexOnly,
+    seedAgentCover,
+    campaignId,
   });
   return NextResponse.json({ ok: true, mode: 'bootstrap', ...result });
 }

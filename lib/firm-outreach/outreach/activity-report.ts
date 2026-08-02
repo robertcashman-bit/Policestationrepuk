@@ -147,6 +147,7 @@ function emptySummary(prospectCounts: Record<string, number>): OutreachActivityS
     bySendStatus: {},
     delivered: 0,
     opened: 0,
+    clicked: 0,
     waClicks: 0,
     joinedWhatsApp: prospectCounts.joined_whatsapp ?? 0,
     bounced: prospectCounts.bounced ?? 0,
@@ -214,6 +215,7 @@ function buildSummaryFromSends(
     bySendStatus,
     delivered: funnel.delivered,
     opened: funnel.opened,
+    clicked: funnel.clicked,
     // Prefer prospect WA redirects; fall back to send click events if follow-up scan empty.
     waClicks: Math.max(followUp.waClicks, funnel.clicked),
     joinedWhatsApp: prospectCounts.joined_whatsapp ?? 0,

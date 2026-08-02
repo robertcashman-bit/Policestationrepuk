@@ -36,13 +36,21 @@ describe('outreachPathsChanged', () => {
 });
 
 describe('runProductionKickSteps', () => {
-  it('continues when optional requalify step fails', async () => {
-    const fetchFn = vi
-      .fn()
-      .mockResolvedValueOnce({ status: 200, text: async () => '{"ok":true}' })
-      .mockResolvedValueOnce({ status: 504, text: async () => 'timeout' })
-      .mockResolvedValueOnce({ status: 200, text: async () => '{"ok":true}' })
-      .mockResolvedValueOnce({ status: 504, text: async () => 'timeout' });
+  it('continues when optional requalify/seed steps fail', async () => {
+    const fetchFn = vi.fn().mockImplementation(async (url: string) => {
+      const u = String(url);
+      if (u.includes('requalifyOnly=1') || u.includes('seedAgentCover=1')) {
+        return { status: 504, text: async () => 'timeout' };
+      }
+      if (u.includes('batches=1') && !u.includes('seedAgentCover') && !u.includes('campaignId=')) {
+        const n = fetchFn.mock.calls.filter((c: unknown[]) => {
+          const cu = String(c[0]);
+          return cu.includes('batches=1') && !cu.includes('seedAgentCover') && !cu.includes('campaignId=');
+        }).length;
+        if (n >= 2) return { status: 504, text: async () => 'timeout' };
+      }
+      return { status: 200, text: async () => '{"ok":true}' };
+    });
 
     const { failed, results } = await runProductionKickSteps({
       baseUrl: 'https://example.com',
@@ -52,13 +60,8 @@ describe('runProductionKickSteps', () => {
     });
 
     expect(failed).toBe(false);
-    expect(results).toHaveLength(4);
-    expect(results[0]?.ok).toBe(true);
-    expect(results[1]?.ok).toBe(false);
-    expect(results[1]?.optional).toBe(true);
-    expect(results[2]?.ok).toBe(true);
-    expect(results[3]?.ok).toBe(false);
-    expect(results[3]?.optional).toBe(true);
+    expect(results.length).toBe(DEFAULT_PRODUCTION_KICK_STEPS.length);
+    expect(results.find((r) => r.path.includes('firm-outreach-probe'))?.ok).toBe(true);
   });
 
   it('starts with optional outreach status health check', () => {
@@ -66,12 +69,44 @@ describe('runProductionKickSteps', () => {
     expect(DEFAULT_PRODUCTION_KICK_STEPS[0]?.optional).toBe(true);
   });
 
-  it('fails when required enrich batch is non-200', async () => {
-    const fetchFn = vi
-      .fn()
-      .mockResolvedValueOnce({ status: 200, text: async () => '{"ok":true}' })
-      .mockResolvedValueOnce({ status: 200, text: async () => '{}' })
-      .mockResolvedValueOnce({ status: 504, text: async () => 'timeout' });
+  it('heals Buffer quota, backfills delivery, then requires pre-flight probes before flush', () => {
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.path).toBe('/api/cron/buffer-verify');
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.optional).toBe(true);
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.path).toContain('firm-outreach-backfill-delivery');
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.optional).toBe(true);
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[3]?.path).toBe('/api/cron/firm-outreach-probe');
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[3]?.optional).toBeFalsy();
+  });
+
+  it('flushes early (required) then again after enrich', () => {
+    const sends = DEFAULT_PRODUCTION_KICK_STEPS.filter((s) =>
+      s.path.startsWith('/api/cron/firm-outreach-send'),
+    );
+    const dryRunIdx = DEFAULT_PRODUCTION_KICK_STEPS.findIndex((s) =>
+      s.path.includes('dryRunPreview=1'),
+    );
+    const firstSendIdx = DEFAULT_PRODUCTION_KICK_STEPS.findIndex((s) =>
+      s.path.startsWith('/api/cron/firm-outreach-send'),
+    );
+    const requalifyIdx = DEFAULT_PRODUCTION_KICK_STEPS.findIndex((s) =>
+      s.path.includes('requalifyOnly=1'),
+    );
+    expect(sends).toHaveLength(3);
+    expect(sends.filter((s) => !s.optional)).toHaveLength(2);
+    expect(sends.some((s) => s.optional && s.label.includes('flush 1b'))).toBe(true);
+    expect(dryRunIdx).toBeGreaterThan(0);
+    expect(firstSendIdx).toBeLessThan(requalifyIdx);
+    expect(DEFAULT_PRODUCTION_KICK_STEPS.at(-1)?.label).toContain('flush 2');
+  });
+
+  it('fails when required probe is non-200', async () => {
+    const fetchFn = vi.fn().mockImplementation(async (url: string) => {
+      const u = String(url);
+      if (u.includes('firm-outreach-probe')) {
+        return { status: 503, text: async () => '{"ok":false}' };
+      }
+      return { status: 200, text: async () => '{"ok":true}' };
+    });
 
     const { failed, results } = await runProductionKickSteps({
       baseUrl: 'https://example.com',
@@ -81,33 +116,68 @@ describe('runProductionKickSteps', () => {
     });
 
     expect(failed).toBe(true);
-    expect(results).toHaveLength(3);
-    expect(results[2]?.ok).toBe(false);
-    expect(results[2]?.optional).toBe(false);
+    // status + buffer-verify + backfill (optional) + failed required probe
+    expect(results).toHaveLength(4);
+    expect(results[3]?.path).toBe('/api/cron/firm-outreach-probe');
+    expect(results[3]?.ok).toBe(false);
   });
 
-  it('uses separate bootstrap enrich calls not a combined batch', () => {
-    const enrichSteps = DEFAULT_PRODUCTION_KICK_STEPS.filter((s) => s.path.includes('bootstrap') && s.path.includes('batches=1'));
-    expect(enrichSteps).toHaveLength(2);
-    expect(DEFAULT_PRODUCTION_KICK_STEPS.some((s) => s.path.includes('batches=2'))).toBe(false);
+  it('fails when required enrich batch is non-200', async () => {
+    const fetchFn = vi.fn().mockImplementation(async (url: string) => {
+      const u = String(url);
+      if (u.includes('batches=1') && !u.includes('seedAgentCover') && !u.includes('campaignId=')) {
+        return { status: 504, text: async () => 'timeout' };
+      }
+      return { status: 200, text: async () => '{"ok":true}' };
+    });
+
+    const { failed, results } = await runProductionKickSteps({
+      baseUrl: 'https://example.com',
+      auth: { header: 'Authorization', value: 'Bearer x' },
+      steps: DEFAULT_PRODUCTION_KICK_STEPS,
+      fetchFn: fetchFn as typeof fetch,
+    });
+
+    expect(failed).toBe(true);
+    const failedStep = results.find((r) => !r.ok && !r.optional);
+    expect(failedStep?.label).toContain('Enrich batch 1');
+  });
+
+  it('uses separate RepUK bootstrap enrich calls (PSA seed may use batches=2)', () => {
+    const repukEnrich = DEFAULT_PRODUCTION_KICK_STEPS.filter(
+      (s) =>
+        s.path.includes('bootstrap') &&
+        s.path.includes('batches=') &&
+        !s.path.includes('seedAgentCover') &&
+        !s.path.includes('dryRunPreview') &&
+        !s.path.includes('cleanupBadEmails') &&
+        !s.path.includes('requalifyOnly'),
+    );
+    expect(repukEnrich.length).toBeGreaterThanOrEqual(2);
+    expect(repukEnrich.every((s) => s.path.includes('limit=80'))).toBe(true);
   });
 });
 
 describe('waitForVercelProductionDeploy', () => {
-  it('returns ready when deployment matches commit sha', async () => {
-    let calls = 0;
-    const fetchFn = vi.fn(async () => {
-      calls++;
-      return {
+  it('waits for the newest deployment for a commit sha to be READY', async () => {
+    let nowMs = 0;
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           deployments: [
-            { readyState: 'BUILDING', meta: { githubCommitSha: 'abc' } },
-            { readyState: 'READY', meta: { githubCommitSha: 'abc' }, url: 'x.vercel.app' },
+            { readyState: 'BUILDING', meta: { githubCommitSha: 'abc' }, createdAt: 2, url: 'new.vercel.app' },
+            { readyState: 'READY', meta: { githubCommitSha: 'abc' }, createdAt: 1, url: 'old.vercel.app' },
           ],
         }),
-      };
-    });
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          deployments: [{ readyState: 'READY', meta: { githubCommitSha: 'abc' }, createdAt: 3, url: 'new.vercel.app' }],
+        }),
+      });
 
     const result = await waitForVercelProductionDeploy({
       token: 't',
@@ -115,14 +185,16 @@ describe('waitForVercelProductionDeploy', () => {
       commitSha: 'abc',
       timeoutMs: 5_000,
       pollMs: 1,
-      now: () => 0,
-      sleep: async () => {},
+      now: () => nowMs,
+      sleep: async (ms) => {
+        nowMs += ms;
+      },
       fetchFn: fetchFn as typeof fetch,
     });
 
     expect(result.ready).toBe(true);
-    expect(result.deployment?.url).toBe('x.vercel.app');
-    expect(calls).toBe(1);
+    expect(result.deployment?.url).toBe('new.vercel.app');
+    expect(fetchFn).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -140,7 +212,6 @@ describe('requalifyAllProspects readyOnly', () => {
     vi.doMock('@/lib/firm-outreach/storage', () => ({
       listProspectIdsByStatus,
       listAllProspectIds,
-      listProspectsForFirmKey: vi.fn().mockResolvedValue([]),
       getProspect: vi.fn().mockResolvedValue({
         id: 'ready-1',
         firmName: 'Acme',
@@ -180,6 +251,13 @@ describe('bootstrapOutreach', () => {
         errors: 0,
       }),
     }));
+    vi.doMock('@/lib/firm-outreach/enrichment/recover-enrich-pool', () => ({
+      recoverEnrichPool: vi.fn().mockResolvedValue({
+        retiredExhaustedDiscovered: 0,
+        requeuedStaleNoEmail: 0,
+        campaignId: 'whatsapp_invite_v1',
+      }),
+    }));
     vi.doMock('@/lib/firm-outreach/reindex-prospects', () => ({ reindexProspectStatuses }));
     vi.doMock('@/lib/firm-outreach/pause-state', () => ({
       getOutreachPauseSummary: vi.fn().mockResolvedValue({ effectivePaused: false, envPaused: false }),
@@ -188,6 +266,9 @@ describe('bootstrapOutreach', () => {
     }));
     vi.doMock('@/lib/firm-outreach/storage', () => ({
       countProspectsByStatus: vi.fn().mockResolvedValue({ discovered: 10 }),
+      listProspectIdsByRecordStatus: vi.fn().mockResolvedValue([]),
+      getProspect: vi.fn(),
+      saveProspect: vi.fn(),
     }));
 
     const { bootstrapOutreach } = await import('@/lib/firm-outreach/bootstrap-outreach');

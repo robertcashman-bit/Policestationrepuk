@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from '@/lib/firm-outreach/campaign-scope';
-import { FIRM_OUTREACH_CAMPAIGN_ID } from '@/lib/firm-outreach/site-config';
+import {
+  FIRM_OUTREACH_CAMPAIGN_ID,
+  OUTREACH_CAMPAIGN_IDS,
+} from '@/lib/firm-outreach/site-config';
 import { psaSendReserve } from '@/lib/firm-outreach/send-quota-split';
 
 const mockRunFirmOutreach = vi.fn();
@@ -12,9 +15,36 @@ const mockDigest = vi.fn();
 const mockNotifyFailure = vi.fn();
 const mockSendHealth = vi.fn();
 
-vi.mock('@/lib/firm-outreach/outreach/run-outreach', () => ({
-  runFirmOutreach: (...args: unknown[]) => mockRunFirmOutreach(...args),
-}));
+vi.mock('@/lib/firm-outreach/outreach/run-outreach', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/firm-outreach/outreach/run-outreach')>();
+  return {
+    ...actual,
+    runFirmOutreach: (...args: unknown[]) => mockRunFirmOutreach(...args),
+    runFirmOutreachAllCampaigns: async (opts?: {
+      dryRun?: boolean;
+      limit?: number;
+      maxElapsedMs?: number;
+      campaignIds?: readonly string[];
+    }) => {
+      const campaignIds = opts?.campaignIds ?? OUTREACH_CAMPAIGN_IDS;
+      const byCampaign: Record<string, unknown> = {};
+      for (const campaignId of campaignIds) {
+        byCampaign[campaignId] = await mockRunFirmOutreach({
+          campaignId,
+          dryRun: opts?.dryRun,
+          limit: opts?.limit,
+          maxElapsedMs: opts?.maxElapsedMs,
+        });
+      }
+      return {
+        byCampaign,
+        combined: actual.mergeOutreachRunStats(
+          ...(Object.values(byCampaign) as Parameters<typeof actual.mergeOutreachRunStats>),
+        ),
+      };
+    },
+  };
+});
 vi.mock('@/lib/firm-outreach/run-lock', () => ({
   claimOutreachRunLock: (...args: unknown[]) => mockClaimLock(...args),
 }));
@@ -195,9 +225,10 @@ describe('runFirmOutreachPipeline dual-campaign send', () => {
     expect(campaignIds).toContain(AGENT_COVER_KENT_CAMPAIGN_ID);
     expect(campaignIds).toContain(FIRM_OUTREACH_CAMPAIGN_ID);
 
-    // PSA first
+    // PSA first (daily reserve / Kent cover priority)
     expect(campaignIds[0]).toBe(AGENT_COVER_KENT_CAMPAIGN_ID);
     expect(result.agentCoverSend?.sent).toBe(5);
-    expect(result.send.sent).toBe(20);
+    // `send` is the combined stats across both campaigns
+    expect(result.send.sent).toBe(25);
   });
 });

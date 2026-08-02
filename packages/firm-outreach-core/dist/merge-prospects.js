@@ -109,9 +109,7 @@ function mergeProspect(existing, incoming) {
     }
     const outreachMutable = ['discovered', 'no_email', 'enriched', 'enriching', 'ready_to_send'];
     if (outreachMutable.includes(merged.status) && merged.email) {
-        // Never re-promote already-contacted prospects back to ready_to_send.
-        const preferred = merged.lastEmailAt ? 'sent' : 'ready_to_send';
-        merged.status = (0, qualification_1.resolveStatusWithQualification)(merged, preferred);
+        merged.status = (0, qualification_1.resolveStatusWithQualification)(merged, 'ready_to_send');
     }
     return merged;
 }

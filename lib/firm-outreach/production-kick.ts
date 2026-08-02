@@ -84,25 +84,101 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Outreach send health (status)',
     optional: true,
   },
+  // Heal Buffer day quota (e.g. morning cron left 1/5) before long outreach work.
+  {
+    path: '/api/cron/buffer-verify',
+    label: 'Buffer verify + gap-fill today',
+    optional: true,
+  },
+  // Reconcile delivery events missed while the Resend webhook was failing/disabled.
+  // Optional: Resend emails.get fan-out can exceed function timeout; kick must not fail.
+  {
+    path: '/api/cron/firm-outreach-backfill-delivery?limit=15',
+    label: 'Backfill delivery status from Resend',
+    optional: true,
+  },
+  // Operator-only Resend probes for both websites (fails kick if either path cannot send).
+  {
+    path: '/api/cron/firm-outreach-probe',
+    label: 'Pre-flight email probes (policestationrepuk + policestationagent)',
+  },
+  // Flush FIRST while cooldown override is live — do not let requalify/enrich burn the window.
+  {
+    path: '/api/cron/firm-outreach-bootstrap?dryRunPreview=1&allCampaigns=1&limit=150',
+    label: 'Dry-run preview (both campaigns, safe send limit)',
+    optional: true,
+  },
+  {
+    path: '/api/cron/firm-outreach-send?limit=150',
+    label: 'Send flush 1 (whatsapp_invite_v1 + agent_cover_kent_v1)',
+  },
+  // Immediate second pass while Resend quota remains — large ready queues (200+)
+  // often leave capacity after flush 1 finishes early on skips/suppressions.
+  {
+    path: '/api/cron/firm-outreach-send?limit=150',
+    label: 'Send flush 1b (drain remaining quota)',
+    optional: true,
+  },
   {
     path: '/api/cron/firm-outreach-bootstrap?requalifyOnly=1',
     label: 'Requalify ready_to_send junk rows',
     optional: true,
   },
   {
-    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=30',
-    label: 'Enrich batch 1 (bootstrap)',
+    path: '/api/cron/firm-outreach-bootstrap?cleanupBadEmails=1&dryRun=0&allStatuses=1',
+    label: 'Cleanup non-firm / bad emails (both campaigns)',
+    optional: true,
+  },
+  // Grow never-contacted inventory after the first flush.
+  {
+    path: '/api/cron/firm-outreach-discovery',
+    label: 'Discovery (new firm prospects)',
+    optional: true,
   },
   {
-    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=30',
-    label: 'Enrich batch 2 (bootstrap)',
+    path: '/api/cron/firm-outreach-pipeline/maintain',
+    label: 'Pipeline maintain (requalify + inventory)',
     optional: true,
+  },
+  // PSA: seed Kent + larger enrich so agent_cover gains ready firm inboxes.
+  {
+    path: '/api/cron/firm-outreach-bootstrap?seedAgentCover=1&campaignId=agent_cover_kent_v1&batches=3&limit=80',
+    label: 'Seed + enrich PSA agent-cover Kent',
+    optional: true,
+  },
+  // RepUK: larger enrich batches to surface firm-type emails before flush.
+  {
+    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',
+    label: 'Enrich batch 1 (RepUK bootstrap)',
+  },
+  {
+    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',
+    label: 'Enrich batch 2 (RepUK bootstrap)',
+    optional: true,
+  },
+  {
+    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',
+    label: 'Enrich batch 3 (RepUK bootstrap)',
+    optional: true,
+  },
+  {
+    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',
+    label: 'Enrich batch 4 (RepUK bootstrap)',
+    optional: true,
+  },
+  // Second flush catches anything enrich just promoted into ready_to_send.
+  {
+    path: '/api/cron/firm-outreach-send?limit=150',
+    label: 'Send flush 2 (remaining safe capacity)',
   },
 ];
 
 export interface VercelDeployment {
+  id?: string;
+  uid?: string;
   url?: string;
   readyState?: string;
+  createdAt?: number;
   meta?: { githubCommitSha?: string };
 }
 
@@ -137,12 +213,22 @@ export async function waitForVercelProductionDeploy(opts: {
     if (res.ok) {
       const data = (await res.json()) as { deployments?: VercelDeployment[] };
       const deployments = data.deployments ?? [];
-      const match = opts.commitSha
-        ? deployments.find(
-            (d) => d.meta?.githubCommitSha === opts.commitSha && d.readyState === 'READY',
-          )
-        : deployments.find((d) => d.readyState === 'READY');
-      if (match) return { ready: true, deployment: match };
+      const sorted = deployments
+        .slice()
+        .sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+
+      if (opts.commitSha) {
+        const shaDeployments = sorted.filter((d) => d.meta?.githubCommitSha === opts.commitSha);
+        const latest = shaDeployments[0];
+        if (latest?.readyState === 'READY') return { ready: true, deployment: latest };
+        if (shaDeployments.length === 0) {
+          const anyReady = sorted.find((d) => d.readyState === 'READY');
+          if (anyReady) return { ready: true, deployment: anyReady };
+        }
+      } else {
+        const anyReady = sorted.find((d) => d.readyState === 'READY');
+        if (anyReady) return { ready: true, deployment: anyReady };
+      }
     }
     await sleep(pollMs);
   }

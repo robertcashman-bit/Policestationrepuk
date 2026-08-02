@@ -105,6 +105,88 @@ function buildAgentCoverHtml(opts: {
   `;
 }
 
+/** Plain-text companion for HTML outreach (deliverability + accessibility). */
+export function buildOutreachEmailText(opts: {
+  prospect: FirmProspect;
+  step: number;
+  unsubscribeUrl: string;
+}): string {
+  const { prospect, step, unsubscribeUrl } = opts;
+  const greeting =
+    prospect.prospectType === 'solicitor' && prospect.surname
+      ? `Dear ${[prospect.title, prospect.surname].filter(Boolean).join(' ')},`
+      : 'Hello,';
+
+  if (isAgentCoverProspect(prospect)) {
+    const intro =
+      step === 0
+        ? `${POLICESTATIONAGENT_NAME} provides criminal defence solicitor cover at Kent police stations — when your firm needs attendance at custody suites across the county, we can act as your agency representative.\n\nA short brochure is attached covering stations we attend, turnaround times, and how agency cover works.`
+        : step === 1
+          ? `A quick reminder — ${POLICESTATIONAGENT_NAME} still offers Kent police station attendance cover for firms like ${prospect.firmName}.`
+          : `Final note — if ${prospect.firmName} ever needs Kent custody attendance cover, ${POLICESTATIONAGENT_NAME} is available for agency instructions.`;
+    const cta =
+      step === 0 ? POLICESTATIONAGENT_FREE_ADVICE_HREF : POLICESTATIONAGENT_HOME_HREF;
+    return [
+      greeting,
+      '',
+      intro,
+      '',
+      '- Coverage at Kent custody suites including Medway, Maidstone, Canterbury, and more',
+      '- Written attendance notes back within 24 hours',
+      '- Direct instruction — no middleman agency layer',
+      '',
+      `View Kent police station cover: ${cta}`,
+      `Resources: ${POLICESTATIONAGENT_KENT_RESOURCES_HREF}`,
+      '',
+      `Ref: ${prospect.id}`,
+      '',
+      'Defence Legal Services Ltd · ICO ZA198500',
+      'Greenacre, London Road, West Kingsdown, Sevenoaks, Kent TN15 6ER',
+      `Reply to ${COMMUNITY_EMAIL}`,
+      `Unsubscribe: ${unsubscribeUrl}`,
+    ].join('\n');
+  }
+
+  const joinUrl = buildTrackedJoinUrl(prospect);
+  const intro =
+    step === 0
+      ? prospect.prospectType === 'solicitor'
+        ? 'PoliceStationRepUK runs a free, verified WhatsApp group for criminal defence solicitors and firms across England & Wales. Post urgent police station cover when your rota needs a rep — accredited representatives respond in real time.'
+        : 'PoliceStationRepUK runs a free, verified WhatsApp group for criminal defence firms across England & Wales. Post out-of-hours and weekend custody attendance requests — accredited police station reps who cover your areas can respond directly.'
+      : step === 1
+        ? `A quick reminder — the PoliceStationRepUK WhatsApp group is still open for ${prospect.firmName}. It is free, verified, and used by firms to source police station cover without an agency layer.`
+        : `Final note from us — if ${prospect.firmName} ever needs freelance police station cover, the PoliceStationRepUK WhatsApp group is a free resource used by criminal defence firms across England & Wales.`;
+
+  const benefits =
+    step === 0
+      ? [
+          '- Post urgent custody cover when your duty rota or panel needs a rep',
+          '- Hear back from accredited reps covering your stations and counties',
+          '- Instruct the rep directly — no middleman fees',
+          `- Works alongside the free rep directory: ${SITE_URL}/directory`,
+          '',
+        ].join('\n')
+      : '';
+
+  return [
+    greeting,
+    '',
+    intro,
+    benefits ? `\n${benefits}` : '',
+    `Join on WhatsApp: ${joinUrl}`,
+    `Or read more: ${SITE_URL}/WhatsApp/firms`,
+    '',
+    `When you message us, include your firm name and SRA number if applicable. Ref: ${prospect.id}`,
+    '',
+    'Defence Legal Services Ltd · ICO ZA198500',
+    'Greenacre, London Road, West Kingsdown, Sevenoaks, Kent TN15 6ER',
+    `Reply to ${COMMUNITY_EMAIL}`,
+    `Unsubscribe: ${unsubscribeUrl}`,
+  ]
+    .filter((line, i, arr) => !(line === '' && arr[i - 1] === ''))
+    .join('\n');
+}
+
 export function buildOutreachEmailHtml(opts: {
   prospect: FirmProspect;
   step: number;

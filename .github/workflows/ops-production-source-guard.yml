@@ -36,9 +36,10 @@ jobs:
             exit 0
           fi
 
-          # Resolve short SHA against bit repo tip ancestry
-          MATCH=$(gh api "repos/${{ github.repository }}/commits?sha=master&per_page=50" \
-            --jq --arg v "$VER" '[.[] | select(.sha|startswith($v))] | length')
+          # Resolve short SHA against bit repo tip ancestry.
+          # Note: `gh api --jq` does not accept `--arg`; pipe to jq instead.
+          MATCH=$(gh api "repos/${{ github.repository }}/commits?sha=master&per_page=100" \
+            | jq --arg v "$VER" '[.[] | select(.sha|startswith($v))] | length')
           if [ "$MATCH" != "0" ]; then
             echo "drift=false" >> "$GITHUB_OUTPUT"
             echo "Live SHA is on bit master history"

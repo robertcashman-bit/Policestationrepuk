@@ -122,40 +122,6 @@ export function checkOperatorNotifyFromAddress(): RepoCheckResult {
   };
 }
 
-export async function checkOutreachIndexTypes(): Promise<RepoCheckResult[]> {
-  try {
-    const { getIndexRedisType, listProspectIdsByStatus } = await import('./storage');
-    const readyType = await getIndexRedisType('firmprospect:status:ready_to_send');
-    const discoveredType = await getIndexRedisType('firmprospect:status:discovered');
-    const discoveredIds = await listProspectIdsByStatus('discovered');
-    return [
-      {
-        name: 'kv_index_ready_is_set',
-        ok: readyType === 'set' || readyType === 'none',
-        detail: `type=${readyType}`,
-      },
-      {
-        name: 'kv_index_discovered_is_set',
-        ok: discoveredType === 'set',
-        detail: `type=${discoveredType} count≈${discoveredIds.length}`,
-      },
-      {
-        name: 'kv_discovered_pool_nonempty',
-        ok: discoveredIds.length > 0,
-        detail: `discovered=${discoveredIds.length}`,
-      },
-    ];
-  } catch (err) {
-    return [
-      {
-        name: 'kv_index_types',
-        ok: false,
-        detail: err instanceof Error ? err.message : String(err),
-      },
-    ];
-  }
-}
-
 export async function runSendHealthChecks(): Promise<RepoCheckResult[]> {
   if (!process.env.RESEND_API_KEY?.trim()) {
     return [
@@ -255,8 +221,8 @@ export function checkVercelCronConfig(vercelJson: {
   });
   const enrichCronCount = paths.filter((p) => p === '/api/cron/firm-outreach-enrich').length;
   results.push({
-    name: 'vercel_cron_enrich_twice_daily',
-    ok: enrichCronCount === 2,
+    name: 'vercel_cron_enrich_six_times_daily',
+    ok: enrichCronCount >= 6,
     detail: `count=${enrichCronCount}`,
   });
   const sendOnlyCronCount = paths.filter((p) => p === '/api/cron/firm-outreach-send').length;

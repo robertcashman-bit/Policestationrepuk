@@ -1,25 +1,22 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.sequenceStepOf = exports.daysSince = void 0;
 exports.prospectHasInitialSend = prospectHasInitialSend;
 exports.reconcileReadyProspectStatus = reconcileReadyProspectStatus;
 exports.isDueForFollowUpStep1 = isDueForFollowUpStep1;
+const email_jobs_1 = require("./email-jobs");
+Object.defineProperty(exports, "daysSince", { enumerable: true, get: function () { return email_jobs_1.daysSince; } });
+Object.defineProperty(exports, "sequenceStepOf", { enumerable: true, get: function () { return email_jobs_1.sequenceStepOf; } });
 const validator_1 = require("./enrichment/validator");
-const FOLLOWUP_DAY_1 = 7;
-function daysSince(iso) {
-    if (!iso)
-        return Infinity;
-    return (Date.now() - Date.parse(iso)) / (1000 * 60 * 60 * 24);
-}
-/** Whether any outreach email was already recorded on this prospect. */
+/** Whether an initial outreach email was already recorded on this prospect. */
 function prospectHasInitialSend(prospect) {
-    // Any lastEmailAt means contact already happened (step 0 initial or later follow-ups).
-    // sequenceStep is ignored: stale ready_to_send rows often keep step 1/2 after sends.
+    // Any lastEmailAt on a ready row means the initial send already happened —
+    // including legacy rows where sequenceStep is missing/undefined.
     return Boolean(prospect.lastEmailAt);
 }
 /**
- * ready_to_send + lastEmailAt is a stale index state: a send already happened
- * but status was not moved to sent (or was re-promoted). That floods the send
- * queue with no_step skips and blocks genuine ready initials + due follow-ups.
+ * ready_to_send + lastEmailAt is a stale index state: the initial send already happened
+ * but status was not moved to sent. That blocks the morning cron from picking new firms.
  */
 function reconcileReadyProspectStatus(prospect) {
     if (prospect.status !== 'ready_to_send')
@@ -37,7 +34,13 @@ function reconcileReadyProspectStatus(prospect) {
 function isDueForFollowUpStep1(prospect) {
     if (prospect.waLinkClickedAt || prospect.joinedWhatsAppAt)
         return false;
-    if (prospect.sequenceStep !== 0 || !prospect.lastEmailAt)
+    if ((0, email_jobs_1.sequenceStepOf)(prospect) !== 0 || !prospect.lastEmailAt)
         return false;
-    return daysSince(prospect.lastEmailAt) >= FOLLOWUP_DAY_1;
+    return (0, email_jobs_1.dueForFollowUp)({
+        status: prospect.status ?? 'sent',
+        sequenceStep: (0, email_jobs_1.sequenceStepOf)(prospect),
+        lastEmailAt: prospect.lastEmailAt,
+        waLinkClickedAt: prospect.waLinkClickedAt,
+        joinedWhatsAppAt: prospect.joinedWhatsAppAt,
+    });
 }

@@ -8,28 +8,23 @@ import { runFirmEnrichment } from './enrichment/run-enrich';
 import { sendDailyOutreachDigest } from './outreach/digest-email';
 import { getOutreachSendHealth } from './outreach/from-address';
 import { maybeNotifyOutreachSendFailure } from './outreach/send-failure-email';
-import { runFirmOutreach } from './outreach/run-outreach';
+import {
+  emptyOutreachRunStats,
+  runFirmOutreachAllCampaigns,
+} from './outreach/run-outreach';
+import { isOutreachSendAllowed } from './pause-state';
 import { claimOutreachRunLock } from './run-lock';
 import { requalifyAllProspects } from './requalify-prospects';
-import { psaSendReserve } from './send-quota-split';
-import { FIRM_OUTREACH_CAMPAIGN_ID } from './site-config';
+import { countProspectsByStatus } from './storage';
 import {
   syncKentProspectsToAgentCover,
   type SyncKentToAgentCoverStats,
 } from './sync-kent-to-agent-cover';
-import {
-  countProspectsByStatus,
-  getGlobalResendQuotaRemaining,
-  listProspectIdsByRecordStatus,
-} from './storage';
 import type {
   DiscoveryRunStats,
   EnrichmentRunStats,
   OutreachRunStats,
 } from './types';
-
-/** When PSA ready queue is below this after enrich, run an extra Kent enrich pass. */
-const PSA_READY_REFILL_FLOOR = 20;
 
 export interface FirmOutreachPipelineResult {
   skipped: boolean;
@@ -43,8 +38,10 @@ export interface FirmOutreachPipelineResult {
   requalify: Awaited<ReturnType<typeof requalifyAllProspects>>;
   enrich: EnrichmentRunStats;
   agentCoverEnrich?: EnrichmentRunStats;
+  /** Combined send stats across RepUK + PSA campaigns. */
   send: OutreachRunStats;
-  /** PSA Kent campaign send stats (agent_cover_kent_v1). */
+  /** Per-campaign send stats (whatsapp_invite_v1 + agent_cover_kent_v1). */
+  sendByCampaign?: Record<string, OutreachRunStats>;
   agentCoverSend?: OutreachRunStats;
   counts: Record<string, number>;
   elapsedMs: number;
@@ -85,7 +82,7 @@ export async function runFirmOutreachPipeline(opts?: {
       discovery: emptyDiscovery(),
       requalify: emptyRequalify(),
       enrich: emptyEnrich(),
-      send: emptySend(),
+      send: emptyOutreachRunStats(),
       counts: {},
       elapsedMs: Date.now() - started,
     };
@@ -121,7 +118,11 @@ export async function runFirmOutreachPipeline(opts?: {
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
       countyAllowlist: ['kent'],
     });
-    agentCoverSync = await syncKentProspectsToAgentCover();
+    // Keep PSA Kent inventory filled from RepUK Kent prospects (bit-only helper).
+    agentCoverSync = await syncKentProspectsToAgentCover().catch((err) => {
+      console.warn('[firm-outreach pipeline] Kent→PSA sync failed:', err);
+      return undefined;
+    });
     requalify = await requalifyAllProspects();
   }
 
@@ -130,94 +131,63 @@ export async function runFirmOutreachPipeline(opts?: {
     if (!enrichLocked) {
       enrich = { ...emptyEnrich(), skippedReason: 'overlap' };
     } else {
-      const enrichLimit = opts?.enrichLimit ?? (opts?.skipSend ? 120 : 60);
-      enrich = await runFirmEnrichment({
-        limit: enrichLimit,
-        maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
-      });
-      // PSA enrich floor — keep Kent campaign fed even when RepUK backlog is large.
-      const kentLimit = Math.max(40, Math.min(80, enrichLimit));
-      agentCoverEnrich = await runFirmEnrichment({
-        campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-        limit: kentLimit,
-        maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
-      });
-      const psaReadyAfter = await listProspectIdsByRecordStatus('ready_to_send', {
-        campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-      });
-      if (psaReadyAfter.length < PSA_READY_REFILL_FLOOR) {
-        const extra = await runFirmEnrichment({
-          campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-          limit: kentLimit,
-          maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
-        });
-        agentCoverEnrich = {
-          processed: (agentCoverEnrich.processed ?? 0) + (extra.processed ?? 0),
-          emailsFound: (agentCoverEnrich.emailsFound ?? 0) + (extra.emailsFound ?? 0),
-          readyToSend: (agentCoverEnrich.readyToSend ?? 0) + (extra.readyToSend ?? 0),
-          noEmail: (agentCoverEnrich.noEmail ?? 0) + (extra.noEmail ?? 0),
-          errors: (agentCoverEnrich.errors ?? 0) + (extra.errors ?? 0),
-          elapsedMs: (agentCoverEnrich.elapsedMs ?? 0) + (extra.elapsedMs ?? 0),
-        };
-      }
+    const enrichLimit = opts?.enrichLimit ?? (opts?.skipSend ? 120 : 60);
+    enrich = await runFirmEnrichment({
+      limit: enrichLimit,
+      maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
+    });
+    const kentLimit = Math.min(15, Math.max(1, Math.floor(enrichLimit / 4)));
+    agentCoverEnrich = await runFirmEnrichment({
+      campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+      limit: kentLimit,
+      maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
+    });
     }
   }
 
-  let send = emptySend();
+  let sendByCampaign: Record<string, OutreachRunStats> | undefined;
   let agentCoverSend: OutreachRunStats | undefined;
-
-  if (!opts?.skipSend && outreachSendEnabled()) {
-    const locked = await claimOutreachRunLock('send');
-    if (!locked) {
-      send = { ...emptySend(), skippedReason: 'overlap' };
-      agentCoverSend = { ...emptySend(), skippedReason: 'overlap' };
-    } else {
-      const date = new Date().toISOString().slice(0, 10);
-      const globalRemaining = await getGlobalResendQuotaRemaining(date);
-      const psaReadyIds = await listProspectIdsByRecordStatus('ready_to_send', {
-        campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-      });
-      const { psaLimit, repukLimit } = psaSendReserve({
-        globalRemaining,
-        psaReadyCount: psaReadyIds.length,
-        sendLimit: opts?.sendLimit,
-      });
-
-      // PSA first so shared Resend budget cannot be fully consumed by RepUK.
-      agentCoverSend =
-        psaLimit > 0
-          ? await runFirmOutreach({
-              campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-              limit: psaLimit,
-              maxElapsedMs: 240_000,
-            })
-          : emptySend();
-
-      send =
-        repukLimit > 0
-          ? await runFirmOutreach({
-              campaignId: FIRM_OUTREACH_CAMPAIGN_ID,
-              limit: repukLimit,
-              maxElapsedMs: 240_000,
-            })
-          : emptySend();
-    }
-  }
+  const sendAllowed = await isOutreachSendAllowed();
+  const send =
+    opts?.skipSend || !outreachSendEnabled() || !sendAllowed
+      ? emptyOutreachRunStats()
+      : await (async () => {
+          const locked = await claimOutreachRunLock('send');
+          if (!locked) {
+            const skipped = emptyOutreachRunStats();
+            skipped.skippedReason = 'overlap';
+            return skipped;
+          }
+          // Send both RepUK WhatsApp invites and PSA agent-cover Kent emails.
+          const multi = await runFirmOutreachAllCampaigns({
+            limit: opts?.sendLimit,
+            // Leave headroom under Vercel maxDuration=300s for both campaigns.
+            maxElapsedMs: 280_000,
+          });
+          sendByCampaign = multi.byCampaign;
+          agentCoverSend = multi.byCampaign[AGENT_COVER_KENT_CAMPAIGN_ID];
+          return multi.combined;
+        })();
 
   const counts = opts?.skipCounts ? {} : await countProspectsByStatus();
-  const combinedSend = mergeSendStats(send, agentCoverSend);
 
   if (!opts?.skipSend && !opts?.skipCounts) {
     const sendHealth = await getOutreachSendHealth();
+    const psaHealth = sendHealth.campaigns.find(
+      (c) => c.campaignId === AGENT_COVER_KENT_CAMPAIGN_ID,
+    );
+    const psaNote = psaHealth?.usedFallbackDefault
+      ? ' PSA agent-cover is sending from the verified RepUK domain until policestationagent.com is verified on Resend.'
+      : '';
     if (!sendHealth.sendHealthy) {
       await maybeNotifyOutreachSendFailure({
-        stats: combinedSend,
+        stats: send,
         readyToSend: counts.ready_to_send ?? 0,
-        reason: `Outreach send config unhealthy: ${sendHealth.sendBlockers.join('; ')}. PSA may use RepUK from-address until policestationagent.com is verified on Resend.`,
+        reason: `Outreach send config unhealthy: ${sendHealth.sendBlockers.join('; ')}.${psaNote}`,
       });
     } else {
       await maybeNotifyOutreachSendFailure({
-        stats: combinedSend,
+        stats: send,
         readyToSend: counts.ready_to_send ?? 0,
       });
     }
@@ -229,7 +199,6 @@ export async function runFirmOutreachPipeline(opts?: {
         discovery,
         enrich,
         send,
-        agentCoverSend,
         counts,
         laaRefreshed: laaResult.refreshed,
       },
@@ -255,27 +224,10 @@ export async function runFirmOutreachPipeline(opts?: {
     enrich,
     agentCoverEnrich,
     send,
+    sendByCampaign,
     agentCoverSend,
     counts,
     elapsedMs: Date.now() - started,
-  };
-}
-
-function mergeSendStats(
-  repuk: OutreachRunStats,
-  psa: OutreachRunStats | undefined,
-): OutreachRunStats {
-  if (!psa) return repuk;
-  return {
-    queued: (repuk.queued ?? 0) + (psa.queued ?? 0),
-    sent: (repuk.sent ?? 0) + (psa.sent ?? 0),
-    skipped: (repuk.skipped ?? 0) + (psa.skipped ?? 0),
-    suppressed: (repuk.suppressed ?? 0) + (psa.suppressed ?? 0),
-    errors: (repuk.errors ?? 0) + (psa.errors ?? 0),
-    elapsedMs: (repuk.elapsedMs ?? 0) + (psa.elapsedMs ?? 0),
-    attempted: (repuk.attempted ?? 0) + (psa.attempted ?? 0),
-    partial: Boolean(repuk.partial || psa.partial),
-    skippedReason: repuk.skippedReason ?? psa.skippedReason,
   };
 }
 
@@ -322,13 +274,3 @@ function emptyEnrich(): EnrichmentRunStats {
   };
 }
 
-function emptySend(): OutreachRunStats {
-  return {
-    queued: 0,
-    sent: 0,
-    skipped: 0,
-    suppressed: 0,
-    errors: 0,
-    elapsedMs: 0,
-  };
-}

@@ -7,7 +7,8 @@ import {
   releaseSendApprovalClaim,
   tryClaimSendApproval,
 } from '@/lib/firm-outreach/outreach/send-approval-token';
-import { runFirmOutreach } from '@/lib/firm-outreach/outreach/run-outreach';
+import { runFirmOutreachAllCampaigns } from '@/lib/firm-outreach/outreach/run-outreach';
+import { isOutreachSendAllowed } from '@/lib/firm-outreach/pause-state';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -60,14 +61,17 @@ export async function POST(request: Request) {
     return redirectToResult(request, { detail });
   }
 
-  if (!outreachSendEnabled()) {
+  if (!outreachSendEnabled() || !(await isOutreachSendAllowed())) {
     await releaseSendApprovalClaim(approvalRef);
     return redirectToResult(request, { detail: 'send-disabled' });
   }
 
   try {
     const sendLimit = Math.min(dailySendCap(), cronSendBatchSize() * 2);
-    const stats = await runFirmOutreach({ limit: sendLimit });
+    const { combined: stats, byCampaign } = await runFirmOutreachAllCampaigns({
+      limit: sendLimit,
+      maxElapsedMs: 240_000,
+    });
     const { report } = await buildOutreachActivityReport();
     const startOfUtcDay = Date.UTC(
       new Date().getUTCFullYear(),
@@ -87,10 +91,12 @@ export async function POST(request: Request) {
 
     await finalizeSendApproval(approvalRef);
 
+    const psaSent = byCampaign.agent_cover_kent_v1?.sent ?? 0;
     return redirectToResult(request, {
       sent: String(stats.sent),
       skipped: String(stats.skipped),
       errors: String(stats.errors),
+      psaSent: String(psaSent),
     });
   } catch (err) {
     console.error('[outreach/send-approved]', err);

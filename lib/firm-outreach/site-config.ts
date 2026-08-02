@@ -4,8 +4,8 @@ export const FIRM_OUTREACH_UA =
 
 export const FIRM_OUTREACH_CAMPAIGN_ID = 'whatsapp_invite_v1';
 
-/** All outreach campaigns sharing this KV (RepUK + PSA). */
+/** All outreach campaigns sharing this KV (PSA first so Kent cover uses daily reserve). */
 export const OUTREACH_CAMPAIGN_IDS = [
-  'whatsapp_invite_v1',
   'agent_cover_kent_v1',
+  'whatsapp_invite_v1',
 ] as const;

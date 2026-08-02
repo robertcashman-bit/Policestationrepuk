@@ -1,76 +1,61 @@
 import { NextResponse } from 'next/server';
-import { isCronAuthorized } from '@/lib/cron-auth';
-import { AGENT_COVER_KENT_CAMPAIGN_ID } from '@/lib/firm-outreach/campaign-scope';
+import { validateOutreachEnv } from '@robertcashman/firm-outreach-core';
+import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
 import { outreachRequireApproval } from '@/lib/firm-outreach/constants';
 import { getOutreachConfigStatus } from '@/lib/firm-outreach/config-status';
+import { countEmailJobsByStatus } from '@/lib/firm-outreach/email-jobs/storage';
+import { selectOutreachCandidates } from '@/lib/firm-outreach/outreach/candidate-selection';
 import { buildOutreachActivityReport } from '@/lib/firm-outreach/outreach/activity-report';
-import { isSendableReadyProspect } from '@/lib/firm-outreach/sendable-ready';
-import { FIRM_OUTREACH_CAMPAIGN_ID, OUTREACH_CAMPAIGN_IDS } from '@/lib/firm-outreach/site-config';
-import {
-  getDailySendCount,
-  getGlobalResendQuotaRemaining,
-  getIndexRedisType,
-  getProspect,
-  listProspectIdsByStatus,
-} from '@/lib/firm-outreach/storage';
+import { getLatestOutreachRunLog } from '@/lib/firm-outreach/storage';
+import { OUTREACH_CAMPAIGN_IDS } from '@/lib/firm-outreach/site-config';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-async function campaignQueueStats(campaignId: string, utcDate: string) {
-  const readyIds = await listProspectIdsByStatus('ready_to_send');
-  let ready = 0;
-  let sendableReady = 0;
-  let parkedCooldown = 0;
-  for (const id of readyIds) {
-    const p = await getProspect(id);
-    if (!p || p.campaignId !== campaignId) continue;
-    ready++;
-    if (isSendableReadyProspect(p)) sendableReady++;
-    else if (
-      p.excludedReason === 'firm_cooldown' ||
-      (p.nextEligibleAt && Date.parse(p.nextEligibleAt) > Date.now())
-    ) {
-      parkedCooldown++;
-    }
-  }
-  const sentToday = await getDailySendCount(utcDate, campaignId);
-  return { campaignId, ready, sendableReady, parkedCooldown, sentToday };
-}
-
-/** Outreach health — config, pause state, and queue summary for monitoring. */
+/** Outreach health — config, pause state, queue, and durable job summary. */
 export async function GET(request: Request) {
-  if (!isCronAuthorized(request)) {
+  if (!isOutreachBootstrapAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const utcDate = new Date().toISOString().slice(0, 10);
+  const envCheck = validateOutreachEnv();
   const config = await getOutreachConfigStatus();
   const { report } = await buildOutreachActivityReport();
-  const campaigns = [];
+  const jobCounts = await countEmailJobsByStatus();
+
+  const eligibility: Record<
+    string,
+    {
+      readyScanned: number;
+      readyEligible: number;
+      followUpEligible: number;
+      firmCooldownSkipped: number;
+      sendableCandidates: number;
+      lastRun?: unknown;
+    }
+  > = {};
+
   for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
-    campaigns.push(await campaignQueueStats(campaignId, utcDate));
+    const selection = await selectOutreachCandidates({
+      campaignId,
+      readyLimit: 500,
+      sentLimit: 200,
+    });
+    eligibility[campaignId] = {
+      readyScanned: selection.readyScanned,
+      readyEligible: selection.readyEligible,
+      followUpEligible: selection.followUpEligible,
+      firmCooldownSkipped: selection.firmCooldownSkipped,
+      sendableCandidates: selection.candidates.length,
+      lastRun: await getLatestOutreachRunLog(campaignId),
+    };
   }
-  const repuk = campaigns.find((c) => c.campaignId === FIRM_OUTREACH_CAMPAIGN_ID);
-  const psa = campaigns.find((c) => c.campaignId === AGENT_COVER_KENT_CAMPAIGN_ID);
-  const totalSendable = campaigns.reduce((n, c) => n + c.sendableReady, 0);
-  const totalReady = campaigns.reduce((n, c) => n + c.ready, 0);
-  const resendRemaining = await getGlobalResendQuotaRemaining(utcDate);
 
-  const readyIndexType = await getIndexRedisType('firmprospect:status:ready_to_send');
-  const discoveredIndexType = await getIndexRedisType('firmprospect:status:discovered');
-  const indexesOk = readyIndexType === 'set' && discoveredIndexType === 'set';
-
-  const warnings: string[] = [];
-  if (totalReady > 0 && totalSendable === 0) {
-    warnings.push('ready_queue_unsendable');
-  }
-  if ((psa?.ready ?? 0) === 0 && resendRemaining > 0) {
-    warnings.push('psa_ready_empty');
-  }
-  if (!indexesOk) {
-    warnings.push(`index_type_unexpected:ready=${readyIndexType},discovered=${discoveredIndexType}`);
-  }
+  const pendingJobs = jobCounts.pending ?? 0;
+  const processingJobs =
+    (jobCounts.claimed ?? 0) + (jobCounts.processing ?? 0);
+  const retryJobs = jobCounts.retry_scheduled ?? 0;
+  const permanentlyFailed = jobCounts.permanently_failed ?? 0;
 
   return NextResponse.json({
     ok:
@@ -78,24 +63,33 @@ export async function GET(request: Request) {
       config.resendConfigured &&
       config.outreachEnabled &&
       config.sendHealthy !== false &&
-      indexesOk,
-    date: utcDate,
-    warnings,
+      envCheck.ok,
+    date: new Date().toISOString().slice(0, 10),
     config: {
       ...config,
       requireApproval: outreachRequireApproval(),
+      dryRun: envCheck.dryRun,
+      envErrors: envCheck.errors,
+      envWarnings: envCheck.warnings,
     },
     queue: {
       readyToSend: report.summary.readyToSend,
-      sendableReady: totalSendable,
+      sendableReady: report.readyToSendProspects.filter((r) => !r.suppressed && r.email).length,
       sentToday: report.summary.sentToday,
       sentLast7Days: report.summary.sentLast7Days,
-      resendRemaining,
-      campaigns,
-      indexes: {
-        ready_to_send: readyIndexType,
-        discovered: discoveredIndexType,
-      },
+      /** Truly due for a send step (excludes not-due sent / stale ready). */
+      eligibility,
+    },
+    jobs: {
+      pending: pendingJobs,
+      processing: processingJobs,
+      retryScheduled: retryJobs,
+      accepted: jobCounts.accepted ?? 0,
+      delivered: jobCounts.delivered ?? 0,
+      bounced: jobCounts.bounced ?? 0,
+      complained: jobCounts.complained ?? 0,
+      permanentlyFailed,
+      byStatus: jobCounts,
     },
   });
 }

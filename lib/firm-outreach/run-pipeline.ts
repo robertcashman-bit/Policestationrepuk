@@ -16,7 +16,6 @@ import { isOutreachSendAllowed } from './pause-state';
 import { claimOutreachRunLock } from './run-lock';
 import { requalifyAllProspects } from './requalify-prospects';
 import { countProspectsByStatus } from './storage';
-import { reviveAgentCoverKentReady } from './revive-agent-cover-ready';
 import {
   syncKentProspectsToAgentCover,
   type SyncKentToAgentCoverStats,
@@ -131,17 +130,8 @@ export async function runFirmOutreachPipeline(opts?: {
     });
     requalify = await requalifyAllProspects();
   } else if (!opts?.skipSend) {
-    // Send-only ticks never ran discovery/sync — warm PSA ready queue cheaply first.
-    agentCoverSync = await syncKentProspectsToAgentCover({
-      limit: 200,
-      maxElapsedMs: 40_000,
-    }).catch((err) => {
-      console.warn('[firm-outreach pipeline] RepUK→PSA sync (send-only) failed:', err);
-      return undefined;
-    });
-    await reviveAgentCoverKentReady({ limit: 120, maxElapsedMs: 25_000 }).catch((err) => {
-      console.warn('[firm-outreach pipeline] PSA revive (send-only) failed:', err);
-    });
+    // Keep send ticks send-first. Nationwide RepUK→PSA refill belongs on
+    // /api/cron/firm-outreach-psa-sync (and maintain), not inside the 300s send budget.
   }
 
   if (!opts?.skipEnrich) {

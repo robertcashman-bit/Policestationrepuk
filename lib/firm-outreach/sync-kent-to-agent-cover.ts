@@ -165,10 +165,7 @@ export async function syncKentProspectsToAgentCover(opts?: {
       const built = buildProspectForCampaign(AGENT_COVER_KENT_CAMPAIGN_ID, toInput(p));
       if (!built) continue;
 
-      // Skip hard terminal RepUK statuses — but allow RepUK duplicate exclusions.
-      if (p.status === 'bounced' || p.status === 'unsubscribed') {
-        continue;
-      }
+      // Allow RepUK duplicate exclusions through — they are still valid PSA targets.
       if (p.status === 'excluded' && !isRepukOnlyExclusion(p.excludedReason)) {
         continue;
       }
@@ -188,12 +185,7 @@ export async function syncKentProspectsToAgentCover(opts?: {
       }
 
       // PSA is a separate campaign: promote to ready when we have a firm email.
-      if (
-        built.email &&
-        !built.lastEmailAt &&
-        p.status !== 'bounced' &&
-        p.status !== 'unsubscribed'
-      ) {
+      if (built.email && !built.lastEmailAt) {
         built.status = 'ready_to_send';
         built.excludedReason = undefined;
       }

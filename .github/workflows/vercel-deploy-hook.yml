@@ -192,13 +192,30 @@ jobs:
           API="https://api.vercel.com"
           AUTH="Authorization: Bearer ${VERCEL_TOKEN}"
 
+          # 409 "already the current production deployment" is success — alias is correct.
+          promote_production() {
+            set +e
+            OUT=$(vercel promote "$DEPLOY_URL" --yes --scope="$VERCEL_SCOPE" --timeout=15m --token="$VERCEL_TOKEN" 2>&1)
+            RC=$?
+            set -e
+            echo "$OUT"
+            if [ "$RC" -eq 0 ]; then
+              return 0
+            fi
+            if echo "$OUT" | grep -qiE 'already the current production deployment|is already production'; then
+              echo "Already current production deployment — treating promote as success"
+              return 0
+            fi
+            return "$RC"
+          }
+
           for i in $(seq 1 60); do
             STATE=$(curl -sS "${API}/v13/deployments/${HOST}?teamId=${VERCEL_ORG_ID}" \
               -H "${AUTH}" | jq -r '.readyState // "UNKNOWN"')
             echo "[$i/60] deployment state=${STATE}"
             if [ "$STATE" = "READY" ]; then
               echo "Deployment READY — explicitly promoting production alias"
-              vercel promote "$DEPLOY_URL" --yes --scope="$VERCEL_SCOPE" --timeout=15m --token="$VERCEL_TOKEN"
+              promote_production
               exit 0
             fi
             if [ "$STATE" = "ERROR" ] || [ "$STATE" = "CANCELED" ]; then
@@ -209,7 +226,7 @@ jobs:
           done
 
           echo "Still blocked after wait — attempting explicit promote"
-          vercel promote "$DEPLOY_URL" --yes --scope="$VERCEL_SCOPE" --timeout=15m --token="$VERCEL_TOKEN"
+          promote_production
 
       - name: Wait for production health endpoints
         run: |

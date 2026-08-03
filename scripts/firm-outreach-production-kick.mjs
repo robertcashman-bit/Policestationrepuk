@@ -2,6 +2,9 @@
 /**
  * Post-deploy production kick for firm outreach (used by GitHub Actions).
  *
+ * Runs after Deploy to Vercel (production) succeeds — including when promote
+ * reports the deployment is already production (alias already correct).
+ *
  * Usage:
  *   FIRM_OUTREACH_KICK_BASE_URL=https://policestationrepuk.org \
  *   CRON_SECRET=... node scripts/firm-outreach-production-kick.mjs

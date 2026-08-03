@@ -91,8 +91,10 @@ async function inspectSchedulerHealth(
     const cronLog = await getCronRunLog(job.name);
     const isBufferCritical =
       job.name === 'buffer-blog-posts' || job.name === 'buffer-verify';
+    // Fingerprints for buffer jobs use London scheduler day; execution-log
+    // day buckets are UTC (saveExecution uses startedAt.slice(0, 10)).
     const day = isBufferCritical ? schedulerDay : utcDay(now);
-    const execCount = await countExecutionsForDay(job.name, day);
+    const execCount = await countExecutionsForDay(job.name, utcDay(now));
     if (execCount > def.expectedExecutionsPerDay) {
       duplicatesPrevented += execCount - def.expectedExecutionsPerDay;
       issues.push({

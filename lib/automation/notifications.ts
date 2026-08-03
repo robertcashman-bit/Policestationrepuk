@@ -261,6 +261,11 @@ export async function resolveIncident(input: {
     return { resolved: false, emailSent: false };
   }
 
+  // Dry-run must not mutate incident state (tests / admin previews).
+  if (input.dryRun) {
+    return { resolved: true, emailSent: false };
+  }
+
   const config = getAutomationConfig();
   const now = new Date().toISOString();
   existing.status = 'resolved';

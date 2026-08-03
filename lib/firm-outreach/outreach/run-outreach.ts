@@ -331,9 +331,10 @@ export async function runFirmOutreach(opts?: {
 
   // Phase 1: drain pending jobs first so backlog is not starved by enqueue.
   const owner = `${runId}:${campaignId}`;
-  const claimAndProcessUntil = async (untilMs: number) => {
+  const hardDeadline = started + maxElapsedMs;
+  const claimAndProcessUntil = async (deadlineMs: number) => {
     while (stats.sent < remaining) {
-      if (Date.now() - started >= untilMs) {
+      if (Date.now() >= deadlineMs) {
         stats.partial = true;
         break;
       }
@@ -539,13 +540,17 @@ export async function runFirmOutreach(opts?: {
   }
   };
 
-  await claimAndProcessUntil(started + Math.max(45_000, Math.floor(maxElapsedMs * 0.55)));
+  await claimAndProcessUntil(
+    Math.min(hardDeadline, started + Math.max(45_000, Math.floor(maxElapsedMs * 0.55))),
+  );
 
   // Phase 2: enqueue durable jobs for eligible prospects (idempotent).
-  // Time-boxed so claim/send retains wall-clock after this pass.
-  const enqueueUntil = started + Math.max(30_000, Math.floor(maxElapsedMs * 0.45));
+  // Sequential budget from phase-2 start so a long drain cannot expire enqueue
+  // before it begins; still capped by the overall hard deadline.
+  const enqueueBudgetMs = Math.max(30_000, Math.floor(maxElapsedMs * 0.45));
+  const enqueueUntil = Math.min(hardDeadline, Date.now() + enqueueBudgetMs);
   for (const { prospect, step } of selection.candidates) {
-    if (Date.now() - started >= Math.min(maxElapsedMs, enqueueUntil)) {
+    if (Date.now() >= enqueueUntil) {
       stats.partial = true;
       break;
     }
@@ -655,7 +660,7 @@ export async function runFirmOutreach(opts?: {
   }
 
   // Phase 3: claim newly enqueued jobs with remaining time.
-  await claimAndProcessUntil(started + maxElapsedMs);
+  await claimAndProcessUntil(hardDeadline);
 
   const finalQuota = await getGlobalResendQuotaRemaining(date);
   return finish(finalQuota, alreadySent, dailyCap);

@@ -61,7 +61,7 @@ export async function triggerSiblingBufferSchedule(
     } catch {
       okFlag = undefined;
     }
-    const verified = res.ok && okFlag !== false;
+    const verified = res.ok && okFlag === true;
     logAutomationEvent('crosssite.sibling.remote_schedule', {
       siteId: site.id,
       status: res.status,

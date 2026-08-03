@@ -106,17 +106,32 @@ async function getProjectName() {
 }
 
 async function redeployLatestProduction() {
+  const wantSha = process.env.FIRM_OUTREACH_KICK_COMMIT_SHA?.trim() || '';
   const list = await vercelJson('/v6/deployments', {
-    query: { projectId, target: 'production', limit: 5 },
+    query: { projectId, target: 'production', limit: 15 },
   });
   const deployments = list.deployments || [];
-  const ready = deployments.find((d) => d.readyState === 'READY') || deployments[0];
+  const bySha = wantSha
+    ? deployments.find(
+        (d) =>
+          d.readyState === 'READY' &&
+          (d.meta?.githubCommitSha === wantSha ||
+            String(d.meta?.githubCommitSha || '').startsWith(wantSha.slice(0, 7))),
+      )
+    : null;
+  const ready =
+    bySha ||
+    deployments.find((d) => d.readyState === 'READY') ||
+    deployments[0];
   if (!ready?.uid && !ready?.id) {
     throw new Error('No production deployment found to redeploy');
   }
   const id = ready.uid || ready.id;
   const name = await getProjectName();
-  console.log(`Redeploying production deployment ${id} (project=${name})`);
+  const shaLabel = ready.meta?.githubCommitSha?.slice(0, 7) || 'unknown';
+  console.log(
+    `Redeploying production deployment ${id} sha=${shaLabel} (project=${name}${wantSha ? `; prefer=${wantSha.slice(0, 7)}` : ''})`,
+  );
   // Correct redeploy path: POST /v13/deployments with deploymentId (+ forceNew).
   const redeploy = await vercelJson('/v13/deployments', {
     method: 'POST',
@@ -137,7 +152,29 @@ async function redeployLatestProduction() {
     const dep = await vercelJson(`/v13/deployments/${newId}`);
     const state = dep.readyState || dep.status;
     console.log(`Redeploy state=${state}`);
-    if (state === 'READY') return;
+    if (state === 'READY') {
+      // Confirm the production alias still reports the intended commit when known.
+      if (wantSha) {
+        try {
+          const health = await fetch('https://policestationrepuk.org/api/health');
+          const json = await health.json();
+          const ver = String(json?.version || '');
+          if (ver && ver !== wantSha.slice(0, 7)) {
+            console.warn(
+              `Redeploy READY but /api/health version=${ver} want=${wantSha.slice(0, 7)} — alias may lag`,
+            );
+          } else {
+            console.log(`Redeploy READY; /api/health version=${ver || 'n/a'}`);
+          }
+        } catch (err) {
+          console.warn(
+            'Could not verify /api/health after redeploy:',
+            err instanceof Error ? err.message : err,
+          );
+        }
+      }
+      return;
+    }
     if (state === 'ERROR' || state === 'CANCELED') {
       throw new Error(`Redeploy failed: ${state}`);
     }

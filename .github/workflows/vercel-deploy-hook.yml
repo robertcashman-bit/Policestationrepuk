@@ -197,7 +197,8 @@ jobs:
               -H "${AUTH}" | jq -r '.readyState // "UNKNOWN"')
             echo "[$i/60] deployment state=${STATE}"
             if [ "$STATE" = "READY" ]; then
-              echo "Deployment promoted"
+              echo "Deployment READY — explicitly promoting production alias"
+              vercel promote "$DEPLOY_URL" --yes --scope="$VERCEL_SCOPE" --timeout=15m --token="$VERCEL_TOKEN"
               exit 0
             fi
             if [ "$STATE" = "ERROR" ] || [ "$STATE" = "CANCELED" ]; then

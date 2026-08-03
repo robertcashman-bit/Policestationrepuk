@@ -175,7 +175,7 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
   },
   // Second flush catches anything enrich just promoted into ready_to_send.
   {
-    path: '/api/cron/firm-outreach-send?limit=150',
+    path: '/api/cron/firm-outreach-send?limit=150&force=1',
     label: 'Send flush 2 (remaining safe capacity)',
   },
 ];

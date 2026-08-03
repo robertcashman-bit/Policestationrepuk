@@ -36,7 +36,8 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const paramLimit = Number(url.searchParams.get('limit') || 0);
   const sendLimit = paramLimit > 0 ? paramLimit : cronSendBatchSize();
-  // Kick / ops: clear a stuck send lock left by older builds that never released.
+  // Kick / ops only: clear a stuck send lock left by older builds that never released.
+  // Do not auto-clear on normal cron overlap — that can steal a live holder's lock.
   let forceClearedLock = false;
   if (url.searchParams.get('force') === '1') {
     forceClearedLock = await forceClearOutreachRunLock('send');
@@ -49,27 +50,6 @@ export async function GET(request: Request) {
     skipCounts: true,
     sendLimit,
   });
-
-  // If we hit a false overlap without force, clear + retry once (bootstrap kicks).
-  if (result.send?.skippedReason === 'overlap' && url.searchParams.get('force') !== '1') {
-    await forceClearOutreachRunLock('send');
-    const retry = await runFirmOutreachPipeline({
-      skipDiscovery: true,
-      skipEnrich: true,
-      skipDigest: true,
-      skipCleanup: true,
-      skipCounts: true,
-      sendLimit,
-    });
-    return NextResponse.json({
-      ok: true,
-      mode: 'send-only',
-      warnings: envCheck.warnings,
-      forceClearedLock: true,
-      retriedAfterOverlap: true,
-      ...retry,
-    });
-  }
 
   return NextResponse.json({
     ok: true,

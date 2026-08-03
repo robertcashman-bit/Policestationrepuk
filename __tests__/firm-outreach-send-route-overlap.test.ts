@@ -28,43 +28,39 @@ vi.mock('@/lib/firm-outreach/run-pipeline', () => ({
 
 import { GET } from '@/app/api/cron/firm-outreach-send/route';
 
-describe('firm-outreach-send overlap recovery', () => {
+describe('firm-outreach-send lock clearing', () => {
   beforeEach(() => {
     mocks.forceClear.mockClear();
     mocks.pipeline.mockReset();
   });
 
-  it('retries once after clearing lock when first pass reports overlap', async () => {
-    mocks.pipeline
-      .mockResolvedValueOnce({
-        skipped: false,
-        send: { skippedReason: 'overlap', sent: 0, queued: 0, skipped: 0, suppressed: 0, errors: 0, elapsedMs: 10 },
-        laa: { refreshed: false, source: 'none', count: 0 },
-        dscc: { count: 0, syncedAt: null },
-        discovery: {},
-        requalify: {},
-        enrich: {},
-        counts: {},
+  it('does not steal a live lock on normal cron overlap', async () => {
+    mocks.pipeline.mockResolvedValue({
+      skipped: false,
+      send: {
+        skippedReason: 'overlap',
+        sent: 0,
+        queued: 0,
+        skipped: 0,
+        suppressed: 0,
+        errors: 0,
         elapsedMs: 10,
-      })
-      .mockResolvedValueOnce({
-        skipped: false,
-        send: { sent: 5, queued: 5, skipped: 0, suppressed: 0, errors: 0, elapsedMs: 1000 },
-        laa: { refreshed: false, source: 'none', count: 0 },
-        dscc: { count: 0, syncedAt: null },
-        discovery: {},
-        requalify: {},
-        enrich: {},
-        counts: {},
-        elapsedMs: 1000,
-      });
+      },
+      laa: { refreshed: false, source: 'none', count: 0 },
+      dscc: { count: 0, syncedAt: null },
+      discovery: {},
+      requalify: {},
+      enrich: {},
+      counts: {},
+      elapsedMs: 10,
+    });
 
     const res = await GET(new Request('https://example.com/api/cron/firm-outreach-send?limit=10'));
     const body = await res.json();
-    expect(mocks.pipeline).toHaveBeenCalledTimes(2);
-    expect(mocks.forceClear).toHaveBeenCalledWith('send');
-    expect(body.retriedAfterOverlap).toBe(true);
-    expect(body.send.sent).toBe(5);
+    expect(mocks.forceClear).not.toHaveBeenCalled();
+    expect(mocks.pipeline).toHaveBeenCalledTimes(1);
+    expect(body.send.skippedReason).toBe('overlap');
+    expect(body.retriedAfterOverlap).toBeUndefined();
   });
 
   it('force=1 clears lock before the first pipeline run', async () => {
@@ -87,6 +83,5 @@ describe('firm-outreach-send overlap recovery', () => {
     expect(mocks.forceClear).toHaveBeenCalledWith('send');
     expect(mocks.pipeline).toHaveBeenCalledTimes(1);
     expect(body.forceClearedLock).toBe(true);
-    expect(body.retriedAfterOverlap).toBeUndefined();
   });
 });

@@ -47,6 +47,21 @@ export async function releaseOutreachRunLock(
   }
 }
 
+/**
+ * Operator/kick escape hatch: delete a stuck run lock (e.g. pre-release builds
+ * that claimed without releasing). Prefer normal release with owner token.
+ */
+export async function forceClearOutreachRunLock(mode: OutreachRunMode): Promise<boolean> {
+  const kv = getKV();
+  if (!kv) return false;
+  try {
+    await kv.del(runLockKey(mode));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Prevent duplicate concurrent sends for the same prospect. Returns owner token. */
 export async function claimProspectSend(prospectId: string): Promise<string | null> {
   const token = newLockToken();

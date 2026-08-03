@@ -115,7 +115,8 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     optional: true,
   },
   {
-    path: '/api/cron/firm-outreach-send?limit=150',
+    // force=1 clears a stuck send lock from older builds that never released.
+    path: '/api/cron/firm-outreach-send?limit=150&force=1',
     label: 'Send flush 1 (whatsapp_invite_v1 + agent_cover_kent_v1)',
   },
   // Immediate second pass while Resend quota remains — large ready queues (200+)

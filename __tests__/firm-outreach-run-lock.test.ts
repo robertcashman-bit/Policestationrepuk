@@ -20,6 +20,7 @@ vi.mock('@/lib/kv', () => ({
 import {
   claimOutreachRunLock,
   claimProspectSend,
+  forceClearOutreachRunLock,
   releaseOutreachRunLock,
   releaseProspectSend,
 } from '@/lib/firm-outreach/run-lock';
@@ -60,5 +61,12 @@ describe('outreach run locks', () => {
     expect(await claimProspectSend('p1')).toBeNull();
     await releaseProspectSend('p1', token!);
     expect(await claimProspectSend('p1')).toBeTruthy();
+  });
+
+  it('force-clears a stuck send lock for kick recovery', async () => {
+    const token = await claimOutreachRunLock('send');
+    expect(token).toBeTruthy();
+    expect(await forceClearOutreachRunLock('send')).toBe(true);
+    expect(await claimOutreachRunLock('send')).toBeTruthy();
   });
 });

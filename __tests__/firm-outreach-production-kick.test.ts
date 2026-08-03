@@ -95,6 +95,7 @@ describe('runProductionKickSteps', () => {
     );
     expect(sends).toHaveLength(3);
     expect(sends.filter((s) => !s.optional)).toHaveLength(2);
+    expect(sends[0]?.path).toContain('force=1');
     expect(sends.some((s) => s.optional && s.label.includes('flush 1b'))).toBe(true);
     expect(dryRunIdx).toBeGreaterThan(0);
     expect(firstSendIdx).toBeLessThan(requalifyIdx);

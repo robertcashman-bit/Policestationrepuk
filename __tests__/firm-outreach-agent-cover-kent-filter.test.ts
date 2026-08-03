@@ -32,7 +32,11 @@ describe('filterAgentCoverKentInputs', () => {
       },
     ];
 
-    const kept = filterAgentCoverKentInputs(inputs, kentLaa).map((i) => i.firmName);
-    expect(kept).toEqual(['Maidstone Solicitors', 'Kent Crime Defence LLP']);
+    const kept = filterAgentCoverKentInputs(inputs, kentLaa);
+    expect(kept.map((i) => `${i.prospectType}:${i.firmName}`)).toEqual([
+      'firm:Maidstone Solicitors',
+      'firm:Kent Crime Defence LLP',
+      'solicitor:Kent Crime Defence LLP',
+    ]);
   });
 });

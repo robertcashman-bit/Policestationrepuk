@@ -20,6 +20,7 @@ import { acquireJobLock, clearExpiredJobLock, getJobLock, releaseJobLock } from 
 import {
   buildIncidentFingerprint,
   notifyIncident,
+  resolveIncident,
   sendDailyHealthReportEmail,
 } from './notifications';
 import { logAutomationEvent } from './observability';
@@ -61,6 +62,9 @@ async function inspectSchedulerHealth(
   let duplicatesPrevented = 0;
   const jobs = await ensureAllJobsRegistered();
   let bufferDayQuotaMet: boolean | null = null;
+  const timezone = getSchedulerTimezone();
+  // Buffer jobs use Europe/London local dates (matches watchdog + schedule engine).
+  const schedulerDay = localDateInTimezone(now, timezone);
 
   async function isBufferDayQuotaMet(): Promise<boolean> {
     if (bufferDayQuotaMet !== null) return bufferDayQuotaMet;
@@ -85,8 +89,12 @@ async function inspectSchedulerHealth(
     if (!def) continue;
 
     const cronLog = await getCronRunLog(job.name);
-    const day = utcDay(now);
-    const execCount = await countExecutionsForDay(job.name, day);
+    const isBufferCritical =
+      job.name === 'buffer-blog-posts' || job.name === 'buffer-verify';
+    // Fingerprints for buffer jobs use London scheduler day; execution-log
+    // day buckets are UTC (saveExecution uses startedAt.slice(0, 10)).
+    const day = isBufferCritical ? schedulerDay : utcDay(now);
+    const execCount = await countExecutionsForDay(job.name, utcDay(now));
     if (execCount > def.expectedExecutionsPerDay) {
       duplicatesPrevented += execCount - def.expectedExecutionsPerDay;
       issues.push({
@@ -130,8 +138,6 @@ async function inspectSchedulerHealth(
             cronLog.outcome === 'partial') &&
           Date.parse(cronLog.finishedAt) >= windowStart;
         if (!cronOk) {
-          const isBufferCritical =
-            job.name === 'buffer-blog-posts' || job.name === 'buffer-verify';
           if (isBufferCritical && (await isBufferDayQuotaMet())) {
             logAutomationEvent('automation.job.missed', {
               jobName: job.name,
@@ -281,18 +287,28 @@ export async function runDailyHealthcheck(
       });
     }
 
-    const { failedJobs, duplicatesPrevented } = await inspectSchedulerHealth(now, issues);
-
     let bufferExpected = getSchedulerPostsPerFeed();
     let bufferActual = 0;
+    let bufferTodayOk = false;
     if (config.bufferHealthcheckEnabled) {
       const probe = await probeBufferCredentials();
       issues.push(...probe.issues);
 
-      const bufferRepair = await repairBufferSchedule({ dryRun, now });
+      // Gap-fill BEFORE missed-window inspection so a late morning heal is not
+      // reported as an unresolved buffer-blog-posts miss (healthcheck is 07:15 UTC;
+      // window end is 07:00 UTC).
+      const bufferRepair = await repairBufferSchedule({
+        dryRun,
+        now,
+        // Authoritative daily heal path — do not require AUTO_REPAIR_ENABLED.
+        forceLive: !dryRun,
+      });
       repairs.push(...bufferRepair.repairs);
       bufferExpected = bufferRepair.todayRequired || bufferExpected;
       bufferActual = bufferRepair.yesterdaySent;
+      bufferTodayOk =
+        bufferRepair.todayRequired > 0 &&
+        bufferRepair.todayScheduled >= bufferRepair.todayRequired;
       // Prefer yesterday published count for the report date; also note today schedule.
       if (!bufferRepair.yesterdayOk && bufferRepair.yesterdayProblems > 0) {
         issues.push({
@@ -312,6 +328,31 @@ export async function runDailyHealthcheck(
       }
     }
 
+    // Inspect after Buffer repair so quota-met suppresses false "missed" issues.
+    const { failedJobs, duplicatesPrevented } = await inspectSchedulerHealth(now, issues);
+
+    if (bufferTodayOk) {
+      const cleared = ['buffer-blog-posts-missed', 'buffer-verify-missed'] as const;
+      for (let i = issues.length - 1; i >= 0; i--) {
+        if (cleared.includes(issues[i]!.id as (typeof cleared)[number])) {
+          const fp = issues[i]!.fingerprint;
+          issues.splice(i, 1);
+          await resolveIncident({
+            fingerprint: fp,
+            executionId,
+            dryRun,
+            sendResolutionEmail: false,
+            summary: 'Buffer day quota met after healthcheck gap-fill',
+          });
+        }
+      }
+      for (let i = failedJobs.length - 1; i >= 0; i--) {
+        if (failedJobs[i] === 'buffer-blog-posts' || failedJobs[i] === 'buffer-verify') {
+          failedJobs.splice(i, 1);
+        }
+      }
+    }
+
     let crossSiteExpected = 20;
     let crossSiteActual = 0;
     if (config.crossSiteHealthcheckEnabled) {
@@ -319,18 +360,41 @@ export async function runDailyHealthcheck(
         dryRun,
         date: reportDate,
         now,
+        // Heal sibling self-schedulers from REPUK when CRON_SECRET is shared.
+        forceRemoteRepair: !dryRun,
       });
       repairs.push(...cross.repairs);
       issues.push(...cross.issues);
       crossSiteExpected = cross.expected;
       crossSiteActual = cross.actual;
+
+      // Resolve prior sibling incidents when today's remote schedule succeeded.
+      for (const repair of cross.repairs) {
+        if (repair.kind !== 'crosssite_sibling_remote_schedule' || !repair.verified) {
+          continue;
+        }
+        const categories = ['quota_supply', 'scheduler'] as const;
+        for (const category of categories) {
+          const fingerprint = buildIncidentFingerprint({
+            jobName: 'buffer-cross-site-report',
+            category,
+            accountOrDestination: repair.target,
+            scheduledDate: reportDate,
+          });
+          await resolveIncident({
+            fingerprint,
+            executionId,
+            dryRun,
+            sendResolutionEmail: !dryRun,
+            summary: `Sibling today schedule remote-triggered (${repair.summary})`,
+          });
+        }
+      }
     }
 
     // Notify / resolve incidents
-    const openFingerprints = new Set<string>();
     for (const issue of issues) {
       if (issue.severity === 'info') continue;
-      openFingerprints.add(issue.fingerprint);
       // Immediate alert only for human-required critical issues; others go in daily report.
       if (issue.requiresHumanAction && (issue.severity === 'critical' || issue.severity === 'error')) {
         const result = await notifyIncident({

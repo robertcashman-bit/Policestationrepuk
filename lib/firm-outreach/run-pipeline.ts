@@ -13,7 +13,7 @@ import {
   runFirmOutreachAllCampaigns,
 } from './outreach/run-outreach';
 import { isOutreachSendAllowed } from './pause-state';
-import { claimOutreachRunLock } from './run-lock';
+import { claimOutreachRunLock, releaseOutreachRunLock } from './run-lock';
 import { requalifyAllProspects } from './requalify-prospects';
 import { countProspectsByStatus } from './storage';
 import type {
@@ -116,21 +116,25 @@ export async function runFirmOutreachPipeline(opts?: {
   }
 
   if (!opts?.skipEnrich) {
-    const enrichLocked = await claimOutreachRunLock('enrich');
-    if (!enrichLocked) {
+    const enrichLockToken = await claimOutreachRunLock('enrich');
+    if (!enrichLockToken) {
       enrich = { ...emptyEnrich(), skippedReason: 'overlap' };
     } else {
-    const enrichLimit = opts?.enrichLimit ?? (opts?.skipSend ? 120 : 60);
-    enrich = await runFirmEnrichment({
-      limit: enrichLimit,
-      maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
-    });
-    const kentLimit = Math.min(15, Math.max(1, Math.floor(enrichLimit / 4)));
-    agentCoverEnrich = await runFirmEnrichment({
-      campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-      limit: kentLimit,
-      maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
-    });
+      try {
+        const enrichLimit = opts?.enrichLimit ?? (opts?.skipSend ? 120 : 60);
+        enrich = await runFirmEnrichment({
+          limit: enrichLimit,
+          maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
+        });
+        const kentLimit = Math.min(15, Math.max(1, Math.floor(enrichLimit / 4)));
+        agentCoverEnrich = await runFirmEnrichment({
+          campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+          limit: kentLimit,
+          maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
+        });
+      } finally {
+        await releaseOutreachRunLock('enrich', enrichLockToken);
+      }
     }
   }
 
@@ -141,22 +145,25 @@ export async function runFirmOutreachPipeline(opts?: {
     opts?.skipSend || !outreachSendEnabled() || !sendAllowed
       ? emptyOutreachRunStats()
       : await (async () => {
-          const locked = await claimOutreachRunLock('send');
-          if (!locked) {
+          const sendLockToken = await claimOutreachRunLock('send');
+          if (!sendLockToken) {
             const skipped = emptyOutreachRunStats();
             skipped.skippedReason = 'overlap';
             return skipped;
           }
-          // Send both RepUK WhatsApp invites and PSA agent-cover Kent emails.
-          const multi = await runFirmOutreachAllCampaigns({
-            limit: opts?.sendLimit,
-            maxElapsedMs: 240_000,
-          });
-          sendByCampaign = multi.byCampaign;
-          agentCoverSend = multi.byCampaign[AGENT_COVER_KENT_CAMPAIGN_ID];
-          return multi.combined;
+          try {
+            // Send both RepUK WhatsApp invites and PSA agent-cover Kent emails.
+            const multi = await runFirmOutreachAllCampaigns({
+              limit: opts?.sendLimit,
+              maxElapsedMs: 240_000,
+            });
+            sendByCampaign = multi.byCampaign;
+            agentCoverSend = multi.byCampaign[AGENT_COVER_KENT_CAMPAIGN_ID];
+            return multi.combined;
+          } finally {
+            await releaseOutreachRunLock('send', sendLockToken);
+          }
         })();
-
   const counts = opts?.skipCounts ? {} : await countProspectsByStatus();
 
   if (!opts?.skipSend && !opts?.skipCounts) {

@@ -69,13 +69,15 @@ describe('runProductionKickSteps', () => {
     expect(DEFAULT_PRODUCTION_KICK_STEPS[0]?.optional).toBe(true);
   });
 
-  it('heals Buffer quota, backfills delivery, then requires pre-flight probes before flush', () => {
+  it('heals Buffer quota, sibling remotes, backfills delivery, then requires probes before flush', () => {
     expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.path).toBe('/api/cron/buffer-verify');
     expect(DEFAULT_PRODUCTION_KICK_STEPS[1]?.optional).toBe(true);
-    expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.path).toContain('firm-outreach-backfill-delivery');
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.path).toBe('/api/cron/buffer-sibling-repair');
     expect(DEFAULT_PRODUCTION_KICK_STEPS[2]?.optional).toBe(true);
-    expect(DEFAULT_PRODUCTION_KICK_STEPS[3]?.path).toBe('/api/cron/firm-outreach-probe');
-    expect(DEFAULT_PRODUCTION_KICK_STEPS[3]?.optional).toBeFalsy();
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[3]?.path).toContain('firm-outreach-backfill-delivery');
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[3]?.optional).toBe(true);
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[4]?.path).toBe('/api/cron/firm-outreach-probe');
+    expect(DEFAULT_PRODUCTION_KICK_STEPS[4]?.optional).toBeFalsy();
   });
 
   it('flushes early (required) then again after enrich', () => {
@@ -93,6 +95,7 @@ describe('runProductionKickSteps', () => {
     );
     expect(sends).toHaveLength(3);
     expect(sends.filter((s) => !s.optional)).toHaveLength(2);
+    expect(sends[0]?.path).toContain('force=1');
     expect(sends.some((s) => s.optional && s.label.includes('flush 1b'))).toBe(true);
     expect(dryRunIdx).toBeGreaterThan(0);
     expect(firstSendIdx).toBeLessThan(requalifyIdx);
@@ -116,10 +119,10 @@ describe('runProductionKickSteps', () => {
     });
 
     expect(failed).toBe(true);
-    // status + buffer-verify + backfill (optional) + failed required probe
-    expect(results).toHaveLength(4);
-    expect(results[3]?.path).toBe('/api/cron/firm-outreach-probe');
-    expect(results[3]?.ok).toBe(false);
+    // status + buffer-verify + sibling-repair + backfill (optional) + failed required probe
+    expect(results).toHaveLength(5);
+    expect(results[4]?.path).toBe('/api/cron/firm-outreach-probe');
+    expect(results[4]?.ok).toBe(false);
   });
 
   it('fails when required enrich batch is non-200', async () => {

@@ -30,12 +30,15 @@ export async function recoverEnrichPool(opts?: {
   nowMs?: number;
   maxRetire?: number;
   maxRequeue?: number;
+  /** Bypass NO_EMAIL_RETRY_DAYS (bootstrap / seedAgentCover inventory unstick). */
+  forceRequeueNoEmail?: boolean;
 }): Promise<RecoverEnrichPoolResult> {
   const campaignId = opts?.campaignId ?? activeOutreachCampaignId();
   const now = opts?.nowMs ?? Date.now();
   const maxRetire = opts?.maxRetire ?? 200;
   const maxRequeue = opts?.maxRequeue ?? 100;
   const campaignOpts = { campaignId };
+  const forceRequeue = Boolean(opts?.forceRequeueNoEmail);
 
   let retiredExhaustedDiscovered = 0;
   let requeuedStaleNoEmail = 0;
@@ -65,7 +68,12 @@ export async function recoverEnrichPool(opts?: {
       if (requeuedStaleNoEmail >= maxRequeue) break;
       const p = map.get(id);
       if (!p) continue;
-      if (daysSinceIso(p.lastEnrichAttemptAt, now) < NO_EMAIL_RETRY_DAYS) continue;
+      if (
+        !forceRequeue &&
+        daysSinceIso(p.lastEnrichAttemptAt, now) < NO_EMAIL_RETRY_DAYS
+      ) {
+        continue;
+      }
       if (!opts?.dryRun) {
         p.status = 'discovered';
         p.enrichAttempts = 0;

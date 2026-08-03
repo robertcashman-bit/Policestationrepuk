@@ -29,6 +29,8 @@ import {
   excludeProspectDuplicateEmail,
   getDailySendCount,
   getGlobalResendQuotaRemaining,
+  getSuppression,
+  getSuppressionsByEmails,
   incrementResendSendCount,
   isDuplicateInitialSend,
   isSuppressed,
@@ -41,7 +43,12 @@ import {
   saveSend,
   utcHourBucket,
 } from '../storage';
-import type { FirmProspect, OutreachRunStats } from '../types';
+import type {
+  FirmProspect,
+  FirmProspectStatus,
+  OutreachRunStats,
+  SuppressionReason,
+} from '../types';
 import { assertOutreachSendReady } from './from-address';
 import {
   firmRecentlyContacted,
@@ -54,10 +61,18 @@ import {
   recordSkip,
 } from './run-log';
 import { sendOutreachEmail } from './send';
-import { claimProspectSend } from '../run-lock';
+import { claimProspectSend, releaseProspectSend } from '../run-lock';
 import crypto from 'crypto';
 
 const DEFAULT_MAX_ELAPSED_MS = 240_000;
+
+function prospectStatusForSuppression(
+  reason: SuppressionReason | undefined,
+): FirmProspectStatus {
+  if (reason === 'bounce') return 'bounced';
+  if (reason === 'joined') return 'joined_whatsapp';
+  return 'unsubscribed';
+}
 
 /** Prospects in ready/sent were MX-checked at enrich/requalify; skip DNS on send ticks. */
 function emailPrevalidatedForSend(prospect: FirmProspect): boolean {
@@ -245,6 +260,33 @@ export async function runFirmOutreach(opts?: {
     sentLimit: 500,
   });
 
+  // Drop suppressed addresses before enqueue/attempt accounting so sendable
+  // inventory is not starved by demotion of already-blocked rows.
+  const candidateEmails = selection.candidates
+    .map((c) => c.prospect.email?.trim())
+    .filter(Boolean) as string[];
+  const suppressionMap = await getSuppressionsByEmails(candidateEmails);
+  const eligibleCandidates = selection.candidates.filter((c) => {
+    const email = c.prospect.email?.trim();
+    if (!email) return true;
+    return !suppressionMap.has(normalizeEmail(email));
+  });
+  const prefilteredSuppressed = selection.candidates.length - eligibleCandidates.length;
+  if (prefilteredSuppressed > 0) {
+    stats.suppressed += prefilteredSuppressed;
+    for (const { prospect } of selection.candidates) {
+      const email = prospect.email?.trim();
+      if (!email) continue;
+      const suppression = suppressionMap.get(normalizeEmail(email));
+      if (!suppression) continue;
+      if (prospect.status === 'ready_to_send' || prospect.status === 'sent') {
+        prospect.status = prospectStatusForSuppression(suppression.reason);
+        prospect.updatedAt = new Date().toISOString();
+        await saveProspect(prospect);
+      }
+    }
+  }
+
   structuredRunLog('info', 'outreach.run.selection', {
     runId,
     campaignId,
@@ -254,6 +296,8 @@ export async function runFirmOutreach(opts?: {
     followUpEligible: selection.followUpEligible,
     firmCooldownSkipped: selection.firmCooldownSkipped,
     candidates: selection.candidates.length,
+    eligibleAfterSuppression: eligibleCandidates.length,
+    prefilteredSuppressed,
     remaining,
     dryRun,
   });
@@ -269,7 +313,7 @@ export async function runFirmOutreach(opts?: {
 
   // Dry-run: evaluate gates and simulate sends without writing jobs or calling provider for real.
   if (dryRun) {
-    for (const { prospect, step } of selection.candidates) {
+    for (const { prospect, step } of eligibleCandidates) {
       if (stats.sent >= remaining) break;
       if (Date.now() - started >= maxElapsedMs) {
         stats.partial = true;
@@ -287,7 +331,6 @@ export async function runFirmOutreach(opts?: {
       }
       if (await isSuppressed(email)) {
         stats.suppressed++;
-        stats.attempted = (stats.attempted ?? 0) + 1;
         continue;
       }
       if (
@@ -329,9 +372,240 @@ export async function runFirmOutreach(opts?: {
     return finish(globalQuota, alreadySent, dailyCap);
   }
 
-  // Phase 1: enqueue durable jobs for eligible prospects (idempotent).
-  for (const { prospect, step } of selection.candidates) {
-    if (Date.now() - started >= maxElapsedMs) {
+  // Phase 1: drain pending jobs first so backlog is not starved by enqueue.
+  const owner = `${runId}:${campaignId}`;
+  const hardDeadline = started + maxElapsedMs;
+  const claimAndProcessUntil = async (deadlineMs: number) => {
+    while (stats.sent < remaining) {
+      if (Date.now() >= deadlineMs) {
+        stats.partial = true;
+        break;
+      }
+    if (resendQuota <= 0) {
+      recordSkip(stats, 'resend_quota');
+      break;
+    }
+
+    const job = await claimNextEmailJob({ owner, campaignId });
+    if (!job) break;
+
+    stats.jobsClaimed = (stats.jobsClaimed ?? 0) + 1;
+    stats.attempted = (stats.attempted ?? 0) + 1;
+
+    const prospect = await (
+      await import('../storage')
+    ).getProspect(job.prospectId);
+    if (!prospect) {
+      await markJobRetryOrPermanent(job, {
+        error: 'prospect_missing',
+        retryable: false,
+        delayMs: 0,
+      });
+      stats.permanentlyFailed = (stats.permanentlyFailed ?? 0) + 1;
+      continue;
+    }
+
+    if (await isSuppressed(job.email)) {
+      await markJobSuppressed(job, 'suppressed');
+      stats.suppressed++;
+      const suppression = await getSuppression(job.email);
+      prospect.status = prospectStatusForSuppression(suppression?.reason);
+      await saveProspect(prospect);
+      continue;
+    }
+
+    let dailyReserved = false;
+    let hourlyReserved = false;
+    let providerAccepted = false;
+    let prospectSendToken: string | null = null;
+    try {
+      const daily = await reserveDailySendSlot(date, campaignId, dailyCap);
+      if (!daily.ok) {
+        recordSkip(stats, 'daily_cap');
+        await requeueClaimedJob(job, {
+          status: 'pending',
+          nextRetryAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+          previousStatus: 'claimed',
+          lastError: 'daily_cap',
+        });
+        stats.retryScheduled = (stats.retryScheduled ?? 0) + 1;
+        break;
+      }
+      dailyReserved = true;
+
+      if (hourCap > 0) {
+        const hourly = await reserveHourlySendSlot(campaignId, hourBucket, hourCap);
+        if (!hourly.ok) {
+          await releaseDailySendSlot(date, campaignId);
+          dailyReserved = false;
+          recordSkip(stats, 'hourly_cap');
+          await requeueClaimedJob(job, {
+            status: 'retry_scheduled',
+            nextRetryAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+            previousStatus: 'claimed',
+            lastError: 'hourly_cap',
+          });
+          stats.retryScheduled = (stats.retryScheduled ?? 0) + 1;
+          break;
+        }
+        hourlyReserved = true;
+      }
+
+      prospectSendToken = await claimProspectSend(prospect.id);
+      if (!prospectSendToken) {
+        if (dailyReserved) await releaseDailySendSlot(date, campaignId);
+        if (hourlyReserved) await releaseHourlySendSlot(campaignId, hourBucket);
+        recordSkip(stats, 'job_claim_failed');
+        await requeueClaimedJob(job, {
+          status: 'pending',
+          nextRetryAt: new Date().toISOString(),
+          previousStatus: 'claimed',
+          lastError: 'prospect_claim_failed',
+        });
+        continue;
+      }
+
+      await markJobProcessing(job);
+
+      const result = await sendOutreachEmail({
+        prospect,
+        step: job.sequenceStep,
+        dryRun: false,
+      });
+
+      if (!result.ok) {
+        const transient = result.retryable ?? isRetryableProviderError(result.error);
+        if (dailyReserved) await releaseDailySendSlot(date, campaignId);
+        if (hourlyReserved) await releaseHourlySendSlot(campaignId, hourBucket);
+        if (prospectSendToken) {
+          await releaseProspectSend(prospect.id, prospectSendToken);
+          prospectSendToken = null;
+        }
+
+        const updated = await markJobRetryOrPermanent(job, {
+          error: result.error ?? 'resend_error',
+          statusCode: result.statusCode,
+          retryable: transient,
+          delayMs: retryDelayMs(job.attemptCount),
+        });
+        recordFailure(stats, {
+          email: job.email,
+          firmName: prospect.firmName,
+          prospectId: prospect.id,
+          reason: result.error ?? 'resend_error',
+          transient,
+        });
+        if (updated.status === 'retry_scheduled') {
+          stats.retryScheduled = (stats.retryScheduled ?? 0) + 1;
+        } else {
+          stats.permanentlyFailed = (stats.permanentlyFailed ?? 0) + 1;
+          if (result.error?.includes('bounce')) {
+            await addSuppression(job.email, 'bounce');
+            prospect.status = 'bounced';
+            await saveProspect(prospect);
+          } else if (!transient && prospect.status === 'ready_to_send') {
+            prospect.status = 'excluded';
+            prospect.excludedReason = 'send_failed';
+            prospect.updatedAt = new Date().toISOString();
+            await saveProspect(prospect);
+          }
+        }
+        continue;
+      }
+
+      // Persist provider acceptance BEFORE prospect/send side effects.
+      // If later KV writes fail, we must not retry the provider call.
+      const providerMessageId = result.messageId ?? 'unknown';
+      await markJobAccepted(job, {
+        providerMessageId,
+        subject: result.subject,
+      });
+      providerAccepted = true;
+      // Keep prospectSendToken until TTL — blocks duplicate concurrent sends.
+
+      const now = new Date().toISOString();
+      prospect.sequenceStep = job.sequenceStep;
+      prospect.lastEmailAt = now;
+      prospect.status = 'sent';
+      prospect.updatedAt = now;
+      await saveProspect(prospect);
+
+      const send = createSendRecord({
+        prospectId: prospect.id,
+        firmName: prospect.firmName,
+        prospectType: prospect.prospectType,
+        email: job.email,
+        campaignId: prospect.campaignId,
+        sequenceStep: job.sequenceStep,
+        subject: result.subject,
+      });
+      send.status = 'sent';
+      send.sentAt = now;
+      send.resendMessageId = providerMessageId;
+      await saveSend(send);
+
+      // Attach send id to the already-accepted job (best-effort).
+      job.sendId = send.id;
+      await markJobAccepted(job, {
+        providerMessageId,
+        sendId: send.id,
+        subject: result.subject,
+      });
+
+      await incrementResendSendCount(date);
+      resendQuota = Math.max(0, resendQuota - 1);
+
+      emailsSentThisRun.add(job.email);
+      stats.sent++;
+      stats.accepted = (stats.accepted ?? 0) + 1;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (providerAccepted || job.providerMessageId || job.status === 'accepted') {
+        // Provider already accepted — never release cap / never retry send.
+        structuredRunLog('error', 'outreach.job.post_accept_persist_failed', {
+          runId,
+          campaignId,
+          jobId: job.id,
+          providerMessageId: job.providerMessageId,
+          error: msg,
+        });
+        stats.sent++;
+        stats.accepted = (stats.accepted ?? 0) + 1;
+        continue;
+      }
+      if (dailyReserved) await releaseDailySendSlot(date, campaignId);
+      if (hourlyReserved) await releaseHourlySendSlot(campaignId, hourBucket);
+      if (prospectSendToken) {
+        await releaseProspectSend(prospect.id, prospectSendToken);
+        prospectSendToken = null;
+      }
+      await markJobRetryOrPermanent(job, {
+        error: msg,
+        retryable: isRetryableProviderError(msg),
+        delayMs: retryDelayMs(Math.max(1, job.attemptCount)),
+      });
+      recordFailure(stats, {
+        email: job.email,
+        firmName: prospect.firmName,
+        prospectId: prospect.id,
+        reason: msg,
+        transient: isRetryableProviderError(msg),
+      });
+    }
+  }
+  };
+
+  await claimAndProcessUntil(
+    Math.min(hardDeadline, started + Math.max(45_000, Math.floor(maxElapsedMs * 0.55))),
+  );
+
+  // Phase 2: enqueue durable jobs for eligible prospects (idempotent).
+  // Sequential budget from phase-2 start so a long drain cannot expire enqueue
+  // before it begins; still capped by the overall hard deadline.
+  const enqueueBudgetMs = Math.max(30_000, Math.floor(maxElapsedMs * 0.45));
+  const enqueueUntil = Math.min(hardDeadline, Date.now() + enqueueBudgetMs);
+  for (const { prospect, step } of eligibleCandidates) {
+    if (Date.now() >= enqueueUntil) {
       stats.partial = true;
       break;
     }
@@ -358,8 +632,9 @@ export async function runFirmOutreach(opts?: {
 
       if (await isSuppressed(email)) {
         stats.suppressed++;
-        stats.attempted = (stats.attempted ?? 0) + 1;
-        prospect.status = 'unsubscribed';
+        const suppression = await getSuppression(email);
+        prospect.status = prospectStatusForSuppression(suppression?.reason);
+        prospect.updatedAt = new Date().toISOString();
         await saveProspect(prospect);
         continue;
       }
@@ -440,213 +715,8 @@ export async function runFirmOutreach(opts?: {
     }
   }
 
-  // Phase 2: claim and process durable jobs (persist-before-send).
-  const owner = `${runId}:${campaignId}`;
-  while (stats.sent < remaining) {
-    if (Date.now() - started >= maxElapsedMs) {
-      stats.partial = true;
-      break;
-    }
-    if (resendQuota <= 0) {
-      recordSkip(stats, 'resend_quota');
-      break;
-    }
-
-    const job = await claimNextEmailJob({ owner, campaignId });
-    if (!job) break;
-
-    stats.jobsClaimed = (stats.jobsClaimed ?? 0) + 1;
-    stats.attempted = (stats.attempted ?? 0) + 1;
-
-    const prospect = await (
-      await import('../storage')
-    ).getProspect(job.prospectId);
-    if (!prospect) {
-      await markJobRetryOrPermanent(job, {
-        error: 'prospect_missing',
-        retryable: false,
-        delayMs: 0,
-      });
-      stats.permanentlyFailed = (stats.permanentlyFailed ?? 0) + 1;
-      continue;
-    }
-
-    if (await isSuppressed(job.email)) {
-      await markJobSuppressed(job, 'suppressed');
-      stats.suppressed++;
-      prospect.status = 'unsubscribed';
-      await saveProspect(prospect);
-      continue;
-    }
-
-    let dailyReserved = false;
-    let hourlyReserved = false;
-    let providerAccepted = false;
-    try {
-      const daily = await reserveDailySendSlot(date, campaignId, dailyCap);
-      if (!daily.ok) {
-        recordSkip(stats, 'daily_cap');
-        await requeueClaimedJob(job, {
-          status: 'pending',
-          nextRetryAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-          previousStatus: 'claimed',
-          lastError: 'daily_cap',
-        });
-        stats.retryScheduled = (stats.retryScheduled ?? 0) + 1;
-        break;
-      }
-      dailyReserved = true;
-
-      if (hourCap > 0) {
-        const hourly = await reserveHourlySendSlot(campaignId, hourBucket, hourCap);
-        if (!hourly.ok) {
-          await releaseDailySendSlot(date, campaignId);
-          dailyReserved = false;
-          recordSkip(stats, 'hourly_cap');
-          await requeueClaimedJob(job, {
-            status: 'retry_scheduled',
-            nextRetryAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-            previousStatus: 'claimed',
-            lastError: 'hourly_cap',
-          });
-          stats.retryScheduled = (stats.retryScheduled ?? 0) + 1;
-          break;
-        }
-        hourlyReserved = true;
-      }
-
-      if (!(await claimProspectSend(prospect.id))) {
-        if (dailyReserved) await releaseDailySendSlot(date, campaignId);
-        if (hourlyReserved) await releaseHourlySendSlot(campaignId, hourBucket);
-        recordSkip(stats, 'job_claim_failed');
-        await requeueClaimedJob(job, {
-          status: 'pending',
-          nextRetryAt: new Date().toISOString(),
-          previousStatus: 'claimed',
-          lastError: 'prospect_claim_failed',
-        });
-        continue;
-      }
-
-      await markJobProcessing(job);
-
-      const result = await sendOutreachEmail({
-        prospect,
-        step: job.sequenceStep,
-        dryRun: false,
-      });
-
-      if (!result.ok) {
-        const transient = result.retryable ?? isRetryableProviderError(result.error);
-        if (dailyReserved) await releaseDailySendSlot(date, campaignId);
-        if (hourlyReserved) await releaseHourlySendSlot(campaignId, hourBucket);
-
-        const updated = await markJobRetryOrPermanent(job, {
-          error: result.error ?? 'resend_error',
-          statusCode: result.statusCode,
-          retryable: transient,
-          delayMs: retryDelayMs(job.attemptCount),
-        });
-        recordFailure(stats, {
-          email: job.email,
-          firmName: prospect.firmName,
-          prospectId: prospect.id,
-          reason: result.error ?? 'resend_error',
-          transient,
-        });
-        if (updated.status === 'retry_scheduled') {
-          stats.retryScheduled = (stats.retryScheduled ?? 0) + 1;
-        } else {
-          stats.permanentlyFailed = (stats.permanentlyFailed ?? 0) + 1;
-          if (result.error?.includes('bounce')) {
-            await addSuppression(job.email, 'bounce');
-            prospect.status = 'bounced';
-            await saveProspect(prospect);
-          } else if (!transient && prospect.status === 'ready_to_send') {
-            prospect.status = 'excluded';
-            prospect.excludedReason = 'send_failed';
-            prospect.updatedAt = new Date().toISOString();
-            await saveProspect(prospect);
-          }
-        }
-        continue;
-      }
-
-      // Persist provider acceptance BEFORE prospect/send side effects.
-      // If later KV writes fail, we must not retry the provider call.
-      const providerMessageId = result.messageId ?? 'unknown';
-      await markJobAccepted(job, {
-        providerMessageId,
-        subject: result.subject,
-      });
-      providerAccepted = true;
-
-      const now = new Date().toISOString();
-      prospect.sequenceStep = job.sequenceStep;
-      prospect.lastEmailAt = now;
-      prospect.status = 'sent';
-      prospect.updatedAt = now;
-      await saveProspect(prospect);
-
-      const send = createSendRecord({
-        prospectId: prospect.id,
-        firmName: prospect.firmName,
-        prospectType: prospect.prospectType,
-        email: job.email,
-        campaignId: prospect.campaignId,
-        sequenceStep: job.sequenceStep,
-        subject: result.subject,
-      });
-      send.status = 'sent';
-      send.sentAt = now;
-      send.resendMessageId = providerMessageId;
-      await saveSend(send);
-
-      // Attach send id to the already-accepted job (best-effort).
-      job.sendId = send.id;
-      await markJobAccepted(job, {
-        providerMessageId,
-        sendId: send.id,
-        subject: result.subject,
-      });
-
-      await incrementResendSendCount(date);
-      resendQuota = Math.max(0, resendQuota - 1);
-
-      emailsSentThisRun.add(job.email);
-      stats.sent++;
-      stats.accepted = (stats.accepted ?? 0) + 1;
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (providerAccepted || job.providerMessageId || job.status === 'accepted') {
-        // Provider already accepted — never release cap / never retry send.
-        structuredRunLog('error', 'outreach.job.post_accept_persist_failed', {
-          runId,
-          campaignId,
-          jobId: job.id,
-          providerMessageId: job.providerMessageId,
-          error: msg,
-        });
-        stats.sent++;
-        stats.accepted = (stats.accepted ?? 0) + 1;
-        continue;
-      }
-      if (dailyReserved) await releaseDailySendSlot(date, campaignId);
-      if (hourlyReserved) await releaseHourlySendSlot(campaignId, hourBucket);
-      await markJobRetryOrPermanent(job, {
-        error: msg,
-        retryable: isRetryableProviderError(msg),
-        delayMs: retryDelayMs(Math.max(1, job.attemptCount)),
-      });
-      recordFailure(stats, {
-        email: job.email,
-        firmName: prospect.firmName,
-        prospectId: prospect.id,
-        reason: msg,
-        transient: isRetryableProviderError(msg),
-      });
-    }
-  }
+  // Phase 3: claim newly enqueued jobs with remaining time.
+  await claimAndProcessUntil(hardDeadline);
 
   const finalQuota = await getGlobalResendQuotaRemaining(date);
   return finish(finalQuota, alreadySent, dailyCap);

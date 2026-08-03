@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 import { verifyRepukBufferSchedule } from '@/lib/buffer/engine-run';
+import {
+  buildIncidentFingerprint,
+  resolveIncident,
+} from '@/lib/automation/notifications';
 import { withAutomationJob } from '@/lib/automation/with-job';
 import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
 
@@ -17,11 +21,35 @@ export async function GET(request: Request) {
     const wrapped = await withAutomationJob({
       jobName: 'buffer-verify',
       triggerSource: 'cron',
-      run: async () => {
+      run: async ({ executionId }) => {
         const result = await verifyRepukBufferSchedule({ gapFill: true });
+        const resolved: string[] = [];
+        if (result.ok && result.scheduledCount >= result.requiredCount) {
+          // Clear false "missed window" incidents once today's quota is met.
+          // Resolve both schedule-engine date and UTC day (legacy healthcheck fingerprints).
+          const dates = new Set(
+            [result.date, new Date().toISOString().slice(0, 10)].filter(Boolean),
+          );
+          for (const jobName of ['buffer-blog-posts', 'buffer-verify'] as const) {
+            for (const scheduledDate of dates) {
+              const fingerprint = buildIncidentFingerprint({
+                jobName,
+                category: 'scheduler',
+                scheduledDate,
+              });
+              const res = await resolveIncident({
+                fingerprint,
+                executionId,
+                sendResolutionEmail: false,
+                summary: `Buffer quota met (${result.scheduledCount}/${result.requiredCount})`,
+              });
+              if (res.resolved) resolved.push(fingerprint);
+            }
+          }
+        }
         return {
           status: result.ok ? 'successful' : 'partially_successful',
-          result,
+          result: { ...result, resolvedIncidents: resolved },
           counts: {
             quotaExpected: result.requiredCount,
             quotaAchieved: result.scheduledCount,

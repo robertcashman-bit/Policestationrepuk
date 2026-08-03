@@ -90,6 +90,12 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Buffer verify + gap-fill today',
     optional: true,
   },
+  // Sibling sites (PSA / psrtrain) self-schedule; remote-trigger when yesterday under quota.
+  {
+    path: '/api/cron/buffer-sibling-repair',
+    label: 'Sibling Buffer remote schedule (PSA / psrtrain / custodynote)',
+    optional: true,
+  },
   // Reconcile delivery events missed while the Resend webhook was failing/disabled.
   // Optional: Resend emails.get fan-out can exceed function timeout; kick must not fail.
   {
@@ -109,7 +115,8 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     optional: true,
   },
   {
-    path: '/api/cron/firm-outreach-send?limit=150',
+    // force=1 clears a stuck send lock from older builds that never released.
+    path: '/api/cron/firm-outreach-send?limit=150&force=1',
     label: 'Send flush 1 (whatsapp_invite_v1 + agent_cover_kent_v1)',
   },
   // Immediate second pass while Resend quota remains — large ready queues (200+)
@@ -168,7 +175,7 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
   },
   // Second flush catches anything enrich just promoted into ready_to_send.
   {
-    path: '/api/cron/firm-outreach-send?limit=150',
+    path: '/api/cron/firm-outreach-send?limit=150&force=1',
     label: 'Send flush 2 (remaining safe capacity)',
   },
 ];

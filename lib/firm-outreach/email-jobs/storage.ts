@@ -279,8 +279,67 @@ export async function countEmailJobsByStatus(): Promise<Partial<Record<EmailJobS
   return out;
 }
 
+async function tryClaimFromIds(
+  candidateIds: string[],
+  opts: {
+    owner: string;
+    campaignId?: string;
+    leaseSeconds: number;
+    now: Date;
+    nowMs: number;
+  },
+): Promise<EmailJob | null> {
+  for (const id of candidateIds) {
+    const job = await getEmailJob(id);
+    if (!job) {
+      // Stale zset / status-set member — drop so pending counts and claims recover.
+      try {
+        const kv = getKV();
+        if (kv) await kv.zrem(JOB_PENDING_ZSET, id);
+      } catch {
+        /* ignore */
+      }
+      continue;
+    }
+    if (opts.campaignId && job.campaignId !== opts.campaignId) continue;
+    if (!EMAIL_JOB_CLAIMABLE_STATUSES.has(job.status)) {
+      // Stale pending_z member after terminal transition — remove so due scans stay useful.
+      try {
+        const kv = getKV();
+        if (kv) await kv.zrem(JOB_PENDING_ZSET, id);
+      } catch {
+        /* ignore */
+      }
+      continue;
+    }
+    // Honour nextRetryAt for both pending (cap backoff) and retry_scheduled.
+    if (job.nextRetryAt && Date.parse(job.nextRetryAt) > opts.nowMs) continue;
+
+    const leased = await claimKey(
+      `firmoutreach:job:lease:${job.id}`,
+      opts.leaseSeconds,
+      opts.owner,
+    );
+    if (!leased) continue;
+
+    const prev = job.status;
+    job.status = 'claimed';
+    job.claimedAt = opts.now.toISOString();
+    job.claimOwner = opts.owner;
+    job.claimExpiresAt = new Date(opts.nowMs + opts.leaseSeconds * 1000).toISOString();
+    job.updatedAt = opts.now.toISOString();
+    await saveEmailJob(job, prev);
+    return job;
+  }
+  return null;
+}
+
 /**
  * Atomically claim the next due job. Lease prevents double-send across workers.
+ *
+ * Always falls back to status-set scan when the due zset yields no claimable job
+ * for this campaign (stale zset members, wrong-campaign dues, or future scores
+ * must not starve the pending status index).
  */
 export async function claimNextEmailJob(opts: {
   owner: string;
@@ -293,52 +352,41 @@ export async function claimNextEmailJob(opts: {
   const now = opts.now ?? new Date();
   const leaseSeconds = opts.leaseSeconds ?? DEFAULT_EMAIL_JOB_LEASE_SECONDS;
   const nowMs = now.getTime();
+  const claimOpts = {
+    owner: opts.owner,
+    campaignId: opts.campaignId,
+    leaseSeconds,
+    now,
+    nowMs,
+  };
 
-  let candidateIds: string[] = [];
+  let zsetIds: string[] = [];
   try {
     const due = await kv.zrange(JOB_PENDING_ZSET, 0, nowMs, {
       byScore: true,
       offset: 0,
       count: 80,
     });
-    if (Array.isArray(due)) candidateIds = due.map(String);
+    if (Array.isArray(due)) zsetIds = due.map(String);
   } catch {
-    /* fallback below */
+    /* fall through to status sets */
   }
 
-  if (candidateIds.length === 0) {
-    const pending = await listEmailJobIdsByStatus('pending', 80);
-    const retry = await listEmailJobIdsByStatus('retry_scheduled', 80);
-    candidateIds = [...pending, ...retry];
+  if (zsetIds.length > 0) {
+    const fromZset = await tryClaimFromIds(zsetIds, claimOpts);
+    if (fromZset) return fromZset;
   }
 
-  for (const id of candidateIds) {
-    const job = await getEmailJob(id);
-    if (!job) continue;
-    if (opts.campaignId && job.campaignId !== opts.campaignId) continue;
-    if (!EMAIL_JOB_CLAIMABLE_STATUSES.has(job.status)) continue;
-    if (job.status === 'retry_scheduled' && job.nextRetryAt) {
-      if (Date.parse(job.nextRetryAt) > nowMs) continue;
-    }
-
-    const leased = await claimKey(
-      `firmoutreach:job:lease:${job.id}`,
-      leaseSeconds,
-      opts.owner,
-    );
-    if (!leased) continue;
-
-    const prev = job.status;
-    job.status = 'claimed';
-    job.claimedAt = now.toISOString();
-    job.claimOwner = opts.owner;
-    job.claimExpiresAt = new Date(nowMs + leaseSeconds * 1000).toISOString();
-    job.updatedAt = now.toISOString();
-    await saveEmailJob(job, prev);
-    return job;
-  }
-
-  return null;
+  const pending = await listEmailJobIdsByStatus('pending', 120);
+  const retry = await listEmailJobIdsByStatus('retry_scheduled', 120);
+  // Dedupe while preferring zset order already tried.
+  const seen = new Set(zsetIds);
+  const statusIds = [...pending, ...retry].filter((id) => {
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+  return tryClaimFromIds(statusIds, claimOpts);
 }
 
 /** Requeue claimed/processing jobs whose lease expired. */
@@ -484,6 +532,10 @@ export async function markJobSuppressed(
   const prev = job.status;
   job.status = reason;
   job.completedAt = new Date().toISOString();
+  job.claimedAt = undefined;
+  job.claimOwner = undefined;
+  job.claimExpiresAt = undefined;
+  await releaseJobLease(job.id);
   await saveEmailJob(job, prev);
   return job;
 }

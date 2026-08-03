@@ -11,6 +11,8 @@ vi.mock('../lib/firm-outreach/storage', () => ({
   excludeProspectDuplicateEmail: vi.fn(),
   getDailySendCount: (...args: unknown[]) => mockGetDailySendCount(...args),
   getGlobalResendQuotaRemaining: vi.fn(async () => 100),
+  getSuppression: vi.fn(async () => null),
+  getSuppressionsByEmails: vi.fn(async () => new Map()),
   incrementDailySendCount: vi.fn(),
   incrementResendSendCount: vi.fn(),
   isDuplicateInitialSend: vi.fn(async () => false),
@@ -38,7 +40,8 @@ vi.mock('../lib/firm-outreach/outreach/send', () => ({
 }));
 
 vi.mock('../lib/firm-outreach/run-lock', () => ({
-  claimProspectSend: vi.fn(async () => true),
+  claimProspectSend: vi.fn(async () => 'tok_test'),
+  releaseProspectSend: vi.fn(async () => undefined),
 }));
 
 vi.mock('../lib/firm-outreach/qualification', () => ({

@@ -405,4 +405,75 @@ describe('email job queue (KV)', () => {
     expect(current.providerMessageId).toBe('re_already');
     expect(job.id).toBe(current.id);
   });
+
+  it('falls back to status set when zset dues are all wrong-campaign', async () => {
+    await enqueueEmailJob({
+      campaignId: 'agent_cover_kent_v1',
+      prospectId: 'p-kent',
+      firmName: 'Kent',
+      prospectType: 'firm',
+      email: 'kent-due@test.co.uk',
+      sequenceStep: 0,
+      correlationId: 'c-kent',
+    });
+    await enqueueEmailJob({
+      campaignId: 'whatsapp_invite_v1',
+      prospectId: 'p-repuk',
+      firmName: 'RepUK',
+      prospectType: 'firm',
+      email: 'repuk@test.co.uk',
+      sequenceStep: 0,
+      correlationId: 'c-repuk',
+    });
+
+    // Put RepUK behind a future score so the due zset is Kent-only; old code
+    // skipped status-set fallback whenever zset was non-empty → jobsClaimed:0.
+    const { getEmailJobByIdempotencyKey, saveEmailJob } = await import(
+      '@/lib/firm-outreach/email-jobs/storage'
+    );
+    const repuk = await getEmailJobByIdempotencyKey(
+      buildOutreachIdempotencyKey('whatsapp_invite_v1', 'repuk@test.co.uk', 0),
+    );
+    expect(repuk).toBeTruthy();
+    repuk!.nextRetryAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    await saveEmailJob(repuk!, 'pending');
+
+    // Make RepUK due again via status-set path (honour nextRetryAt=past).
+    repuk!.nextRetryAt = new Date(Date.now() - 1000).toISOString();
+    await saveEmailJob(repuk!, 'pending');
+
+    // Remove RepUK from zset while leaving it pending in the status set — simulates
+    // zrem failure / drift that previously blocked claims.
+    const z = store.zsets.get('firmoutreach:job:pending_z');
+    z?.delete(repuk!.id);
+
+    const claimed = await claimNextEmailJob({
+      owner: 'worker',
+      campaignId: 'whatsapp_invite_v1',
+    });
+    expect(claimed?.campaignId).toBe('whatsapp_invite_v1');
+    expect(claimed?.email).toBe('repuk@test.co.uk');
+  });
+
+  it('clears lease when marking a claimed job suppressed', async () => {
+    const { markJobSuppressed } = await import('@/lib/firm-outreach/email-jobs/storage');
+    await enqueueEmailJob({
+      campaignId: 'whatsapp_invite_v1',
+      prospectId: 'p1',
+      firmName: 'Test',
+      prospectType: 'firm',
+      email: 'suppressed@test.co.uk',
+      sequenceStep: 0,
+      correlationId: 'c1',
+    });
+    const claimed = await claimNextEmailJob({
+      owner: 'worker-a',
+      campaignId: 'whatsapp_invite_v1',
+    });
+    expect(claimed).toBeTruthy();
+    expect(store.data.has(`firmoutreach:job:lease:${claimed!.id}`)).toBe(true);
+
+    await markJobSuppressed(claimed!, 'suppressed');
+    expect(store.data.has(`firmoutreach:job:lease:${claimed!.id}`)).toBe(false);
+  });
 });

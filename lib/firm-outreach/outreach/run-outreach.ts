@@ -29,6 +29,8 @@ import {
   excludeProspectDuplicateEmail,
   getDailySendCount,
   getGlobalResendQuotaRemaining,
+  getSuppression,
+  getSuppressionsByEmails,
   incrementResendSendCount,
   isDuplicateInitialSend,
   isSuppressed,
@@ -41,7 +43,12 @@ import {
   saveSend,
   utcHourBucket,
 } from '../storage';
-import type { FirmProspect, OutreachRunStats } from '../types';
+import type {
+  FirmProspect,
+  FirmProspectStatus,
+  OutreachRunStats,
+  SuppressionReason,
+} from '../types';
 import { assertOutreachSendReady } from './from-address';
 import {
   firmRecentlyContacted,
@@ -54,10 +61,18 @@ import {
   recordSkip,
 } from './run-log';
 import { sendOutreachEmail } from './send';
-import { claimProspectSend } from '../run-lock';
+import { claimProspectSend, releaseProspectSend } from '../run-lock';
 import crypto from 'crypto';
 
 const DEFAULT_MAX_ELAPSED_MS = 240_000;
+
+function prospectStatusForSuppression(
+  reason: SuppressionReason | undefined,
+): FirmProspectStatus {
+  if (reason === 'bounce') return 'bounced';
+  if (reason === 'joined') return 'joined_whatsapp';
+  return 'unsubscribed';
+}
 
 /** Prospects in ready/sent were MX-checked at enrich/requalify; skip DNS on send ticks. */
 function emailPrevalidatedForSend(prospect: FirmProspect): boolean {
@@ -245,6 +260,33 @@ export async function runFirmOutreach(opts?: {
     sentLimit: 500,
   });
 
+  // Drop suppressed addresses before enqueue/attempt accounting so sendable
+  // inventory is not starved by demotion of already-blocked rows.
+  const candidateEmails = selection.candidates
+    .map((c) => c.prospect.email?.trim())
+    .filter(Boolean) as string[];
+  const suppressionMap = await getSuppressionsByEmails(candidateEmails);
+  const eligibleCandidates = selection.candidates.filter((c) => {
+    const email = c.prospect.email?.trim();
+    if (!email) return true;
+    return !suppressionMap.has(normalizeEmail(email));
+  });
+  const prefilteredSuppressed = selection.candidates.length - eligibleCandidates.length;
+  if (prefilteredSuppressed > 0) {
+    stats.suppressed += prefilteredSuppressed;
+    for (const { prospect } of selection.candidates) {
+      const email = prospect.email?.trim();
+      if (!email) continue;
+      const suppression = suppressionMap.get(normalizeEmail(email));
+      if (!suppression) continue;
+      if (prospect.status === 'ready_to_send' || prospect.status === 'sent') {
+        prospect.status = prospectStatusForSuppression(suppression.reason);
+        prospect.updatedAt = new Date().toISOString();
+        await saveProspect(prospect);
+      }
+    }
+  }
+
   structuredRunLog('info', 'outreach.run.selection', {
     runId,
     campaignId,
@@ -254,6 +296,8 @@ export async function runFirmOutreach(opts?: {
     followUpEligible: selection.followUpEligible,
     firmCooldownSkipped: selection.firmCooldownSkipped,
     candidates: selection.candidates.length,
+    eligibleAfterSuppression: eligibleCandidates.length,
+    prefilteredSuppressed,
     remaining,
     dryRun,
   });
@@ -269,7 +313,7 @@ export async function runFirmOutreach(opts?: {
 
   // Dry-run: evaluate gates and simulate sends without writing jobs or calling provider for real.
   if (dryRun) {
-    for (const { prospect, step } of selection.candidates) {
+    for (const { prospect, step } of eligibleCandidates) {
       if (stats.sent >= remaining) break;
       if (Date.now() - started >= maxElapsedMs) {
         stats.partial = true;
@@ -287,7 +331,6 @@ export async function runFirmOutreach(opts?: {
       }
       if (await isSuppressed(email)) {
         stats.suppressed++;
-        stats.attempted = (stats.attempted ?? 0) + 1;
         continue;
       }
       if (
@@ -365,7 +408,8 @@ export async function runFirmOutreach(opts?: {
     if (await isSuppressed(job.email)) {
       await markJobSuppressed(job, 'suppressed');
       stats.suppressed++;
-      prospect.status = 'unsubscribed';
+      const suppression = await getSuppression(job.email);
+      prospect.status = prospectStatusForSuppression(suppression?.reason);
       await saveProspect(prospect);
       continue;
     }
@@ -373,6 +417,7 @@ export async function runFirmOutreach(opts?: {
     let dailyReserved = false;
     let hourlyReserved = false;
     let providerAccepted = false;
+    let prospectSendToken: string | null = null;
     try {
       const daily = await reserveDailySendSlot(date, campaignId, dailyCap);
       if (!daily.ok) {
@@ -406,7 +451,8 @@ export async function runFirmOutreach(opts?: {
         hourlyReserved = true;
       }
 
-      if (!(await claimProspectSend(prospect.id))) {
+      prospectSendToken = await claimProspectSend(prospect.id);
+      if (!prospectSendToken) {
         if (dailyReserved) await releaseDailySendSlot(date, campaignId);
         if (hourlyReserved) await releaseHourlySendSlot(campaignId, hourBucket);
         recordSkip(stats, 'job_claim_failed');
@@ -431,6 +477,10 @@ export async function runFirmOutreach(opts?: {
         const transient = result.retryable ?? isRetryableProviderError(result.error);
         if (dailyReserved) await releaseDailySendSlot(date, campaignId);
         if (hourlyReserved) await releaseHourlySendSlot(campaignId, hourBucket);
+        if (prospectSendToken) {
+          await releaseProspectSend(prospect.id, prospectSendToken);
+          prospectSendToken = null;
+        }
 
         const updated = await markJobRetryOrPermanent(job, {
           error: result.error ?? 'resend_error',
@@ -471,6 +521,7 @@ export async function runFirmOutreach(opts?: {
         subject: result.subject,
       });
       providerAccepted = true;
+      // Keep prospectSendToken until TTL — blocks duplicate concurrent sends.
 
       const now = new Date().toISOString();
       prospect.sequenceStep = job.sequenceStep;
@@ -524,6 +575,10 @@ export async function runFirmOutreach(opts?: {
       }
       if (dailyReserved) await releaseDailySendSlot(date, campaignId);
       if (hourlyReserved) await releaseHourlySendSlot(campaignId, hourBucket);
+      if (prospectSendToken) {
+        await releaseProspectSend(prospect.id, prospectSendToken);
+        prospectSendToken = null;
+      }
       await markJobRetryOrPermanent(job, {
         error: msg,
         retryable: isRetryableProviderError(msg),
@@ -549,7 +604,7 @@ export async function runFirmOutreach(opts?: {
   // before it begins; still capped by the overall hard deadline.
   const enqueueBudgetMs = Math.max(30_000, Math.floor(maxElapsedMs * 0.45));
   const enqueueUntil = Math.min(hardDeadline, Date.now() + enqueueBudgetMs);
-  for (const { prospect, step } of selection.candidates) {
+  for (const { prospect, step } of eligibleCandidates) {
     if (Date.now() >= enqueueUntil) {
       stats.partial = true;
       break;
@@ -577,8 +632,9 @@ export async function runFirmOutreach(opts?: {
 
       if (await isSuppressed(email)) {
         stats.suppressed++;
-        stats.attempted = (stats.attempted ?? 0) + 1;
-        prospect.status = 'unsubscribed';
+        const suppression = await getSuppression(email);
+        prospect.status = prospectStatusForSuppression(suppression?.reason);
+        prospect.updatedAt = new Date().toISOString();
         await saveProspect(prospect);
         continue;
       }

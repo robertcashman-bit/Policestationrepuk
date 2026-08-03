@@ -32,8 +32,10 @@ permissions:
   actions: read
 
 concurrency:
+  # Do not cancel an in-flight deploy when Site audit and CI both complete —
+  # cancel-in-progress previously aborted the waiting gate and left production undeployed.
   group: vercel-prod
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   gate-checks:

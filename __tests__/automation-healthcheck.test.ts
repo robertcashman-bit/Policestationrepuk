@@ -218,6 +218,72 @@ describe('daily healthcheck', () => {
     ).toBe(false);
   });
 
+  it('gap-fills before missed inspection so repaired quota is not reported as missed', async () => {
+    const { repairBufferSchedule } = await import('@/lib/automation/repairs/buffer');
+    vi.mocked(getCronRunLog).mockResolvedValue(null);
+    vi.mocked(verifyRepukBufferSchedule).mockResolvedValue({
+      ok: true,
+      date: '2026-08-03',
+      scheduledCount: 5,
+      requiredCount: 5,
+      gapFilled: 2,
+      issues: [],
+    });
+    vi.mocked(repairBufferSchedule).mockResolvedValue({
+      repairs: [
+        {
+          id: 'gap-fill-today',
+          kind: 'buffer_gap_fill',
+          target: '2026-08-03',
+          attempted: true,
+          verified: true,
+          dryRun: false,
+          summary: 'Schedule OK 5/5 (gapFilled=2)',
+        },
+      ],
+      todayScheduled: 5,
+      todayRequired: 5,
+      yesterdayOk: true,
+      yesterdaySent: 5,
+      yesterdayTotal: 5,
+      yesterdayProblems: 0,
+    });
+
+    for (const def of AUTOMATION_JOB_DEFINITIONS) {
+      if (def.name !== 'buffer-blog-posts' && def.name !== 'buffer-verify') continue;
+      store.set(`automation:job:${def.name}`, {
+        ...def,
+        lastAttemptedAt: '2026-08-02T05:05:00.000Z',
+        lastSuccessfulAt: '2026-08-02T05:10:00.000Z',
+        lastFailureAt: null,
+        lastError: null,
+        consecutiveFailureCount: 0,
+        retryCount: 0,
+        healthStatus: 'healthy',
+        lockOwner: null,
+        lockExpiresAt: null,
+        lastHealthCheckAt: null,
+        lastRepairAction: null,
+        environment: 'production',
+        deploymentId: 'test',
+        updatedAt: '2026-08-02T05:10:00.000Z',
+      });
+    }
+
+    const result = await runDailyHealthcheck({
+      dryRun: true,
+      now: new Date('2026-08-03T07:15:00Z'),
+    });
+
+    expect(
+      result.issues.some(
+        (i) =>
+          i.id === 'buffer-blog-posts-missed' || i.id === 'buffer-verify-missed',
+      ),
+    ).toBe(false);
+    expect(repairBufferSchedule).toHaveBeenCalled();
+  });
+
   it('suppresses buffer missed-window when quota is already met', async () => {
     vi.mocked(getCronRunLog).mockResolvedValue(null);
     vi.mocked(verifyRepukBufferSchedule).mockResolvedValue({

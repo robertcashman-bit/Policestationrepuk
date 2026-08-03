@@ -18,6 +18,7 @@ export type AutomationEventName =
   | 'buffer.auth.failed'
   | 'crosssite.quota.deficit'
   | 'crosssite.quota.repaired'
+  | 'crosssite.sibling.remote_schedule'
   | 'notification.duplicate_suppressed'
   | 'notification.alert_sent'
   | 'notification.incident_resolved'

@@ -85,4 +85,35 @@ describe('recoverEnrichPool', () => {
       'no_email',
     );
   });
+
+  it('force-requeues fresh no_email when forceRequeueNoEmail is set', async () => {
+    const yesterday = new Date(Date.now() - 1 * 86_400_000).toISOString();
+    mocks.listProspectIdsByRecordStatus.mockImplementation(async (status: string) =>
+      status === 'no_email' ? ['p3'] : [],
+    );
+    mocks.getProspectsByIds.mockResolvedValue(
+      new Map([
+        [
+          'p3',
+          {
+            id: 'p3',
+            status: 'no_email',
+            enrichAttempts: 3,
+            lastEnrichAttemptAt: yesterday,
+            firmName: 'Fresh Fail Firm',
+            updatedAt: yesterday,
+          },
+        ],
+      ]),
+    );
+
+    const skipped = await recoverEnrichPool({ campaignId: 'agent_cover_kent_v1' });
+    expect(skipped.requeuedStaleNoEmail).toBe(0);
+
+    const forced = await recoverEnrichPool({
+      campaignId: 'agent_cover_kent_v1',
+      forceRequeueNoEmail: true,
+    });
+    expect(forced.requeuedStaleNoEmail).toBe(1);
+  });
 });

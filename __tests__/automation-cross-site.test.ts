@@ -59,7 +59,13 @@ describe('cross-site quota repair policy', () => {
     expect(
       result.issues.find((i) => i.summary.includes('psrtrain'))?.requiresHumanAction,
     ).toBe(true);
+    expect(result.issues.find((i) => i.summary.includes('psrtrain'))?.category).toBe(
+      'quota_supply',
+    );
     expect(result.repairs.some((r) => r.kind === 'crosssite_repuk_gap_fill')).toBe(true);
+    expect(result.repairs.some((r) => r.kind === 'crosssite_sibling_remote_schedule')).toBe(
+      true,
+    );
   });
 
   it('treats insufficient sibling quota as human action, not REPUK flood', async () => {
@@ -82,5 +88,45 @@ describe('cross-site quota repair policy', () => {
       true,
     );
     expect(result.issues[0]?.requiresHumanAction).toBe(true);
+    expect(result.repairs[0]?.kind).toBe('crosssite_sibling_remote_schedule');
+  });
+
+  it('marks sibling deficit recoverable when remote schedule succeeds', async () => {
+    vi.unstubAllEnvs();
+    vi.stubEnv('AUTOMATION_DRY_RUN', '0');
+    vi.stubEnv('AUTO_REPAIR_ENABLED', '1');
+    vi.stubEnv('CROSS_SITE_REMOTE_REPAIR_ENABLED', '1');
+    vi.stubEnv('CRON_SECRET', 'test-cron-secret');
+    vi.stubEnv('VERCEL_ENV', 'production');
+
+    vi.mocked(verifyCrossSiteBufferPosts).mockResolvedValue({
+      ok: false,
+      date: '2026-08-02',
+      sites: [
+        {
+          id: 'psrtrain',
+          hostname: 'psrtrain.com',
+          sentCount: 3,
+          requiredCount: 5,
+          ok: false,
+          issue: 'only 3/5',
+        },
+      ],
+      problems: [],
+    });
+
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify({ ok: true }), { status: 200 }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { inspectAndRepairCrossSiteQuota: inspectLive } = await import(
+      '@/lib/automation/repairs/cross-site'
+    );
+    const result = await inspectLive({ dryRun: false, forceRemoteRepair: true });
+    expect(fetchMock).toHaveBeenCalled();
+    expect(result.repairs[0]?.verified).toBe(true);
+    expect(result.issues[0]?.requiresHumanAction).toBe(false);
+    expect(result.issues[0]?.severity).toBe('warning');
   });
 });

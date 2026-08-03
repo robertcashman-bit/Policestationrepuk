@@ -90,6 +90,12 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Buffer verify + gap-fill today',
     optional: true,
   },
+  // Sibling sites (PSA / psrtrain) self-schedule; remote-trigger when yesterday under quota.
+  {
+    path: '/api/cron/buffer-sibling-repair',
+    label: 'Sibling Buffer remote schedule (PSA / psrtrain / custodynote)',
+    optional: true,
+  },
   // Reconcile delivery events missed while the Resend webhook was failing/disabled.
   // Optional: Resend emails.get fan-out can exceed function timeout; kick must not fail.
   {

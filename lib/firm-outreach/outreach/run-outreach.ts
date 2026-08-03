@@ -329,124 +329,14 @@ export async function runFirmOutreach(opts?: {
     return finish(globalQuota, alreadySent, dailyCap);
   }
 
-  // Phase 1: enqueue durable jobs for eligible prospects (idempotent).
-  for (const { prospect, step } of selection.candidates) {
-    if (Date.now() - started >= maxElapsedMs) {
-      stats.partial = true;
-      break;
-    }
-    if ((stats.jobsCreated ?? 0) >= remaining * 3) break;
-
-    try {
-      const email = prospect.email?.trim();
-      if (!email) {
-        recordSkip(stats, 'no_email');
-        continue;
-      }
-      const normalizedEmail = normalizeEmail(email);
-
-      const qualification = qualifyProspectForOutreach(prospect);
-      if (!qualification.qualified) {
-        recordSkip(stats, 'not_qualified');
-        if (prospect.status === 'ready_to_send') {
-          prospect.status = resolveStatusWithQualification(prospect, 'ready_to_send');
-          prospect.updatedAt = new Date().toISOString();
-          await saveProspect(prospect);
-        }
-        continue;
-      }
-
-      if (await isSuppressed(email)) {
-        stats.suppressed++;
-        stats.attempted = (stats.attempted ?? 0) + 1;
-        prospect.status = 'unsubscribed';
-        await saveProspect(prospect);
-        continue;
-      }
-
-      if (
-        step === 0 &&
-        (emailsSentThisRun.has(normalizedEmail) ||
-          (await isDuplicateInitialSend(email, prospect.id, campaignId)))
-      ) {
-        recordSkip(stats, 'duplicate');
-        if (prospect.status === 'ready_to_send') {
-          await excludeProspectDuplicateEmail(prospect);
-        }
-        continue;
-      }
-
-      if (
-        prospect.prospectType === 'solicitor' &&
-        (await firmRecentlyContacted(prospect, campaignId))
-      ) {
-        recordSkip(stats, 'firm_cooldown');
-        continue;
-      }
-
-      if (emailPrevalidatedForSend(prospect)) {
-        if (!isPlausibleOutreachEmail(email)) {
-          recordSkip(stats, 'mx_invalid');
-          continue;
-        }
-      } else {
-        const validation = await validateEmailForSend(email);
-        if (!validation.ok) {
-          recordSkip(stats, 'mx_invalid');
-          if (prospect.status === 'ready_to_send') {
-            prospect.status = validation.reason === 'no_mx' ? 'no_email' : 'discovered';
-            prospect.updatedAt = new Date().toISOString();
-            await saveProspect(prospect);
-          }
-          continue;
-        }
-      }
-
-      stats.queued++;
-      const enqueued = await enqueueEmailJob({
-        campaignId: prospect.campaignId,
-        prospectId: prospect.id,
-        firmName: prospect.firmName,
-        prospectType: prospect.prospectType,
-        email: normalizedEmail,
-        sequenceStep: step,
-        correlationId,
-        runId,
-        dryRun: false,
-      });
-      if (enqueued.created) {
-        stats.jobsCreated = (stats.jobsCreated ?? 0) + 1;
-      } else if (enqueued.duplicate) {
-        if (
-          enqueued.job.status === 'accepted' ||
-          enqueued.job.status === 'delivered' ||
-          enqueued.job.status === 'permanently_failed'
-        ) {
-          recordSkip(stats, 'idempotent_exists');
-          if (step === 0 && prospect.status === 'ready_to_send') {
-            await excludeProspectDuplicateEmail(prospect);
-          }
-        }
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      recordFailure(stats, {
-        email: prospect.email ?? '',
-        firmName: prospect.firmName,
-        prospectId: prospect.id,
-        reason: msg,
-        transient: isRetryableProviderError(msg),
-      });
-    }
-  }
-
-  // Phase 2: claim and process durable jobs (persist-before-send).
+  // Phase 1: drain pending jobs first so backlog is not starved by enqueue.
   const owner = `${runId}:${campaignId}`;
-  while (stats.sent < remaining) {
-    if (Date.now() - started >= maxElapsedMs) {
-      stats.partial = true;
-      break;
-    }
+  const claimAndProcessUntil = async (untilMs: number) => {
+    while (stats.sent < remaining) {
+      if (Date.now() - started >= untilMs) {
+        stats.partial = true;
+        break;
+      }
     if (resendQuota <= 0) {
       recordSkip(stats, 'resend_quota');
       break;
@@ -647,6 +537,125 @@ export async function runFirmOutreach(opts?: {
       });
     }
   }
+  };
+
+  await claimAndProcessUntil(started + Math.max(45_000, Math.floor(maxElapsedMs * 0.55)));
+
+  // Phase 2: enqueue durable jobs for eligible prospects (idempotent).
+  // Time-boxed so claim/send retains wall-clock after this pass.
+  const enqueueUntil = started + Math.max(30_000, Math.floor(maxElapsedMs * 0.45));
+  for (const { prospect, step } of selection.candidates) {
+    if (Date.now() - started >= Math.min(maxElapsedMs, enqueueUntil)) {
+      stats.partial = true;
+      break;
+    }
+    if ((stats.jobsCreated ?? 0) >= remaining * 3) break;
+
+    try {
+      const email = prospect.email?.trim();
+      if (!email) {
+        recordSkip(stats, 'no_email');
+        continue;
+      }
+      const normalizedEmail = normalizeEmail(email);
+
+      const qualification = qualifyProspectForOutreach(prospect);
+      if (!qualification.qualified) {
+        recordSkip(stats, 'not_qualified');
+        if (prospect.status === 'ready_to_send') {
+          prospect.status = resolveStatusWithQualification(prospect, 'ready_to_send');
+          prospect.updatedAt = new Date().toISOString();
+          await saveProspect(prospect);
+        }
+        continue;
+      }
+
+      if (await isSuppressed(email)) {
+        stats.suppressed++;
+        stats.attempted = (stats.attempted ?? 0) + 1;
+        prospect.status = 'unsubscribed';
+        await saveProspect(prospect);
+        continue;
+      }
+
+      if (
+        step === 0 &&
+        (emailsSentThisRun.has(normalizedEmail) ||
+          (await isDuplicateInitialSend(email, prospect.id, campaignId)))
+      ) {
+        recordSkip(stats, 'duplicate');
+        if (prospect.status === 'ready_to_send') {
+          await excludeProspectDuplicateEmail(prospect);
+        }
+        continue;
+      }
+
+      if (
+        prospect.prospectType === 'solicitor' &&
+        (await firmRecentlyContacted(prospect, campaignId))
+      ) {
+        recordSkip(stats, 'firm_cooldown');
+        continue;
+      }
+
+      if (emailPrevalidatedForSend(prospect)) {
+        if (!isPlausibleOutreachEmail(email)) {
+          recordSkip(stats, 'mx_invalid');
+          continue;
+        }
+      } else {
+        const validation = await validateEmailForSend(email);
+        if (!validation.ok) {
+          recordSkip(stats, 'mx_invalid');
+          if (prospect.status === 'ready_to_send') {
+            prospect.status = validation.reason === 'no_mx' ? 'no_email' : 'discovered';
+            prospect.updatedAt = new Date().toISOString();
+            await saveProspect(prospect);
+          }
+          continue;
+        }
+      }
+
+      stats.queued++;
+      const enqueued = await enqueueEmailJob({
+        campaignId: prospect.campaignId,
+        prospectId: prospect.id,
+        firmName: prospect.firmName,
+        prospectType: prospect.prospectType,
+        email: normalizedEmail,
+        sequenceStep: step,
+        correlationId,
+        runId,
+        dryRun: false,
+      });
+      if (enqueued.created) {
+        stats.jobsCreated = (stats.jobsCreated ?? 0) + 1;
+      } else if (enqueued.duplicate) {
+        if (
+          enqueued.job.status === 'accepted' ||
+          enqueued.job.status === 'delivered' ||
+          enqueued.job.status === 'permanently_failed'
+        ) {
+          recordSkip(stats, 'idempotent_exists');
+          if (step === 0 && prospect.status === 'ready_to_send') {
+            await excludeProspectDuplicateEmail(prospect);
+          }
+        }
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      recordFailure(stats, {
+        email: prospect.email ?? '',
+        firmName: prospect.firmName,
+        prospectId: prospect.id,
+        reason: msg,
+        transient: isRetryableProviderError(msg),
+      });
+    }
+  }
+
+  // Phase 3: claim newly enqueued jobs with remaining time.
+  await claimAndProcessUntil(started + maxElapsedMs);
 
   const finalQuota = await getGlobalResendQuotaRemaining(date);
   return finish(finalQuota, alreadySent, dailyCap);

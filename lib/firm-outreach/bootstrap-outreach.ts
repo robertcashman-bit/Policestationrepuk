@@ -105,11 +105,18 @@ export async function bootstrapOutreach(opts?: {
   if (opts?.seedAgentCover && campaignId !== AGENT_COVER_KENT_CAMPAIGN_ID) {
     seedCampaignRecovery = await recoverEnrichPool({
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+      // Bootstrap seed must refill the enrich pool immediately (do not wait 30 days).
+      forceRequeueNoEmail: true,
+      maxRequeue: 200,
     });
   }
 
   // Unstick exhausted discovered / stale no_email for the campaign enrich will run.
-  const enrichPoolRecovery = await recoverEnrichPool({ campaignId });
+  const enrichPoolRecovery = await recoverEnrichPool({
+    campaignId,
+    forceRequeueNoEmail: Boolean(opts?.seedAgentCover),
+    maxRequeue: opts?.seedAgentCover ? 200 : undefined,
+  });
 
   for (let i = 0; i < batches; i++) {
     if (Date.now() >= deadline) break;

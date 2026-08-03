@@ -22,14 +22,16 @@ import { buildCrimeRegistry } from '../qualification';
 import { getProspect, saveProspect } from '../storage';
 import type { DiscoveryRunStats } from '../types';
 
-/** Keep geo-Kent rows plus DSCC firms whose name matches a Kent LAA firm. */
+/**
+ * Keep geo-Kent rows plus DSCC firms/solicitors whose firm name matches a Kent LAA firm.
+ * Solicitors at Kent LAA firms are the main PSA agent-cover inventory source.
+ */
 export function filterAgentCoverKentInputs(
   inputs: RawProspectInput[],
   kentLaaFirmNames: Set<string>,
 ): RawProspectInput[] {
   return inputs.filter((input) => {
     if (isKentProspectInput(input)) return true;
-    if (input.prospectType !== 'firm') return false;
     if (input.source !== 'dscc') return false;
     return kentLaaFirmNames.has(normalizeFirmName(input.firmName));
   });

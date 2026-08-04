@@ -168,7 +168,16 @@ jobs:
         env:
           GH_CRON_SECRET: ${{ secrets.CRON_SECRET }}
           GH_BOOTSTRAP_SECRET: ${{ secrets.FIRM_OUTREACH_BOOTSTRAP_SECRET }}
-        run: node scripts/firm-outreach-kick-prepare-auth.mjs
+          # Allow one controlled rotate when Vercel decrypt returns envelopes only.
+          # Safe because this workflow is single-flight (concurrency cancel-in-progress).
+          FIRM_OUTREACH_ALLOW_BOOTSTRAP_ROTATE: '1'
+        run: |
+          set -euo pipefail
+          if [ -n "${GH_CRON_SECRET:-}" ]; then export CRON_SECRET="$GH_CRON_SECRET"; fi
+          if [ -n "${GH_BOOTSTRAP_SECRET:-}" ]; then export FIRM_OUTREACH_BOOTSTRAP_SECRET="$GH_BOOTSTRAP_SECRET"; fi
+          case "${CRON_SECRET:-}" in eyJ*) unset CRON_SECRET ;; esac
+          case "${FIRM_OUTREACH_BOOTSTRAP_SECRET:-}" in eyJ*) unset FIRM_OUTREACH_BOOTSTRAP_SECRET ;; esac
+          node scripts/firm-outreach-kick-prepare-auth.mjs
 
       - name: Status + probe + bounded force flush
         env:

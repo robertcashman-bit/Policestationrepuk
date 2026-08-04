@@ -4,7 +4,10 @@ import {
   retryDelayMs,
   validateOutreachEnv,
 } from '@robertcashman/firm-outreach-core';
-import { activeOutreachCampaignId } from '../campaign-scope';
+import {
+  activeOutreachCampaignId,
+  AGENT_COVER_KENT_CAMPAIGN_ID,
+} from '../campaign-scope';
 import { dailySendCap, outreachSendEnabled } from '../constants';
 import { isPlausibleOutreachEmail, validateEmailForSend } from '../enrichment/validator';
 import {
@@ -22,7 +25,8 @@ import {
   qualifyProspectForOutreach,
   resolveStatusWithQualification,
 } from '../qualification';
-import { OUTREACH_CAMPAIGN_IDS } from '../site-config';
+import { psaSendReserve } from '../send-quota-split';
+import { FIRM_OUTREACH_CAMPAIGN_ID, OUTREACH_CAMPAIGN_IDS } from '../site-config';
 import {
   addSuppression,
   createSendRecord,
@@ -34,6 +38,7 @@ import {
   incrementResendSendCount,
   isDuplicateInitialSend,
   isSuppressed,
+  listProspectIdsByRecordStatus,
   releaseDailySendSlot,
   releaseHourlySendSlot,
   reserveDailySendSlot,
@@ -780,6 +785,8 @@ export function mergeOutreachRunStats(
 /**
  * Send for every shared KV campaign (RepUK WhatsApp + PSA agent-cover).
  * Each campaign keeps its own daily cap / queue; stats are returned per campaign and combined.
+ * When both campaigns run, reserve a PSA floor from the shared Resend pool so RepUK
+ * cannot starve agent_cover_kent_v1.
  */
 export async function runFirmOutreachAllCampaigns(opts?: {
   dryRun?: boolean;
@@ -796,11 +803,36 @@ export async function runFirmOutreachAllCampaigns(opts?: {
     ? Math.max(30_000, Math.floor(opts.maxElapsedMs / Math.max(1, campaignIds.length)))
     : undefined;
 
+  const includesPsa = campaignIds.includes(AGENT_COVER_KENT_CAMPAIGN_ID);
+  const includesRepuk = campaignIds.includes(FIRM_OUTREACH_CAMPAIGN_ID);
+  let psaLimit = opts?.limit;
+  let repukLimit = opts?.limit;
+  if (includesPsa && includesRepuk) {
+    const date = new Date().toISOString().slice(0, 10);
+    const globalRemaining = await getGlobalResendQuotaRemaining(date);
+    const psaReadyIds = await listProspectIdsByRecordStatus('ready_to_send', {
+      campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+    });
+    const split = psaSendReserve({
+      globalRemaining,
+      psaReadyCount: psaReadyIds.length,
+      sendLimit: opts?.limit,
+    });
+    psaLimit = split.psaLimit;
+    repukLimit = split.repukLimit;
+  }
+
   for (const campaignId of campaignIds) {
+    const limit =
+      campaignId === AGENT_COVER_KENT_CAMPAIGN_ID
+        ? psaLimit
+        : campaignId === FIRM_OUTREACH_CAMPAIGN_ID
+          ? repukLimit
+          : opts?.limit;
     byCampaign[campaignId] = await runFirmOutreach({
       campaignId,
       dryRun: opts?.dryRun,
-      limit: opts?.limit,
+      limit,
       maxElapsedMs: perCampaignElapsed,
     });
   }

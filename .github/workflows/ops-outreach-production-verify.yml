@@ -140,7 +140,8 @@ jobs:
             fi
             sleep 20
           done
-          promote_production
+          echo "Deployment did not become READY within timeout (last state=${STATE:-UNKNOWN})"
+          exit 1
 
       - name: Wait for production health SHA
         run: |
@@ -177,7 +178,24 @@ jobs:
           export FIRM_OUTREACH_KICK_BASE_URL=https://policestationrepuk.org
           export FIRM_OUTREACH_KICK_REQUIRE_AUTH=1
           export FIRM_OUTREACH_KICK_COMMIT_SHA="${{ steps.deployment.outputs.sha }}"
+
+          # Manual dispatch: require confirm_live=SEND for probe/flush; otherwise status only.
+          # Push-triggered verify always runs the full live kick.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.confirm_live }}" != "SEND" ]; then
+              export FIRM_OUTREACH_KICK_STATUS_ONLY=1
+            else
+              LIMIT="${{ github.event.inputs.limit }}"
+              export FIRM_OUTREACH_KICK_FLUSH_LIMIT="${LIMIT:-8}"
+            fi
+          fi
+
           node scripts/firm-outreach-production-kick.mjs 2>&1 | tee /tmp/outreach-kick.log
+
+          if [ "${FIRM_OUTREACH_KICK_STATUS_ONLY:-}" = "1" ]; then
+            echo "Status-only dispatch — skipped live send evidence check"
+            exit 0
+          fi
 
           # Require evidence of Resend acceptance (probe and/or flush).
           if ! grep -E '"accepted":[1-9]|"messageId":"[^"]+"|jobsClaimed.:[1-9]' /tmp/outreach-kick.log; then

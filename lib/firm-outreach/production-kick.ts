@@ -78,6 +78,14 @@ export async function runProductionKickSteps(opts: {
   return { results, failed: false };
 }
 
+export const STATUS_ONLY_PRODUCTION_KICK_STEPS: KickStep[] = [
+  {
+    path: '/api/cron/firm-outreach-status',
+    label: 'Outreach send health (status)',
+    optional: true,
+  },
+];
+
 export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
   {
     path: '/api/cron/firm-outreach-status',
@@ -180,6 +188,23 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Send flush 2 (remaining safe capacity)',
   },
 ];
+
+/** Rewrite flush/preview send ceilings for bounded manual dispatch. */
+export function productionKickStepsWithFlushLimit(limit: number): KickStep[] {
+  const n = Math.max(1, Math.floor(limit));
+  return DEFAULT_PRODUCTION_KICK_STEPS.map((step) => {
+    if (
+      !step.path.includes('/api/cron/firm-outreach-send') &&
+      !step.path.includes('dryRunPreview=1')
+    ) {
+      return step;
+    }
+    const path = step.path.includes('limit=')
+      ? step.path.replace(/([?&])limit=\d+/, `$1limit=${n}`)
+      : `${step.path}${step.path.includes('?') ? '&' : '?'}limit=${n}`;
+    return { ...step, path };
+  });
+}
 
 export interface VercelDeployment {
   id?: string;

@@ -15,8 +15,10 @@
 import { existsSync, readFileSync } from 'node:fs';
 import {
   DEFAULT_PRODUCTION_KICK_STEPS,
+  productionKickStepsWithFlushLimit,
   resolveKickAuth,
   runProductionKickSteps,
+  STATUS_ONLY_PRODUCTION_KICK_STEPS,
   waitForVercelProductionDeploy,
 } from '../lib/firm-outreach/production-kick.ts';
 import { probeSignedResendWebhook } from '../lib/firm-outreach/resend-webhook-probe.ts';
@@ -140,10 +142,19 @@ if (!probe.ok) {
   );
 }
 
+const statusOnly = process.env.FIRM_OUTREACH_KICK_STATUS_ONLY === '1';
+const flushLimitRaw = process.env.FIRM_OUTREACH_KICK_FLUSH_LIMIT?.trim();
+const flushLimit = flushLimitRaw ? Number(flushLimitRaw) : NaN;
+const steps = statusOnly
+  ? STATUS_ONLY_PRODUCTION_KICK_STEPS
+  : Number.isFinite(flushLimit) && flushLimit > 0
+    ? productionKickStepsWithFlushLimit(flushLimit)
+    : DEFAULT_PRODUCTION_KICK_STEPS;
+
 const { results, failed } = await runProductionKickSteps({
   baseUrl,
   auth,
-  steps: DEFAULT_PRODUCTION_KICK_STEPS,
+  steps,
 });
 
 for (const r of results) {

@@ -46,6 +46,31 @@ function isStaleLockValue(value: string | null | undefined, ttlSeconds: number):
 }
 
 /**
+ * Atomically delete `key` only when its value still equals `expected`.
+ * Prevents stale-lock recovery from dropping a successor's fresh claim.
+ */
+async function deleteIfEquals(key: string, expected: string): Promise<boolean> {
+  const kv = getKV();
+  if (!kv || !expected) return false;
+  try {
+    if (typeof kv.eval === 'function') {
+      const deleted = await kv.eval(
+        `if redis.call("get", KEYS[1]) == ARGV[1] then return redis.call("del", KEYS[1]) else return 0 end`,
+        [key],
+        [expected],
+      );
+      return deleted === 1 || (deleted as unknown) === true;
+    }
+    const current = await kv.get<string>(key);
+    if (current !== expected) return false;
+    await kv.del(key);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Claim an outreach run lock. Returns an owner token on success (release with
  * the same token), or null when another run holds the lock.
  *
@@ -63,8 +88,8 @@ export async function claimOutreachRunLock(
   if (!kv) return null;
   try {
     const current = await kv.get<string>(key);
-    if (!isStaleLockValue(current, RUN_LOCK_TTL_SECONDS)) return null;
-    await kv.del(key);
+    if (!current || !isStaleLockValue(current, RUN_LOCK_TTL_SECONDS)) return null;
+    if (!(await deleteIfEquals(key, current))) return null;
     const retry = await claimKey(key, RUN_LOCK_TTL_SECONDS, token);
     return retry ? token : null;
   } catch {
@@ -114,8 +139,8 @@ export async function claimProspectSend(prospectId: string): Promise<string | nu
   if (!kv) return null;
   try {
     const current = await kv.get<string>(key);
-    if (!isStaleLockValue(current, 3600)) return null;
-    await kv.del(key);
+    if (!current || !isStaleLockValue(current, 3600)) return null;
+    if (!(await deleteIfEquals(key, current))) return null;
     const retry = await claimKey(key, 3600, token);
     return retry ? token : null;
   } catch {

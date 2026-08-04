@@ -2,8 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   DEFAULT_PRODUCTION_KICK_STEPS,
   outreachPathsChanged,
+  productionKickStepsWithFlushLimit,
   resolveKickAuth,
   runProductionKickSteps,
+  STATUS_ONLY_PRODUCTION_KICK_STEPS,
   waitForVercelProductionDeploy,
 } from '@/lib/firm-outreach/production-kick';
 
@@ -67,6 +69,17 @@ describe('runProductionKickSteps', () => {
   it('starts with optional outreach status health check', () => {
     expect(DEFAULT_PRODUCTION_KICK_STEPS[0]?.path).toBe('/api/cron/firm-outreach-status');
     expect(DEFAULT_PRODUCTION_KICK_STEPS[0]?.optional).toBe(true);
+  });
+
+  it('supports status-only and bounded flush step variants', () => {
+    expect(STATUS_ONLY_PRODUCTION_KICK_STEPS).toHaveLength(1);
+    expect(STATUS_ONLY_PRODUCTION_KICK_STEPS[0]?.path).toBe('/api/cron/firm-outreach-status');
+    const bounded = productionKickStepsWithFlushLimit(8);
+    const sends = bounded.filter((s) => s.path.startsWith('/api/cron/firm-outreach-send'));
+    expect(sends.every((s) => s.path.includes('limit=8'))).toBe(true);
+    expect(
+      bounded.find((s) => s.path.includes('dryRunPreview=1'))?.path,
+    ).toContain('limit=8');
   });
 
   it('heals Buffer quota, sibling remotes, backfills delivery, then requires probes before flush', () => {

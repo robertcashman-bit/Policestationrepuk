@@ -1,9 +1,6 @@
-# Deploy this branch tip to Vercel production and run a bounded outreach verify.
-# Triggers on push to cursor/outreach-* so cloud agents can verify without
-# workflow_dispatch (integration tokens often lack dispatch scope).
-#
-# Bit's production source guard may re-promote bit master within ~30 minutes.
-# Complete status → probe → force send inside that window.
+# Deploy this branch tip to Vercel production and verify outreach health.
+# Push: deploy + status-only (no live campaign flush).
+# workflow_dispatch with confirm_live=SEND: bounded live probe + single flush.
 name: Ops — outreach production verify
 
 on:
@@ -169,56 +166,55 @@ jobs:
           GH_CRON_SECRET: ${{ secrets.CRON_SECRET }}
           GH_BOOTSTRAP_SECRET: ${{ secrets.FIRM_OUTREACH_BOOTSTRAP_SECRET }}
           # Allow one controlled rotate when Vercel decrypt returns envelopes only.
-          # Safe because this workflow is single-flight (concurrency cancel-in-progress).
           FIRM_OUTREACH_ALLOW_BOOTSTRAP_ROTATE: '1'
+          EVENT_NAME: ${{ github.event_name }}
+          CONFIRM_LIVE: ${{ github.event.inputs.confirm_live }}
         run: |
           set -euo pipefail
           if [ -n "${GH_CRON_SECRET:-}" ]; then export CRON_SECRET="$GH_CRON_SECRET"; fi
           if [ -n "${GH_BOOTSTRAP_SECRET:-}" ]; then export FIRM_OUTREACH_BOOTSTRAP_SECRET="$GH_BOOTSTRAP_SECRET"; fi
           case "${CRON_SECRET:-}" in eyJ*) unset CRON_SECRET ;; esac
           case "${FIRM_OUTREACH_BOOTSTRAP_SECRET:-}" in eyJ*) unset FIRM_OUTREACH_BOOTSTRAP_SECRET ;; esac
+          # Only live SEND dispatches may mutate durable send policy (approval/cap).
+          if [ "${EVENT_NAME}" = "workflow_dispatch" ] && [ "${CONFIRM_LIVE}" = "SEND" ]; then
+            export FIRM_OUTREACH_PREPARE_UNGATE=1
+          fi
           node scripts/firm-outreach-kick-prepare-auth.mjs
 
-      - name: Status + probe + bounded force flush
+      - name: Status (+ optional bounded live flush)
         env:
           GH_CRON_SECRET: ${{ secrets.CRON_SECRET }}
           GH_BOOTSTRAP_SECRET: ${{ secrets.FIRM_OUTREACH_BOOTSTRAP_SECRET }}
         run: |
           set -euo pipefail
-          # Prefer GH secrets; ignore Vercel envelope ciphertext left in GITHUB_ENV.
           if [ -n "${GH_CRON_SECRET:-}" ]; then export CRON_SECRET="$GH_CRON_SECRET"; fi
           if [ -n "${GH_BOOTSTRAP_SECRET:-}" ]; then export FIRM_OUTREACH_BOOTSTRAP_SECRET="$GH_BOOTSTRAP_SECRET"; fi
           case "${CRON_SECRET:-}" in eyJ*) unset CRON_SECRET ;; esac
           case "${FIRM_OUTREACH_BOOTSTRAP_SECRET:-}" in eyJ*) unset FIRM_OUTREACH_BOOTSTRAP_SECRET ;; esac
-          case "${RESEND_WEBHOOK_SECRET:-}" in eyJ*|whsec_*) ;; *) unset RESEND_WEBHOOK_SECRET ;; esac
           case "${RESEND_WEBHOOK_SECRET:-}" in eyJ*) unset RESEND_WEBHOOK_SECRET ;; esac
           export FIRM_OUTREACH_KICK_BASE_URL=https://policestationrepuk.org
           export FIRM_OUTREACH_KICK_REQUIRE_AUTH=1
           export FIRM_OUTREACH_KICK_COMMIT_SHA="${{ steps.deployment.outputs.sha }}"
 
-          # Manual dispatch: require confirm_live=SEND for probe/flush; otherwise status only.
-          # Push-triggered verify always runs the full live kick.
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            if [ "${{ github.event.inputs.confirm_live }}" != "SEND" ]; then
-              export FIRM_OUTREACH_KICK_STATUS_ONLY=1
-            else
-              LIMIT="${{ github.event.inputs.limit }}"
-              export FIRM_OUTREACH_KICK_FLUSH_LIMIT="${LIMIT:-8}"
-            fi
+          # Push = status only. Live probe/flush only on workflow_dispatch + confirm_live=SEND.
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ] || [ "${{ github.event.inputs.confirm_live }}" != "SEND" ]; then
+            export FIRM_OUTREACH_KICK_STATUS_ONLY=1
+          else
+            LIMIT="${{ github.event.inputs.limit }}"
+            export FIRM_OUTREACH_KICK_FLUSH_LIMIT="${LIMIT:-8}"
           fi
 
           node scripts/firm-outreach-production-kick.mjs 2>&1 | tee /tmp/outreach-kick.log
 
+          # Evidence evaluates multiline kick logs (header line + JSON body on next line).
+          # Status-only requires [ok] status. Live SEND requires nested send.accepted and
+          # rejects hard skips (env_invalid / approval-required / Send blocked).
           if [ "${FIRM_OUTREACH_KICK_STATUS_ONLY:-}" = "1" ]; then
-            echo "Status-only dispatch — skipped live send evidence check"
+            node scripts/firm-outreach-verify-kick-evidence.mjs status_only /tmp/outreach-kick.log
             exit 0
           fi
 
-          # Require evidence of Resend acceptance (probe and/or flush).
-          if ! grep -E '"accepted":[1-9]|"messageId":"[^"]+"|jobsClaimed.:[1-9]' /tmp/outreach-kick.log; then
-            echo "No accepted sends / messageIds / jobsClaimed in kick log"
-            exit 1
-          fi
+          node scripts/firm-outreach-verify-kick-evidence.mjs live_send /tmp/outreach-kick.log
 
       - name: Upload kick log
         if: always()

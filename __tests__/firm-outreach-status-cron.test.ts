@@ -19,14 +19,18 @@ vi.mock('@/lib/firm-outreach/constants', () => ({
   outreachRequireApproval: () => true,
 }));
 
-vi.mock('@/lib/firm-outreach/outreach/activity-report', () => ({
-  buildOutreachActivityReport: vi.fn().mockResolvedValue({
-    report: {
-      summary: { readyToSend: 109, sentToday: 0, sentLast7Days: 687 },
-      readyToSendProspects: [{ suppressed: false, email: 'a@b.com' }],
-    },
-  }),
-}));
+vi.mock('@/lib/firm-outreach/outreach/activity-report', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/firm-outreach/outreach/activity-report')>();
+  return {
+    ...actual,
+    buildOutreachActivityReport: vi.fn().mockResolvedValue({
+      report: {
+        summary: { readyToSend: 109, sentToday: 0, sentLast7Days: 687 },
+        readyToSendProspects: [{ suppressed: false, email: 'a@b.com' }],
+      },
+    }),
+  };
+});
 
 vi.mock('@/lib/firm-outreach/email-jobs/storage', () => ({
   countEmailJobsByStatus: vi.fn().mockResolvedValue({
@@ -55,6 +59,25 @@ vi.mock('@/lib/firm-outreach/storage', async (importOriginal) => {
   return {
     ...actual,
     getLatestOutreachRunLog: vi.fn().mockResolvedValue(null),
+    getDailySendCount: vi.fn().mockImplementation(async (_date: string, campaignId?: string) => {
+      if (campaignId === 'whatsapp_invite_v1') return 3;
+      if (campaignId === 'agent_cover_kent_v1') return 5;
+      return 0;
+    }),
+    listAllSends: vi.fn().mockResolvedValue([
+      {
+        campaignId: 'whatsapp_invite_v1',
+        sentAt: new Date().toISOString(),
+        status: 'sent',
+        email: 'a@b.com',
+      },
+      {
+        campaignId: 'agent_cover_kent_v1',
+        sentAt: new Date().toISOString(),
+        status: 'sent',
+        email: 'c@d.com',
+      },
+    ]),
     countProspectsByStatus: vi.fn().mockResolvedValue({
       ready_to_send: 122,
       discovered: 6,
@@ -125,6 +148,13 @@ describe('firm-outreach-status cron route', () => {
     expect(json.queue.primaryCampaignReadyToSend).toBe(109);
     expect(json.queue.allStatusesReadyToSend).toBe(122);
     expect(json.queue.eligibility.agent_cover_kent_v1.readyRecordCount).toBe(100);
+    // sentToday sums both campaign daily counters (3 + 5).
+    expect(json.queue.sentToday).toBe(8);
+    expect(json.queue.sentTodayByCampaign).toEqual({
+      whatsapp_invite_v1: 3,
+      agent_cover_kent_v1: 5,
+    });
+    expect(json.queue.primaryCampaignSentToday).toBe(0);
   });
 
   it('accepts outreach bootstrap secret header', async () => {

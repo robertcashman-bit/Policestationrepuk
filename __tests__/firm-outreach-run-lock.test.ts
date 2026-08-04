@@ -116,10 +116,16 @@ describe('outreach run locks', () => {
     expect(await claimProspectSend('p1')).toBeTruthy();
   });
 
-  it('force-clears a stuck send lock for kick recovery', async () => {
-    const token = await claimOutreachRunLock('send');
-    expect(token).toBeTruthy();
+  it('force-clears only a stale send lock (not a fresh holder)', async () => {
+    const fresh = await claimOutreachRunLock('send');
+    expect(fresh).toBeTruthy();
+    expect(await forceClearOutreachRunLock('send')).toBe(false);
+    expect(store.has('firmoutreach:lock:send')).toBe(true);
+
+    const staleIso = new Date(Date.now() - 400_000).toISOString();
+    store.set('firmoutreach:lock:send', staleIso);
     expect(await forceClearOutreachRunLock('send')).toBe(true);
+    expect(store.has('firmoutreach:lock:send')).toBe(false);
     expect(await claimOutreachRunLock('send')).toBeTruthy();
   });
 });

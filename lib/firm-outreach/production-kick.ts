@@ -78,11 +78,11 @@ export async function runProductionKickSteps(opts: {
   return { results, failed: false };
 }
 
+/** Status-only verify: status must be HTTP 200 (not optional). */
 export const STATUS_ONLY_PRODUCTION_KICK_STEPS: KickStep[] = [
   {
     path: '/api/cron/firm-outreach-status',
     label: 'Outreach send health (status)',
-    optional: true,
   },
 ];
 
@@ -116,24 +116,16 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     path: '/api/cron/firm-outreach-probe',
     label: 'Pre-flight email probes (policestationrepuk + policestationagent)',
   },
-  // Flush FIRST while cooldown override is live — do not let requalify/enrich burn the window.
   {
     path: '/api/cron/firm-outreach-bootstrap?dryRunPreview=1&allCampaigns=1&limit=150',
     label: 'Dry-run preview (both campaigns, safe send limit)',
     optional: true,
   },
+  // Single flush — no force=1 (stale locks recover inside claimOutreachRunLock).
+  // force=1 only clears *stale* locks now; still omit here so a live cron is never stolen.
   {
-    // force=1 clears a stuck send lock from older builds that never released
-    // (required so post-deploy kick is not a false overlap).
-    path: '/api/cron/firm-outreach-send?limit=150&force=1',
-    label: 'Send flush 1 (whatsapp_invite_v1 + agent_cover_kent_v1)',
-  },
-  // Immediate second pass while Resend quota remains — large ready queues (200+)
-  // often leave capacity after flush 1 finishes early on skips/suppressions.
-  {
-    path: '/api/cron/firm-outreach-send?limit=150',
-    label: 'Send flush 1b (drain remaining quota)',
-    optional: true,
+    path: '/api/cron/firm-outreach-send?limit=40',
+    label: 'Send flush (whatsapp_invite_v1 + agent_cover_kent_v1)',
   },
   {
     path: '/api/cron/firm-outreach-bootstrap?requalifyOnly=1',
@@ -145,7 +137,6 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Cleanup non-firm / bad emails (both campaigns)',
     optional: true,
   },
-  // Grow never-contacted inventory after the first flush.
   {
     path: '/api/cron/firm-outreach-discovery',
     label: 'Discovery (new firm prospects)',
@@ -156,54 +147,40 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Pipeline maintain (requalify + inventory)',
     optional: true,
   },
-  // PSA: seed Kent + larger enrich so agent_cover gains ready firm inboxes.
   {
     path: '/api/cron/firm-outreach-bootstrap?seedAgentCover=1&campaignId=agent_cover_kent_v1&batches=3&limit=80',
     label: 'Seed + enrich PSA agent-cover Kent',
     optional: true,
   },
-  // RepUK: larger enrich batches to surface firm-type emails before flush.
   {
     path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',
     label: 'Enrich batch 1 (RepUK bootstrap)',
-  },
-  {
-    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',
-    label: 'Enrich batch 2 (RepUK bootstrap)',
     optional: true,
-  },
-  {
-    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',
-    label: 'Enrich batch 3 (RepUK bootstrap)',
-    optional: true,
-  },
-  {
-    path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',
-    label: 'Enrich batch 4 (RepUK bootstrap)',
-    optional: true,
-  },
-  // Second flush catches anything enrich just promoted into ready_to_send.
-  {
-    path: '/api/cron/firm-outreach-send?limit=150&force=1',
-    label: 'Send flush 2 (remaining safe capacity)',
   },
 ];
 
-/** Rewrite flush/preview send ceilings for bounded manual dispatch. */
+/**
+ * Bounded live kick: status + probe + one send with a total flush budget.
+ * Does not multiply the limit across multiple flush steps.
+ */
 export function productionKickStepsWithFlushLimit(limit: number): KickStep[] {
-  const n = Math.max(1, Math.floor(limit));
-  return DEFAULT_PRODUCTION_KICK_STEPS.map((step) => {
-    if (
-      !step.path.includes('/api/cron/firm-outreach-send') &&
-      !step.path.includes('dryRunPreview=1')
-    ) {
-      return step;
-    }
-    const path = step.path.includes('limit=')
-      ? step.path.replace(/([?&])limit=\d+/, `$1limit=${n}`)
-      : `${step.path}${step.path.includes('?') ? '&' : '?'}limit=${n}`;
-    return { ...step, path };
-  });
+  const n = Math.max(1, Math.min(40, Math.floor(limit)));
+  return [
+    ...STATUS_ONLY_PRODUCTION_KICK_STEPS,
+    {
+      path: '/api/cron/firm-outreach-probe',
+      label: 'Pre-flight email probes (policestationrepuk + policestationagent)',
+    },
+    {
+      path: `/api/cron/firm-outreach-bootstrap?dryRunPreview=1&allCampaigns=1&limit=${n}`,
+      label: 'Dry-run preview (both campaigns, safe send limit)',
+      optional: true,
+    },
+    {
+      path: `/api/cron/firm-outreach-send?limit=${n}`,
+      label: 'Send flush (bounded)',
+    },
+  ];
 }
 
 export interface VercelDeployment {

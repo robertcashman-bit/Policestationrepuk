@@ -25,6 +25,7 @@ import {
   qualifyProspectForOutreach,
   resolveStatusWithQualification,
 } from '../qualification';
+import { isSendableReadyProspect } from '../sendable-ready';
 import { psaSendReserve } from '../send-quota-split';
 import { FIRM_OUTREACH_CAMPAIGN_ID, OUTREACH_CAMPAIGN_IDS } from '../site-config';
 import {
@@ -38,7 +39,7 @@ import {
   incrementResendSendCount,
   isDuplicateInitialSend,
   isSuppressed,
-  listProspectIdsByRecordStatus,
+  listProspectsByRecordStatus,
   releaseDailySendSlot,
   releaseHourlySendSlot,
   reserveDailySendSlot,
@@ -820,12 +821,15 @@ export async function runFirmOutreachAllCampaigns(opts?: {
   if (includesPsa && includesRepuk) {
     const date = new Date().toISOString().slice(0, 10);
     const globalRemaining = await getGlobalResendQuotaRemaining(date);
-    const psaReadyIds = await listProspectIdsByRecordStatus('ready_to_send', {
+    // Reserve from sendable inventory — parked / cooldown / junk ready rows
+    // must not starve RepUK while PSA cannot actually spend the floor.
+    const psaReady = await listProspectsByRecordStatus('ready_to_send', 500, {
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
     });
+    const psaSendableCount = psaReady.filter(isSendableReadyProspect).length;
     const split = psaSendReserve({
       globalRemaining,
-      psaReadyCount: psaReadyIds.length,
+      psaReadyCount: psaSendableCount,
       sendLimit: opts?.limit,
     });
     psaLimit = split.psaLimit;

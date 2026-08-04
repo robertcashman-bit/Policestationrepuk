@@ -121,7 +121,7 @@ Keeps `LEAD_ENGINE_DRY_RUN=true` for Python mailer; import into KV only. Do not 
 **Two remotes share one Vercel project.** Bit runs `Ops — production source guard` every 30 minutes and re-promotes bit `master` if the live SHA is not on bit. This repo counters with:
 
 - `Ops — outreach production verify` (push to `cursor/outreach-*`) — deploy + probe + bounded flush
-- `Ops — production outreach hold` (every 10 minutes) — re-promote this branch tip if bit guard drifted production (no mass send)
+- `Ops — production outreach hold` (every 5 minutes) — re-promote this branch tip if bit guard drifted production; force-reclaims known-bad bit tip `0bed84b` (no mass send)
 
 Permanent fix (pick one):
 

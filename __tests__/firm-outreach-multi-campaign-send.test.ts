@@ -27,6 +27,7 @@ describe('multi-campaign outreach send', () => {
     expect(runner).toContain('runFirmOutreachAllCampaigns');
     expect(runner).toContain('OUTREACH_CAMPAIGN_IDS');
     expect(runner).toContain('psaSendReserve');
+    expect(runner).toContain('isSendableReadyProspect');
     expect(runner).toContain('assertOutreachSendReady');
     expect(runner).toContain('isOutreachSendAllowed');
 

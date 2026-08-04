@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isCronAuthorized } from '@/lib/cron-auth';
+import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from '@/lib/firm-outreach/campaign-scope';
 import { selectOutreachCandidates } from '@/lib/firm-outreach/outreach/candidate-selection';
 import { reviveAgentCoverKentReady } from '@/lib/firm-outreach/revive-agent-cover-ready';
@@ -14,7 +14,7 @@ export const maxDuration = 60;
  * Runs before send crons so agent_cover_kent_v1 is not starved when maintain 504s.
  */
 export async function GET(request: Request) {
-  if (!isCronAuthorized(request)) {
+  if (!isOutreachBootstrapAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

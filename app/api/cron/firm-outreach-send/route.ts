@@ -36,8 +36,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const paramLimit = Number(url.searchParams.get('limit') || 0);
   const sendLimit = paramLimit > 0 ? paramLimit : cronSendBatchSize();
-  // Kick / ops only: clear a stuck send lock left by older builds that never released.
-  // Do not auto-clear on normal cron overlap — that can steal a live holder's lock.
+  // Kick / ops only: clear a *stale* send lock. Fresh locks are never stolen.
   let forceClearedLock = false;
   if (url.searchParams.get('force') === '1') {
     forceClearedLock = await forceClearOutreachRunLock('send');

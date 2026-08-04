@@ -16,6 +16,7 @@ vi.mock('@/lib/firm-outreach/storage', () => ({
     return [];
   },
   listProspectsForFirmKey: async (firmKey: string) => siblingsByFirm.get(firmKey) ?? [],
+  listSendsForEmail: async () => [],
 }));
 
 import { selectOutreachCandidates } from '@/lib/firm-outreach/outreach/candidate-selection';
@@ -144,5 +145,33 @@ describe('selectOutreachCandidates', () => {
     expect(result.firmCooldownSkipped).toBe(1);
     expect(result.readyEligible).toBe(2);
     expect(result.candidates.map((c) => c.prospect.id)).toEqual(['firm-ok']);
+  });
+
+  it('applies cross-campaign firm cooldown (RepUK sibling cools PSA solicitor)', async () => {
+    const recent = new Date().toISOString();
+    const psaSol = base({
+      id: 'psa-sol',
+      firmKey: 'acme',
+      prospectType: 'solicitor',
+      status: 'ready_to_send',
+      campaignId: 'agent_cover_kent_v1',
+      priorityScore: 90,
+    });
+    prospects.ready.push(psaSol);
+    siblingsByFirm.set('acme', [
+      psaSol,
+      base({
+        id: 'repuk-sent',
+        firmKey: 'acme',
+        prospectType: 'firm',
+        status: 'sent',
+        campaignId: 'whatsapp_invite_v1',
+        lastEmailAt: recent,
+      }),
+    ]);
+
+    const result = await selectOutreachCandidates({ campaignId: 'agent_cover_kent_v1' });
+    expect(result.firmCooldownSkipped).toBe(1);
+    expect(result.candidates).toHaveLength(0);
   });
 });

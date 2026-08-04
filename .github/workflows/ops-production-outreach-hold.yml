@@ -1,14 +1,18 @@
 # Keep production on this outreach branch tip when bit's source guard reverts
 # to robertcashman-bit master (which lacks lock release / force=1).
 #
-# Runs every 10 minutes. Promote-only when live /api/health version drifts.
+# Runs every 5 minutes so reclaim lands in the same window as bit's :07/:37 guard.
+# Promote-only when live /api/health version drifts.
 # Does NOT send campaign email — use Ops — outreach production verify for that.
+#
+# Permanent fix (still required): sync tip to bit master or disable bit source guard
+# (see scripts/sync-outreach-fix-to-bit.sh / docs/outreach-system.md).
 name: Ops — production outreach hold
 
 on:
   schedule:
-    # Offset from bit guard at :07/:37 so we reclaim within ~10 minutes.
-    - cron: '2,12,22,32,42,52 * * * *'
+    # Align with bit guard minutes (:07/:37) and reclaim within ~5 minutes either side.
+    - cron: '2,7,12,17,22,27,32,37,42,47,52,57 * * * *'
   workflow_dispatch:
     inputs:
       force_promote:
@@ -67,6 +71,15 @@ jobs:
           VER=$(echo "$LIVE" | jq -r '.version // empty')
           echo "Live version=${VER} want=${SHORT} force=${FORCE}"
 
+          # Known-bad bit tip historically shipped without lock release (TTL-only).
+          # Always reclaim when production shows that fingerprint, even if FORCE is false
+          # and somehow SHORT matched (should not) — belt-and-braces for the arms race.
+          KNOWN_BAD_BIT_SHORTS='0bed84b'
+          if echo " ${KNOWN_BAD_BIT_SHORTS} " | grep -q " ${VER} "; then
+            echo "Live SHA is a known bit-only tip without lock release — forcing reclaim"
+            FORCE=true
+          fi
+
           if [ "$FORCE" != "true" ] && [ "$VER" = "$SHORT" ]; then
             echo "drift=false" >> "$GITHUB_OUTPUT"
             echo "Production already on outreach hold tip ${SHORT}"
@@ -75,6 +88,12 @@ jobs:
 
           echo "drift=true" >> "$GITHUB_OUTPUT"
           echo "sha=${SHA}" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Production outreach hold"
+            echo "- live: \`${VER:-unknown}\`"
+            echo "- want: \`${SHORT}\`"
+            echo "- force: \`${FORCE}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
           find_url() {
             curl -sS "${API}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_ORG_ID}&limit=40" \

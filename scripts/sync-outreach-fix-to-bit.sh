@@ -46,7 +46,10 @@ if [ "$DRY_RUN" = "1" ]; then
 fi
 
 echo "Pushing HEAD → bit master…"
-git push "$BIT_REMOTE" "HEAD:refs/heads/master"
+if ! git push "$BIT_REMOTE" "HEAD:refs/heads/master"; then
+  echo "ERROR: push to bit failed (need write access to robertcashman-bit/Policestationrepuk)."
+  exit 1
+fi
 
 echo "Dispatch bit production deploy + kick (manual confirm still required on some workflows):"
 echo "  gh workflow run 'Deploy to Vercel (production)' --repo robertcashman-bit/Policestationrepuk -f sha=${SHA} -f confirm_production=PRODUCTION"

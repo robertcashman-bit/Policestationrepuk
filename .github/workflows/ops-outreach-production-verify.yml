@@ -207,8 +207,9 @@ jobs:
           node scripts/firm-outreach-production-kick.mjs 2>&1 | tee /tmp/outreach-kick.log
 
           if [ "${FIRM_OUTREACH_KICK_STATUS_ONLY:-}" = "1" ]; then
-            if ! grep -q 'Outreach send health (status)' /tmp/outreach-kick.log; then
-              echo "Status-only kick did not run status step"
+            # Require [ok] — optional status steps log [warn] on non-200 and must not pass.
+            if ! grep -qE '\[ok\] Outreach send health \(status\)' /tmp/outreach-kick.log; then
+              echo "Status-only kick did not complete status step successfully"
               exit 1
             fi
             echo "Status-only verify — no live campaign flush"
@@ -216,12 +217,17 @@ jobs:
           fi
 
           # Live SEND: require campaign flush accepted>0. Probe messageIds alone do not count.
-          # Empty inventory (accepted:0 with healthy status) is a soft pass if flush ran.
-          if grep -E '\[ok\] Send flush' /tmp/outreach-kick.log | grep -qE '"accepted":[1-9][0-9]*'; then
+          # Kick logs label then JSON body on the next line — use -A1 so accepted is visible.
+          # Empty inventory (accepted:0, no skippedReason) is a soft pass if flush ran.
+          if grep -A1 -E '\[ok\] Send flush' /tmp/outreach-kick.log | grep -qE '"accepted":[1-9][0-9]*'; then
             echo "Flush accepted >= 1 — live send verified"
             exit 0
           fi
-          if grep -E '\[ok\] Send flush' /tmp/outreach-kick.log | grep -qE '"accepted":0'; then
+          if grep -A1 -E '\[ok\] Send flush' /tmp/outreach-kick.log | grep -qE '"accepted":0'; then
+            if grep -A1 -E '\[ok\] Send flush' /tmp/outreach-kick.log | grep -qE '"skippedReason"'; then
+              echo "Flush returned accepted=0 with skippedReason — live send not verified"
+              exit 1
+            fi
             echo "Flush ran with accepted=0 (empty/eligible inventory or caps) — treating as pass"
             exit 0
           fi

@@ -1,12 +1,6 @@
 import Link from 'next/link';
-import {
-  addSuppression,
-  getProspectByEmail,
-  saveProspect,
-} from '@/lib/firm-outreach/storage';
-import { verifyUnsubscribeToken } from '@/lib/firm-outreach/outreach/unsubscribe-token';
+import { applyUnsubscribeToken } from '@/lib/firm-outreach/outreach/apply-unsubscribe';
 import { buildMetadata } from '@/lib/seo';
-import { OUTREACH_CAMPAIGN_IDS } from '@/lib/firm-outreach/site-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,9 +17,9 @@ export default async function UnsubscribePage({
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
-  const payload = verifyUnsubscribeToken(decodeURIComponent(token));
+  const result = await applyUnsubscribeToken(token);
 
-  if (!payload) {
+  if (!result.ok) {
     return (
       <div className="page-container section-pad max-w-lg">
         <h1 className="text-h2 text-[var(--navy)]">Invalid or expired link</h1>
@@ -43,23 +37,11 @@ export default async function UnsubscribePage({
     );
   }
 
-  const email = payload.email.trim().toLowerCase();
-  await addSuppression(email, 'unsubscribe');
-
-  for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
-    const prospect = await getProspectByEmail(email, campaignId);
-    if (!prospect) continue;
-    if (prospect.status === 'unsubscribed') continue;
-    prospect.status = 'unsubscribed';
-    prospect.updatedAt = new Date().toISOString();
-    await saveProspect(prospect);
-  }
-
   return (
     <div className="page-container section-pad max-w-lg">
       <h1 className="text-h2 text-[var(--navy)]">You are unsubscribed</h1>
       <p className="mt-3 text-sm text-[var(--muted)]">
-        <strong>{payload.email}</strong> will not receive further PoliceStationRepUK or Police
+        <strong>{result.email}</strong> will not receive further PoliceStationRepUK or Police
         Station Agent outreach emails.
       </p>
       <Link href="/" className="mt-6 inline-block text-sm font-semibold text-[var(--gold-link)]">

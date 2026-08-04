@@ -76,7 +76,9 @@ describe('runProductionKickSteps', () => {
     expect(STATUS_ONLY_PRODUCTION_KICK_STEPS[0]?.path).toBe('/api/cron/firm-outreach-status');
     const bounded = productionKickStepsWithFlushLimit(8);
     const sends = bounded.filter((s) => s.path.startsWith('/api/cron/firm-outreach-send'));
-    expect(sends.every((s) => s.path.includes('limit=8'))).toBe(true);
+    expect(sends).toHaveLength(1);
+    expect(sends[0]?.path).toContain('limit=8');
+    expect(sends[0]?.path).not.toContain('force=1');
     expect(
       bounded.find((s) => s.path.includes('dryRunPreview=1'))?.path,
     ).toContain('limit=8');
@@ -93,26 +95,13 @@ describe('runProductionKickSteps', () => {
     expect(DEFAULT_PRODUCTION_KICK_STEPS[4]?.optional).toBeFalsy();
   });
 
-  it('flushes early (required) then again after enrich', () => {
+  it('uses a single send flush without force=1', () => {
     const sends = DEFAULT_PRODUCTION_KICK_STEPS.filter((s) =>
       s.path.startsWith('/api/cron/firm-outreach-send'),
     );
-    const dryRunIdx = DEFAULT_PRODUCTION_KICK_STEPS.findIndex((s) =>
-      s.path.includes('dryRunPreview=1'),
-    );
-    const firstSendIdx = DEFAULT_PRODUCTION_KICK_STEPS.findIndex((s) =>
-      s.path.startsWith('/api/cron/firm-outreach-send'),
-    );
-    const requalifyIdx = DEFAULT_PRODUCTION_KICK_STEPS.findIndex((s) =>
-      s.path.includes('requalifyOnly=1'),
-    );
-    expect(sends).toHaveLength(3);
-    expect(sends.filter((s) => !s.optional)).toHaveLength(2);
-    expect(sends[0]?.path).toContain('force=1');
-    expect(sends.some((s) => s.optional && s.label.includes('flush 1b'))).toBe(true);
-    expect(dryRunIdx).toBeGreaterThan(0);
-    expect(firstSendIdx).toBeLessThan(requalifyIdx);
-    expect(DEFAULT_PRODUCTION_KICK_STEPS.at(-1)?.label).toContain('flush 2');
+    expect(sends).toHaveLength(1);
+    expect(sends[0]?.path).not.toContain('force=1');
+    expect(sends[0]?.optional).toBeFalsy();
   });
 
   it('fails when required probe is non-200', async () => {
@@ -138,7 +127,7 @@ describe('runProductionKickSteps', () => {
     expect(results[4]?.ok).toBe(false);
   });
 
-  it('fails when required enrich batch is non-200', async () => {
+  it('does not fail the kick when optional enrich batch is non-200', async () => {
     const fetchFn = vi.fn().mockImplementation(async (url: string) => {
       const u = String(url);
       if (u.includes('batches=1') && !u.includes('seedAgentCover') && !u.includes('campaignId=')) {
@@ -154,12 +143,13 @@ describe('runProductionKickSteps', () => {
       fetchFn: fetchFn as typeof fetch,
     });
 
-    expect(failed).toBe(true);
-    const failedStep = results.find((r) => !r.ok && !r.optional);
-    expect(failedStep?.label).toContain('Enrich batch 1');
+    expect(failed).toBe(false);
+    const enrich = results.find((r) => r.label.includes('Enrich batch 1'));
+    expect(enrich?.ok).toBe(false);
+    expect(enrich?.optional).toBe(true);
   });
 
-  it('uses separate RepUK bootstrap enrich calls (PSA seed may use batches=2)', () => {
+  it('keeps optional RepUK bootstrap enrich after the required send flush', () => {
     const repukEnrich = DEFAULT_PRODUCTION_KICK_STEPS.filter(
       (s) =>
         s.path.includes('bootstrap') &&
@@ -169,8 +159,8 @@ describe('runProductionKickSteps', () => {
         !s.path.includes('cleanupBadEmails') &&
         !s.path.includes('requalifyOnly'),
     );
-    expect(repukEnrich.length).toBeGreaterThanOrEqual(2);
-    expect(repukEnrich.every((s) => s.path.includes('limit=80'))).toBe(true);
+    expect(repukEnrich.length).toBeGreaterThanOrEqual(1);
+    expect(repukEnrich.every((s) => s.optional)).toBe(true);
   });
 });
 

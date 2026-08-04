@@ -102,27 +102,23 @@ export async function releaseOutreachRunLock(
   mode: OutreachRunMode,
   token: string,
 ): Promise<void> {
-  const kv = getKV();
-  if (!kv || !token) return;
-  const key = runLockKey(mode);
-  try {
-    const current = await kv.get<string>(key);
-    if (current === token) await kv.del(key);
-  } catch {
-    /* ignore — TTL still recovers */
-  }
+  if (!token) return;
+  await deleteIfEquals(runLockKey(mode), token);
 }
 
 /**
- * Operator/kick escape hatch: delete a stuck run lock (e.g. pre-release builds
- * that claimed without releasing). Prefer normal release with owner token.
+ * Operator/kick escape hatch: clear a *stale* run lock only.
+ * Never deletes a fresh lock held by a concurrent cron/kick (avoids double-send).
  */
 export async function forceClearOutreachRunLock(mode: OutreachRunMode): Promise<boolean> {
   const kv = getKV();
   if (!kv) return false;
+  const key = runLockKey(mode);
   try {
-    await kv.del(runLockKey(mode));
-    return true;
+    const current = await kv.get<string>(key);
+    if (!current) return false;
+    if (!isStaleLockValue(current, RUN_LOCK_TTL_SECONDS)) return false;
+    return deleteIfEquals(key, current);
   } catch {
     return false;
   }
@@ -153,13 +149,6 @@ export async function releaseProspectSend(
   prospectId: string,
   token: string,
 ): Promise<void> {
-  const kv = getKV();
-  if (!kv || !token) return;
-  const key = prospectSendKey(prospectId);
-  try {
-    const current = await kv.get<string>(key);
-    if (current === token) await kv.del(key);
-  } catch {
-    /* ignore */
-  }
+  if (!token) return;
+  await deleteIfEquals(prospectSendKey(prospectId), token);
 }

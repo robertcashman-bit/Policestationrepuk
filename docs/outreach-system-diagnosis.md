@@ -62,16 +62,13 @@ Campaigns:
 
 ## Verification checklist
 
-- [x] `npm run test:firm-outreach:ci` (269 passed including status/multi-campaign)
+- [x] `npm run test:firm-outreach:ci` (269+ passed including status/multi-campaign)
 - [x] Auth race fixed: single-flight verify + controlled rotate + bootstrap probe before kick
 - [x] Production verify success on `e073555` / live `980aaba` ([run 30933585738](https://github.com/robertdavidcashman-droid/Policestationrepuk/actions/runs/30933585738))
-- [x] Status shows cross-campaign ready (`readyToSend: 321`, WhatsApp `readyRecordCount: 320`)
-- [x] Probe Resend IDs (this verify): RepUK `392a1d79-0de3-40ac-8714-e64ffec7dd83`, PSA `2e4bf4dd-e328-47cb-bc1a-8def9880414e`
-- [x] Controlled flush: WhatsApp **accepted 17 + 18** (`jobsClaimed` 17 then 18); PSA skips correctly as `batch_limit` / `duplicate`
-- [x] `forceClearedLock: true`; cron routes reject unauthenticated requests (401)
-- [x] `/api/unsubscribe` + `/outreach/unsubscribe/[token]` present
+- [x] Multi-model review act-ons: push verify status-only; stale-only `forceClear`; RFC 8058 unsubscribe POST; prepare no longer persists cooldown=0 / ungates without `FIRM_OUTREACH_PREPARE_UNGATE=1`
+- [x] `/api/unsubscribe` one-click POST returns 200; `List-Unsubscribe` points at API URL
 - [x] `Ops — production outreach hold` on droid `master` (10-minute reclaim)
 - [ ] Sync tip to **bit** `master` or disable bit source guard (ends dual-repo war)
 - [ ] Set GitHub Actions secrets `CRON_SECRET` / `FIRM_OUTREACH_BOOTSTRAP_SECRET` to Production values (stop decrypt/rotate path)
-- [ ] Restore `FIRM_OUTREACH_FIRM_COOLDOWN_DAYS=90` after backlog flush
 - [ ] Ensure usable Production `RESEND_WEBHOOK_SECRET` (`whsec_…`)
+- [ ] Live SEND: `gh workflow run "Ops — outreach production verify" -f confirm_live=SEND -f limit=8`

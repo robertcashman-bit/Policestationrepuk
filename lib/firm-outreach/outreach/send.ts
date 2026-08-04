@@ -52,11 +52,14 @@ export async function sendOutreachEmail(opts: {
 
   const subject = subjectForStep(opts.prospect, opts.step);
   const token = issueUnsubscribeToken(email);
-  const unsubscribeUrl = `${unsubscribeBaseUrl(opts.prospect)}/outreach/unsubscribe/${encodeURIComponent(token)}`;
+  const base = unsubscribeBaseUrl(opts.prospect);
+  // Page link for humans; API URL for List-Unsubscribe / one-click POST (RFC 8058).
+  const unsubscribePageUrl = `${base}/outreach/unsubscribe/${encodeURIComponent(token)}`;
+  const unsubscribeApiUrl = `${base}/api/unsubscribe?token=${encodeURIComponent(token)}`;
   const html = buildOutreachEmailHtml({
     prospect: opts.prospect,
     step: opts.step,
-    unsubscribeUrl,
+    unsubscribeUrl: unsubscribePageUrl,
   });
 
   const dryRunEnv = process.env.FIRM_OUTREACH_DRY_RUN?.trim().toLowerCase();
@@ -93,7 +96,7 @@ export async function sendOutreachEmail(opts: {
       html,
       attachments,
       headers: {
-        'List-Unsubscribe': `<${unsubscribeUrl}>, <mailto:${COMMUNITY_EMAIL}?subject=unsubscribe>`,
+        'List-Unsubscribe': `<${unsubscribeApiUrl}>, <mailto:${COMMUNITY_EMAIL}?subject=unsubscribe>`,
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
       },
     });

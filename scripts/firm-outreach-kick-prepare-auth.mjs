@@ -206,7 +206,8 @@ async function productionAcceptsBootstrap(secret) {
     const res = await fetch(`${base}/api/cron/firm-outreach-status`, {
       headers: { 'x-firm-outreach-bootstrap-secret': secret },
     });
-    return res.status !== 401;
+    // Require a real 2xx — 5xx must not be treated as auth success.
+    return res.ok;
   } catch {
     return false;
   }
@@ -397,60 +398,59 @@ async function main() {
       );
     }
 
-    const approvalRaw = (approvalPick.value || '').toLowerCase();
-    if (approvalRaw === 'true' || approvalRaw === '1' || approvalRaw === 'yes') {
-      const ids = approvalPick.entries.map((e) => e.id).filter(Boolean);
-      await upsertProductionEnv('FIRM_OUTREACH_REQUIRE_APPROVAL', 'false', ids);
-      needsRedeploy = true;
-      console.log('Ungated FIRM_OUTREACH_REQUIRE_APPROVAL → false');
-    }
-
-    // Live sending must not stay in dry-run / disabled when a kick is authorized.
-    const dryRunRaw = (dryRunPick.value || '').toLowerCase();
-    if (dryRunRaw === 'true' || dryRunRaw === '1' || dryRunRaw === 'yes') {
-      const ids = dryRunPick.entries.map((e) => e.id).filter(Boolean);
-      await upsertProductionEnv('FIRM_OUTREACH_DRY_RUN', 'false', ids);
-      needsRedeploy = true;
-      console.log('Disabled FIRM_OUTREACH_DRY_RUN → false');
-    }
-    const sendEnabledRaw = (sendEnabledPick.value || '').toLowerCase();
-    if (sendEnabledRaw === 'false' || sendEnabledRaw === '0' || sendEnabledRaw === 'no') {
-      const ids = sendEnabledPick.entries.map((e) => e.id).filter(Boolean);
-      await upsertProductionEnv('FIRM_OUTREACH_SEND_ENABLED', 'true', ids);
-      needsRedeploy = true;
-      console.log('Enabled FIRM_OUTREACH_SEND_ENABLED → true');
-    }
-
-    // Raise accidental low daily caps up to the Resend outreach budget (limit - headroom).
-    // Never exceed that budget; never bypass provider limits.
-    const resendLimit = Number(resendLimitPick.value || 100) || 100;
-    const resendHeadroom = Number(resendHeadroomPick.value || 10) || 10;
-    const targetDailyCap = Math.max(1, resendLimit - resendHeadroom);
-    const currentDailyCap = Number(dailyCapPick.value || 0) || 0;
-    if (!dailyCapPick.value || currentDailyCap < targetDailyCap) {
-      const ids = dailyCapPick.entries.map((e) => e.id).filter(Boolean);
-      await upsertProductionEnv('FIRM_OUTREACH_DAILY_CAP', String(targetDailyCap), ids);
-      needsRedeploy = true;
+    // Durable production policy mutations require an explicit ungate flag.
+    // Status-only verify must never clear approval, zero cooldown, or raise caps.
+    const allowUngate = process.env.FIRM_OUTREACH_PREPARE_UNGATE === '1';
+    if (!allowUngate) {
       console.log(
-        `Raised FIRM_OUTREACH_DAILY_CAP ${currentDailyCap || '(unset)'} → ${targetDailyCap} (Resend budget)`,
+        'Skipping durable send-policy mutations (set FIRM_OUTREACH_PREPARE_UNGATE=1 for live kicks only)',
       );
+    } else {
+      const approvalRaw = (approvalPick.value || '').toLowerCase();
+      if (approvalRaw === 'true' || approvalRaw === '1' || approvalRaw === 'yes') {
+        const ids = approvalPick.entries.map((e) => e.id).filter(Boolean);
+        await upsertProductionEnv('FIRM_OUTREACH_REQUIRE_APPROVAL', 'false', ids);
+        needsRedeploy = true;
+        console.log('Ungated FIRM_OUTREACH_REQUIRE_APPROVAL → false');
+      }
+
+      const dryRunRaw = (dryRunPick.value || '').toLowerCase();
+      if (dryRunRaw === 'true' || dryRunRaw === '1' || dryRunRaw === 'yes') {
+        const ids = dryRunPick.entries.map((e) => e.id).filter(Boolean);
+        await upsertProductionEnv('FIRM_OUTREACH_DRY_RUN', 'false', ids);
+        needsRedeploy = true;
+        console.log('Disabled FIRM_OUTREACH_DRY_RUN → false');
+      }
+      const sendEnabledRaw = (sendEnabledPick.value || '').toLowerCase();
+      if (sendEnabledRaw === 'false' || sendEnabledRaw === '0' || sendEnabledRaw === 'no') {
+        const ids = sendEnabledPick.entries.map((e) => e.id).filter(Boolean);
+        await upsertProductionEnv('FIRM_OUTREACH_SEND_ENABLED', 'true', ids);
+        needsRedeploy = true;
+        console.log('Enabled FIRM_OUTREACH_SEND_ENABLED → true');
+      }
+
+      // Raise accidental low daily caps up to the Resend outreach budget (limit - headroom).
+      const resendLimit = Number(resendLimitPick.value || 100) || 100;
+      const resendHeadroom = Number(resendHeadroomPick.value || 10) || 10;
+      const targetDailyCap = Math.max(1, resendLimit - resendHeadroom);
+      const currentDailyCap = Number(dailyCapPick.value || 0) || 0;
+      if (!dailyCapPick.value || currentDailyCap < targetDailyCap) {
+        const ids = dailyCapPick.entries.map((e) => e.id).filter(Boolean);
+        await upsertProductionEnv('FIRM_OUTREACH_DAILY_CAP', String(targetDailyCap), ids);
+        needsRedeploy = true;
+        console.log(
+          `Raised FIRM_OUTREACH_DAILY_CAP ${currentDailyCap || '(unset)'} → ${targetDailyCap} (Resend budget)`,
+        );
+      }
     }
 
-    // TEMPORARY: unlock solicitor firm_cooldown so ready_to_send can flush.
-    // Restore to 90 after the backlog send (set FIRM_OUTREACH_FIRM_COOLDOWN_DAYS=90).
-    const TEMP_FIRM_COOLDOWN_DAYS = '0';
+    // Never persist firm_cooldown=0 from prepare. Restore accidental zeros to 90.
     const currentCooldown = (cooldownPick.value || '').trim();
-    if (currentCooldown !== TEMP_FIRM_COOLDOWN_DAYS) {
+    if (currentCooldown === '0') {
       const ids = cooldownPick.entries.map((e) => e.id).filter(Boolean);
-      await upsertProductionEnv(
-        'FIRM_OUTREACH_FIRM_COOLDOWN_DAYS',
-        TEMP_FIRM_COOLDOWN_DAYS,
-        ids,
-      );
+      await upsertProductionEnv('FIRM_OUTREACH_FIRM_COOLDOWN_DAYS', '90', ids);
       needsRedeploy = true;
-      console.log(
-        `TEMPORARY firm cooldown override ${currentCooldown || '(unset/90)'} → ${TEMP_FIRM_COOLDOWN_DAYS} (restore to 90 after flush)`,
-      );
+      console.log('Restored FIRM_OUTREACH_FIRM_COOLDOWN_DAYS 0 → 90');
     }
 
     // Re-enable Resend webhook if auto-disabled; keep signing secret in sync.
@@ -506,7 +506,7 @@ async function main() {
       let accepted = false;
       for (let i = 1; i <= 12; i++) {
         accepted = await productionAcceptsBootstrap(bootstrap);
-        console.log(`Bootstrap auth probe ${i}/12 → ${accepted ? 'ok' : '401'}`);
+        console.log(`Bootstrap auth probe ${i}/12 → ${accepted ? 'ok' : 'reject'}`);
         if (accepted) break;
         await new Promise((r) => setTimeout(r, 10_000));
       }

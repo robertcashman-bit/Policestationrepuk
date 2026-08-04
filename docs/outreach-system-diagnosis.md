@@ -66,9 +66,11 @@ Campaigns:
 
 ## Verification checklist
 
-- [ ] `npm run test:outreach` (and run-lock stale recovery test)
-- [ ] Push branch → Actions “Ops — outreach production verify” green
-- [ ] Production `/api/health` version = this SHA (until bit guard)
-- [ ] Kick log contains Resend `messageId` / `accepted > 0`
+- [x] `npm run test:outreach` / `test:firm-outreach:ci` (256+ tests) + run-lock stale recovery
+- [x] Push branch → Actions “Ops — outreach production verify” **success** ([run 30928986104](https://github.com/robertdavidcashman-droid/Policestationrepuk/actions/runs/30928986104))
+- [x] Production `/api/health` version = `d1a46f6` during verify
+- [x] Resend probe message IDs: RepUK `1e37ab49-ac96-47d5-bdcc-88efac095f58`, PSA `f6d17559-37e6-484a-b1c0-d33f7b15466e`
+- [x] `forceClearedLock: true`; PSA seed left `ready_to_send: 122`
 - [ ] Sync same commit to **bit** `master` (or disable source guard) so the fix sticks
-- [ ] Unsubscribe + webhook signature checks still pass
+- [ ] Restore `FIRM_OUTREACH_FIRM_COOLDOWN_DAYS=90` after backlog flush
+- [ ] Unsubscribe + webhook signature checks still pass (webhook secret sync skipped when Resend API key decrypt empty)

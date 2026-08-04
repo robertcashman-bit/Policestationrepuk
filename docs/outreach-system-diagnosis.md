@@ -66,6 +66,7 @@ Campaigns:
 - [x] Auth race fixed: single-flight verify + controlled rotate + bootstrap probe before kick
 - [x] Production verify success on `e073555` / live `980aaba` ([run 30933585738](https://github.com/robertdavidcashman-droid/Policestationrepuk/actions/runs/30933585738))
 - [x] Multi-model review act-ons: push verify status-only; stale-only `forceClear`; RFC 8058 unsubscribe POST; prepare no longer persists cooldown=0 / ungates without `FIRM_OUTREACH_PREPARE_UNGATE=1`
+- [x] Verify evidence: status-only requires `[ok]`; live SEND parses nested `send.accepted` across multiline kick logs and fails hard skips (`env_invalid` / approval-required)
 - [x] `/api/unsubscribe` one-click POST returns 200; `List-Unsubscribe` points at API URL
 - [x] `Ops — production outreach hold` on droid `master` (10-minute reclaim)
 - [ ] Sync tip to **bit** `master` or disable bit source guard (ends dual-repo war)

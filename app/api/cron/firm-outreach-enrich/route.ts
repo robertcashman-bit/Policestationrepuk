@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isCronAuthorized } from '@/lib/cron-auth';
+import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
 import {
   cronEnrichBatchSize,
   enrichMaxElapsedMs,
@@ -12,7 +12,7 @@ export const maxDuration = 300;
 
 /** Enrich-only cron tick (no discovery refresh, no sends). */
 export async function GET(request: Request) {
-  if (!isCronAuthorized(request)) {
+  if (!isOutreachBootstrapAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

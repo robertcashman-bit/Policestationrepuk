@@ -11,6 +11,8 @@ export type OutreachSkipReason =
   | 'mx_invalid'
   | 'resend_quota'
   | 'daily_cap'
+  /** Caller passed limit=0 (e.g. PSA reserve when ready inventory is empty). */
+  | 'batch_limit'
   | 'hourly_cap'
   | 'send_disabled'
   | 'resend_error'

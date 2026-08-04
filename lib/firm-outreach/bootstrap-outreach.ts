@@ -89,9 +89,10 @@ export async function bootstrapOutreach(opts?: {
 
   let agentCoverDiscovery: DiscoveryRunStats | undefined;
   if (opts?.seedAgentCover) {
+    // PSA campaign offers Kent cover to nationwide England & Wales firms.
     agentCoverDiscovery = await runFirmDiscovery({
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-      countyAllowlist: ['kent'],
+      countyAllowlist: null,
     });
   }
 

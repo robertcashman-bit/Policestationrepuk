@@ -1,13 +1,18 @@
 import Link from 'next/link';
-import { addSuppression, getProspectByEmail, saveProspect } from '@/lib/firm-outreach/storage';
+import {
+  addSuppression,
+  getProspectByEmail,
+  saveProspect,
+} from '@/lib/firm-outreach/storage';
 import { verifyUnsubscribeToken } from '@/lib/firm-outreach/outreach/unsubscribe-token';
 import { buildMetadata } from '@/lib/seo';
+import { OUTREACH_CAMPAIGN_IDS } from '@/lib/firm-outreach/site-config';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata = buildMetadata({
-  title: 'Unsubscribe — PoliceStationRepUK outreach',
-  description: 'Opt out of PoliceStationRepUK firm outreach emails.',
+  title: 'Unsubscribe — firm outreach',
+  description: 'Opt out of PoliceStationRepUK and Police Station Agent firm outreach emails.',
   path: '/outreach/unsubscribe',
   noIndex: true,
 });
@@ -38,9 +43,13 @@ export default async function UnsubscribePage({
     );
   }
 
-  await addSuppression(payload.email, 'unsubscribe');
-  const prospect = await getProspectByEmail(payload.email);
-  if (prospect) {
+  const email = payload.email.trim().toLowerCase();
+  await addSuppression(email, 'unsubscribe');
+
+  for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
+    const prospect = await getProspectByEmail(email, campaignId);
+    if (!prospect) continue;
+    if (prospect.status === 'unsubscribed') continue;
     prospect.status = 'unsubscribed';
     prospect.updatedAt = new Date().toISOString();
     await saveProspect(prospect);
@@ -50,8 +59,8 @@ export default async function UnsubscribePage({
     <div className="page-container section-pad max-w-lg">
       <h1 className="text-h2 text-[var(--navy)]">You are unsubscribed</h1>
       <p className="mt-3 text-sm text-[var(--muted)]">
-        <strong>{payload.email}</strong> will not receive further PoliceStationRepUK WhatsApp
-        invitation emails.
+        <strong>{payload.email}</strong> will not receive further PoliceStationRepUK or Police
+        Station Agent outreach emails.
       </p>
       <Link href="/" className="mt-6 inline-block text-sm font-semibold text-[var(--gold-link)]">
         Back to home

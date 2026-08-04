@@ -15,8 +15,10 @@
 import { existsSync, readFileSync } from 'node:fs';
 import {
   DEFAULT_PRODUCTION_KICK_STEPS,
+  productionKickStepsWithFlushLimit,
   resolveKickAuth,
   runProductionKickSteps,
+  STATUS_ONLY_PRODUCTION_KICK_STEPS,
   waitForVercelProductionDeploy,
 } from '../lib/firm-outreach/production-kick.ts';
 import { probeSignedResendWebhook } from '../lib/firm-outreach/resend-webhook-probe.ts';
@@ -116,34 +118,48 @@ if (token && projectId) {
 }
 
 const webhookSecret = process.env.RESEND_WEBHOOK_SECRET?.trim();
+// Vercel env API sometimes leaves ciphertext (eyJ…) in GITHUB_ENV when decrypt
+// fails — never feed that to Standard Webhooks.
 if (!webhookSecret) {
-  console.error(
-    'RESEND_WEBHOOK_SECRET missing after prepare — cannot prove webhook signature verify',
+  console.warn(
+    'RESEND_WEBHOOK_SECRET missing after prepare — skipping signed webhook probe; continuing send flush',
   );
-  process.exit(1);
+} else if (!webhookSecret.startsWith('whsec_')) {
+  console.warn(
+    `RESEND_WEBHOOK_SECRET looks undecrypted (prefix=${webhookSecret.slice(0, 4)}…) — skipping signed webhook probe; continuing send flush`,
+  );
+} else {
+  console.log('Probing signed Resend webhook on production…');
+  const probe = await probeSignedResendWebhook({
+    baseUrl,
+    webhookSecret,
+  });
+  console.log(
+    `[${probe.ok ? 'ok' : 'warn'}] Signed Resend webhook probe — HTTP ${probe.status}`,
+  );
+  if (probe.body) console.log(probe.body.slice(0, 500));
+  if (!probe.ok) {
+    // Do not block the send flush on a webhook probe timeout/drift — delivery
+    // reconciliation is best-effort; outreach send is the kick's primary job.
+    console.warn(
+      'Signed webhook probe failed — continuing kick (send flush). Check RESEND_WEBHOOK_SECRET /api/webhooks/resend if delivery status stalls.',
+    );
+  }
 }
 
-console.log('Probing signed Resend webhook on production…');
-const probe = await probeSignedResendWebhook({
-  baseUrl,
-  webhookSecret,
-});
-console.log(
-  `[${probe.ok ? 'ok' : 'warn'}] Signed Resend webhook probe — HTTP ${probe.status}`,
-);
-if (probe.body) console.log(probe.body.slice(0, 500));
-if (!probe.ok) {
-  // Do not block the send flush on a webhook probe timeout/drift — delivery
-  // reconciliation is best-effort; outreach send is the kick's primary job.
-  console.warn(
-    'Signed webhook probe failed — continuing kick (send flush). Check RESEND_WEBHOOK_SECRET /api/webhooks/resend if delivery status stalls.',
-  );
-}
+const statusOnly = process.env.FIRM_OUTREACH_KICK_STATUS_ONLY === '1';
+const flushLimitRaw = process.env.FIRM_OUTREACH_KICK_FLUSH_LIMIT?.trim();
+const flushLimit = flushLimitRaw ? Number(flushLimitRaw) : NaN;
+const steps = statusOnly
+  ? STATUS_ONLY_PRODUCTION_KICK_STEPS
+  : Number.isFinite(flushLimit) && flushLimit > 0
+    ? productionKickStepsWithFlushLimit(flushLimit)
+    : DEFAULT_PRODUCTION_KICK_STEPS;
 
 const { results, failed } = await runProductionKickSteps({
   baseUrl,
   auth,
-  steps: DEFAULT_PRODUCTION_KICK_STEPS,
+  steps,
 });
 
 for (const r of results) {

@@ -157,12 +157,20 @@
       "schedule": "15 9 * * *"
     },
     {
+      "path": "/api/cron/firm-outreach-psa-sync",
+      "schedule": "45 11 * * *"
+    },
+    {
       "path": "/api/cron/firm-outreach-send",
       "schedule": "0 10 * * *"
     },
     {
       "path": "/api/cron/firm-outreach-send",
       "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/firm-outreach-psa-sync",
+      "schedule": "45 15 * * *"
     },
     {
       "path": "/api/cron/firm-outreach-send",

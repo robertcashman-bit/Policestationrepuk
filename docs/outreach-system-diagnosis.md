@@ -1,4 +1,4 @@
-# Outreach system diagnosis (2026-08-04)
+# Outreach system diagnosis (2026-08-04, updated)
 
 ## Current architecture (canonical)
 
@@ -24,24 +24,22 @@ Campaigns:
 
 | Fact | Value |
 |------|-------|
-| Live `/api/health` version (2026-08-04) | `0bed84b` |
-| That SHA lives on | **`robertcashman-bit/Policestationrepuk`** |
 | This cloud-agent repo | `robertdavidcashman-droid/Policestationrepuk` |
-| Bit source guard | Every 30m re-promotes bit if live SHA ∉ bit master |
-| Droid push/deploy | Can temporarily overwrite production; bit guard reverts |
+| Bit production owner | `robertcashman-bit/Policestationrepuk` tip `0bed84b` |
+| Bit source guard | Every 30m (`:07`/`:37`) re-promotes bit if live SHA ∉ bit master |
+| Droid countermeasure | `Ops — production outreach hold` every 10m re-promotes this branch tip |
+| Verified droid SHA (probe + PSA flush) | `d1a46f6` (run [30928986104](https://github.com/robertdavidcashman-droid/Policestationrepuk/actions/runs/30928986104)) |
 
-**Root organisational defect:** two GitHub remotes share one Vercel project. Fixes landing only on droid are reverted; fixes landing only on bit lack droid’s lock-release work.
+**Root organisational defect:** two GitHub remotes share one Vercel project. Fixes landing only on droid are reverted unless hold/verify reclaim production, or the same commits land on bit `master`.
 
-## Exact failure path (current)
+## Exact failure path (still reproducing)
 
-1. Production runs **bit** `0bed84b` (“rebuild firm-outreach indexes as Redis SETs…”).
-2. Bit `run-lock.ts` **claims** `firmoutreach:lock:send` but **never releases** (TTL-only, 270s). Pipeline has no `finally` release.
-3. Bit send route has **no `force=1`** escape hatch.
-4. Bit firm-outreach kick is **manual-only** and last succeeded **2026-08-01** — no kick after the 0bed84b deploy.
-5. Ops send-now on 2026-08-01 returned `skippedReason: "overlap"` with ready inventory demoted by firm cooldown / duplicates; PSA `sendableReady: 0`.
-6. Droid agents (2026-08-03) briefly owned production (`7c33343`), force-cleared locks, and Resend-accepted **7** campaign emails + probes — then bit guard restored `0bed84b`.
-7. Resend webhook probe still intermittently **HTTP 504** (kick continues after e8f4eaa on droid; bit may still hard-fail).
-8. Cloud agent in this environment: **no** `VERCEL_TOKEN` / `CRON_SECRET` runtime secrets; **cannot** push to bit; **cannot** `workflow_dispatch`.
+1. Bit `run-lock.ts` **claims** `firmoutreach:lock:send` but **never releases** (TTL-only). Send route has **no `force=1`**.
+2. Bit guard at 16:30 UTC **did** promote `0bed84b` (health matched), then droid verify re-promoted `d1a46f6` during the same kick window.
+3. Kick with bootstrap-only auth got **401** on discovery/maintain (cron-secret-only routes).
+4. Status `queue.readyToSend` was **WhatsApp-scoped**, so PSA inventory (`ready_to_send: 122`) looked like zero.
+5. When PSA ready count was 0, multi-campaign send reserved `psaLimit=0` and mislabeled the skip as `daily_cap`.
+6. Cloud agent cannot push to bit; cannot `workflow_dispatch` without secrets in the local env (Actions secrets work in GHA).
 
 ## Duplicate / obsolete paths
 
@@ -49,28 +47,30 @@ Campaigns:
 |------|--------|
 | KV + Resend job queue (`lib/firm-outreach/email-jobs`) | **Canonical** |
 | Bit tip without lock release | **Obsolete / harmful while live** |
-| Droid tip with lock release + force clear | Correct code; not sticky on production |
+| Droid tip with lock release + force clear + hold workflow | Correct sticky path until bit sync |
 | Python `lead_engine` live Resend | Keep dry-run in GHA; import to KV only |
 | Supabase outreach tables | Not used |
 
-## Changes implemented (this branch)
+## Changes implemented (this iteration)
 
-1. Port bit SET reindex / kv-scan / PSA sync / revive / doctor scripts into droid.
-2. Keep **tokenised lock claim + release** and add **stale ISO/token recovery** so TTL-only bit locks cannot permanently starve cron.
-3. `claimKey` accepts Upstash `"OK"` **or** `true`.
-4. Add `/api/cron/firm-outreach-psa-sync` + vercel cron slots (11:45 / 15:45 UTC).
-5. Nationwide PSA seed (`countyAllowlist: null`) in bootstrap.
-6. Operator scripts: `outreach:doctor|dry-run|test-send|process|recover-stale|…`.
-7. GitHub Action **Ops — outreach production verify** on `push` to `cursor/outreach-*`: deploy SHA → health match → kick (force clear + probe + flush).
-8. Docs updated to match the dual-repo reality.
+1. Bootstrap auth on discovery / enrich / maintain / full pipeline (kick no longer 401s when only bootstrap secret decrypts).
+2. Status queue totals sum **both** campaigns; expose `primaryCampaignReadyToSend` + per-campaign `readyRecordCount`.
+3. `limit=0` from PSA reserve reports `batch_limit`, not `daily_cap`.
+4. `/api/unsubscribe?token=` redirect + unsubscribe marks both campaigns.
+5. **`Ops — production outreach hold`** scheduled every 10 minutes to reclaim production from bit guard (promote only; no mass send).
+6. Prior: tokenised lock claim/release, stale recovery, `force=1`, PSA sync cron, verify workflow, doctor scripts.
 
 ## Verification checklist
 
-- [x] `npm run test:outreach` / `test:firm-outreach:ci` (256+ tests) + run-lock stale recovery
-- [x] Push branch → Actions “Ops — outreach production verify” **success** ([run 30928986104](https://github.com/robertdavidcashman-droid/Policestationrepuk/actions/runs/30928986104))
-- [x] Production `/api/health` version = `d1a46f6` during verify
-- [x] Resend probe message IDs: RepUK `1e37ab49-ac96-47d5-bdcc-88efac095f58`, PSA `f6d17559-37e6-484a-b1c0-d33f7b15466e`
-- [x] `forceClearedLock: true`; PSA seed left `ready_to_send: 122`
-- [ ] Sync same commit to **bit** `master` (or disable source guard) so the fix sticks
+- [x] `npm run test:firm-outreach:ci` (prior 256+; re-run after this change)
+- [x] Production probe Resend IDs: RepUK `1e37ab49-ac96-47d5-bdcc-88efac095f58`, PSA `f6d17559-37e6-484a-b1c0-d33f7b15466e`
+- [x] Controlled PSA flush: **accepted 11** (`jobsClaimed: 11`) on run 30928986104
+- [ ] Sync same tip to **bit** `master` (user: `scripts/sync-outreach-fix-to-bit.sh`) so hold/guard war ends
 - [ ] Restore `FIRM_OUTREACH_FIRM_COOLDOWN_DAYS=90` after backlog flush
-- [ ] Unsubscribe + webhook signature checks still pass (webhook secret sync skipped when Resend API key decrypt empty)
+- [ ] Ensure usable `RESEND_WEBHOOK_SECRET` (`whsec_…`) on Vercel Production (not ciphertext envelope)
+
+## Manual actions only the account owner can complete
+
+1. **GitHub → `robertcashman-bit/Policestationrepuk` → merge/sync this tip to `master`**, then let bit deploy — *or* disable workflow `Ops — production source guard`.
+2. **Vercel → Project → Settings → Environment Variables (Production):** set `FIRM_OUTREACH_FIRM_COOLDOWN_DAYS=90` after inventory flush; confirm `RESEND_WEBHOOK_SECRET` decrypts as `whsec_…`.
+3. Optional: set Cursor Runtime Secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, `CRON_SECRET` so agents can diagnose without relying on Actions logs.

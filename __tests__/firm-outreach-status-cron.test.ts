@@ -55,6 +55,22 @@ vi.mock('@/lib/firm-outreach/storage', async (importOriginal) => {
   return {
     ...actual,
     getLatestOutreachRunLog: vi.fn().mockResolvedValue(null),
+    countProspectsByStatus: vi.fn().mockResolvedValue({
+      ready_to_send: 122,
+      discovered: 6,
+      sent: 6,
+    }),
+    listProspectIdsByRecordStatus: vi.fn().mockImplementation(
+      async (_status: string, opts?: { campaignId?: string }) => {
+        if (opts?.campaignId === 'agent_cover_kent_v1') {
+          return Array.from({ length: 100 }, (_, i) => `psa-${i}`);
+        }
+        if (opts?.campaignId === 'whatsapp_invite_v1') {
+          return Array.from({ length: 9 }, (_, i) => `wa-${i}`);
+        }
+        return [];
+      },
+    ),
   };
 });
 
@@ -104,7 +120,11 @@ describe('firm-outreach-status cron route', () => {
     const json = await res.json();
     expect(json.ok).toBe(true);
     expect(json.config.requireApproval).toBe(true);
+    // Cross-campaign ready (WhatsApp 9 + PSA 100), not WhatsApp-only admin report.
     expect(json.queue.readyToSend).toBe(109);
+    expect(json.queue.primaryCampaignReadyToSend).toBe(109);
+    expect(json.queue.allStatusesReadyToSend).toBe(122);
+    expect(json.queue.eligibility.agent_cover_kent_v1.readyRecordCount).toBe(100);
   });
 
   it('accepts outreach bootstrap secret header', async () => {

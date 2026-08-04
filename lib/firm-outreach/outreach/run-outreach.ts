@@ -234,7 +234,13 @@ export async function runFirmOutreach(opts?: {
   const hourBucket = utcHourBucket();
   const dailyCap = dailySendCap();
   const hourCap = hourlySendCap();
-  const batchLimit = opts?.limit ?? dailyCap;
+  // Distinguish "caller reserved 0 slots" (e.g. PSA floor when ready=0) from a
+  // true daily-cap exhaustion — the former was previously mislabeled daily_cap.
+  const explicitBatchLimit = opts?.limit;
+  const batchLimit =
+    explicitBatchLimit !== undefined && Number.isFinite(explicitBatchLimit)
+      ? Math.max(0, Math.floor(explicitBatchLimit))
+      : dailyCap;
   const alreadySent = await getDailySendCount(date, campaignId);
   const remainingDaily = Math.max(0, dailyCap - alreadySent);
   const remaining = Math.min(batchLimit, remainingDaily);
@@ -246,7 +252,11 @@ export async function runFirmOutreach(opts?: {
   const dryRun = Boolean(opts?.dryRun || envDryRun);
 
   if (remaining === 0) {
-    recordSkip(stats, 'daily_cap');
+    if (remainingDaily <= 0) {
+      recordSkip(stats, 'daily_cap');
+    } else {
+      recordSkip(stats, 'batch_limit');
+    }
     return finish(globalQuota, alreadySent, dailyCap);
   }
   if (!dryRun && globalQuota <= 0) {

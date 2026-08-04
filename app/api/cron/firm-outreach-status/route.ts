@@ -6,7 +6,11 @@ import { getOutreachConfigStatus } from '@/lib/firm-outreach/config-status';
 import { countEmailJobsByStatus } from '@/lib/firm-outreach/email-jobs/storage';
 import { selectOutreachCandidates } from '@/lib/firm-outreach/outreach/candidate-selection';
 import { buildOutreachActivityReport } from '@/lib/firm-outreach/outreach/activity-report';
-import { getLatestOutreachRunLog } from '@/lib/firm-outreach/storage';
+import {
+  countProspectsByStatus,
+  getLatestOutreachRunLog,
+  listProspectIdsByRecordStatus,
+} from '@/lib/firm-outreach/storage';
 import { OUTREACH_CAMPAIGN_IDS } from '@/lib/firm-outreach/site-config';
 
 export const dynamic = 'force-dynamic';
@@ -20,8 +24,11 @@ export async function GET(request: Request) {
 
   const envCheck = validateOutreachEnv();
   const config = await getOutreachConfigStatus();
-  const { report } = await buildOutreachActivityReport();
-  const jobCounts = await countEmailJobsByStatus();
+  const [{ report }, prospectCounts, jobCounts] = await Promise.all([
+    buildOutreachActivityReport(),
+    countProspectsByStatus(),
+    countEmailJobsByStatus(),
+  ]);
 
   const eligibility: Record<
     string,
@@ -31,25 +38,43 @@ export async function GET(request: Request) {
       followUpEligible: number;
       firmCooldownSkipped: number;
       sendableCandidates: number;
+      readyRecordCount: number;
       lastRun?: unknown;
     }
   > = {};
 
+  let readyAcrossCampaigns = 0;
+  let sendableAcrossCampaigns = 0;
+
   for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
-    const selection = await selectOutreachCandidates({
-      campaignId,
-      readyLimit: 500,
-      sentLimit: 200,
-    });
+    const [selection, readyIds] = await Promise.all([
+      selectOutreachCandidates({
+        campaignId,
+        readyLimit: 500,
+        sentLimit: 200,
+      }),
+      listProspectIdsByRecordStatus('ready_to_send', { campaignId }),
+    ]);
     eligibility[campaignId] = {
       readyScanned: selection.readyScanned,
       readyEligible: selection.readyEligible,
       followUpEligible: selection.followUpEligible,
       firmCooldownSkipped: selection.firmCooldownSkipped,
       sendableCandidates: selection.candidates.length,
+      readyRecordCount: readyIds.length,
       lastRun: await getLatestOutreachRunLog(campaignId),
     };
+    readyAcrossCampaigns += readyIds.length;
+    sendableAcrossCampaigns += selection.candidates.length;
   }
+
+  // Admin activity report is scoped to the primary (WhatsApp) campaign.
+  // Queue totals must include PSA agent-cover or operators see readyToSend:0
+  // while the send path still has inventory.
+  const primaryReady = report.summary.readyToSend;
+  const primarySendable = report.readyToSendProspects.filter(
+    (r) => !r.suppressed && r.email,
+  ).length;
 
   const pendingJobs = jobCounts.pending ?? 0;
   const processingJobs =
@@ -73,8 +98,13 @@ export async function GET(request: Request) {
       envWarnings: envCheck.warnings,
     },
     queue: {
-      readyToSend: report.summary.readyToSend,
-      sendableReady: report.readyToSendProspects.filter((r) => !r.suppressed && r.email).length,
+      readyToSend: readyAcrossCampaigns,
+      sendableReady: sendableAcrossCampaigns,
+      /** WhatsApp-campaign-only (legacy admin activity report). */
+      primaryCampaignReadyToSend: primaryReady,
+      primaryCampaignSendableReady: primarySendable,
+      /** All status-index ready rows (any campaign) after record verification. */
+      allStatusesReadyToSend: prospectCounts.ready_to_send ?? 0,
       sentToday: report.summary.sentToday,
       sentLast7Days: report.summary.sentLast7Days,
       /** Truly due for a send step (excludes not-due sent / stale ready). */

@@ -118,14 +118,17 @@ Keeps `LEAD_ENGINE_DRY_RUN=true` for Python mailer; import into KV only. Do not 
 
 ## Deploy source
 
-**Live production is currently owned by `robertcashman-bit/Policestationrepuk`** (see `/api/health` version vs bit master). Bit runs `Ops — production source guard` every 30 minutes and re-promotes bit if a droid SHA is live.
+**Two remotes share one Vercel project.** Bit runs `Ops — production source guard` every 30 minutes and re-promotes bit `master` if the live SHA is not on bit. This repo counters with:
 
-This repository (`robertdavidcashman-droid`) holds the lock-release / force-clear / job-first send path. After verifying a SHA here:
+- `Ops — outreach production verify` (push to `cursor/outreach-*`) — deploy + probe + bounded flush
+- `Ops — production outreach hold` (every 10 minutes) — re-promote this branch tip if bit guard drifted production (no mass send)
 
-1. Merge/cherry-pick the same commit onto **bit** `master`, **or**
-2. Point the Vercel project git link at droid and disable bit’s source guard.
+Permanent fix (pick one):
 
-Until one of those is done, droid-only deploys are temporary.
+1. Merge/cherry-pick the verified tip onto **bit** `master` (`scripts/sync-outreach-fix-to-bit.sh`), **or**
+2. Point the Vercel git link at droid and disable bit’s source guard.
+
+Unsubscribe: `/outreach/unsubscribe/<token>` (also `/api/unsubscribe?token=`).
 
 ## Incident recovery
 

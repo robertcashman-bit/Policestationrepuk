@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isCronAuthorized } from '@/lib/cron-auth';
+import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
 import { cronSendBatchSize, outreachRequireApproval } from '@/lib/firm-outreach/constants';
 import { sendOutreachApprovalRequestEmail } from '@/lib/firm-outreach/outreach/approval-request-email';
 import { runFirmOutreachPipeline } from '@/lib/firm-outreach/run-pipeline';
@@ -10,7 +10,7 @@ export const maxDuration = 300;
 
 /** Daily morning: approval email with Ready to send button (or legacy auto-send if approval disabled). */
 export async function GET(request: Request) {
-  if (!isCronAuthorized(request)) {
+  if (!isOutreachBootstrapAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

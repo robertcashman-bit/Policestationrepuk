@@ -33,6 +33,7 @@ export interface OutreachSendFailureEmailInput {
 const BENIGN_SKIP_REASONS = new Set([
   'firm_cooldown',
   'daily_cap',
+  'batch_limit',
   'hourly_cap',
   'idempotent_exists',
   'duplicate',

@@ -20,6 +20,9 @@ on:
       - 'scripts/firm-outreach-production-kick.mjs'
       - 'scripts/firm-outreach-kick-prepare-auth.mjs'
       - '.github/workflows/ops-outreach-production-verify.yml'
+      - '.github/workflows/ops-production-outreach-hold.yml'
+      - 'app/api/unsubscribe/**'
+      - 'app/outreach/unsubscribe/**'
       - 'vercel.json'
   workflow_dispatch:
     inputs:

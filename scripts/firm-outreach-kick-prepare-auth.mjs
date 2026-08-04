@@ -369,15 +369,32 @@ async function main() {
     if (!bootstrap && bootstrapPick.value) bootstrap = bootstrapPick.value;
 
     console.log(
-      `Decrypt load: cron_len=${cron.length} bootstrap_len=${bootstrap.length} require_approval=${JSON.stringify(approvalPick.value || '')} daily_cap=${JSON.stringify(dailyCapPick.value || '')} firm_cooldown=${JSON.stringify(cooldownPick.value || '')}`,
+      `Decrypt load: cron_len=${cron.length} bootstrap_len=${bootstrap.length} cron_entries=${cronPick.entries.length} bootstrap_entries=${bootstrapPick.entries.length} require_approval=${JSON.stringify(approvalPick.value || '')} daily_cap=${JSON.stringify(dailyCapPick.value || '')} firm_cooldown=${JSON.stringify(cooldownPick.value || '')}`,
     );
 
+    // CRITICAL: do not casually rotate when decrypt returns an opaque envelope
+    // (eyJ…). Runtime still has the real value; concurrent rotates cause 401s.
     if (!cron && !bootstrap) {
+      const envPresent = cronPick.entries.length > 0 || bootstrapPick.entries.length > 0;
+      const allowRotate = process.env.FIRM_OUTREACH_ALLOW_BOOTSTRAP_ROTATE === '1';
+      if (envPresent && !allowRotate) {
+        console.error(
+          'CRON_SECRET / FIRM_OUTREACH_BOOTSTRAP_SECRET exist on Vercel but decrypt did not yield a usable value.',
+        );
+        console.error(
+          'Set repository secrets CRON_SECRET and/or FIRM_OUTREACH_BOOTSTRAP_SECRET to the Production values, or re-run with FIRM_OUTREACH_ALLOW_BOOTSTRAP_ROTATE=1 (single-flight only).',
+        );
+        process.exit(1);
+      }
       bootstrap = randomBytes(32).toString('hex');
       const ids = bootstrapPick.entries.map((e) => e.id).filter(Boolean);
       await upsertProductionEnv('FIRM_OUTREACH_BOOTSTRAP_SECRET', bootstrap, ids);
       needsRedeploy = true;
-      console.log('Provisioned FIRM_OUTREACH_BOOTSTRAP_SECRET on production');
+      console.log(
+        envPresent
+          ? 'Rotated FIRM_OUTREACH_BOOTSTRAP_SECRET (explicit ALLOW_BOOTSTRAP_ROTATE=1)'
+          : 'Provisioned FIRM_OUTREACH_BOOTSTRAP_SECRET on production (was missing)',
+      );
     }
 
     const approvalRaw = (approvalPick.value || '').toLowerCase();
@@ -483,6 +500,26 @@ async function main() {
     if (needsRedeploy) {
       await redeployLatestProduction();
     }
+
+    // Prove the secret we will use actually authorises production before kick.
+    if (bootstrap && !cron) {
+      let accepted = false;
+      for (let i = 1; i <= 12; i++) {
+        accepted = await productionAcceptsBootstrap(bootstrap);
+        console.log(`Bootstrap auth probe ${i}/12 → ${accepted ? 'ok' : '401'}`);
+        if (accepted) break;
+        await new Promise((r) => setTimeout(r, 10_000));
+      }
+      if (!accepted) {
+        console.error(
+          'Production still rejects FIRM_OUTREACH_BOOTSTRAP_SECRET after prepare/redeploy.',
+        );
+        console.error(
+          'Fix: copy the Production bootstrap/cron secret into GitHub Actions secrets and re-run.',
+        );
+        process.exit(1);
+      }
+    }
   } else {
     console.log('VERCEL_TOKEN / VERCEL_PROJECT_ID not set — skipping Vercel decrypt / provision / ungate');
   }
@@ -492,6 +529,14 @@ async function main() {
   if (webhookSigningSecretOut) {
     process.env.RESEND_WEBHOOK_SECRET = webhookSigningSecretOut;
   }
+
+  // Mask so Actions logs do not print rotated/provisioned values.
+  for (const value of [cron, bootstrap, webhookSigningSecretOut]) {
+    if (value && process.env.GITHUB_ACTIONS === 'true') {
+      console.log(`::add-mask::${value}`);
+    }
+  }
+
   writeGithubEnv({
     CRON_SECRET: cron,
     FIRM_OUTREACH_BOOTSTRAP_SECRET: bootstrap,

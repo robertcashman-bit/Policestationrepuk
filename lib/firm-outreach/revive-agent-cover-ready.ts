@@ -1,4 +1,8 @@
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from './campaign-scope';
+import {
+  applyFirmCooldownPark,
+  isCrossCampaignCooldownActive,
+} from './cross-campaign-cooldown';
 import { normalizeEmail } from './normalize';
 import {
   getProspectsByIds,
@@ -17,6 +21,8 @@ export interface ReviveAgentCoverStats {
   skippedSuppressed: number;
   skippedTerminal: number;
   skippedHasSend: number;
+  /** Parked ready with firm_cooldown due to other-campaign contact. */
+  parkedCooldown: number;
   /** Retained for API compat; always 0 (recipients are nationwide). */
   skippedNotKent: number;
   dryRun: boolean;
@@ -77,6 +83,7 @@ export async function reviveAgentCoverKentReady(opts?: {
     skippedSuppressed: 0,
     skippedTerminal: 0,
     skippedHasSend: 0,
+    parkedCooldown: 0,
     skippedNotKent: 0,
     dryRun,
     elapsedMs: 0,
@@ -138,12 +145,25 @@ export async function reviveAgentCoverKentReady(opts?: {
     }
 
     const winner = [...rows].sort((a, b) => scoreProspect(b) - scoreProspect(a))[0]!;
-    if (winner.status === 'ready_to_send' && !winner.excludedReason) continue;
+    if (winner.status === 'ready_to_send' && !winner.excludedReason && !winner.nextEligibleAt) {
+      continue;
+    }
 
     const prev = winner.status;
     winner.status = 'ready_to_send';
     winner.excludedReason = undefined;
+    winner.nextEligibleAt = undefined;
     winner.updatedAt = new Date().toISOString();
+
+    const cool = await isCrossCampaignCooldownActive({
+      firmKey: winner.firmKey,
+      email,
+      excludeProspectId: winner.id,
+    });
+    if (cool.active && cool.eligibleAt) {
+      applyFirmCooldownPark(winner, cool.eligibleAt);
+      stats.parkedCooldown++;
+    }
 
     if (!dryRun) {
       await saveProspect(winner, prev);

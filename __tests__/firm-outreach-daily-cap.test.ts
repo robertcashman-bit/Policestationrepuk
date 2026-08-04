@@ -23,6 +23,7 @@ vi.mock('../lib/firm-outreach/storage', () => ({
     return [];
   }),
   listProspectsForFirmKey: vi.fn(async () => []),
+  listSendsForEmail: vi.fn(async () => []),
   saveOutreachRunLog: vi.fn(),
   saveProspect: vi.fn(),
   saveSend: vi.fn(),

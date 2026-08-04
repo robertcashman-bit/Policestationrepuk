@@ -6,9 +6,12 @@ import { getOutreachConfigStatus } from '@/lib/firm-outreach/config-status';
 import { countEmailJobsByStatus } from '@/lib/firm-outreach/email-jobs/storage';
 import { selectOutreachCandidates } from '@/lib/firm-outreach/outreach/candidate-selection';
 import { buildOutreachActivityReport } from '@/lib/firm-outreach/outreach/activity-report';
+import { computeSendWindowCounts } from '@/lib/firm-outreach/outreach/activity-report';
 import {
   countProspectsByStatus,
+  getDailySendCount,
   getLatestOutreachRunLog,
+  listAllSends,
   listProspectIdsByRecordStatus,
 } from '@/lib/firm-outreach/storage';
 import { OUTREACH_CAMPAIGN_IDS } from '@/lib/firm-outreach/site-config';
@@ -45,15 +48,19 @@ export async function GET(request: Request) {
 
   let readyAcrossCampaigns = 0;
   let sendableAcrossCampaigns = 0;
+  const utcDate = new Date().toISOString().slice(0, 10);
+  const sentTodayByCampaign: Record<string, number> = {};
+  let sentTodayAcrossCampaigns = 0;
 
   for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
-    const [selection, readyIds] = await Promise.all([
+    const [selection, readyIds, sentToday] = await Promise.all([
       selectOutreachCandidates({
         campaignId,
         readyLimit: 500,
         sentLimit: 200,
       }),
       listProspectIdsByRecordStatus('ready_to_send', { campaignId }),
+      getDailySendCount(utcDate, campaignId),
     ]);
     eligibility[campaignId] = {
       readyScanned: selection.readyScanned,
@@ -66,15 +73,25 @@ export async function GET(request: Request) {
     };
     readyAcrossCampaigns += readyIds.length;
     sendableAcrossCampaigns += selection.candidates.length;
+    sentTodayByCampaign[campaignId] = sentToday;
+    sentTodayAcrossCampaigns += sentToday;
   }
 
   // Admin activity report is scoped to the primary (WhatsApp) campaign.
   // Queue totals must include PSA agent-cover or operators see readyToSend:0
-  // while the send path still has inventory.
+  // while the send path still has inventory. Same for sentToday / sentLast7Days.
   const primaryReady = report.summary.readyToSend;
   const primarySendable = report.readyToSendProspects.filter(
     (r) => !r.suppressed && r.email,
   ).length;
+
+  const campaignIdSet = new Set<string>(OUTREACH_CAMPAIGN_IDS);
+  const allCampaignSends = (await listAllSends()).filter((s) =>
+    campaignIdSet.has(s.campaignId),
+  );
+  const windowCounts = computeSendWindowCounts(allCampaignSends);
+  // Prefer durable daily counters when present; fall back to send-record scan.
+  const sentToday = Math.max(sentTodayAcrossCampaigns, windowCounts.sentToday);
 
   const pendingJobs = jobCounts.pending ?? 0;
   const processingJobs =
@@ -89,7 +106,7 @@ export async function GET(request: Request) {
       config.outreachEnabled &&
       config.sendHealthy !== false &&
       envCheck.ok,
-    date: new Date().toISOString().slice(0, 10),
+    date: utcDate,
     config: {
       ...config,
       requireApproval: outreachRequireApproval(),
@@ -103,10 +120,13 @@ export async function GET(request: Request) {
       /** WhatsApp-campaign-only (legacy admin activity report). */
       primaryCampaignReadyToSend: primaryReady,
       primaryCampaignSendableReady: primarySendable,
+      primaryCampaignSentToday: report.summary.sentToday,
       /** All status-index ready rows (any campaign) after record verification. */
       allStatusesReadyToSend: prospectCounts.ready_to_send ?? 0,
-      sentToday: report.summary.sentToday,
-      sentLast7Days: report.summary.sentLast7Days,
+      /** Sum across WhatsApp + PSA (KV daily counters, floored by send records). */
+      sentToday,
+      sentTodayByCampaign,
+      sentLast7Days: windowCounts.sentLast7Days,
       /** Truly due for a send step (excludes not-due sent / stale ready). */
       eligibility,
     },

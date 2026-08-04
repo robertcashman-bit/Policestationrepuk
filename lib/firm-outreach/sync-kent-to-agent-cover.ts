@@ -1,4 +1,8 @@
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from './campaign-scope';
+import {
+  applyFirmCooldownPark,
+  isCrossCampaignCooldownActive,
+} from './cross-campaign-cooldown';
 import { buildProspectForCampaign, mergeProspect, type RawProspectInput } from './merge-prospects';
 import { FIRM_OUTREACH_CAMPAIGN_ID } from './site-config';
 import {
@@ -22,6 +26,8 @@ export interface SyncKentToAgentCoverStats {
   skippedSuppressed: number;
   skippedDuplicate: number;
   skippedExistingSent: number;
+  /** Parked ready with firm_cooldown / nextEligibleAt due to other-campaign contact. */
+  parkedCooldown: number;
   dryRun: boolean;
   truncated: boolean;
   elapsedMs: number;
@@ -69,7 +75,11 @@ const SOURCE_STATUSES: FirmProspectStatus[] = [
   'excluded',
 ];
 
-/** RepUK-only exclusion reasons that must not block PSA outreach. */
+/**
+ * RepUK-only exclusion reasons that must not block cloning into PSA.
+ * `firm_cooldown` is allowed through so the PSA row is created/updated, then
+ * `parkIfCrossCampaignCooldown` re-applies nextEligibleAt instead of wiping it.
+ */
 function isRepukOnlyExclusion(reason: string | undefined): boolean {
   if (!reason) return false;
   return (
@@ -77,6 +87,17 @@ function isRepukOnlyExclusion(reason: string | undefined): boolean {
     reason === 'already_contacted_firm' ||
     reason === 'firm_cooldown'
   );
+}
+
+async function parkIfCrossCampaignCooldown(prospect: FirmProspect): Promise<boolean> {
+  const cool = await isCrossCampaignCooldownActive({
+    firmKey: prospect.firmKey,
+    email: prospect.email,
+    excludeProspectId: prospect.id,
+  });
+  if (!cool.active || !cool.eligibleAt) return false;
+  applyFirmCooldownPark(prospect, cool.eligibleAt);
+  return true;
 }
 
 /**
@@ -103,6 +124,7 @@ export async function syncKentProspectsToAgentCover(opts?: {
     skippedSuppressed: 0,
     skippedDuplicate: 0,
     skippedExistingSent: 0,
+    parkedCooldown: 0,
     dryRun,
     truncated: false,
     elapsedMs: 0,
@@ -184,19 +206,32 @@ export async function syncKentProspectsToAgentCover(opts?: {
         continue;
       }
 
-      // PSA is a separate campaign: promote to ready when we have a firm email.
+      // PSA is a separate campaign: promote to ready when we have a firm email,
+      // then park behind cross-campaign cooldown when RepUK (or any sibling) already mailed.
       if (built.email && !built.lastEmailAt) {
         built.status = 'ready_to_send';
         built.excludedReason = undefined;
+        built.nextEligibleAt = undefined;
       }
 
       if (dryRun) {
+        const probe = existing ? mergeProspect(existing, built) : built;
+        if (
+          probe.email &&
+          !probe.lastEmailAt &&
+          (await parkIfCrossCampaignCooldown(probe))
+        ) {
+          stats.parkedCooldown++;
+        }
         if (existing) stats.updated++;
         else stats.created++;
         continue;
       }
 
       if (!existing) {
+        if (built.email && !built.lastEmailAt) {
+          if (await parkIfCrossCampaignCooldown(built)) stats.parkedCooldown++;
+        }
         await saveProspect(built);
         stats.created++;
         continue;
@@ -222,6 +257,11 @@ export async function syncKentProspectsToAgentCover(opts?: {
       ) {
         merged.status = 'ready_to_send';
         merged.excludedReason = undefined;
+        if (await parkIfCrossCampaignCooldown(merged)) {
+          stats.parkedCooldown++;
+        } else {
+          merged.nextEligibleAt = undefined;
+        }
       }
       await saveProspect(merged, existing.status);
       stats.updated++;

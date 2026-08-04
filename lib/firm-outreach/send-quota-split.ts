@@ -6,6 +6,10 @@
  */
 export function psaSendReserve(opts: {
   globalRemaining: number;
+  /**
+   * Sendable PSA inventory (not raw ready_to_send). Parked / junk / cooldown
+   * rows must not reserve quota that cannot be spent.
+   */
   psaReadyCount: number;
   /** Optional cron/batch ceiling applied to the combined send pool. */
   sendLimit?: number;

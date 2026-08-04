@@ -1,12 +1,7 @@
-import {
-  firmSendCooldownDays,
-  daysSince,
-  nextOutreachStep,
-  sequenceStepOf,
-} from '@robertcashman/firm-outreach-core';
+import { nextOutreachStep, sequenceStepOf } from '@robertcashman/firm-outreach-core';
+import { isCrossCampaignCooldownActive } from '../cross-campaign-cooldown';
 import { computeProspectPriority } from '../enrichment/scorer';
-import { listProspectsByRecordStatus, listProspectsForFirmKey } from '../storage';
-import { isCampaignProspect } from '../campaign-scope';
+import { listProspectsByRecordStatus } from '../storage';
 import type { FirmProspect } from '../types';
 
 export { nextOutreachStep, sequenceStepOf };
@@ -14,18 +9,20 @@ export { nextOutreachStep, sequenceStepOf };
 const DEFAULT_READY_SCAN = 500;
 const DEFAULT_SENT_SCAN = 500;
 
+/**
+ * True when this firm/inbox was emailed recently on *any* campaign
+ * (RepUK WhatsApp ↔ PSA agent-cover cross-campaign cooldown).
+ */
 export async function firmRecentlyContacted(
   prospect: FirmProspect,
-  campaignId: string,
+  _campaignId?: string,
 ): Promise<boolean> {
-  const siblings = await listProspectsForFirmKey(prospect.firmKey);
-  for (const s of siblings) {
-    if (s.id === prospect.id || !isCampaignProspect(s, campaignId)) continue;
-    if (s.lastEmailAt && daysSince(s.lastEmailAt) < firmSendCooldownDays()) {
-      return true;
-    }
-  }
-  return false;
+  const { active } = await isCrossCampaignCooldownActive({
+    firmKey: prospect.firmKey,
+    email: prospect.email,
+    excludeProspectId: prospect.id,
+  });
+  return active;
 }
 
 function compareCandidates(

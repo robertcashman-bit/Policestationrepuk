@@ -62,15 +62,16 @@ Campaigns:
 
 ## Verification checklist
 
-- [x] `npm run test:firm-outreach:ci` (prior 256+; re-run after this change)
-- [x] Production probe Resend IDs: RepUK `1e37ab49-ac96-47d5-bdcc-88efac095f58`, PSA `f6d17559-37e6-484a-b1c0-d33f7b15466e`
-- [x] Controlled PSA flush: **accepted 11** (`jobsClaimed: 11`) on run 30928986104
-- [ ] Sync same tip to **bit** `master` (user: `scripts/sync-outreach-fix-to-bit.sh`) so hold/guard war ends
+- [x] `npm run test:firm-outreach:ci` (269 passed including status/multi-campaign)
+- [x] Auth race fixed: single-flight verify + controlled rotate + bootstrap probe before kick
+- [x] Production verify success on `e073555` / live `980aaba` ([run 30933585738](https://github.com/robertdavidcashman-droid/Policestationrepuk/actions/runs/30933585738))
+- [x] Status shows cross-campaign ready (`readyToSend: 321`, WhatsApp `readyRecordCount: 320`)
+- [x] Probe Resend IDs (this verify): RepUK `392a1d79-0de3-40ac-8714-e64ffec7dd83`, PSA `2e4bf4dd-e328-47cb-bc1a-8def9880414e`
+- [x] Controlled flush: WhatsApp **accepted 17 + 18** (`jobsClaimed` 17 then 18); PSA skips correctly as `batch_limit` / `duplicate`
+- [x] `forceClearedLock: true`; cron routes reject unauthenticated requests (401)
+- [x] `/api/unsubscribe` + `/outreach/unsubscribe/[token]` present
+- [x] `Ops — production outreach hold` on droid `master` (10-minute reclaim)
+- [ ] Sync tip to **bit** `master` or disable bit source guard (ends dual-repo war)
+- [ ] Set GitHub Actions secrets `CRON_SECRET` / `FIRM_OUTREACH_BOOTSTRAP_SECRET` to Production values (stop decrypt/rotate path)
 - [ ] Restore `FIRM_OUTREACH_FIRM_COOLDOWN_DAYS=90` after backlog flush
-- [ ] Ensure usable `RESEND_WEBHOOK_SECRET` (`whsec_…`) on Vercel Production (not ciphertext envelope)
-
-## Manual actions only the account owner can complete
-
-1. **GitHub → `robertcashman-bit/Policestationrepuk` → merge/sync this tip to `master`**, then let bit deploy — *or* disable workflow `Ops — production source guard`.
-2. **Vercel → Project → Settings → Environment Variables (Production):** set `FIRM_OUTREACH_FIRM_COOLDOWN_DAYS=90` after inventory flush; confirm `RESEND_WEBHOOK_SECRET` decrypts as `whsec_…`.
-3. Optional: set Cursor Runtime Secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, `CRON_SECRET` so agents can diagnose without relying on Actions logs.
+- [ ] Ensure usable Production `RESEND_WEBHOOK_SECRET` (`whsec_…`)

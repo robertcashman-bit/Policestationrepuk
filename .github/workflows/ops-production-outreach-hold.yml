@@ -35,7 +35,7 @@ jobs:
       VERCEL_SCOPE: robert-cashmans-projects
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       # Pin the branch that owns the verified outreach fix.
-      HOLD_REF: cursor/outreach-e2e-reliability-f4ff
+      HOLD_REF: master
     steps:
       - name: Require Vercel secrets
         run: |

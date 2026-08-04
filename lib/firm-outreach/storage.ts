@@ -765,3 +765,48 @@ export async function getLatestOutreachRunLog(
 export async function refreshProspectStatusSnapshotCache(): Promise<void> {
   // REPUK uses index scans; no snapshot cache — no-op for run-outreach parity.
 }
+
+/** Diagnostic Redis key type for outreach:doctor (never throws). */
+export async function getIndexRedisType(key: string): Promise<string> {
+  const kv = getKV();
+  if (!kv) return 'no-kv';
+  const client = kv as {
+    type?: (k: string) => Promise<string>;
+    smembers?: (k: string) => Promise<unknown>;
+    get?: (k: string) => Promise<unknown>;
+  };
+  try {
+    if (typeof client.type === 'function') {
+      return String(await client.type(key));
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (/WRONGTYPE/i.test(msg)) return 'wrongtype';
+  }
+  try {
+    if (typeof client.smembers === 'function') {
+      const members = await client.smembers(key);
+      if (Array.isArray(members)) return members.length === 0 ? 'set-or-missing' : 'set';
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (/WRONGTYPE/i.test(msg)) {
+      try {
+        const raw = await client.get?.(key);
+        return raw == null ? 'missing' : 'string';
+      } catch {
+        return 'wrongtype';
+      }
+    }
+  }
+  try {
+    const raw = await client.get?.(key);
+    if (raw == null) return 'missing';
+    if (Array.isArray(raw)) return 'json-array';
+    return typeof raw;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (/WRONGTYPE/i.test(msg)) return 'wrongtype';
+    return 'error';
+  }
+}

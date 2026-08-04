@@ -9,7 +9,8 @@ export async function claimKey(
   const kv = getKV();
   if (!kv) return false;
   const result = await kv.set(key, value, { nx: true, ex: ttlSeconds });
-  return result === 'OK';
+  // @upstash/redis returns "OK"; some clients/mocks return true.
+  return result === 'OK' || (result as unknown) === true;
 }
 
 /** Increment a counter with TTL refresh (uses Redis INCR when available). */

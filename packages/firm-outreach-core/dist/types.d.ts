@@ -36,6 +36,8 @@ export interface FirmProspect {
     status: FirmProspectStatus;
     priorityScore: number;
     excludedReason?: string;
+    /** When set and in the future, ready prospects are parked (e.g. inbox cooldown). */
+    nextEligibleAt?: string;
     sequenceStep: number;
     lastEmailAt?: string;
     waLinkClickedAt?: string;

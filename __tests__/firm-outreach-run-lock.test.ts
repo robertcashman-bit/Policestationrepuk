@@ -21,6 +21,7 @@ import {
   claimOutreachRunLock,
   claimProspectSend,
   forceClearOutreachRunLock,
+  lockAgeMs,
   releaseOutreachRunLock,
   releaseProspectSend,
 } from '@/lib/firm-outreach/run-lock';
@@ -28,6 +29,21 @@ import {
 describe('outreach run locks', () => {
   beforeEach(() => {
     store.clear();
+  });
+
+  it('parses lock age from ISO timestamps and droid tokens', () => {
+    const now = Date.UTC(2026, 7, 4, 16, 0, 0);
+    expect(lockAgeMs(new Date(now - 60_000).toISOString(), now)).toBe(60_000);
+    const token = `${(now - 120_000).toString(36)}_abcd`;
+    expect(lockAgeMs(token, now)).toBe(120_000);
+    expect(lockAgeMs('not-a-lock', now)).toBeNull();
+  });
+
+  it('recovers a stale legacy ISO lock so cron is not stuck on overlap', async () => {
+    const staleIso = new Date(Date.now() - 400_000).toISOString();
+    store.set('firmoutreach:lock:send', staleIso);
+    const token = await claimOutreachRunLock('send');
+    expect(token).toBeTruthy();
   });
 
   it('allows only one send lock holder at a time', async () => {

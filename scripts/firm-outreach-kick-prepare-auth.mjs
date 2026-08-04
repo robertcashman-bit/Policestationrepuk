@@ -54,20 +54,34 @@ async function vercelJson(path, opts = {}) {
   return data;
 }
 
+/** Vercel sometimes returns envelope ciphertext even with decrypt=true. */
+function isUsableSecretValue(value) {
+  const v = String(value || '').trim();
+  if (!v) return false;
+  // Vercel encrypted envelope: {"v":"v2",...} base64 → eyJ…
+  if (v.startsWith('eyJ')) return false;
+  if (v === '[SENSITIVE]' || v === '*****') return false;
+  return true;
+}
+
 function pickEnvValue(envs, key) {
   const matches = (envs || []).filter(
     (e) => e.key === key && (!e.target || e.target.includes('production') || e.target.length === 0),
   );
-  // Prefer production-targeted entries with a non-empty value.
+  // Prefer production-targeted entries with a non-empty *usable* value.
   const ranked = matches.sort((a, b) => {
     const aProd = a.target?.includes('production') ? 0 : 1;
     const bProd = b.target?.includes('production') ? 0 : 1;
     if (aProd !== bProd) return aProd - bProd;
+    const aUsable = isUsableSecretValue(a.value) ? 0 : 1;
+    const bUsable = isUsableSecretValue(b.value) ? 0 : 1;
+    if (aUsable !== bUsable) return aUsable - bUsable;
     return String(b.value || '').length - String(a.value || '').length;
   });
   const hit = ranked[0];
-  const value = hit?.value?.trim?.() ? hit.value.trim() : '';
-  return { value, id: hit?.id || null, entries: matches };
+  const raw = hit?.value?.trim?.() ? hit.value.trim() : '';
+  const value = isUsableSecretValue(raw) ? raw : '';
+  return { value, id: hit?.id || null, entries: matches, raw };
 }
 
 function writeGithubEnv(pairs) {
@@ -324,11 +338,15 @@ async function ensureResendWebhookHealthy(apiKey, currentSecret, existingIds) {
 }
 
 async function main() {
-  // Prefer non-empty values already in the process env (GH secrets / env pull).
-  let cron = process.env.CRON_SECRET?.trim() || '';
-  let bootstrap = process.env.FIRM_OUTREACH_BOOTSTRAP_SECRET?.trim() || '';
+  // Prefer non-empty *usable* values already in the process env (GH secrets / env pull).
+  let cron = isUsableSecretValue(process.env.CRON_SECRET) ? process.env.CRON_SECRET.trim() : '';
+  let bootstrap = isUsableSecretValue(process.env.FIRM_OUTREACH_BOOTSTRAP_SECRET)
+    ? process.env.FIRM_OUTREACH_BOOTSTRAP_SECRET.trim()
+    : '';
   let needsRedeploy = false;
-  let webhookSigningSecretOut = process.env.RESEND_WEBHOOK_SECRET?.trim() || '';
+  let webhookSigningSecretOut = isUsableSecretValue(process.env.RESEND_WEBHOOK_SECRET)
+    ? process.env.RESEND_WEBHOOK_SECRET.trim()
+    : '';
 
   if (vercelEnabled) {
     console.log('Fetching Vercel production env (decrypt=true)…');
@@ -423,17 +441,20 @@ async function main() {
     const webhookSecretPick = pickEnvValue(envs, 'RESEND_WEBHOOK_SECRET');
     const resendApiKey =
       process.env.RESEND_API_KEY?.trim() || resendKeyPick.value || '';
-    webhookSigningSecretOut =
-      process.env.RESEND_WEBHOOK_SECRET?.trim() || webhookSecretPick.value || '';
+    if (!webhookSigningSecretOut && webhookSecretPick.value) {
+      webhookSigningSecretOut = webhookSecretPick.value;
+    }
     if (resendApiKey) {
       try {
         const ensured = await ensureResendWebhookHealthy(
           resendApiKey,
-          webhookSecretPick.value || '',
+          isUsableSecretValue(webhookSecretPick.value) ? webhookSecretPick.value : '',
           webhookSecretPick.entries.map((e) => e.id).filter(Boolean),
         );
         if (ensured.needsRedeploy) needsRedeploy = true;
-        if (ensured.signingSecret) webhookSigningSecretOut = ensured.signingSecret;
+        if (ensured.signingSecret?.startsWith('whsec_')) {
+          webhookSigningSecretOut = ensured.signingSecret;
+        }
       } catch (err) {
         console.warn(
           '[kick prepare] Resend webhook ensure failed:',
@@ -442,6 +463,12 @@ async function main() {
       }
     } else {
       console.log('[kick prepare] RESEND_API_KEY missing — skip webhook ensure');
+    }
+    if (webhookSigningSecretOut && !webhookSigningSecretOut.startsWith('whsec_')) {
+      console.warn(
+        '[kick prepare] Dropping non-whsec RESEND_WEBHOOK_SECRET (likely undecrypted envelope)',
+      );
+      webhookSigningSecretOut = '';
     }
 
     // Bootstrap may already exist in Vercel from a prior kick that failed before redeploy.

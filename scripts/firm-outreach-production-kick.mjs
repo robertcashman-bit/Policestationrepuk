@@ -118,28 +118,33 @@ if (token && projectId) {
 }
 
 const webhookSecret = process.env.RESEND_WEBHOOK_SECRET?.trim();
+// Vercel env API sometimes leaves ciphertext (eyJ…) in GITHUB_ENV when decrypt
+// fails — never feed that to Standard Webhooks.
 if (!webhookSecret) {
-  console.error(
-    'RESEND_WEBHOOK_SECRET missing after prepare — cannot prove webhook signature verify',
-  );
-  process.exit(1);
-}
-
-console.log('Probing signed Resend webhook on production…');
-const probe = await probeSignedResendWebhook({
-  baseUrl,
-  webhookSecret,
-});
-console.log(
-  `[${probe.ok ? 'ok' : 'warn'}] Signed Resend webhook probe — HTTP ${probe.status}`,
-);
-if (probe.body) console.log(probe.body.slice(0, 500));
-if (!probe.ok) {
-  // Do not block the send flush on a webhook probe timeout/drift — delivery
-  // reconciliation is best-effort; outreach send is the kick's primary job.
   console.warn(
-    'Signed webhook probe failed — continuing kick (send flush). Check RESEND_WEBHOOK_SECRET /api/webhooks/resend if delivery status stalls.',
+    'RESEND_WEBHOOK_SECRET missing after prepare — skipping signed webhook probe; continuing send flush',
   );
+} else if (!webhookSecret.startsWith('whsec_')) {
+  console.warn(
+    `RESEND_WEBHOOK_SECRET looks undecrypted (prefix=${webhookSecret.slice(0, 4)}…) — skipping signed webhook probe; continuing send flush`,
+  );
+} else {
+  console.log('Probing signed Resend webhook on production…');
+  const probe = await probeSignedResendWebhook({
+    baseUrl,
+    webhookSecret,
+  });
+  console.log(
+    `[${probe.ok ? 'ok' : 'warn'}] Signed Resend webhook probe — HTTP ${probe.status}`,
+  );
+  if (probe.body) console.log(probe.body.slice(0, 500));
+  if (!probe.ok) {
+    // Do not block the send flush on a webhook probe timeout/drift — delivery
+    // reconciliation is best-effort; outreach send is the kick's primary job.
+    console.warn(
+      'Signed webhook probe failed — continuing kick (send flush). Check RESEND_WEBHOOK_SECRET /api/webhooks/resend if delivery status stalls.',
+    );
+  }
 }
 
 const statusOnly = process.env.FIRM_OUTREACH_KICK_STATUS_ONLY === '1';

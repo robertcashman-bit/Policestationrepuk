@@ -173,8 +173,13 @@ jobs:
           GH_BOOTSTRAP_SECRET: ${{ secrets.FIRM_OUTREACH_BOOTSTRAP_SECRET }}
         run: |
           set -euo pipefail
+          # Prefer GH secrets; ignore Vercel envelope ciphertext left in GITHUB_ENV.
           if [ -n "${GH_CRON_SECRET:-}" ]; then export CRON_SECRET="$GH_CRON_SECRET"; fi
           if [ -n "${GH_BOOTSTRAP_SECRET:-}" ]; then export FIRM_OUTREACH_BOOTSTRAP_SECRET="$GH_BOOTSTRAP_SECRET"; fi
+          case "${CRON_SECRET:-}" in eyJ*) unset CRON_SECRET ;; esac
+          case "${FIRM_OUTREACH_BOOTSTRAP_SECRET:-}" in eyJ*) unset FIRM_OUTREACH_BOOTSTRAP_SECRET ;; esac
+          case "${RESEND_WEBHOOK_SECRET:-}" in eyJ*|whsec_*) ;; *) unset RESEND_WEBHOOK_SECRET ;; esac
+          case "${RESEND_WEBHOOK_SECRET:-}" in eyJ*) unset RESEND_WEBHOOK_SECRET ;; esac
           export FIRM_OUTREACH_KICK_BASE_URL=https://policestationrepuk.org
           export FIRM_OUTREACH_KICK_REQUIRE_AUTH=1
           export FIRM_OUTREACH_KICK_COMMIT_SHA="${{ steps.deployment.outputs.sha }}"

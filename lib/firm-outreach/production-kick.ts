@@ -78,11 +78,11 @@ export async function runProductionKickSteps(opts: {
   return { results, failed: false };
 }
 
+/** Status-only verify: status must be HTTP 200 (not optional). */
 export const STATUS_ONLY_PRODUCTION_KICK_STEPS: KickStep[] = [
   {
     path: '/api/cron/firm-outreach-status',
     label: 'Outreach send health (status)',
-    optional: true,
   },
 ];
 

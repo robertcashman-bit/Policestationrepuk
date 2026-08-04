@@ -74,6 +74,7 @@ describe('runProductionKickSteps', () => {
   it('supports status-only and bounded flush step variants', () => {
     expect(STATUS_ONLY_PRODUCTION_KICK_STEPS).toHaveLength(1);
     expect(STATUS_ONLY_PRODUCTION_KICK_STEPS[0]?.path).toBe('/api/cron/firm-outreach-status');
+    expect(STATUS_ONLY_PRODUCTION_KICK_STEPS[0]?.optional).toBeFalsy();
     const bounded = productionKickStepsWithFlushLimit(8);
     const sends = bounded.filter((s) => s.path.startsWith('/api/cron/firm-outreach-send'));
     expect(sends).toHaveLength(1);

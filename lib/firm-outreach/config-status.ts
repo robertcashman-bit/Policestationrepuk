@@ -40,30 +40,7 @@ export async function getOutreachConfigStatus() {
     countyAllowlist: countyAllowlist(),
     dailyCap: (() => {
       const cap = dailySendCap();
-      const unlimited = isDailySendCapUnlimited(cap);
-      // #region agent log
-      fetch('http://127.0.0.1:7496/ingest/55a0b704-8cf7-4e35-a08f-f5d81d38bd00', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '71f13e' },
-        body: JSON.stringify({
-          sessionId: '71f13e',
-          hypothesisId: 'B',
-          location: 'lib/firm-outreach/config-status.ts:getOutreachConfigStatus',
-          message: 'status reports both dailyCap and resend budget',
-          data: {
-            dailyCap: unlimited ? null : cap,
-            dailyCapUnlimited: unlimited,
-            resendSendCount,
-            resendQuotaRemaining,
-            resendOutreachBudget: resendOutreachBudget(),
-            separateLimiters: true,
-          },
-          timestamp: Date.now(),
-          runId: 'post-fix',
-        }),
-      }).catch(() => {});
-      // #endregion
-      return unlimited ? null : cap;
+      return isDailySendCapUnlimited(cap) ? null : cap;
     })(),
     dailyCapUnlimited: isDailySendCapUnlimited(),
     resendSendCount,

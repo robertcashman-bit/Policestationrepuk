@@ -19,8 +19,32 @@ import {
 } from '../merge-prospects';
 import { FIRM_OUTREACH_CAMPAIGN_ID } from '../site-config';
 import { buildCrimeRegistry } from '../qualification';
-import { getProspect, saveProspect } from '../storage';
-import type { DiscoveryRunStats } from '../types';
+import { getProspectsByIds, saveProspect } from '../storage';
+import type { DiscoveryRunStats, FirmProspect } from '../types';
+
+const DISCOVERY_WRITE_CONCURRENCY = 20;
+
+/** Compare prospects ignoring updatedAt (merge always bumps the timestamp). */
+function prospectPayloadEqual(a: FirmProspect, b: FirmProspect): boolean {
+  const strip = ({ updatedAt: _u, ...rest }: FirmProspect) => rest;
+  return JSON.stringify(strip(a)) === JSON.stringify(strip(b));
+}
+
+async function mapPool<T>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T, index: number) => Promise<void>,
+): Promise<void> {
+  let next = 0;
+  const runners = Array.from({ length: Math.max(1, concurrency) }, async () => {
+    while (true) {
+      const i = next++;
+      if (i >= items.length) return;
+      await worker(items[i], i);
+    }
+  });
+  await Promise.all(runners);
+}
 
 /** Keep geo-Kent rows plus DSCC firms whose name matches a Kent LAA firm. */
 export function filterAgentCoverKentInputs(
@@ -122,27 +146,44 @@ export async function runFirmDiscovery(opts?: {
     allInputs = filterAgentCoverKentInputs(allInputs, kentLaaNames);
   }
 
-  let created = 0;
-  let updated = 0;
+  const built: FirmProspect[] = [];
   let excluded = 0;
-
   for (const input of allInputs) {
-    const built = isAgentCover
+    const prospect = isAgentCover
       ? buildProspectForCampaign(campaignId, input)
       : buildProspectFromInput(input);
-    if (!built) continue;
-    if (built.status === 'excluded') excluded++;
+    if (!prospect) continue;
+    if (prospect.status === 'excluded') excluded++;
+    built.push(prospect);
+  }
 
-    const existing = await getProspect(built.id);
+  // Batch-read existing rows — sequential getProspect/saveProspect was hanging for
+  // tens of minutes on nationwide DSCC+LAA merges (N× Redis round-trips).
+  const existingMap = await getProspectsByIds(built.map((p) => p.id));
+
+  let created = 0;
+  let updated = 0;
+  let unchanged = 0;
+
+  await mapPool(built, DISCOVERY_WRITE_CONCURRENCY, async (prospect) => {
+    const existing = existingMap.get(prospect.id);
     if (!existing) {
-      await saveProspect(built);
+      await saveProspect(prospect);
       created++;
-      continue;
+      return;
     }
-    const merged = mergeProspect(existing, built);
+    const merged = mergeProspect(existing, prospect);
+    if (prospectPayloadEqual(merged, existing)) {
+      unchanged++;
+      return;
+    }
     await saveProspect(merged, existing.status);
     updated++;
-  }
+  });
+
+  console.log(
+    `[firm-outreach discovery] campaign=${campaignId} inputs=${allInputs.length} built=${built.length} created=${created} updated=${updated} unchanged=${unchanged} excluded=${excluded} elapsedMs=${Date.now() - started}`,
+  );
 
   return {
     laaRows: laa.length,

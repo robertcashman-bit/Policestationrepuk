@@ -19,15 +19,6 @@ vi.mock('@/lib/firm-outreach/constants', () => ({
   outreachRequireApproval: () => true,
 }));
 
-vi.mock('@/lib/firm-outreach/outreach/activity-report', () => ({
-  buildOutreachActivityReport: vi.fn().mockResolvedValue({
-    report: {
-      summary: { readyToSend: 109, sentToday: 0, sentLast7Days: 687 },
-      readyToSendProspects: [{ suppressed: false, email: 'a@b.com' }],
-    },
-  }),
-}));
-
 vi.mock('@/lib/firm-outreach/email-jobs/storage', () => ({
   countEmailJobsByStatus: vi.fn().mockResolvedValue({
     pending: 0,
@@ -41,7 +32,7 @@ vi.mock('@/lib/firm-outreach/email-jobs/storage', () => ({
 
 vi.mock('@/lib/firm-outreach/outreach/candidate-selection', () => ({
   selectOutreachCandidates: vi.fn().mockResolvedValue({
-    candidates: [],
+    candidates: [{}, {}, {}],
     readyScanned: 10,
     sentScanned: 5,
     readyEligible: 8,
@@ -54,6 +45,8 @@ vi.mock('@/lib/firm-outreach/storage', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/firm-outreach/storage')>();
   return {
     ...actual,
+    listProspectIdsByStatus: vi.fn().mockResolvedValue(Array.from({ length: 109 }, (_, i) => `p${i}`)),
+    getDailySendCount: vi.fn().mockResolvedValue(3),
     getLatestOutreachRunLog: vi.fn().mockResolvedValue(null),
   };
 });
@@ -105,6 +98,8 @@ describe('firm-outreach-status cron route', () => {
     expect(json.ok).toBe(true);
     expect(json.config.requireApproval).toBe(true);
     expect(json.queue.readyToSend).toBe(109);
+    expect(json.queue.sentToday).toBe(3);
+    expect(json.queue.sendableReady).toBeGreaterThan(0);
   });
 
   it('accepts outreach bootstrap secret header', async () => {

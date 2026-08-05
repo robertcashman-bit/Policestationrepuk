@@ -301,10 +301,10 @@ async function testLeadMagnetRemoved() {
       email: 'qa-autotest-noreply@policestationrepuk.org',
       source: 'autotest',
     });
-    // Deleted App Router handlers typically 404; some platforms may 405.
+    // Tombstone returns 410; deleted handlers may 404/405 depending on platform.
     log(
-      res.status === 404 || res.status === 405,
-      'POST /api/lead-magnet is gone',
+      res.status === 410 || res.status === 404 || res.status === 405,
+      'POST /api/lead-magnet is retired (no admin email)',
       `status=${res.status}`,
     );
   } catch (err) {

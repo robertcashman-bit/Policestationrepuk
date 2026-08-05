@@ -78,12 +78,26 @@ describe('emailHasInitialOutreachFromOtherProspect', () => {
 });
 
 describe('dailySendCap default', () => {
-  it('defaults to 150 when env is unset', async () => {
+  it('is unlimited when env is unset', async () => {
     const prev = process.env.FIRM_OUTREACH_DAILY_CAP;
     delete process.env.FIRM_OUTREACH_DAILY_CAP;
     vi.resetModules();
-    const { dailySendCap } = await import('@/lib/firm-outreach/constants');
-    expect(dailySendCap()).toBe(150);
+    const { dailySendCap, isDailySendCapUnlimited } = await import('@/lib/firm-outreach/constants');
+    expect(isDailySendCapUnlimited(dailySendCap())).toBe(true);
+    if (prev === undefined) delete process.env.FIRM_OUTREACH_DAILY_CAP;
+    else process.env.FIRM_OUTREACH_DAILY_CAP = prev;
+  });
+
+  it('is unlimited when env is 0 or off', async () => {
+    const prev = process.env.FIRM_OUTREACH_DAILY_CAP;
+    process.env.FIRM_OUTREACH_DAILY_CAP = '0';
+    vi.resetModules();
+    let mod = await import('@/lib/firm-outreach/constants');
+    expect(mod.isDailySendCapUnlimited(mod.dailySendCap())).toBe(true);
+    process.env.FIRM_OUTREACH_DAILY_CAP = 'off';
+    vi.resetModules();
+    mod = await import('@/lib/firm-outreach/constants');
+    expect(mod.isDailySendCapUnlimited(mod.dailySendCap())).toBe(true);
     if (prev === undefined) delete process.env.FIRM_OUTREACH_DAILY_CAP;
     else process.env.FIRM_OUTREACH_DAILY_CAP = prev;
   });

@@ -248,7 +248,17 @@ function createOutreachEnvHelpers(defaults = {}) {
             return false;
         },
         dailySendCap() {
-            return Number(process.env.FIRM_OUTREACH_DAILY_CAP ?? defaults.dailyCap ?? 50) || 50;
+            const raw = process.env.FIRM_OUTREACH_DAILY_CAP?.trim();
+            if (raw === undefined ||
+                raw === '' ||
+                raw === '0' ||
+                ['off', 'none', 'unlimited', 'false', 'no'].includes(raw.toLowerCase())) {
+                return Number.MAX_SAFE_INTEGER;
+            }
+            const n = Number(raw);
+            if (Number.isFinite(n) && n > 0)
+                return Math.floor(n);
+            return Number(defaults.dailyCap ?? 50) || 50;
         },
         enrichBatchSize() {
             return Number(process.env.FIRM_OUTREACH_ENRICH_BATCH ?? defaults.enrichBatch ?? 150) || 150;

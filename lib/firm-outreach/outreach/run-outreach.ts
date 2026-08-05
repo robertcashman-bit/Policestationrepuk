@@ -220,6 +220,31 @@ export async function runFirmOutreach(opts?: {
   const remainingDaily = Math.max(0, dailyCap - alreadySent);
   const remaining = Math.min(batchLimit, remainingDaily);
   const globalQuota = await getGlobalResendQuotaRemaining(date);
+  // #region agent log
+  fetch('http://127.0.0.1:7496/ingest/55a0b704-8cf7-4e35-a08f-f5d81d38bd00', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '71f13e' },
+    body: JSON.stringify({
+      sessionId: '71f13e',
+      hypothesisId: 'C',
+      location: 'lib/firm-outreach/outreach/run-outreach.ts:cap-gate',
+      message: 'send path cap vs resend budget',
+      data: {
+        campaignId,
+        dailyCap,
+        alreadySent,
+        remainingDaily,
+        batchLimit,
+        remaining,
+        globalQuota,
+        willSkipDailyCap: remaining === 0,
+        willSkipResendQuota: !opts?.dryRun && globalQuota <= 0,
+      },
+      timestamp: Date.now(),
+      runId: 'post-fix',
+    }),
+  }).catch(() => {});
+  // #endregion
   const maxElapsedMs = opts?.maxElapsedMs ?? DEFAULT_MAX_ELAPSED_MS;
   const dryRunEnv = process.env.FIRM_OUTREACH_DRY_RUN?.trim().toLowerCase();
   const envDryRun =

@@ -79,9 +79,14 @@ function validateOutreachEnv(opts) {
     else if (!extractEmailFromFromHeader(psaFrom)) {
         errors.push('FIRM_OUTREACH_PSA_FROM_EMAIL is malformed');
     }
-    const dailyCap = parsePositiveInt(process.env.FIRM_OUTREACH_DAILY_CAP, 150);
-    if (!Number.isFinite(dailyCap)) {
-        errors.push('FIRM_OUTREACH_DAILY_CAP must be a non-negative integer');
+    // Unset / 0 / off = unlimited soft cap (Resend budget still applies).
+    const dailyCapRaw = process.env.FIRM_OUTREACH_DAILY_CAP?.trim();
+    if (dailyCapRaw &&
+        !['off', 'none', 'unlimited', 'false', 'no'].includes(dailyCapRaw.toLowerCase())) {
+        const dailyCap = parsePositiveInt(dailyCapRaw, NaN);
+        if (!Number.isFinite(dailyCap)) {
+            errors.push('FIRM_OUTREACH_DAILY_CAP must be a non-negative integer, 0, or off/unlimited');
+        }
     }
     const hourlyCap = parsePositiveInt(process.env.FIRM_OUTREACH_HOURLY_CAP, 0);
     if (!Number.isFinite(hourlyCap)) {

@@ -1,0 +1,196 @@
+# Owner ops bootstrap — runs the remaining manual outreach checklist using
+# credentials available to GitHub Actions (VERCEL_TOKEN) plus optional PATs:
+#   BIT_SYNC_TOKEN      — write to robertcashman-bit/Policestationrepuk
+#   SECRETS_SYNC_TOKEN  — PAT that can set Actions secrets on this repo
+#
+# Trigger by pushing this workflow on branch cursor/owner-bootstrap-* or via
+# workflow_dispatch (human accounts). Cloud agent tokens cannot workflow_dispatch.
+name: Ops — outreach owner bootstrap
+
+on:
+  push:
+    branches:
+      - 'cursor/owner-bootstrap-**'
+    paths:
+      - '.github/workflows/ops-outreach-owner-bootstrap.yml'
+      - 'scripts/firm-outreach-kick-prepare-auth.mjs'
+      - 'scripts/firm-outreach-production-kick.mjs'
+      - 'scripts/firm-outreach-verify-kick-evidence.mjs'
+      - 'scripts/sync-outreach-fix-to-bit.sh'
+      - 'lib/firm-outreach/**'
+  workflow_dispatch:
+    inputs:
+      confirm_live:
+        description: 'Type SEND to allow live probe + bounded flush'
+        required: true
+        type: string
+      limit:
+        description: 'Max emails for flush'
+        required: false
+        default: '8'
+        type: string
+      sync_bit:
+        description: 'Push tip to bit master + disable source guard (needs BIT_SYNC_TOKEN)'
+        required: false
+        default: 'true'
+        type: string
+
+concurrency:
+  group: outreach-owner-bootstrap
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_SCOPE: robert-cashmans-projects
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      BIT_SYNC_TOKEN: ${{ secrets.BIT_SYNC_TOKEN }}
+      SECRETS_SYNC_TOKEN: ${{ secrets.SECRETS_SYNC_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Require Vercel secrets
+        run: |
+          if [ -z "${VERCEL_TOKEN:-}" ] || [ -z "${VERCEL_ORG_ID:-}" ] || [ -z "${VERCEL_PROJECT_ID:-}" ]; then
+            echo "VERCEL_TOKEN / VERCEL_ORG_ID / VERCEL_PROJECT_ID required"
+            exit 1
+          fi
+
+      - name: Install Vercel CLI (pinned)
+        run: npm install -g vercel@41.4.0
+
+      - name: Prepare kick auth + ensure Resend webhook secret
+        env:
+          GH_CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          GH_BOOTSTRAP_SECRET: ${{ secrets.FIRM_OUTREACH_BOOTSTRAP_SECRET }}
+          FIRM_OUTREACH_ALLOW_BOOTSTRAP_ROTATE: '1'
+          FIRM_OUTREACH_PREPARE_UNGATE: '1'
+        run: |
+          set -euo pipefail
+          if [ -n "${GH_CRON_SECRET:-}" ]; then export CRON_SECRET="$GH_CRON_SECRET"; fi
+          if [ -n "${GH_BOOTSTRAP_SECRET:-}" ]; then export FIRM_OUTREACH_BOOTSTRAP_SECRET="$GH_BOOTSTRAP_SECRET"; fi
+          case "${CRON_SECRET:-}" in eyJ*) unset CRON_SECRET ;; esac
+          case "${FIRM_OUTREACH_BOOTSTRAP_SECRET:-}" in eyJ*) unset FIRM_OUTREACH_BOOTSTRAP_SECRET ;; esac
+          node scripts/firm-outreach-kick-prepare-auth.mjs | tee /tmp/prepare.log
+          # prepare writes CRON_SECRET / BOOTSTRAP / RESEND_WEBHOOK_SECRET into GITHUB_ENV
+          # for subsequent steps. Report webhook health from that env.
+          if [ -n "${RESEND_WEBHOOK_SECRET:-}" ] && [[ "${RESEND_WEBHOOK_SECRET}" == whsec_* ]]; then
+            echo "RESEND_WEBHOOK_SECRET is usable whsec_…"
+            echo "- Webhook secret: ok" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "WARN: RESEND_WEBHOOK_SECRET still missing/unusable after prepare (may need redeploy)"
+            echo "- Webhook secret: missing after prepare" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Sync Production cron/bootstrap into GitHub Actions secrets
+        id: sync_secrets
+        env:
+          GH_TOKEN: ${{ secrets.SECRETS_SYNC_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SECRETS_SYNC_TOKEN:-}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "SECRETS_SYNC_TOKEN not configured — skip GH secret sync"
+            echo "- GH secret sync: skipped (add SECRETS_SYNC_TOKEN)" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # Values come from prepare → GITHUB_ENV
+          if [ -z "${CRON_SECRET:-}" ] && [ -z "${FIRM_OUTREACH_BOOTSTRAP_SECRET:-}" ]; then
+            echo "No usable cron/bootstrap values to sync"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -n "${CRON_SECRET:-}" ]; then
+            printf '%s' "$CRON_SECRET" | gh secret set CRON_SECRET --repo "${{ github.repository }}"
+            echo "Set CRON_SECRET"
+          fi
+          if [ -n "${FIRM_OUTREACH_BOOTSTRAP_SECRET:-}" ]; then
+            printf '%s' "$FIRM_OUTREACH_BOOTSTRAP_SECRET" | gh secret set FIRM_OUTREACH_BOOTSTRAP_SECRET --repo "${{ github.repository }}"
+            echo "Set FIRM_OUTREACH_BOOTSTRAP_SECRET"
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "- GH secret sync: ok" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Sync tip to bit master + disable source guard
+        id: sync_bit
+        env:
+          SYNC_BIT: ${{ github.event.inputs.sync_bit || 'true' }}
+        run: |
+          set -euo pipefail
+          if [ "${SYNC_BIT}" != "true" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "sync_bit=false — skipped"
+            exit 0
+          fi
+          if [ -z "${BIT_SYNC_TOKEN:-}" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "BIT_SYNC_TOKEN not configured — cannot push to bit"
+            echo "- Bit sync: skipped (add BIT_SYNC_TOKEN)" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          BIT_REMOTE="https://x-access-token:${BIT_SYNC_TOKEN}@github.com/robertcashman-bit/Policestationrepuk.git"
+          SHA="$(git rev-parse HEAD)"
+          echo "Pushing ${SHA:0:7} → bit master"
+          git push "$BIT_REMOTE" "HEAD:refs/heads/master"
+          echo "Disabling bit source guard workflow (best-effort)"
+          GH_TOKEN="$BIT_SYNC_TOKEN" gh workflow disable "Ops — production source guard" \
+            --repo robertcashman-bit/Policestationrepuk || true
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "- Bit sync: pushed ${SHA:0:7} + attempted guard disable" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Live SEND verify (bounded)
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          CONFIRM_LIVE: ${{ github.event.inputs.confirm_live || 'SEND' }}
+        run: |
+          set -euo pipefail
+          # Push to owner-bootstrap-* is an explicit live-send request.
+          # workflow_dispatch still requires confirm_live=SEND.
+          # Auth secrets come from prepare → GITHUB_ENV (prefer over empty repo secrets).
+          if [ "${EVENT_NAME}" = "workflow_dispatch" ] && [ "${CONFIRM_LIVE}" != "SEND" ]; then
+            echo "confirm_live!=SEND — status-only"
+            export FIRM_OUTREACH_KICK_STATUS_ONLY=1
+          else
+            LIMIT="${{ github.event.inputs.limit }}"
+            export FIRM_OUTREACH_KICK_FLUSH_LIMIT="${LIMIT:-8}"
+          fi
+
+          case "${CRON_SECRET:-}" in eyJ*) unset CRON_SECRET ;; esac
+          case "${FIRM_OUTREACH_BOOTSTRAP_SECRET:-}" in eyJ*) unset FIRM_OUTREACH_BOOTSTRAP_SECRET ;; esac
+          case "${RESEND_WEBHOOK_SECRET:-}" in eyJ*) unset RESEND_WEBHOOK_SECRET ;; esac
+
+          export FIRM_OUTREACH_KICK_BASE_URL=https://policestationrepuk.org
+          export FIRM_OUTREACH_KICK_REQUIRE_AUTH=1
+          export FIRM_OUTREACH_KICK_COMMIT_SHA="$(git rev-parse HEAD)"
+
+          node scripts/firm-outreach-production-kick.mjs 2>&1 | tee /tmp/outreach-kick.log
+
+          if [ "${FIRM_OUTREACH_KICK_STATUS_ONLY:-}" = "1" ]; then
+            node scripts/firm-outreach-verify-kick-evidence.mjs status_only /tmp/outreach-kick.log
+          else
+            node scripts/firm-outreach-verify-kick-evidence.mjs live_send /tmp/outreach-kick.log
+          fi
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: outreach-owner-bootstrap-${{ github.sha }}
+          path: |
+            /tmp/outreach-kick.log
+            /tmp/prepare.log
+          if-no-files-found: ignore

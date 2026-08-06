@@ -46,7 +46,8 @@ async function collectProspectIds(): Promise<string[]> {
     for (const id of await listProspectIdsByStatus(status)) ids.add(id);
   }
 
-  for (const key of await scanKeys('firmprospect:fop_*', { count: 300, maxIterations: 80 })) {
+  // Full DB walk — prior 80×300 cap could under-collect after an index wipe.
+  for (const key of await scanKeys('firmprospect:fop_*', { count: 500, maxIterations: 500 })) {
     if (!isProspectDocumentKey(key)) continue;
     ids.add(key.slice(PROSPECT_PREFIX.length));
   }

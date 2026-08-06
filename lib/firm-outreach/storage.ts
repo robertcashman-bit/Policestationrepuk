@@ -228,11 +228,26 @@ export async function listProspectsByRecordStatus(
   opts?: { campaignId?: string },
 ): Promise<FirmProspect[]> {
   const campaignId = opts?.campaignId ?? activeOutreachCampaignId();
-  const ids = await listProspectIdsByRecordStatus(status, { campaignId });
-  const slice = ids.slice(0, limit);
-  if (slice.length === 0) return [];
-  const map = await getProspectsByIds(slice);
-  return slice.map((id) => map.get(id)).filter((p): p is FirmProspect => Boolean(p));
+  if (limit <= 0) return [];
+  // Stream status-index members in mget chunks until we have `limit` campaign
+  // matches. Loading the entire ready set (8k+) on every send tick exhausted
+  // the cron budget with jobsClaimed/attempted stuck at 0.
+  const ids = await listProspectIdsByStatus(status);
+  if (ids.length === 0) return [];
+
+  const out: FirmProspect[] = [];
+  for (let i = 0; i < ids.length && out.length < limit; i += MGET_CHUNK) {
+    const chunk = ids.slice(i, i + MGET_CHUNK);
+    const map = await getProspectsByIds(chunk);
+    for (const id of chunk) {
+      const p = map.get(id);
+      if (p && isCampaignProspect(p, campaignId) && p.status === status) {
+        out.push(p);
+        if (out.length >= limit) break;
+      }
+    }
+  }
+  return out;
 }
 
 export async function listProspectsForFirmKey(firmKey: string): Promise<FirmProspect[]> {

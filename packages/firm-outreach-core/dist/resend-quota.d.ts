@@ -1,10 +1,15 @@
-/** Shared Resend free-tier ceiling — both workspaces share one API key. */
+/** Default when env unset — conservative free-tier shaped ceiling. */
 export declare const DEFAULT_RESEND_DAILY_LIMIT = 100;
 /** Headroom reserved for login codes, digests, Kent corrections, etc. */
 export declare const DEFAULT_RESEND_HEADROOM = 10;
 export declare const RESEND_COUNT_KEY_PREFIX = "firmoutreach:resend:count:";
 export declare function resendQuotaKey(utcDate: string): string;
+/**
+ * Soft Resend daily ceiling for outreach accounting.
+ * Set FIRM_OUTREACH_RESEND_DAILY_LIMIT=unlimited (or 0/off) on paid plans with no daily quota.
+ */
 export declare function resendDailyLimit(): number;
+export declare function isResendDailyLimitUnlimited(limit?: number): boolean;
 export declare function resendDailyHeadroom(): number;
 /** Effective outreach budget across both sites for a UTC day. */
 export declare function resendOutreachBudget(): number;

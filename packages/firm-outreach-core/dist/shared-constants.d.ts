@@ -34,6 +34,10 @@ export declare function createOutreachEnvHelpers(defaults?: OutreachLimitsDefaul
      * Set FIRM_OUTREACH_REQUIRE_APPROVAL=true for click-to-send approval emails.
      */
     outreachRequireApproval(): boolean;
+    /**
+     * Soft outreach daily cap. Unset / 0 / off / unlimited = no soft cap
+     * (Resend budget still binds via getGlobalResendQuotaRemaining).
+     */
     dailySendCap(): number;
     enrichBatchSize(): number;
     cronEnrichBatchSize(): number;

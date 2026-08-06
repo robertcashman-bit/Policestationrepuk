@@ -130,7 +130,7 @@ Unset production blockers: `FIRM_OUTREACH_DRY_RUN`, `FIRM_OUTREACH_PAUSED`, `FIR
 
 Kick steps: status → **pre-flight email probes** (RepUK + PSA) → send flush 1 + 1b → requalify → seed/enrich PSA agent-cover → enrich RepUK → send flush 2 (`/api/cron/firm-outreach-send?limit=150`) for both campaigns. Confirm probe `ok:true` and `sendByCampaign.agent_cover_kent_v1` in the kick log (or empty queue). Scheduled send crons also flush both campaigns (10:00 / 12:00 / 14:30 / 16:00 / 18:30 / 20:00 UTC).
 
-**Resend budget:** default outreach budget is `FIRM_OUTREACH_RESEND_DAILY_LIMIT` (100) minus headroom (10) = **90 sends/UTC day** across both campaigns. A ready queue of ~278 therefore needs multiple days (or a higher Resend plan limit set via `FIRM_OUTREACH_RESEND_DAILY_LIMIT`) to fully drain.
+**Resend budget:** soft app ceiling via `FIRM_OUTREACH_RESEND_DAILY_LIMIT`. Unset defaults to **100/day** (minus headroom 10 → **90** outreach sends). On paid Resend plans with no daily quota, set `FIRM_OUTREACH_RESEND_DAILY_LIMIT=unlimited` (or `0` / `off`) so both campaigns share no soft daily Resend budget. Rate limits (≈10 req/s) and monthly plan quotas still apply at Resend.
 
 **Probe route:** `GET /api/cron/firm-outreach-probe` (cron/bootstrap auth) sends one operator-only test email per campaign to `FIRM_OUTREACH_DIGEST_EMAIL`, after checking `policestationrepuk.com` / `.org` and `policestationagent.com` are reachable. PSA prefers `noreply@policestationagent.com` and falls back to the verified RepUK domain when that domain is not on Resend.
 

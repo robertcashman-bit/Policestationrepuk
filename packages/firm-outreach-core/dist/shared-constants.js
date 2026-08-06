@@ -247,6 +247,10 @@ function createOutreachEnvHelpers(defaults = {}) {
                 return false;
             return false;
         },
+        /**
+         * Soft outreach daily cap. Unset / 0 / off / unlimited = no soft cap
+         * (Resend budget still binds via getGlobalResendQuotaRemaining).
+         */
         dailySendCap() {
             const raw = process.env.FIRM_OUTREACH_DAILY_CAP?.trim();
             if (raw === undefined ||
@@ -258,6 +262,7 @@ function createOutreachEnvHelpers(defaults = {}) {
             const n = Number(raw);
             if (Number.isFinite(n) && n > 0)
                 return Math.floor(n);
+            // Invalid explicit value — fall back to configured default, not unlimited.
             return Number(defaults.dailyCap ?? 50) || 50;
         },
         enrichBatchSize() {

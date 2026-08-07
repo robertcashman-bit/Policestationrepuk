@@ -228,6 +228,18 @@ Values redacted — rotate in Vercel dashboard.
 
 ---
 
+## 21b. Multi-account push fix
+
+Cloud Agents in this environment can only push `robertcashman-bit/Policestationrepuk`.
+Sibling hardening for both GitHub accounts is delivered via:
+
+```bash
+export GH_TOKEN=ghp_...   # write on bit + droid accounts
+./scripts/push-portfolio-security-hardening.sh
+```
+
+Patches live in `docs/sibling-hardening-patches/`. See that README for durable Cursor GitHub App + environment setup.
+
 ## 22. Verdict
 
 **PARTIAL PASS**

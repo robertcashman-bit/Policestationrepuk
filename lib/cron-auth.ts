@@ -12,6 +12,7 @@ export function isCronAuthorized(request: Request, secret = process.env.CRON_SEC
   if (!secret) {
     return process.env.NODE_ENV !== 'production';
   }
+  if (!request?.headers) return false;
   const auth = request.headers.get('authorization') || '';
   const xSecret = request.headers.get('x-cron-secret') || '';
   const bearer = auth.startsWith('Bearer ') ? auth.slice('Bearer '.length) : '';

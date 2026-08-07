@@ -46,7 +46,8 @@ export interface CrossDomainLinksAuditResult {
   blockingIssues: string[];
 }
 
-const CI_BLOCKING_SITE_IDS = new Set(['policestationrepuk', 'policestationagent']);
+/** Only this repo's live site can block CI; sibling drift is reported but non-blocking. */
+const CI_BLOCKING_SITE_IDS = new Set(['policestationrepuk']);
 
 function decodeHref(href: string): string {
   return href.replace(/&amp;/g, '&');

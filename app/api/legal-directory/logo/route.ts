@@ -51,6 +51,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing file field.' }, { status: 400 });
   }
 
+  // Validate the payload before consuming a one-shot upload token so common
+  // client mistakes (size / type) do not burn authorisation.
+  if (file.size > MAX_BYTES) {
+    return NextResponse.json({ error: 'Logo must be 512KB or smaller.' }, { status: 400 });
+  }
+
+  const buf = new Uint8Array(await file.arrayBuffer());
+  const detected = detectImageMimeFromBytes(buf);
+  if (!detected || !ALLOWED_TYPES.has(detected)) {
+    return NextResponse.json(
+      { error: 'Logo must be a valid JPEG, PNG, or WebP image.' },
+      { status: 400 },
+    );
+  }
+
   const admin = await requireAdmin();
   const hasAdmin = admin.ok;
   const hasUploadToken =
@@ -65,19 +80,6 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: 'Upload authorisation required. Please reload the form and try again.' },
       { status: 401 },
-    );
-  }
-
-  if (file.size > MAX_BYTES) {
-    return NextResponse.json({ error: 'Logo must be 512KB or smaller.' }, { status: 400 });
-  }
-
-  const buf = new Uint8Array(await file.arrayBuffer());
-  const detected = detectImageMimeFromBytes(buf);
-  if (!detected || !ALLOWED_TYPES.has(detected)) {
-    return NextResponse.json(
-      { error: 'Logo must be a valid JPEG, PNG, or WebP image.' },
-      { status: 400 },
     );
   }
 

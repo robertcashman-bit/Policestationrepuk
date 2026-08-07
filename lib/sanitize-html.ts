@@ -20,6 +20,7 @@ const ALLOWED_TAGS = [
   'h6',
   'hr',
   'i',
+  'img',
   'li',
   'ol',
   'p',
@@ -36,7 +37,7 @@ const ALLOWED_TAGS = [
   'ul',
 ];
 
-const ALLOWED_ATTR = ['href', 'title', 'target', 'rel', 'class', 'id', 'name'];
+const ALLOWED_ATTR = ['href', 'title', 'target', 'rel', 'class', 'id', 'name', 'src', 'alt'];
 
 export function sanitizeHtml(dirty: string): string {
   if (!dirty) return '';

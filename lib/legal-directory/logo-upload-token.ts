@@ -36,10 +36,9 @@ export async function consumeLogoUploadToken(token: string | null | undefined): 
   }
 
   const key = tokenKey(token);
-  const existing = await kv.get<{ createdAt: number }>(key);
-  if (!existing) return false;
-  await kv.del(key);
-  return true;
+  // Atomic get-and-delete so concurrent POSTs cannot both observe a valid token.
+  const existing = await kv.getdel<{ createdAt: number }>(key);
+  return Boolean(existing);
 }
 
 /** In-memory fallback for local/preview without KV. */

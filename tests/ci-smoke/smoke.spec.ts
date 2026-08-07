@@ -8,8 +8,20 @@ test.describe('production smoke', () => {
     expect(body.ok).toBe(true);
   });
 
-  test('ready endpoint responds with checks', async ({ request }) => {
+  test('ready endpoint responds without leaking checks when unauthenticated', async ({ request }) => {
     const res = await request.get('/api/ready');
+    const body = await res.json();
+    expect(body.ok).toBeDefined();
+    expect(body.timestamp).toBeDefined();
+    expect(body.checks).toBeUndefined();
+  });
+
+  test('ready endpoint returns checks when authorised', async ({ request }) => {
+    const secret = process.env.CRON_SECRET;
+    test.skip(!secret, 'CRON_SECRET not set');
+    const res = await request.get('/api/ready', {
+      headers: { authorization: `Bearer ${secret}` },
+    });
     const body = await res.json();
     expect(body.checks).toBeDefined();
   });

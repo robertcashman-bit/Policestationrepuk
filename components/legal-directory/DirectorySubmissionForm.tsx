@@ -22,8 +22,20 @@ export function DirectorySubmissionForm() {
     if (!file) return;
     setLogoUploading(true);
     try {
+      const tokenRes = await fetch('/api/legal-directory/logo-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      const tokenData = (await tokenRes.json()) as { ok?: boolean; token?: string; error?: string };
+      if (!tokenRes.ok || !tokenData.token) {
+        setMessage(tokenData.error ?? 'Logo upload failed.');
+        setStatus('error');
+        return;
+      }
       const fd = new FormData();
       fd.set('file', file);
+      fd.set('uploadToken', tokenData.token);
       const res = await fetch('/api/legal-directory/logo', { method: 'POST', body: fd });
       const data = (await res.json()) as { ok?: boolean; url?: string; error?: string };
       if (!res.ok || !data.url) {

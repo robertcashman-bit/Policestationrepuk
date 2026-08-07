@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getKV } from '@/lib/kv';
+import { isCronAuthorized } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -12,7 +13,11 @@ function hasKvCreds(): boolean {
   return Boolean(url && token);
 }
 
-export async function GET() {
+/**
+ * Public readiness probe returns only `{ ok, timestamp }`.
+ * Detailed integration checks require cron/admin secret authorisation.
+ */
+export async function GET(request: Request) {
   const checks = {
     kvConfigured: hasKvCreds(),
     cronSecretConfigured: Boolean(process.env.CRON_SECRET?.trim()),
@@ -40,11 +45,18 @@ export async function GET() {
     checks.cronSecretConfigured &&
     checks.resendConfigured;
 
+  const timestamp = new Date().toISOString();
+  const authorised = isCronAuthorized(request);
+
+  if (!authorised) {
+    return NextResponse.json({ ok: ready, timestamp }, { status: ready ? 200 : 503 });
+  }
+
   return NextResponse.json(
     {
       ok: ready,
       checks: { ...checks, kvPing },
-      timestamp: new Date().toISOString(),
+      timestamp,
     },
     { status: ready ? 200 : 503 },
   );

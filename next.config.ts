@@ -76,7 +76,12 @@ const nextConfig: NextConfig = {
           // Turnstile — the widget caused too many "I entered the code but
           // the form never opened" support tickets — but the other surfaces
           // still need it. See lib/turnstile.ts + components/TurnstileWidget.tsx.
-          { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://esm.sh https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https: http:; connect-src 'self' https: wss:; frame-src 'self' https://challenges.cloudflare.com https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'" },
+          // CSP exceptions (documented in docs/security-hardening-report.md):
+          // - 'unsafe-inline' / 'unsafe-eval': Next.js / analytics runtime
+          // - challenges.cloudflare.com: Turnstile widget
+          // - fonts.googleapis.com / fonts.gstatic.com: brand fonts
+          // Leaflet ships via npm (no third-party script CDNs).
+          { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https: wss:; frame-src 'self' https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'" },
         ],
       },
       {
@@ -87,6 +92,35 @@ const nextConfig: NextConfig = {
       {
         // Admin surfaces must never be indexed or cached by shared caches.
         source: "/admin/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cache-Control", value: "no-store, max-age=0, must-revalidate" },
+        ],
+      },
+      {
+        // Authenticated account dashboard — never cache.
+        source: "/Account",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cache-Control", value: "no-store, max-age=0, must-revalidate" },
+        ],
+      },
+      {
+        source: "/Account/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cache-Control", value: "no-store, max-age=0, must-revalidate" },
+        ],
+      },
+      {
+        source: "/secure-rep-verification/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cache-Control", value: "no-store, max-age=0, must-revalidate" },
+        ],
+      },
+      {
+        source: "/outreach/:path*",
         headers: [
           { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
           { key: "Cache-Control", value: "no-store, max-age=0, must-revalidate" },

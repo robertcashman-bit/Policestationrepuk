@@ -20,7 +20,7 @@
  *
  * Bot mitigation here relies on:
  *   - the silent honeypot (`_hp`) field that bots reliably fill in;
- *   - per-IP rate limits (6 / 15 minutes / scope=register-gate);
+ *   - per-IP rate limits (4 / 15 minutes / scope=register-gate);
  *   - mandatory PIN / SRA / proof-URL evidence;
  *   - server-side risk scoring on the partial payload.
  *
@@ -203,7 +203,7 @@ export async function POST(request: Request) {
   const rl = await rateLimitOk({
     ip,
     scope: 'register-gate',
-    max: 6,
+    max: 4,
     windowMs: 15 * 60 * 1000,
   });
   if (!rl.ok) {

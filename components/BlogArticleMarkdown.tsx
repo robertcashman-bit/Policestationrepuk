@@ -1,18 +1,11 @@
 import { marked } from 'marked';
+import { sanitizeHtml } from '@/lib/sanitize-html';
 
 marked.setOptions({ gfm: true, breaks: false });
 
-function stripUnsafe(html: string): string {
-  return html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-    .replace(/\son\w+="[^"]*"/gi, '')
-    .replace(/\son\w+='[^']*'/gi, '');
-}
-
 export function BlogArticleMarkdown({ markdown }: { markdown: string }) {
   const raw = marked.parse(markdown.trim(), { async: false }) as string;
-  const clean = stripUnsafe(raw);
+  const clean = sanitizeHtml(raw);
 
   return (
     <div

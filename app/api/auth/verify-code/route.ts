@@ -9,6 +9,7 @@ import {
   getSessionCookieName,
 } from '@/lib/auth';
 import { getClientIp, rateLimitOk } from '@/lib/contact-guards';
+import { authVerifyCodeBodySchema, zodErrorMessage } from '@/lib/validation/public-forms';
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
@@ -17,19 +18,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Too many attempts. Try again later.' }, { status: 429 });
   }
 
-  let body: { email?: string; code?: string };
+  let raw: unknown;
   try {
-    body = await request.json();
+    raw = await request.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const email = body.email?.trim().toLowerCase();
-  const code = body.code?.trim();
-
-  if (!email || !code) {
-    return NextResponse.json({ error: 'Email and code required' }, { status: 400 });
+  const parsed = authVerifyCodeBodySchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ error: zodErrorMessage(parsed.error) }, { status: 400 });
   }
+
+  const email = parsed.data.email;
+  const code = parsed.data.code;
 
   const reps = getRawReps();
   const rep = reps.find((r) => r.email.toLowerCase() === email);

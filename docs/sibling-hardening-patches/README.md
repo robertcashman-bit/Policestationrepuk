@@ -23,7 +23,7 @@ Local commit already prepared at SHA `69d5d283` on that branch in the agent work
 git clone https://github.com/robertcashman-bit/custody-note-app.git
 cd custody-note-app
 git checkout -b cursor/security-hardening-uplift-34ef
-git am /path/to/custody-note-app-security-hardening.patch
+git am /path/to/docs/sibling-hardening-patches/custody-note-app-security-hardening.patch
 git push -u origin cursor/security-hardening-uplift-34ef
 ```
 

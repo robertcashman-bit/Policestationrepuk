@@ -3,6 +3,9 @@
 Patches + reports for every portfolio product outside the primary
 `robertcashman-bit/Policestationrepuk` Cloud Agent install.
 
+Live push status after the latest agent retry: see
+[`docs/MULTI_REPO_PUSH_STATUS.md`](../MULTI_REPO_PUSH_STATUS.md).
+
 ## One-command fix (recommended)
 
 From this repo, with a GitHub PAT that can write to **both** accounts

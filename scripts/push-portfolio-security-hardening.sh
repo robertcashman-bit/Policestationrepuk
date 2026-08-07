@@ -39,6 +39,17 @@ fi
 
 AUTH="x-access-token:${GH_TOKEN}"
 
+# Warn early when the token is the Cloud Agent installation (cursor[bot]),
+# which can only push Policestationrepuk in this environment.
+TOKEN_LOGIN="$(curl -sS -H "Authorization: token ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
+  https://api.github.com/user 2>/dev/null | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("login") or d.get("message") or "")' 2>/dev/null || true)"
+if [[ "${TOKEN_LOGIN}" == *"cursor"* ]] || [[ "${TOKEN_LOGIN}" == *"Resource not accessible"* ]]; then
+  echo "NOTE: Active token looks like a Cursor Cloud Agent / installation token (${TOKEN_LOGIN})." >&2
+  echo "      Sibling pushes will 403 unless you export GH_TOKEN to a personal PAT with write on" >&2
+  echo "      robertcashman-bit AND robertdavidcashman-droid. See docs/MULTI_REPO_PUSH_STATUS.md" >&2
+  echo >&2
+fi
+
 # Canonical remotes (bit for PSA + custody-note-app; droid for train + website)
 declare -a TARGETS=(
   "robertcashman-bit/policestationagent|policestationagent-security-hardening.patch|Security hardening uplift (Police Station Agent)"

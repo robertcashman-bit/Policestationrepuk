@@ -238,7 +238,7 @@ export GH_TOKEN=ghp_...   # write on bit + droid accounts
 ./scripts/push-portfolio-security-hardening.sh
 ```
 
-Patches live in `docs/sibling-hardening-patches/`. See that README for durable Cursor GitHub App + environment setup.
+Patches live in `docs/sibling-hardening-patches/`. Latest agent retry table: [`docs/MULTI_REPO_PUSH_STATUS.md`](MULTI_REPO_PUSH_STATUS.md). Durable fix: Cursor GitHub App on both accounts + environment `repos` list.
 
 ## 22. Verdict
 

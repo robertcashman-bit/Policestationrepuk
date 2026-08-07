@@ -1,0 +1,1015 @@
+From afdba2a0f8026e583ac7357b735f3b05b4efaa4b Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Fri, 7 Aug 2026 06:06:19 +0000
+Subject: [PATCH] Security hardening uplift for confidential legal notes
+
+- Gate marketing capturePage in packaged builds unless CUSTODYNOTE_ENABLE_MARKETING_CAPTURE=1
+- Extend safeLog sensitive keys for client, station, offence, and AI prompt fields
+- Outlook Web compose: subject-only URLs; body always via clipboard
+- OpenAI client: metadata-only debug logging via safeLog
+- Extend security-audit.mjs and add regression tripwire tests
+- Document findings in docs/security-hardening-report.md (PARTIAL PASS)
+---
+ .env.example                              |   7 +-
+ docs/security-hardening-report.md         | 174 ++++++++++++++++++++++
+ lib/emailComposeDraft.js                  |  12 +-
+ lib/outlookWebCompose.js                  |  87 ++++-------
+ lib/safeLog.js                            |  53 ++++---
+ main.js                                   |  15 +-
+ main/openaiClient.js                      |  17 +++
+ preload.js                                |  18 ++-
+ scripts/security-audit.mjs                |  57 ++++++-
+ tests/emailComposeDraft.module.test.js    |  12 +-
+ tests/officerEmailDrafts.url.test.js      |  12 +-
+ tests/outlookWebCompose.test.js           |  50 +++++--
+ tests/safeLog.test.js                     |   8 +
+ tests/securityHardeningRegression.test.js |  75 ++++++++++
+ 14 files changed, 485 insertions(+), 112 deletions(-)
+ create mode 100644 docs/security-hardening-report.md
+ create mode 100644 tests/securityHardeningRegression.test.js
+
+diff --git a/.env.example b/.env.example
+index 0659ad7..d34ae02 100644
+--- a/.env.example
++++ b/.env.example
+@@ -4,7 +4,12 @@
+ # Copy to .env.local (gitignored). Used by deploy and scripts/github-auth-with-workflow.mjs
+ # GH_TOKEN=github_pat_your_token_here
+ 
+-# Licence/backup server (for validation and managed AWS backup). Omit to use production.
++# Optional: allow marketing screenshot capture in packaged builds (dev tooling only).
++# Default: CAPTURE_SCREENSHOTS is ignored when app.isPackaged unless this is set.
++# CUSTODYNOTE_ENABLE_MARKETING_CAPTURE=1
++
++# Optional: OpenAI API key for Settings → Integrations (never commit a real key).
++# OPENAI_API_KEY=sk-your-openai-key-here
+ # LICENCE_SERVER_BASE_URL=https://custodynote.com
+ # For local website: LICENCE_SERVER_BASE_URL=http://localhost:3000
+ 
+diff --git a/docs/security-hardening-report.md b/docs/security-hardening-report.md
+new file mode 100644
+index 0000000..09887c7
+--- /dev/null
++++ b/docs/security-hardening-report.md
+@@ -0,0 +1,174 @@
++# Security Hardening Report — Custody Note (Electron)
++
++**Date:** 2026-08-07  
++**Branch:** `cursor/security-hardening-uplift-34ef`  
++**Scope:** `/tmp/sibling-repos/custody-note-app` (desktop Electron app)  
++**Overall verdict:** **PARTIAL PASS**
++
++The custody-note.com marketing website repository was **not available** in this environment and was **out of scope** for this pass. Findings below apply to the Electron desktop app only.
++
++---
++
++## Executive summary
++
++This uplift focused on **high-impact, maintainable** controls for an app handling **confidential legal notes** (SRA confidentiality, UK GDPR, legal professional privilege). Changes reduce the risk of PII appearing in logs, URLs, browser history, and accidental marketing screenshots from production installers.
++
++| Area | Status | Notes |
++|------|--------|-------|
++| Marketing `capturePage` in packaged builds | **PASS** | Gated behind `!app.isPackaged` or explicit `CUSTODYNOTE_ENABLE_MARKETING_CAPTURE=1` |
++| Production logging / PII redaction | **PASS** | `lib/safeLog.js` extended for attendance/client/offence/prompt keys |
++| Outlook Web compose URLs | **PASS** | Subject-only deeplinks; body always via clipboard |
++| OpenAI prompt logging | **PASS** | Metadata-only debug via `safeLog`; no prompt content logged |
++| Preload / Electron hardening | **PASS** | `contextIsolation: true`, `sandbox: true`, `nodeIntegration: false` — no regressions found |
++| Secrets / `.env` hygiene | **PASS** | `.env.example` placeholders only; `.gitignore` covers `.env.*` |
++| Security audit regression gate | **PASS** | `scripts/security-audit.mjs` extended with static checks |
++| Marketing website repo | **N/A** | Not available separately — not audited |
++
++---
++
++## 1. Screenshot / `capturePage` (main.js)
++
++### Finding
++`CAPTURE_SCREENSHOTS=1` previously enabled `webContents.capturePage()` in **all** builds, including packaged installers used by solicitors. A mis-set environment variable on a production machine could silently screenshot the UI (including confidential notes) to disk.
++
++### Fix
++- Capture mode now requires `CAPTURE_SCREENSHOTS=1` **and** either:
++  - unpackaged dev build (`!app.isPackaged`), or
++  - explicit override `CUSTODYNOTE_ENABLE_MARKETING_CAPTURE=1`
++- Packaged builds log a warning when capture is requested but blocked.
++
++### Residual risk
++Developers with the override env var set on a solicitor's machine could still capture screens. Override is documented in `.env.example` as dev-tooling only.
++
++---
++
++## 2. Logging near attendance / client fields (`lib/safeLog.js`)
++
++### Finding
++Existing redactor covered core PII patterns and some sensitive keys, but did not cover all attendance-specific field names (station, offence columns, AI question text) that could leak via `console.log(record)` regressions.
++
++### Fix
++Extended `SENSITIVE_KEYS` and pattern rules for:
++- Client identifiers: `clientName`, `recipientName`
++- Station: `policeStation`, `policeStationName`, `stationName`, `stationAddress`
++- Offences / notes: `offence`, `offenceDetails`, `elementsOfOffence`, `lawElements`, `noteBody`, `interviewNotes`
++- AI: `question`, `prompt`, `inputMessages`, `formData`
++- Dynamic keys: `offence1Details`, `interview2Notes`, etc.
++
++Attendance-save paths in `main.js` already log only record IDs and status (not client names or note bodies). Global/renderer error paths route through `_safeLog`.
++
++### Residual risk
++**First defence remains:** do not log sensitive data. The redactor is a safety net, not a substitute for careful logging. Renderer `app.js` still has some `console.log` calls with IDs only — periodic audit recommended.
++
++---
++
++## 3. Outlook Web compose (`lib/outlookWebCompose.js`)
++
++### Finding
++Officer email and compose flows placed email **bodies in URL query strings** (`body=…`). URLs can appear in browser history, proxy logs, analytics, and referrer headers — inappropriate for privileged custody-note content.
++
++### Fix
++- `buildOutlookWebComposeUrl()` omits `body` unless `includeBody: true` (opt-in, not used in production paths).
++- `truncateOutlookComposeForShellOpen()` always builds subject-only URLs; `truncated: true` when a body exists (signals clipboard paste).
++- Main-process officer-email handlers **always** copy full compose text to clipboard when body is non-empty.
++- Preload / `lib/emailComposeDraft.js` mirror subject-only URLs and copy body to clipboard before `window.open`.
++
++`mailto:` links still include body (OS handoff limitation) — unchanged.
++
++### Residual risk
++Subject lines may still contain client initials or offence summaries if templates include them. Users should keep subjects generic where possible.
++
++---
++
++## 4. OpenAI modules (`main/openai*.js`)
++
++### Finding
++No active logging of prompts was found. Payloads already minimise data (offence names/statutes only for law-elements fill; user-typed question for ask flow — never auto-pulls client fields).
++
++### Fix
++- Added `debugOpenAiMeta()` in `openaiClient.js` — logs **only** model name and message count when `CUSTODYNOTE_DEBUG=1`, via `safeLog`.
++- Static audit checks fail if `console.log` of `inputMessages` or `prompt` is introduced.
++
++### Residual risk
++User-typed questions and offence names are still sent to OpenAI when the solicitor explicitly confirms — this is by design (opt-in). API traffic is TLS-encrypted but leaves the machine.
++
++---
++
++## 5. Preload / context isolation / CSP
++
++### Review
++| Control | Value | Location |
++|---------|-------|----------|
++| `contextIsolation` | `true` | `main.js` BrowserWindow |
++| `sandbox` | `true` | `main.js` BrowserWindow |
++| `nodeIntegration` | `false` | `main.js` BrowserWindow |
++| CSP / navigation hardening | Applied | `main/windowHardening.js` via `hardenWindow` / `hardenSession` |
++| E2E test hooks | Dev-only | `preload.js` gated on `CUSTODYNOTE_PACKAGED !== '1'` |
++
++No regressions requiring code changes were identified.
++
++---
++
++## 6. Secrets / environment files
++
++### Review
++- `.env.example` — placeholders only (`github_pat_your_token_here`, `sk-your-openai-key-here`); no live secrets.
++- `.gitignore` — covers `.env`, `.env.*`, keys, DB files, logs; allows `!.env.example`.
++
++---
++
++## 7. Automated regression gates
++
++### Added / extended
++- `scripts/security-audit.mjs` — static checks for capture guard, OWA subject-only default, OpenAI logging, window flags, `.env.example` hygiene (exit bit `4` on failure).
++- `tests/securityHardeningRegression.test.js` — unit-test tripwires mirroring audit rules.
++
++---
++
++## Residual risks (accepted / follow-up)
++
++1. **Marketing website** — not audited; desktop app no longer bundles marketing HTML (see `tests/desktopAppHasNoMarketingAssets.test.js`).
++2. **mailto: body** — still encodes body in URL (platform limitation for generic mail clients).
++3. **Third-party APIs** — QuickFile, licence server, optional Sentry/OpenAI send data off-device when configured; documented in `SECURITY.md`.
++4. **Encrypted local DB** — physical access to an unlocked machine remains the primary threat model; backup/recovery flows need separate review.
++5. **Renderer console** — not fully wrapped in `safeLog`; relies on discipline and Electron devtools not being open in production.
++
++---
++
++## Files changed (this uplift)
++
++| File | Change |
++|------|--------|
++| `main.js` | Packaged capture guard; OWA clipboard always when body present |
++| `lib/safeLog.js` | Extended sensitive key list |
++| `lib/outlookWebCompose.js` | Subject-only URL default; clipboard for body |
++| `lib/emailComposeDraft.js` | OWA clipboard + subject-only URL |
++| `preload.js` | Inlined OWA parity + clipboard before open |
++| `main/openaiClient.js` | Metadata-only debug via safeLog |
++| `scripts/security-audit.mjs` | Static regression checks |
++| `.env.example` | Capture override + OpenAI placeholder |
++| `tests/outlookWebCompose.test.js` | Updated expectations |
++| `tests/officerEmailDrafts.url.test.js` | No body in URL |
++| `tests/emailComposeDraft.module.test.js` | Updated OWA expectations |
++| `tests/safeLog.test.js` | Extended key coverage |
++| `tests/securityHardeningRegression.test.js` | New tripwire tests |
++| `docs/security-hardening-report.md` | This report |
++
++---
++
++## Verification
++
++```bash
++npm run test:unit -- tests/outlookWebCompose.test.js tests/officerEmailDrafts.url.test.js tests/safeLog.test.js tests/securityHardeningRegression.test.js tests/preloadOutlookWebComposeParity.test.js
++node scripts/security-audit.mjs
++```
++
++---
++
++## Sign-off
++
++| Check | Result |
++|-------|--------|
++| Desktop app hardening | **PARTIAL PASS** (mailto body, third-party APIs, website repo excluded) |
++| Maintainability | High — static tests + audit script prevent regressions |
++| Recommended next review | Before next major Electron upgrade; after any email/AI feature work |
+diff --git a/lib/emailComposeDraft.js b/lib/emailComposeDraft.js
+index f855450..8a0ac1b 100644
+--- a/lib/emailComposeDraft.js
++++ b/lib/emailComposeDraft.js
+@@ -45,7 +45,7 @@ function buildOutlookWebComposeLink(draft) {
+     cc: d.cc,
+     subject: d.subject,
+     body: d.body,
+-  });
++  }, { includeBody: false });
+ }
+ 
+ function savePendingEmailDraft(draft, storage) {
+@@ -122,6 +122,16 @@ function openEmailDraft(draft, mode, env) {
+ 
+   try {
+     if (m === 'outlook-web') {
++      if (d.body) {
++        try {
++          var clipEnv = env || {};
++          var nav = clipEnv.navigator || (typeof navigator !== 'undefined' ? navigator : null);
++          var clipText = buildFullEmailClipboardText(d);
++          if (nav && nav.clipboard && nav.clipboard.writeText) {
++            nav.clipboard.writeText(clipText).catch(function () {});
++          }
++        } catch (_) {}
++      }
+       var opened = win.open(link, '_blank', 'noopener,noreferrer');
+       if (!opened) {
+         console.error('openEmailDraft: browser blocked popup (window.open returned null)');
+diff --git a/lib/outlookWebCompose.js b/lib/outlookWebCompose.js
+index 6ec4762..542accf 100644
+--- a/lib/outlookWebCompose.js
++++ b/lib/outlookWebCompose.js
+@@ -3,10 +3,9 @@
+ /**
+  * Outlook Web compose deeplink helpers (https://outlook.office.com/mail/0/deeplink/compose).
+  *
+- * URL length: OWA compose deeplinks are far more fragile than the Windows shell
+- * handoff limit. Around/above 2KB Outlook Web may open the app but ignore the
+- * query fields (to/subject/body). Keep the deeplink under 1800 chars and copy
+- * the full email to clipboard when the body is truncated.
++ * Security: confidential custody-note email bodies must NOT appear in URL query
++ * strings (browser history, proxy logs, referrer leaks). Default compose URLs
++ * are subject-only; the full message is copied to the clipboard for paste.
+  */
+ 
+ const OUTLOOK_WEB_COMPOSE_BASE = 'https://outlook.office.com/mail/0/deeplink/compose';
+@@ -16,8 +15,8 @@ const DEFAULT_MAX_OUTLOOK_COMPOSE_URL_LENGTH = 1800;
+ 
+ const OUTLOOK_WEB_COMPOSE_URL_MAX_SAFE_LENGTH = 1800;
+ 
+-/** Appended to the body in the URL when the full message does not fit the shell limit. */
+-const TRUNCATION_CLIPBOARD_NOTICE = '[… remainder copied to clipboard …]';
++/** @deprecated body is no longer placed in URLs; kept for clipboard notice parity */
++const TRUNCATION_CLIPBOARD_NOTICE = '[… full message copied to clipboard — paste into body …]';
+ 
+ /** @deprecated use TRUNCATION_CLIPBOARD_NOTICE */
+ const BODY_TRUNCATION_URL_SUFFIX = '\r\n' + TRUNCATION_CLIPBOARD_NOTICE;
+@@ -39,10 +38,13 @@ const normalizeBodyNewlinesToCRLF = normalizeBodyToCrlf;
+ 
+ /**
+  * @param {{ to?: string, cc?: string, subject?: string, body?: string }} fields
++ * @param {{ includeBody?: boolean }} [options] includeBody is opt-in only (default false)
+  * @returns {string}
+  */
+-function buildOutlookWebComposeUrl(fields) {
++function buildOutlookWebComposeUrl(fields, options) {
+   const f = fields || {};
++  const opts = options || {};
++  const includeBody = opts.includeBody === true;
+   const toS = String(f.to != null ? f.to : '').trim();
+   const ccS = String(f.cc != null ? f.cc : '');
+   const subS = String(f.subject != null ? f.subject : '');
+@@ -51,7 +53,7 @@ function buildOutlookWebComposeUrl(fields) {
+   if (toS) parts.push('to=' + encodeURIComponent(toS));
+   if (String(ccS).trim()) parts.push('cc=' + encodeURIComponent(ccS));
+   if (subS) parts.push('subject=' + encodeURIComponent(subS));
+-  if (bodS) parts.push('body=' + encodeURIComponent(bodS));
++  if (includeBody && bodS) parts.push('body=' + encodeURIComponent(bodS));
+   return parts.length ? OUTLOOK_WEB_COMPOSE_BASE + '?' + parts.join('&') : OUTLOOK_WEB_COMPOSE_BASE;
+ }
+ 
+@@ -72,9 +74,11 @@ function buildFullComposePlainTextForClipboard(fields) {
+ const buildOutlookComposeClipboardText = buildFullComposePlainTextForClipboard;
+ 
+ /**
++ * Build a safe Outlook Web compose URL (subject-only) and clipboard text for the body.
++ *
+  * @param {{ to?: string, cc?: string, subject?: string, body?: string }} fields
+  * @param {{ maxUrlLength?: number } | number} [optionsOrMax] legacy: number max length, or { maxUrlLength }
+- * @returns {{ url: string, truncated: boolean, fullPlainTextForClipboard: string, bodyUsedInUrl: string }}
++ * @returns {{ url: string, truncated: boolean, fullPlainTextForClipboard: string, bodyUsedInUrl: string, urlLength: number }}
+  */
+ function truncateOutlookComposeForShellOpen(fields, optionsOrMax) {
+   const f = fields || {};
+@@ -92,6 +96,7 @@ function truncateOutlookComposeForShellOpen(fields, optionsOrMax) {
+   const ccS = String(f.cc != null ? f.cc : '');
+   const subS = String(f.subject != null ? f.subject : '');
+   const rawBody = String(f.body != null ? f.body : '');
++  const hasBody = Boolean(rawBody.trim());
+ 
+   const fullPlainTextForClipboard = buildFullComposePlainTextForClipboard({
+     to: toS,
+@@ -99,66 +104,34 @@ function truncateOutlookComposeForShellOpen(fields, optionsOrMax) {
+     body: rawBody,
+   });
+ 
+-  const normalizedBody = normalizeBodyToCrlf(rawBody);
+-  const idealUrl = buildOutlookWebComposeUrl({ to: toS, cc: ccS, subject: subS, body: rawBody });
+-
+-  if (idealUrl.length <= maxLen) {
+-    return {
+-      url: idealUrl,
+-      truncated: false,
+-      fullPlainTextForClipboard,
+-      bodyUsedInUrl: normalizedBody,
+-      urlLength: idealUrl.length,
+-    };
+-  }
+-
+-  const suffix = '\r\n' + TRUNCATION_CLIPBOARD_NOTICE;
+-
+-  function urlFor(subjectUsed, bodyArg) {
+-    return buildOutlookWebComposeUrl({ to: toS, cc: ccS, subject: subjectUsed, body: bodyArg });
++  function urlFor(subjectUsed, ccUsed) {
++    return buildOutlookWebComposeUrl(
++      { to: toS, cc: ccUsed, subject: subjectUsed },
++      { includeBody: false }
++    );
+   }
+ 
+   let subjectWork = subS;
+-  while (subjectWork.length > 0 && urlFor(subjectWork, suffix).length > maxLen) {
++  while (subjectWork.length > 0 && urlFor(subjectWork, ccS).length > maxLen) {
+     subjectWork = subjectWork.slice(0, Math.max(0, subjectWork.length - 100));
+   }
+ 
+-  if (urlFor(subjectWork, suffix).length > maxLen) {
+-    if (String(ccS).trim()) {
+-      return truncateOutlookComposeForShellOpen(
+-        { to: toS, cc: '', subject: subS, body: rawBody },
+-        opts
+-      );
+-    }
+-    let u = urlFor('', '');
+-    if (u.length > maxLen) {
+-      u = OUTLOOK_WEB_COMPOSE_BASE;
+-    }
+-    return {
+-      url: u,
+-      truncated: true,
+-      fullPlainTextForClipboard,
+-      bodyUsedInUrl: '',
+-      urlLength: u.length,
+-    };
++  let url = urlFor(subjectWork, ccS);
++  if (url.length > maxLen && String(ccS).trim()) {
++    return truncateOutlookComposeForShellOpen(
++      { to: toS, cc: '', subject: subS, body: rawBody },
++      opts
++    );
+   }
+-
+-  let lo = 0;
+-  let hi = normalizedBody.length;
+-  while (lo < hi) {
+-    const mid = Math.floor((lo + hi + 1) / 2);
+-    const candidate = normalizedBody.slice(0, mid) + suffix;
+-    if (urlFor(subjectWork, candidate).length <= maxLen) lo = mid;
+-    else hi = mid - 1;
++  if (url.length > maxLen) {
++    url = OUTLOOK_WEB_COMPOSE_BASE;
+   }
+ 
+-  const bodyUsedInUrl = normalizedBody.slice(0, lo) + suffix;
+-  const url = urlFor(subjectWork, bodyUsedInUrl);
+   return {
+     url,
+-    truncated: true,
++    truncated: hasBody,
+     fullPlainTextForClipboard,
+-    bodyUsedInUrl,
++    bodyUsedInUrl: '',
+     urlLength: url.length,
+   };
+ }
+diff --git a/lib/safeLog.js b/lib/safeLog.js
+index 9c4cf7c..6d450fc 100644
+--- a/lib/safeLog.js
++++ b/lib/safeLog.js
+@@ -39,6 +39,39 @@ const REDACTORS = [
+   { tag: 'custody',   re: /\b[A-Z]{1,3}\s?\d{2,8}\/\d{2,4}\b/g },
+ ];
+ 
++const SENSITIVE_KEYS = new Set([
++  'password', 'pw', 'pin', 'secret', 'token', 'authToken',
++  'authorization', 'cookie', 'sessionId', 'apiKey', 'api_key',
++  'licence_key', 'licenceKey',
++  // Custody-note client / attendance fields
++  'forename', 'surname', 'middleNames', 'clientName', 'recipientName',
++  'address', 'addressLine1', 'addressLine2', 'dob', 'mobile', 'phone', 'email',
++  'custodyNumber', 'dsccRef', 'ufn', 'fileReference',
++  'policeStation', 'policeStationName', 'stationName', 'stationAddress', 'station',
++  'offence', 'offenceDetails', 'elementsOfOffence', 'lawElements',
++  'disclosure', 'advice', 'instructions', 'notes', 'noteBody', 'noteContent',
++  'interview', 'interviewNotes', 'content',
++  'data', // raw JSON blob from attendances table
++  'body', // request body / email body
++  'html', // HTML buffers (custody-note PDFs)
++  'dataUrl',
++  // AI / prompts — never log verbatim
++  'question', 'prompt', 'inputMessages', 'messages', 'formData',
++]);
++
++const SENSITIVE_KEY_PATTERNS = [
++  /^offence\d+/i,
++  /^interview\d+/i,
++];
++
++function isSensitiveKey(key) {
++  if (SENSITIVE_KEYS.has(key)) return true;
++  for (let i = 0; i < SENSITIVE_KEY_PATTERNS.length; i++) {
++    if (SENSITIVE_KEY_PATTERNS[i].test(key)) return true;
++  }
++  return false;
++}
++
+ function redact(value) {
+   if (value === null || value === undefined) return value;
+   if (typeof value === 'number' || typeof value === 'boolean') return value;
+@@ -58,25 +91,9 @@ function redact(value) {
+   }
+   if (Array.isArray(value)) return value.map(redact);
+   if (typeof value === 'object') {
+-    // Drop obviously sensitive keys outright (don't even let "the value
+-    // exists" leak the field name).
+-    const SENSITIVE_KEYS = new Set([
+-      'password', 'pw', 'pin', 'secret', 'token', 'authToken',
+-      'authorization', 'cookie', 'sessionId', 'apiKey', 'api_key',
+-      'licence_key', 'licenceKey',
+-      // Custody-note specific
+-      'forename', 'surname', 'middleNames', 'address', 'addressLine1',
+-      'addressLine2', 'dob', 'mobile', 'phone', 'email',
+-      'custodyNumber', 'dsccRef', 'ufn', 'fileReference',
+-      'disclosure', 'advice', 'instructions', 'notes', 'interview',
+-      'data', // raw JSON blob from attendances table
+-      'body', // request body / email body
+-      'html', // HTML buffers (custody-note PDFs)
+-      'dataUrl',
+-    ]);
+     const out = {};
+     for (const k of Object.keys(value)) {
+-      if (SENSITIVE_KEYS.has(k)) {
++      if (isSensitiveKey(k)) {
+         out[k] = '<redacted:' + k + '>';
+       } else {
+         out[k] = redact(value[k]);
+@@ -105,4 +122,4 @@ function debug(...args) {
+   }
+ }
+ 
+-module.exports = { redact, info, warn, error, debug };
++module.exports = { redact, info, warn, error, debug, isSensitiveKey };
+diff --git a/main.js b/main.js
+index 75f55fd..be091f0 100644
+--- a/main.js
++++ b/main.js
+@@ -2516,7 +2516,16 @@ function createWindow() {
+     },
+     title: 'Custody Note',
+   });
+-  const isCaptureMode = process.env.CAPTURE_SCREENSHOTS === '1';
++  /* Marketing screenshot capture (capturePage) is dev-only unless explicitly
++     overridden — packaged installers must never silently screenshot the UI. */
++  const isCaptureMode =
++    process.env.CAPTURE_SCREENSHOTS === '1' &&
++    (!app.isPackaged || process.env.CUSTODYNOTE_ENABLE_MARKETING_CAPTURE === '1');
++  if (process.env.CAPTURE_SCREENSHOTS === '1' && app.isPackaged && !isCaptureMode) {
++    _safeLog.warn(
++      '[Capture] CAPTURE_SCREENSHOTS ignored in packaged build — set CUSTODYNOTE_ENABLE_MARKETING_CAPTURE=1 to override'
++    );
++  }
+   mainWindow.once('ready-to-show', () => {
+     if (!isCaptureMode) {
+       mainWindow.show();
+@@ -9260,7 +9269,7 @@ ipcMain.handle('officer-email-drafts-open-outlook', async (_, draftId) => {
+     console.warn('[officer-email-drafts-open-outlook] isSafeExternalUrl rejected url', { urlLength: url.length });
+     return { ok: false, errors: ['Outlook Web could not be opened. You can still copy the recipient, subject and body manually.'] };
+   }
+-  if (truncated) {
++  if (bodyT.trim()) {
+     try {
+       clipboard.writeText(fullPlainTextForClipboard);
+     } catch (clipErr) {
+@@ -9318,7 +9327,7 @@ ipcMain.handle('officer-email-drafts-open-one-off-outlook', async (_, fields) =>
+     console.warn('[officer-email-drafts-open-one-off-outlook] isSafeExternalUrl rejected url', { urlLength: url.length });
+     return { ok: false, errors: ['Outlook Web could not be opened. You can still copy the recipient, subject and body manually.'] };
+   }
+-  if (composed.truncated) {
++  if (bodyT.trim()) {
+     try {
+       clipboard.writeText(composed.fullPlainTextForClipboard);
+     } catch (clipErr) {
+diff --git a/main/openaiClient.js b/main/openaiClient.js
+index 24e62e7..d6d3423 100644
+--- a/main/openaiClient.js
++++ b/main/openaiClient.js
+@@ -4,6 +4,8 @@
+ 
+ 'use strict';
+ 
++const safeLog = require('../lib/safeLog');
++
+ const {
+   ACCURACY_SYSTEM_RULES,
+   REQUIRED_OUTPUT_SHAPE,
+@@ -16,6 +18,13 @@ const DEFAULT_MODEL = process.env.OPENAI_MODEL && String(process.env.OPENAI_MODE
+   ? String(process.env.OPENAI_MODEL).trim()
+   : 'gpt-4o';
+ 
++/** Log OpenAI metadata only — never prompts, offences, or client context. */
++function debugOpenAiMeta(label, meta) {
++  if (process.env.CUSTODYNOTE_DEBUG === '1') {
++    safeLog.debug('[openai]', label, meta || {});
++  }
++}
++
+ function buildWebSearchTool() {
+   /* Domain filters when supported by the API; ignored safely if not. */
+   return {
+@@ -90,6 +99,12 @@ async function requestGroundedLegalAnswer(opts) {
+   const requireWebSearch = options.requireWebSearch !== false;
+   const retryOnFail = options.retryOnValidationFail !== false;
+ 
++  debugOpenAiMeta('request', {
++    model: model,
++    messageCount: inputMessages.length,
++    requireWebSearch: requireWebSearch,
++  });
++
+   const systemBits = [ACCURACY_SYSTEM_RULES, REQUIRED_OUTPUT_SHAPE];
+   const input = [
+     { role: 'system', content: systemBits.join('\n\n') },
+@@ -127,6 +142,7 @@ async function requestGroundedLegalAnswer(opts) {
+       const errMsg =
+         (json && json.error && json.error.message) ||
+         'OpenAI request failed (HTTP ' + res.status + ')';
++      debugOpenAiMeta('http-error', { status: res.status, message: errMsg });
+       if (
+         /unknown|invalid|unsupported|tool_choice|filters|allowed_domains/i.test(errMsg) &&
+         !options._simplified
+@@ -250,4 +266,5 @@ module.exports = {
+   buildWebSearchTool,
+   extractTextAndCitations,
+   requestGroundedLegalAnswer,
++  debugOpenAiMeta,
+ };
+diff --git a/preload.js b/preload.js
+index 8ff742e..99b81a0 100644
+--- a/preload.js
++++ b/preload.js
+@@ -67,8 +67,10 @@ const custodyEmailComposeDraft = (function buildEmailComposeDraft() {
+       .replace(/\n/g, '\r\n');
+   }
+ 
+-  function buildOutlookWebComposeUrl(fields) {
++  function buildOutlookWebComposeUrl(fields, options) {
+     var f = fields || {};
++    var opts = options || {};
++    var includeBody = opts.includeBody === true;
+     var toS = String(f.to != null ? f.to : '').trim();
+     var ccS = String(f.cc != null ? f.cc : '');
+     var subS = String(f.subject != null ? f.subject : '');
+@@ -77,7 +79,7 @@ const custodyEmailComposeDraft = (function buildEmailComposeDraft() {
+     if (toS) parts.push('to=' + encodeURIComponent(toS));
+     if (String(ccS).trim()) parts.push('cc=' + encodeURIComponent(ccS));
+     if (subS) parts.push('subject=' + encodeURIComponent(subS));
+-    if (bodS) parts.push('body=' + encodeURIComponent(bodS));
++    if (includeBody && bodS) parts.push('body=' + encodeURIComponent(bodS));
+     return parts.length
+       ? 'https://outlook.office.com/mail/0/deeplink/compose?' + parts.join('&')
+       : 'https://outlook.office.com/mail/0/deeplink/compose';
+@@ -90,7 +92,7 @@ const custodyEmailComposeDraft = (function buildEmailComposeDraft() {
+       cc: d.cc,
+       subject: d.subject,
+       body: d.body,
+-    });
++    }, { includeBody: false });
+   }
+ 
+   function savePendingEmailDraft(draft, storage) {
+@@ -155,6 +157,16 @@ const custodyEmailComposeDraft = (function buildEmailComposeDraft() {
+ 
+     try {
+       if (m === 'outlook-web') {
++        if (d.body) {
++          try {
++            var clipEnv = env || {};
++            var nav = clipEnv.navigator || (typeof navigator !== 'undefined' ? navigator : null);
++            var clipText = buildFullEmailClipboardText(d);
++            if (nav && nav.clipboard && nav.clipboard.writeText) {
++              nav.clipboard.writeText(clipText).catch(function () {});
++            }
++          } catch (_) {}
++        }
+         var opened = win.open(link, '_blank', 'noopener,noreferrer');
+         if (!opened) {
+           console.error('openEmailDraft: browser blocked popup (window.open returned null)');
+diff --git a/scripts/security-audit.mjs b/scripts/security-audit.mjs
+index 02900ca..1d70701 100644
+--- a/scripts/security-audit.mjs
++++ b/scripts/security-audit.mjs
+@@ -9,7 +9,7 @@
+ //   0  clean
+ //   1  audit failed
+ //   2  secret scan failed
+-//   3  both failed
++//   4  security regression static checks failed
+ //
+ // Run via `npm run security:audit`.
+ import { execFileSync } from 'node:child_process';
+@@ -140,6 +140,61 @@ for (const f of ['.gitignore', '.cursorignore', '.vercelignore']) {
+   }
+ }
+ 
++console.log('\n━━━ security regression checks (static) ━━━');
++let regressionFails = 0;
++function failRegression(msg) {
++  console.error('  FAIL:', msg);
++  regressionFails++;
++}
++
++const mainJs = readFileSync(join(ROOT, 'main.js'), 'utf8');
++if (!/CAPTURE_SCREENSHOTS/.test(mainJs) || !/app\.isPackaged/.test(mainJs) || !/CUSTODYNOTE_ENABLE_MARKETING_CAPTURE/.test(mainJs)) {
++  failRegression('main.js marketing capturePage must be gated in packaged builds (CAPTURE_SCREENSHOTS + app.isPackaged + CUSTODYNOTE_ENABLE_MARKETING_CAPTURE)');
++} else {
++  console.log('  capturePage packaged guard: OK');
++}
++
++const owa = readFileSync(join(ROOT, 'lib/outlookWebCompose.js'), 'utf8');
++if (!/includeBody\s*===\s*true/.test(owa)) {
++  failRegression('lib/outlookWebCompose.js must require includeBody===true to place body in URL');
++} else {
++  console.log('  outlook compose subject-only default: OK');
++}
++
++for (const rel of ['main/openaiClient.js', 'main/openaiAsk.js', 'main/openaiLawElements.js']) {
++  const src = readFileSync(join(ROOT, rel), 'utf8');
++  if (/console\.(log|info)\([^)]*inputMessages/i.test(src) || /console\.(log|info)\([^)]*prompt/i.test(src)) {
++    failRegression(rel + ' must not console.log prompts or inputMessages');
++  }
++}
++if (!readFileSync(join(ROOT, 'main/openaiClient.js'), 'utf8').includes('safeLog')) {
++  failRegression('main/openaiClient.js must use lib/safeLog for debug metadata');
++} else {
++  console.log('  openai prompt logging guard: OK');
++}
++
++if (!/contextIsolation:\s*true/.test(mainJs) || !/sandbox:\s*true/.test(mainJs)) {
++  failRegression('main.js BrowserWindow must set contextIsolation:true and sandbox:true');
++} else {
++  console.log('  electron window hardening flags: OK');
++}
++
++const envExample = existsSync(join(ROOT, '.env.example'))
++  ? readFileSync(join(ROOT, '.env.example'), 'utf8')
++  : '';
++if (envExample && /\bghp_[A-Za-z0-9]{20,}\b/.test(envExample)) {
++  failRegression('.env.example contains a real-looking GitHub token');
++} else {
++  console.log('  .env.example placeholders: OK');
++}
++
++if (regressionFails > 0) {
++  console.error(`  ${regressionFails} regression check(s) failed`);
++  exitCode |= 4;
++} else {
++  console.log('  OK');
++}
++
+ if (exitCode === 0) {
+   console.log('\n✓ security audit passed');
+ } else {
+diff --git a/tests/emailComposeDraft.module.test.js b/tests/emailComposeDraft.module.test.js
+index 6e71f02..4d9461d 100644
+--- a/tests/emailComposeDraft.module.test.js
++++ b/tests/emailComposeDraft.module.test.js
+@@ -139,7 +139,7 @@ describe('Outlook Web compose link', () => {
+     assert.ok(u.startsWith('https://outlook.office.com/mail/0/deeplink/compose?'));
+   });
+ 
+-  it('includes to, cc, subject and body in query (decoded via URL)', () => {
++  it('includes to, cc, subject in query — body omitted (clipboard paste)', () => {
+     const u = buildOutlookWebComposeLink({
+       to: 'a@b.c',
+       cc: 'c@d.e',
+@@ -150,22 +150,22 @@ describe('Outlook Web compose link', () => {
+     assert.strictEqual(parsed.searchParams.get('to'), 'a@b.c');
+     assert.strictEqual(parsed.searchParams.get('cc'), 'c@d.e');
+     assert.strictEqual(parsed.searchParams.get('subject'), 'S');
+-    assert.strictEqual(parsed.searchParams.get('body'), 'B');
++    assert.strictEqual(parsed.searchParams.get('body'), null);
+   });
+ 
+-  it('preserves line breaks in body (CRLF)', () => {
++  it('does not place body in URL (CRLF body stays on clipboard path)', () => {
+     const u = buildOutlookWebComposeLink({ to: 'a@b.c', subject: '', body: 'one\ntwo' });
+     const parsed = new URL(u);
+-    assert.strictEqual(parsed.searchParams.get('body'), 'one\r\ntwo');
++    assert.strictEqual(parsed.searchParams.get('body'), null);
+   });
+ 
+-  it('does not lose apostrophes, ampersands or commas', () => {
++  it('does not lose apostrophes, ampersands or commas in subject', () => {
+     const sub = "Re: O'Brien, Smith & Co — urgent";
+     const body = "Dear Sir,\nIt's urgent & required.";
+     const u = buildOutlookWebComposeLink({ to: 'a@b.c', cc: '', subject: sub, body: body });
+     const parsed = new URL(u);
+     assert.strictEqual(parsed.searchParams.get('subject'), sub);
+-    assert.strictEqual(parsed.searchParams.get('body'), body.replace(/\n/g, '\r\n'));
++    assert.strictEqual(parsed.searchParams.get('body'), null);
+   });
+ });
+ 
+diff --git a/tests/officerEmailDrafts.url.test.js b/tests/officerEmailDrafts.url.test.js
+index 787921f..36ef530 100644
+--- a/tests/officerEmailDrafts.url.test.js
++++ b/tests/officerEmailDrafts.url.test.js
+@@ -5,7 +5,7 @@ const assert = require('node:assert');
+ const { buildOutlookComposeUrl } = require('../lib/officerEmailDrafts');
+ 
+ describe('officerEmailDrafts — Outlook Web compose URL', () => {
+-  it('uses outlook.office.com deeplink compose', () => {
++  it('uses outlook.office.com deeplink compose without body in URL', () => {
+     const u = buildOutlookComposeUrl({
+       toEmail: 'a@b.police.uk',
+       subject: 'Hello',
+@@ -14,15 +14,15 @@ describe('officerEmailDrafts — Outlook Web compose URL', () => {
+     assert.ok(u.startsWith('https://outlook.office.com/mail/0/deeplink/compose'), u);
+     assert.ok(u.includes('to='), u);
+     assert.ok(u.includes('subject='), u);
+-    assert.ok(u.includes('body='), u);
++    assert.ok(!u.includes('body='), 'confidential body must not be in URL');
+   });
+ 
+-  it('encodes newlines in body as CRLF in query', () => {
++  it('does not encode body newlines in query (body omitted)', () => {
+     const u = buildOutlookComposeUrl({ toEmail: 'x@y.gov.uk', subject: 'S', body: 'a\nb' });
+-    assert.ok(u.includes('a%0D%0Ab') || u.includes('a%0d%0ab'), u);
++    assert.ok(!u.includes('body='), u);
+   });
+ 
+-  it('encodes special characters in subject and body', () => {
++  it('encodes special characters in subject only', () => {
+     const u = buildOutlookComposeUrl({
+       toEmail: 'o@police.uk',
+       subject: "Re: O'Brien & Co",
+@@ -30,6 +30,6 @@ describe('officerEmailDrafts — Outlook Web compose URL', () => {
+     });
+     const parsed = new URL(u);
+     assert.strictEqual(parsed.searchParams.get('subject'), "Re: O'Brien & Co");
+-    assert.strictEqual(parsed.searchParams.get('body'), "It's urgent.\r\nNext line");
++    assert.strictEqual(parsed.searchParams.get('body'), null);
+   });
+ });
+diff --git a/tests/outlookWebCompose.test.js b/tests/outlookWebCompose.test.js
+index 97c4865..2cdf3a1 100644
+--- a/tests/outlookWebCompose.test.js
++++ b/tests/outlookWebCompose.test.js
+@@ -10,7 +10,7 @@ const {
+ } = require('../lib/outlookWebCompose');
+ 
+ describe('outlookWebCompose.buildOutlookWebComposeUrl', () => {
+-  it('builds outlook.office.com deeplink with encoded query', () => {
++  it('builds outlook.office.com deeplink with encoded query (subject-only by default)', () => {
+     const u = buildOutlookWebComposeUrl({
+       to: 'o@police.uk',
+       subject: 'Subj',
+@@ -20,6 +20,15 @@ describe('outlookWebCompose.buildOutlookWebComposeUrl', () => {
+     const parsed = new URL(u);
+     assert.strictEqual(parsed.searchParams.get('to'), 'o@police.uk');
+     assert.strictEqual(parsed.searchParams.get('subject'), 'Subj');
++    assert.strictEqual(parsed.searchParams.get('body'), null, 'body must not appear in URL by default');
++  });
++
++  it('includes body only when includeBody opt-in is set', () => {
++    const u = buildOutlookWebComposeUrl(
++      { to: 'o@police.uk', subject: 'Subj', body: 'Body' },
++      { includeBody: true }
++    );
++    const parsed = new URL(u);
+     assert.strictEqual(parsed.searchParams.get('body'), 'Body');
+   });
+ 
+@@ -34,18 +43,17 @@ describe('outlookWebCompose.buildOutlookWebComposeUrl', () => {
+     assert.strictEqual(parsed.searchParams.get('cc'), 'c@d.e');
+   });
+ 
+-  it('normalizes body newlines to CRLF in encoded output', () => {
++  it('does not place body newlines in URL by default', () => {
+     const u = buildOutlookWebComposeUrl({ to: 'a@b.c', subject: '', body: 'one\ntwo' });
+-    assert.ok(u.includes('one%0D%0Atwo') || u.includes('one%0d%0atwo'), u);
++    assert.ok(!u.includes('body='), u);
+   });
+ 
+-  it('encodes ampersands apostrophes quotes and DSCC-style text', () => {
++  it('encodes ampersands apostrophes quotes in subject', () => {
+     const sub = "Re: O'Brien & \"Partner\" / DSCC/2026-001";
+-    const body = "Line with & <tags> and 50% discount\nSecond line.";
+-    const u = buildOutlookWebComposeUrl({ to: 'a@b.c', subject: sub, body });
++    const u = buildOutlookWebComposeUrl({ to: 'a@b.c', subject: sub, body: 'secret body' });
+     const parsed = new URL(u);
+     assert.strictEqual(parsed.searchParams.get('subject'), sub);
+-    assert.strictEqual(parsed.searchParams.get('body'), body.replace(/\n/g, '\r\n'));
++    assert.strictEqual(parsed.searchParams.get('body'), null);
+   });
+ 
+   it('trims leading and trailing spaces on to', () => {
+@@ -67,17 +75,28 @@ describe('outlookWebCompose.buildFullComposePlainTextForClipboard', () => {
+ });
+ 
+ describe('outlookWebCompose.truncateOutlookComposeForShellOpen', () => {
+-  it('does not truncate when under max length', () => {
++  it('never places body in URL; clipboard holds full message', () => {
+     const r = truncateOutlookComposeForShellOpen(
+-      { to: 'a@b.c', subject: 'S', body: 'short' },
++      { to: 'a@b.c', subject: 'S', body: 'short confidential note' },
+       { maxUrlLength: 50_000 }
+     );
+-    assert.strictEqual(r.truncated, false);
+-    assert.ok(r.url.includes('body='));
++    assert.strictEqual(r.truncated, true);
++    assert.ok(!r.url.includes('body='), r.url);
++    assert.strictEqual(r.bodyUsedInUrl, '');
++    assert.ok(r.fullPlainTextForClipboard.includes('short confidential note'));
+     assert.strictEqual(r.urlLength, r.url.length);
+   });
+ 
+-  it('truncates long body and preserves fullPlainTextForClipboard', () => {
++  it('truncated=false when no body', () => {
++    const r = truncateOutlookComposeForShellOpen(
++      { to: 'a@b.c', subject: 'S', body: '' },
++      { maxUrlLength: 50_000 }
++    );
++    assert.strictEqual(r.truncated, false);
++    assert.ok(!r.url.includes('body='));
++  });
++
++  it('long body stays off URL; clipboard preserves full text', () => {
+     const body = 'X'.repeat(25_000);
+     const r = truncateOutlookComposeForShellOpen(
+       { to: 'officer@met.police.uk', subject: 'Custody note', body },
+@@ -85,13 +104,11 @@ describe('outlookWebCompose.truncateOutlookComposeForShellOpen', () => {
+     );
+     assert.strictEqual(r.truncated, true);
+     assert.ok(r.url.length <= 4000, `url length ${r.url.length}`);
++    assert.ok(!r.url.includes('body='));
+     assert.ok(r.fullPlainTextForClipboard.includes(body), 'clipboard text must include full body');
+-    const parsed = new URL(r.url);
+-    const bodyInUrl = parsed.searchParams.get('body');
+-    assert.ok(bodyInUrl.length < body.length, 'URL body should be shorter than original');
+   });
+ 
+-  it('expands with many ampersands still truncates safely', () => {
++  it('expands with many ampersands still keeps body off URL', () => {
+     const body = 'MARK\n' + '&'.repeat(8000);
+     const r = truncateOutlookComposeForShellOpen(
+       { to: 'o@police.uk', subject: 'S', body },
+@@ -99,6 +116,7 @@ describe('outlookWebCompose.truncateOutlookComposeForShellOpen', () => {
+     );
+     assert.strictEqual(r.truncated, true);
+     assert.ok(r.url.length <= 3500);
++    assert.ok(!r.url.includes('body='));
+     assert.ok(r.fullPlainTextForClipboard.includes('MARK'));
+   });
+ });
+diff --git a/tests/safeLog.test.js b/tests/safeLog.test.js
+index ef8ade6..c44ce51 100644
+--- a/tests/safeLog.test.js
++++ b/tests/safeLog.test.js
+@@ -60,6 +60,10 @@ describe('safeLog.redact', () => {
+       forename: 'Alice',
+       surname: 'Smith',
+       advice: 'do not answer questions',
++      clientName: 'Smith, Alice',
++      policeStationName: 'Paddington',
++      offence1Details: 'Theft',
++      question: 'What is the defence?',
+       keepMe: 'visible',
+     });
+     assert.strictEqual(out.password, '<redacted:password>');
+@@ -67,6 +71,10 @@ describe('safeLog.redact', () => {
+     assert.strictEqual(out.forename, '<redacted:forename>');
+     assert.strictEqual(out.surname, '<redacted:surname>');
+     assert.strictEqual(out.advice, '<redacted:advice>');
++    assert.strictEqual(out.clientName, '<redacted:clientName>');
++    assert.strictEqual(out.policeStationName, '<redacted:policeStationName>');
++    assert.strictEqual(out.offence1Details, '<redacted:offence1Details>');
++    assert.strictEqual(out.question, '<redacted:question>');
+     assert.strictEqual(out.keepMe, 'visible');
+   });
+ 
+diff --git a/tests/securityHardeningRegression.test.js b/tests/securityHardeningRegression.test.js
+new file mode 100644
+index 0000000..378d3c0
+--- /dev/null
++++ b/tests/securityHardeningRegression.test.js
+@@ -0,0 +1,75 @@
++/**
++ * tests/securityHardeningRegression.test.js
++ * Static tripwires for defensive security controls — fails CI if regressions land.
++ */
++'use strict';
++
++const { describe, it } = require('node:test');
++const assert = require('node:assert');
++const fs = require('fs');
++const path = require('path');
++
++const ROOT = path.join(__dirname, '..');
++
++function read(rel) {
++  return fs.readFileSync(path.join(ROOT, rel), 'utf8');
++}
++
++describe('security hardening regressions', () => {
++  it('main.js blocks marketing capturePage in packaged builds without explicit override', () => {
++    const src = read('main.js');
++    assert.ok(src.includes('CAPTURE_SCREENSHOTS'), 'capture mode env must exist');
++    assert.ok(src.includes('app.isPackaged'), 'packaged guard required');
++    assert.ok(
++      src.includes('CUSTODYNOTE_ENABLE_MARKETING_CAPTURE'),
++      'explicit override env required for packaged capture'
++    );
++    assert.ok(src.includes('capturePage'), 'capturePage call must remain auditable');
++  });
++
++  it('outlookWebCompose omits body from URL by default', () => {
++    const src = read('lib/outlookWebCompose.js');
++    assert.ok(src.includes('includeBody'), 'opt-in includeBody flag required');
++    assert.match(
++      src,
++      /includeBody\s*===\s*true/,
++      'body in URL must be opt-in only'
++    );
++    assert.ok(
++      src.includes('truncated: hasBody') || src.includes('truncated: hasBody,'),
++      'truncated flag must reflect body-on-clipboard semantics'
++    );
++  });
++
++  it('openai client never logs raw prompts', () => {
++    for (const rel of ['main/openaiClient.js', 'main/openaiAsk.js', 'main/openaiLawElements.js']) {
++      const src = read(rel);
++      assert.ok(!/console\.(log|info)\([^)]*inputMessages/i.test(src), rel + ' must not log inputMessages');
++      assert.ok(!/console\.(log|info)\([^)]*prompt/i.test(src), rel + ' must not log prompts');
++    }
++    const client = read('main/openaiClient.js');
++    assert.ok(client.includes('debugOpenAiMeta'), 'openaiClient must use metadata-only debug helper');
++    assert.ok(client.includes('safeLog'), 'openaiClient must use safeLog');
++  });
++
++  it('BrowserWindow uses contextIsolation and sandbox', () => {
++    const src = read('main.js');
++    assert.ok(/contextIsolation:\s*true/.test(src), 'contextIsolation must be true');
++    assert.ok(/sandbox:\s*true/.test(src), 'sandbox must be true');
++    assert.ok(/nodeIntegration:\s*false/.test(src), 'nodeIntegration must be false');
++  });
++
++  it('.env.example has placeholders only — no live secrets', () => {
++    const ex = read('.env.example');
++    assert.ok(!/\bghp_[A-Za-z0-9]{20,}\b/.test(ex), '.env.example must not contain real gh tokens');
++    assert.ok(!/\bsk_live_[0-9a-zA-Z]{20,}\b/.test(ex), '.env.example must not contain live Stripe keys');
++    assert.ok(ex.includes('your_token_here') || ex.includes('example.com'), 'placeholders expected');
++  });
++
++  it('.gitignore covers secret env files', () => {
++    const gi = read('.gitignore');
++    assert.ok(gi.includes('.env'), '.env must be gitignored');
++    assert.ok(gi.includes('.env.*'), '.env.* must be gitignored');
++    assert.ok(gi.includes('!.env.example'), '.env.example must remain tracked');
++  });
++});
+-- 
+2.43.0
+

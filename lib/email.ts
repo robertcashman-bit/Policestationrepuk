@@ -39,7 +39,7 @@ interface RegistrationSubmission {
 export async function sendContactNotification(data: ContactSubmission): Promise<boolean> {
   const client = getResend();
   if (!client) {
-    console.info('[Contact form — no RESEND_API_KEY]', { name: data.name, email: data.email, subject: data.subject });
+    console.info('[Contact form — no RESEND_API_KEY]', { hasName: Boolean(data.name), hasEmail: Boolean(data.email) });
     return false;
   }
   if (!isEmailRecipientAllowed(ADMIN_EMAIL)) {
@@ -74,7 +74,7 @@ export async function sendContactNotification(data: ContactSubmission): Promise<
 export async function sendRegistrationNotification(data: RegistrationSubmission): Promise<boolean> {
   const client = getResend();
   if (!client) {
-    console.info('[Registration — no RESEND_API_KEY]', { name: data.name, email: data.email });
+    console.info('[Registration — no RESEND_API_KEY]', { hasName: Boolean(data.name), hasEmail: Boolean(data.email) });
     return false;
   }
 
@@ -165,7 +165,7 @@ interface StationUpdateSubmission {
 export async function sendStationUpdateNotification(data: StationUpdateSubmission): Promise<boolean> {
   const client = getResend();
   if (!client) {
-    console.info('[Station update — no RESEND_API_KEY]', { station: data.stationName, submitter: data.submitterName });
+    console.info('[Station update — no RESEND_API_KEY]', { hasStation: Boolean(data.stationName) });
     return false;
   }
 
@@ -223,7 +223,7 @@ export async function sendStationUpdateNotification(data: StationUpdateSubmissio
 export async function sendMagicCode(email: string, code: string): Promise<boolean> {
   const client = getResend();
   if (!client) {
-    console.info('[Magic code — no RESEND_API_KEY]', { email });
+    console.info('[Magic code — no RESEND_API_KEY]', { hasEmail: Boolean(email) });
     return false;
   }
 
@@ -231,7 +231,7 @@ export async function sendMagicCode(email: string, code: string): Promise<boolea
     await client.emails.send({
       from: FROM_EMAIL,
       to: email,
-      subject: `Your PoliceStationRepUK login code: ${code}`,
+      subject: 'Your PoliceStationRepUK login code',
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:20px">
           <h2 style="color:#0f172a;margin-bottom:8px">Your login code</h2>
@@ -310,7 +310,7 @@ interface ProfileUpdateData {
 export async function sendProfileUpdateNotification(data: ProfileUpdateData): Promise<boolean> {
   const client = getResend();
   if (!client) {
-    console.info('[Profile update — no RESEND_API_KEY]', { rep: data.repName, email: data.repEmail });
+    console.info('[Profile update — no RESEND_API_KEY]', { hasRep: Boolean(data.repName) });
     return false;
   }
 
@@ -364,7 +364,7 @@ export async function sendFeaturedConfirmationToRep(data: {
 }): Promise<boolean> {
   const client = getResend();
   if (!client) {
-    console.info('[Featured rep email — no RESEND_API_KEY]', { name: data.name, email: data.email });
+    console.info('[Featured rep email — no RESEND_API_KEY]', { hasName: Boolean(data.name) });
     return false;
   }
 
@@ -414,7 +414,7 @@ export async function sendFeaturedOwnerNotification(data: {
 }): Promise<boolean> {
   const client = getResend();
   if (!client) {
-    console.info('[Featured owner email — no RESEND_API_KEY]', { name: data.name, email: data.email });
+    console.info('[Featured owner email — no RESEND_API_KEY]', { hasName: Boolean(data.name) });
     return false;
   }
 
@@ -511,7 +511,7 @@ export async function sendRepAutoPublishAdminAlert(
 ): Promise<boolean> {
   const client = getResend();
   if (!client) {
-    console.info('[Auto-publish admin alert — no RESEND_API_KEY]', { name: data.name, email: data.email });
+    console.info('[Auto-publish admin alert — no RESEND_API_KEY]', { hasName: Boolean(data.name) });
     return false;
   }
   try {
@@ -656,7 +656,7 @@ export async function sendRepHeldForReviewAlert(
 ): Promise<boolean> {
   const client = getResend();
   if (!client) {
-    console.info('[Held-for-review admin alert — no RESEND_API_KEY]', { name: data.name, email: data.email });
+    console.info('[Held-for-review admin alert — no RESEND_API_KEY]', { hasName: Boolean(data.name) });
     return false;
   }
 
@@ -851,14 +851,14 @@ export async function sendApplicantRegistrationOutcome(opts: {
 export async function sendEnquiryEmailCode(email: string, code: string): Promise<boolean> {
   const client = getResend();
   if (!client) {
-    console.info('[Enquiry email code — no RESEND_API_KEY]', { email });
+    console.info('[Enquiry email code — no RESEND_API_KEY]', { hasEmail: Boolean(email) });
     return false;
   }
   try {
     await client.emails.send({
       from: FROM_EMAIL,
       to: email,
-      subject: `Confirm your PoliceStationRepUK enquiry: ${code}`,
+      subject: 'Confirm your PoliceStationRepUK enquiry',
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:20px">
           <h2 style="color:#0f172a;margin-bottom:8px">Confirm your email address</h2>

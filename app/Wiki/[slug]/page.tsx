@@ -9,6 +9,7 @@ import { ResolvedContentSources } from '@/components/ContentSourcesFooter';
 import { OfficialResourcesCrossLink } from '@/components/legal-directory/OfficialResourcesCrossLink';
 import { buildMetadata } from '@/lib/seo';
 import { getAllWikiArticles, getWikiArticleBySlug, getWikiArticlesByCategory } from '@/lib/data';
+import { sanitizeHtml } from '@/lib/sanitize-html';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -59,10 +60,7 @@ function renderMarkdown(content: string): string {
     breaks: false,
   });
   const raw = marked.parse(content) as string;
-  return raw
-    .replace(/<script[\s>]/gi, '&lt;script ')
-    .replace(/<\/script>/gi, '&lt;/script&gt;')
-    .replace(/on\w+\s*=/gi, '');
+  return sanitizeHtml(raw);
 }
 
 export default async function WikiArticlePage({ params }: PageProps) {

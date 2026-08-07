@@ -32,4 +32,16 @@ describe('security headers regression', () => {
   it('HSTS has a max-age', () => {
     expect(configSrc).toMatch(/max-age=\d+/);
   });
+
+  it('admin and Account paths use no-store', () => {
+    expect(configSrc).toContain('source: "/admin/:path*"');
+    expect(configSrc).toContain('source: "/Account"');
+    expect(configSrc).toMatch(/no-store, max-age=0, must-revalidate/);
+  });
+
+  it('CSP does not allow unused public CDNs', () => {
+    expect(configSrc).not.toContain('esm.sh');
+    expect(configSrc).not.toContain('cdn.jsdelivr.net');
+    expect(configSrc).not.toContain('unpkg.com');
+  });
 });

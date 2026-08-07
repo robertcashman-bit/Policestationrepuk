@@ -6,6 +6,7 @@ import { storeMagicCode } from '@/lib/auth';
 import { sendMagicCode } from '@/lib/email';
 import { getKV } from '@/lib/kv';
 import { getClientIp, rateLimitOk } from '@/lib/contact-guards';
+import { authSendCodeBodySchema, zodErrorMessage } from '@/lib/validation/public-forms';
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
@@ -22,17 +23,19 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: { email?: string };
+  let raw: unknown;
   try {
-    body = await request.json();
+    raw = await request.json();
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const email = body.email?.trim().toLowerCase();
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: 'Invalid email' }, { status: 400 });
+  const parsed = authSendCodeBodySchema.safeParse(raw);
+  if (!parsed.success) {
+    return NextResponse.json({ error: zodErrorMessage(parsed.error) }, { status: 400 });
   }
+
+  const email = parsed.data.email;
 
   const reps = getRawReps();
   const rep = reps.find((r) => r.email.toLowerCase() === email);

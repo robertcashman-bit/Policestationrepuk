@@ -263,7 +263,7 @@ export async function POST(request: Request) {
     }
 
     const ip = getClientIp(request);
-    const rl = await rateLimitOk({ ip, scope: 'register', max: 5, windowMs: 15 * 60 * 1000 });
+    const rl = await rateLimitOk({ ip, scope: 'register', max: 4, windowMs: 15 * 60 * 1000 });
     if (!rl.ok) {
       return NextResponse.json(
         { error: 'Too many requests. Please wait a few minutes and try again.' },

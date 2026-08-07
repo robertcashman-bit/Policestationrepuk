@@ -1,0 +1,1136 @@
+From 69d5d2832b3bbea4c683afc4648267912fcde586 Mon Sep 17 00:00:00 2001
+From: Cursor Agent <cursoragent@cursor.com>
+Date: Fri, 7 Aug 2026 06:04:13 +0000
+Subject: [PATCH] security hardening uplift for PSA
+
+---
+ __tests__/security-hardening.test.ts | 206 +++++++++++++++++++++++++++
+ __tests__/security-headers.test.ts   |  20 +++
+ app/api/contact/health/route.ts      |  13 +-
+ app/api/contact/route.ts             |   5 +
+ app/api/index-now/route.ts           |  11 +-
+ app/globals.css                      |   7 +
+ docs/security-hardening-report.md    |  89 ++++++++++++
+ lib/cron-auth.ts                     |  15 +-
+ lib/email.ts                         |   8 +-
+ lib/enquiry/origin.ts                |  60 +++++---
+ lib/html-sanitizer.ts                |  23 ++-
+ lib/scraped-html.ts                  |   3 +-
+ package-lock.json                    | 130 +----------------
+ package.json                         |   1 +
+ 14 files changed, 418 insertions(+), 173 deletions(-)
+ create mode 100644 __tests__/security-hardening.test.ts
+ create mode 100644 docs/security-hardening-report.md
+
+diff --git a/__tests__/security-hardening.test.ts b/__tests__/security-hardening.test.ts
+new file mode 100644
+index 0000000..aa27b03
+--- /dev/null
++++ b/__tests__/security-hardening.test.ts
+@@ -0,0 +1,206 @@
++import { describe, expect, it, vi, afterEach } from 'vitest';
++import { isCronAuthorized } from '@/lib/cron-auth';
++import { isAllowedEnquiryOrigin } from '@/lib/enquiry/origin';
++import { sanitizeBlogHtml, sanitizeScrapedHtml } from '@/lib/html-sanitizer';
++
++describe('sendMagicCode email subject', () => {
++  afterEach(() => {
++    vi.resetModules();
++    delete process.env.RESEND_API_KEY;
++    delete process.env.CONTACT_FROM_EMAIL;
++    delete process.env.ADMIN_MAGIC_FROM_EMAIL;
++    delete process.env.RESEND_MAGIC_PREFER_CUSTOM;
++  });
++
++  it('does not include the OTP code in the email subject', async () => {
++    process.env.RESEND_API_KEY = 're_test';
++    const code = '482913';
++    const send = vi.fn().mockResolvedValue({ data: { id: 'msg_123' }, error: null });
++
++    vi.doMock('resend', () => ({
++      Resend: class MockResend {
++        emails = { send };
++        constructor(_key: string) {}
++      },
++    }));
++
++    const { sendMagicCode } = await import('@/lib/email');
++    const result = await sendMagicCode('admin@example.com', code);
++
++    expect(result.success).toBe(true);
++    expect(send).toHaveBeenCalledTimes(1);
++    const subject = send.mock.calls[0][0].subject as string;
++    expect(subject).not.toContain(code);
++    expect(subject).toMatch(/admin login code/i);
++
++    vi.doUnmock('resend');
++  });
++});
++
++describe('cron timing-safe auth', () => {
++  const prevSecret = process.env.CRON_SECRET;
++  const prevNodeEnv = process.env.NODE_ENV;
++
++  afterEach(() => {
++    process.env.CRON_SECRET = prevSecret;
++    process.env.NODE_ENV = prevNodeEnv;
++  });
++
++  it('denies when CRON_SECRET is missing in production', () => {
++    delete process.env.CRON_SECRET;
++    process.env.NODE_ENV = 'production';
++    const req = new Request('http://localhost/api/cron/firm-outreach-status', {
++      headers: { Authorization: 'Bearer anything' },
++    });
++    expect(isCronAuthorized(req)).toBe(false);
++  });
++
++  it('rejects near-miss secrets without accepting them', () => {
++    process.env.CRON_SECRET = 'test-cron-secret';
++    process.env.NODE_ENV = 'production';
++    const req = new Request('http://localhost/api/cron/firm-outreach-status', {
++      headers: { Authorization: 'Bearer test-cron-secre' },
++    });
++    expect(isCronAuthorized(req)).toBe(false);
++  });
++
++  it('accepts exact Bearer secret', () => {
++    process.env.CRON_SECRET = 'test-cron-secret';
++    process.env.NODE_ENV = 'production';
++    const req = new Request('http://localhost/api/cron/firm-outreach-status', {
++      headers: { Authorization: 'Bearer test-cron-secret' },
++    });
++    expect(isCronAuthorized(req)).toBe(true);
++  });
++
++  it('accepts exact x-cron-secret header', () => {
++    process.env.CRON_SECRET = 'test-cron-secret';
++    process.env.NODE_ENV = 'production';
++    const req = new Request('http://localhost/api/cron/firm-outreach-status', {
++      headers: { 'x-cron-secret': 'test-cron-secret' },
++    });
++    expect(isCronAuthorized(req)).toBe(true);
++  });
++});
++
++describe('enquiry origin checks', () => {
++  const prevNodeEnv = process.env.NODE_ENV;
++
++  afterEach(() => {
++    process.env.NODE_ENV = prevNodeEnv;
++  });
++
++  it('rejects missing Origin and Referer in production', () => {
++    process.env.NODE_ENV = 'production';
++    const req = new Request('https://www.policestationagent.com/api/contact', {
++      method: 'POST',
++    });
++    expect(isAllowedEnquiryOrigin(req)).toBe(false);
++  });
++
++  it('allows trusted production Origin', () => {
++    process.env.NODE_ENV = 'production';
++    const req = new Request('https://www.policestationagent.com/api/contact', {
++      method: 'POST',
++      headers: { Origin: 'https://www.policestationagent.com' },
++    });
++    expect(isAllowedEnquiryOrigin(req)).toBe(true);
++  });
++
++  it('allows trusted apex production Origin', () => {
++    process.env.NODE_ENV = 'production';
++    const req = new Request('https://www.policestationagent.com/api/contact', {
++      method: 'POST',
++      headers: { Origin: 'https://policestationagent.com' },
++    });
++    expect(isAllowedEnquiryOrigin(req)).toBe(true);
++  });
++
++  it('allows missing Origin in non-production', () => {
++    process.env.NODE_ENV = 'development';
++    const req = new Request('http://localhost:3000/api/contact', {
++      method: 'POST',
++    });
++    expect(isAllowedEnquiryOrigin(req)).toBe(true);
++  });
++
++  it('rejects untrusted production Origin', () => {
++    process.env.NODE_ENV = 'production';
++    const req = new Request('https://www.policestationagent.com/api/contact', {
++      method: 'POST',
++      headers: { Origin: 'https://evil.example' },
++    });
++    expect(isAllowedEnquiryOrigin(req)).toBe(false);
++  });
++});
++
++describe('HTML sanitizer', () => {
++  it('strips script tags and onerror handlers from blog HTML', () => {
++    const dirty =
++      '<p>Hello</p><script>alert(1)</script><img src="/x.png" onerror="alert(1)" alt="x" />';
++    const clean = sanitizeBlogHtml(dirty);
++    expect(clean).not.toMatch(/<script/i);
++    expect(clean).not.toMatch(/onerror/i);
++    expect(clean).toContain('Hello');
++  });
++
++  it('strips inline style attributes and data: image URLs', () => {
++    const dirty =
++      '<div style="background:red"><img src="data:image/png;base64,abc" alt="x" /></div>';
++    const clean = sanitizeScrapedHtml(dirty);
++    expect(clean).not.toMatch(/style=/i);
++    expect(clean).not.toMatch(/data:image/i);
++    expect(clean).toContain('<div');
++  });
++
++  it('preserves class-based blog markup without inline styles', () => {
++    const dirty =
++      '<div class="key-takeaways"><h2 class="key-takeaways-heading">Key takeaways</h2><ul><li>One</li></ul></div>';
++    const clean = sanitizeBlogHtml(dirty);
++    expect(clean).toContain('class="key-takeaways"');
++    expect(clean).toContain('Key takeaways');
++  });
++});
++
++describe('index-now GET recon strip', () => {
++  const prevSecret = process.env.CRON_SECRET;
++  const prevNodeEnv = process.env.NODE_ENV;
++
++  afterEach(() => {
++    vi.resetModules();
++    process.env.CRON_SECRET = prevSecret;
++    process.env.NODE_ENV = prevNodeEnv;
++  });
++
++  it('returns minimal payload without CRON_SECRET', async () => {
++    process.env.CRON_SECRET = 'index-now-secret';
++    process.env.NODE_ENV = 'production';
++    const { GET } = await import('@/app/api/index-now/route');
++    const res = await GET(new Request('http://localhost/api/index-now'));
++    const body = await res.json();
++    expect(body).toEqual({ ok: true });
++  });
++});
++
++describe('contact health GET recon strip', () => {
++  const prevSecret = process.env.CRON_SECRET;
++  const prevNodeEnv = process.env.NODE_ENV;
++
++  afterEach(() => {
++    vi.resetModules();
++    process.env.CRON_SECRET = prevSecret;
++    process.env.NODE_ENV = prevNodeEnv;
++    delete process.env.RESEND_API_KEY;
++    delete process.env.CONTACT_FORM_TO_EMAIL;
++  });
++
++  it('returns minimal payload without CRON_SECRET', async () => {
++    process.env.CRON_SECRET = 'health-check-secret';
++    process.env.NODE_ENV = 'production';
++    const { GET } = await import('@/app/api/contact/health/route');
++    const res = await GET(new Request('http://localhost/api/contact/health'));
++    const body = await res.json();
++    expect(body).toEqual({ ok: false });
++    expect(body).not.toHaveProperty('hasResendApiKey');
++  });
++});
+diff --git a/__tests__/security-headers.test.ts b/__tests__/security-headers.test.ts
+index 94aadaa..aeb534b 100644
+--- a/__tests__/security-headers.test.ts
++++ b/__tests__/security-headers.test.ts
+@@ -56,4 +56,24 @@ describe('security headers regression', () => {
+       }
+     }
+   });
++
++  it('admin routes are no-store and noindex', async () => {
++    const config =
++      typeof nextConfig === 'object' && nextConfig.__esModule
++        ? nextConfig.default
++        : nextConfig;
++    const headersFn = config.headers ?? nextConfig.headers;
++    if (typeof headersFn !== 'function') return;
++
++    const rules: Array<{ source: string; headers: Array<{ key: string; value: string }> }> =
++      await headersFn();
++
++    const adminRule = rules.find((r) => r.source === '/admin/:path*');
++    expect(adminRule, 'admin header rule missing').toBeTruthy();
++    if (!adminRule) return;
++
++    const headerMap = Object.fromEntries(adminRule.headers.map((h) => [h.key, h.value]));
++    expect(headerMap['Cache-Control']).toMatch(/no-store/i);
++    expect(headerMap['X-Robots-Tag']).toMatch(/noindex/i);
++  });
+ });
+diff --git a/app/api/contact/health/route.ts b/app/api/contact/health/route.ts
+index 89f587a..4ce0fe9 100644
+--- a/app/api/contact/health/route.ts
++++ b/app/api/contact/health/route.ts
+@@ -1,20 +1,19 @@
+ import { NextResponse } from 'next/server';
++import { isCronAuthorized } from '@/lib/cron-auth';
+ 
+-export async function GET() {
++export async function GET(request: Request) {
+   const resendKey = process.env.RESEND_API_KEY?.trim() || '';
+   const toEmail = process.env.CONTACT_FORM_TO_EMAIL?.trim() || '';
+-  const isProduction = process.env.NODE_ENV === 'production';
++  const ok = Boolean(resendKey && toEmail);
+ 
+-  if (isProduction) {
+-    return NextResponse.json({
+-      ok: Boolean(resendKey && toEmail),
+-    });
++  if (!isCronAuthorized(request)) {
++    return NextResponse.json({ ok });
+   }
+ 
+   const fromEmail = process.env.CONTACT_FROM_EMAIL?.trim() || '';
+ 
+   return NextResponse.json({
+-    ok: Boolean(resendKey && toEmail),
++    ok,
+     hasResendApiKey: Boolean(resendKey),
+     resendKeyLooksValid: resendKey.startsWith('re_'),
+     hasContactFormToEmail: Boolean(toEmail),
+diff --git a/app/api/contact/route.ts b/app/api/contact/route.ts
+index d6001fb..8c2ee7f 100644
+--- a/app/api/contact/route.ts
++++ b/app/api/contact/route.ts
+@@ -1,6 +1,7 @@
+ import { NextRequest, NextResponse } from "next/server";
+ import { sendContactFormNotification } from "@/lib/email";
+ import { getClientIp, rateLimitOk } from "@/lib/contact-guards";
++import { isAllowedEnquiryOrigin } from "@/lib/enquiry/origin";
+ 
+ function isValidEmail(email: string): boolean {
+   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+@@ -16,6 +17,10 @@ const ADMIN_ROLES = new Set([
+ 
+ export async function POST(request: NextRequest) {
+   try {
++    if (!isAllowedEnquiryOrigin(request)) {
++      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
++    }
++
+     const rate = await rateLimitOk({
+       ip: getClientIp(request),
+       scope: "contact",
+diff --git a/app/api/index-now/route.ts b/app/api/index-now/route.ts
+index 0783966..874a7a7 100644
+--- a/app/api/index-now/route.ts
++++ b/app/api/index-now/route.ts
+@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
+ import { SITE_DOMAIN } from "@/config/site";
+ import { getAllPosts } from "@/lib/blog-reader";
+ import { REP_INDEXNOW_PATHS } from "@/lib/seo/rep-town-paths";
++import { isCronAuthorized } from "@/lib/cron-auth";
+ 
+ const INDEXNOW_KEY =
+   process.env.INDEXNOW_KEY || "655b1cdbce5c462b9fe51c4e19f92678";
+@@ -215,11 +216,15 @@ export async function POST(request: Request) {
+ 
+ /**
+  * GET /api/index-now
+- * Returns status and instructions
++ * Public callers receive a minimal heartbeat; detailed status requires CRON_SECRET.
+  */
+-export async function GET() {
++export async function GET(request: Request) {
++  if (!isCronAuthorized(request)) {
++    return NextResponse.json({ ok: true });
++  }
++
+   return NextResponse.json({
+-    status: "ready",
++    ok: true,
+     keyUrl: `${SITE_URL}/${INDEXNOW_KEY}.txt`,
+     sitemapUrl: `${SITE_URL}/sitemap.xml`,
+     blogSitemapUrl: `${SITE_URL}/blog-sitemap.xml`,
+diff --git a/app/globals.css b/app/globals.css
+index 711306e..a2a622a 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -218,6 +218,13 @@ a {
+   line-height: 1.3;
+ }
+ 
++.prose .key-takeaways {
++  background-color: #e8f4fd;
++  border-left: 4px solid #2563eb;
++  padding: 1rem;
++  margin: 1.25rem 0 1.5rem;
++}
++
+ .prose .key-takeaways-heading {
+   margin-top: 0;
+   margin-bottom: 0.75rem;
+diff --git a/docs/security-hardening-report.md b/docs/security-hardening-report.md
+new file mode 100644
+index 0000000..8739a49
+--- /dev/null
++++ b/docs/security-hardening-report.md
+@@ -0,0 +1,89 @@
++# Security Hardening Report — Police Station Agent (web44ai)
++
++**Date:** 2026-08-07  
++**Branch:** `cursor/security-hardening-uplift-34ef`  
++**Scope:** Defensive hardening for the Next.js App Router site at `policestationagent.com`  
++**Type:** Defensive fixes only — no exploit code, no UX regression for genuine solicitor enquiries.
++
++---
++
++## Executive summary
++
++This uplift closes several information-disclosure and cross-site abuse gaps: admin OTP codes no longer appear in email subjects, cron and bootstrap secrets are compared with `crypto.timingSafeEqual`, production enquiry/contact POSTs require a trusted `Origin` or `Referer`, scraped and blog HTML is sanitized before `dangerouslySetInnerHTML`, and unauthenticated health/indexing endpoints return a minimal `{ ok }` heartbeat instead of configuration metadata.
++
++**Overall status: PARTIAL PASS**
++
++Most automated controls are in place and covered by Vitest. A few items remain operator-dependent (dependency audit triage, Resend domain verification, rotating any secrets that may have been exposed via prior logging).
++
++---
++
++## Fixes applied
++
++| # | Area | Issue | Fix |
++|---|------|-------|-----|
++| 1 | `lib/email.ts` | Admin magic-code OTP appeared in email subject (inbox/search leakage). | Subject is now generic (`Your Police Station Agent admin login code`); code remains in HTML body only. Console fallbacks use boolean flags instead of recipient email. |
++| 2 | `lib/cron-auth.ts` | Cron/bootstrap secret comparison used `===` (timing side-channel). | `crypto.timingSafeEqual` via `timingSafeSecretEqual()`; missing `CRON_SECRET` still denies in production. |
++| 3 | `lib/enquiry/origin.ts` | Missing `Origin`/`Referer` allowed in production; broad preview host trust. | Production requires trusted host on `Origin` or `Referer` (`policestationagent.com`, `www.policestationagent.com`). Localhost / `.vercel.app` allowed only outside production. |
++| 4 | `app/api/contact/route.ts` | Contact POST had no origin guard (CSRF-style abuse from other sites). | Reuses `isAllowedEnquiryOrigin()` — returns 403 when untrusted. |
++| 5 | `lib/scraped-html.ts`, `lib/html-sanitizer.ts` | Scraped HTML rendered unsanitized. | `normalizeScrapedHtml()` pipes through `sanitizeScrapedHtml()`. Sanitizer disallows `style` attributes and `data:` URLs; blog key-takeaway boxes styled via `.prose .key-takeaways` in `globals.css`. |
++| 6 | `app/api/index-now/route.ts`, `app/api/contact/health/route.ts` | Unauthenticated GET leaked keys, sitemap URLs, env flags. | Public GET returns `{ ok: true }` or `{ ok: boolean }` only; detailed status requires `CRON_SECRET`. |
++| 7 | `next.config.js` | Admin cache / indexing headers | **Already present** — `/admin/:path*` has `Cache-Control: no-store` and `X-Robots-Tag: noindex, nofollow, noarchive`. No change required. |
++| 8 | Tests | Regression coverage | `__tests__/security-hardening.test.ts` — OTP subject, cron auth, origin, sanitizer, recon strip. |
++| 9 | `package.json` | Dependency audit script | Added `"audit:deps": "npm audit --audit-level=moderate"`. |
++
++---
++
++## Manual actions (operator)
++
++1. **Run dependency audit** — `npm run audit:deps` and triage any moderate+ findings (fix or accept with documented rationale).
++2. **Confirm `CRON_SECRET`** is set on Vercel production for web44ai; rotate if it was ever logged or shared.
++3. **Verify Resend** — custom domain `policestationagent.com` verified so magic-code and contact emails deliver reliably.
++4. **Smoke-test forms** on production — contact, voluntary, and agency enquiry flows from `www.policestationagent.com` (browsers send `Origin` on same-site POST).
++5. **Review Vercel preview** — preview deployments on `*.vercel.app` cannot POST enquiries in production mode; use localhost or production domain for form QA.
++
++---
++
++## Test results
++
++Run:
++
++```bash
++npx vitest run __tests__/security-hardening.test.ts
++```
++
++Expected: all tests in `security-hardening.test.ts` pass.
++
++---
++
++## Files changed
++
++- `lib/email.ts`
++- `lib/cron-auth.ts`
++- `lib/enquiry/origin.ts`
++- `lib/html-sanitizer.ts`
++- `lib/scraped-html.ts`
++- `app/api/contact/route.ts`
++- `app/api/contact/health/route.ts`
++- `app/api/index-now/route.ts`
++- `app/globals.css`
++- `package.json`
++- `__tests__/security-hardening.test.ts`
++- `docs/security-hardening-report.md`
++
++---
++
++## PASS / PARTIAL PASS checklist
++
++| Control | Status |
++|---------|--------|
++| OTP not in email subject | **PASS** |
++| PII redacted from magic-code console fallbacks | **PASS** |
++| Cron timing-safe auth + prod fail-closed | **PASS** |
++| Production origin guard (enquiry + contact) | **PASS** |
++| Scraped/blog HTML sanitization | **PASS** |
++| Public health/index recon stripped | **PASS** |
++| Admin `no-store` + `noindex` headers | **PASS** (pre-existing) |
++| Vitest regression suite | **PASS** (when tests run clean) |
++| Dependency audit automation | **PARTIAL PASS** — script added; operator must run and remediate findings |
++
++**Overall: PARTIAL PASS** — code controls complete; operational follow-up on `npm audit` and production smoke tests remains.
+diff --git a/lib/cron-auth.ts b/lib/cron-auth.ts
+index 1b6850b..132fc4f 100644
+--- a/lib/cron-auth.ts
++++ b/lib/cron-auth.ts
+@@ -1,10 +1,21 @@
++import { timingSafeEqual } from 'crypto';
++
++function timingSafeSecretEqual(provided: string, expected: string): boolean {
++  if (!provided || !expected) return false;
++  const providedBuf = Buffer.from(provided);
++  const expectedBuf = Buffer.from(expected);
++  if (providedBuf.length !== expectedBuf.length) return false;
++  return timingSafeEqual(providedBuf, expectedBuf);
++}
++
+ export function isCronAuthorized(request: Request, secret = process.env.CRON_SECRET): boolean {
+   if (!secret) {
+     return process.env.NODE_ENV !== 'production';
+   }
+   const auth = request.headers.get('authorization') || '';
+   const xSecret = request.headers.get('x-cron-secret') || '';
+-  return auth === `Bearer ${secret}` || xSecret === secret;
++  const bearer = auth.startsWith('Bearer ') ? auth.slice(7) : '';
++  return timingSafeSecretEqual(bearer, secret) || timingSafeSecretEqual(xSecret, secret);
+ }
+ 
+ /** Cron auth or one-off bootstrap secret (for operator scripts). */
+@@ -13,5 +24,5 @@ export function isOutreachBootstrapAuthorized(request: Request): boolean {
+   const bootstrapSecret = process.env.FIRM_OUTREACH_BOOTSTRAP_SECRET?.trim();
+   if (!bootstrapSecret) return false;
+   const header = request.headers.get('x-firm-outreach-bootstrap-secret') || '';
+-  return header === bootstrapSecret;
++  return timingSafeSecretEqual(header, bootstrapSecret);
+ }
+diff --git a/lib/email.ts b/lib/email.ts
+index dd224eb..5c215c2 100644
+--- a/lib/email.ts
++++ b/lib/email.ts
+@@ -182,7 +182,7 @@ export async function sendMagicCode(
+ ): Promise<{ success: boolean; error?: string }> {
+   const client = getResendClient();
+   if (!client) {
+-    console.warn("[Magic code — no RESEND_API_KEY]", { email });
++    console.warn("[Magic code — no RESEND_API_KEY]", { hasRecipient: Boolean(email) });
+     return { success: false, error: "RESEND_API_KEY not set" };
+   }
+ 
+@@ -199,7 +199,7 @@ export async function sendMagicCode(
+     };
+   }
+ 
+-  const subject = `Your Police Station Agent admin code: ${code}`;
++  const subject = "Your Police Station Agent admin login code";
+   const html = buildMagicCodeHtml(code);
+   const fromCandidates = magicCodeFromCandidates();
+   let lastError = "Email send failed";
+@@ -224,7 +224,9 @@ export async function sendMagicCode(
+ 
+       if (data?.id) {
+         if (i > 0) {
+-          console.info("[Magic code email] sent via fallback sender:", from);
++          console.info("[Magic code email] sent via fallback sender", {
++            usedFallbackSender: true,
++          });
+         }
+         return { success: true };
+       }
+diff --git a/lib/enquiry/origin.ts b/lib/enquiry/origin.ts
+index e14624d..b559372 100644
+--- a/lib/enquiry/origin.ts
++++ b/lib/enquiry/origin.ts
+@@ -1,32 +1,50 @@
+ import { SITE_DOMAIN, SITE_URL } from "@/config/site";
+ 
+-export function isAllowedEnquiryOrigin(request: Request): boolean {
+-  const origin = request.headers.get("origin");
+-  if (!origin) {
+-    const referer = request.headers.get("referer");
+-    if (!referer) return true;
+-    try {
+-      const host = new URL(referer).hostname;
+-      return (
+-        host === SITE_DOMAIN ||
+-        host === "policestationagent.com" ||
+-        host === "localhost" ||
+-        host.endsWith(".vercel.app")
+-      );
+-    } catch {
+-      return false;
+-    }
++const TRUSTED_ENQUIRY_HOSTS = new Set([
++  SITE_DOMAIN,
++  "www.policestationagent.com",
++  "policestationagent.com",
++]);
++
++function isLocalDevHost(hostname: string): boolean {
++  return hostname === "localhost" || hostname === "127.0.0.1";
++}
++
++function isPreviewHost(hostname: string): boolean {
++  return hostname.endsWith(".vercel.app");
++}
++
++function isTrustedEnquiryHost(hostname: string): boolean {
++  if (process.env.NODE_ENV !== "production") {
++    if (isLocalDevHost(hostname) || isPreviewHost(hostname)) return true;
+   }
++  return TRUSTED_ENQUIRY_HOSTS.has(hostname);
++}
++
++function hostFromHeaderValue(value: string | null): string | null {
++  if (!value) return null;
+   try {
+-    const host = new URL(origin).hostname;
+-    if (host === "localhost" || host === "127.0.0.1") return true;
+-    if (host.endsWith(".vercel.app")) return true;
+-    return host === SITE_DOMAIN || host === "policestationagent.com";
++    return new URL(value).hostname;
+   } catch {
+-    return false;
++    return null;
+   }
+ }
+ 
++export function isAllowedEnquiryOrigin(request: Request): boolean {
++  const originHost = hostFromHeaderValue(request.headers.get("origin"));
++  const refererHost = hostFromHeaderValue(request.headers.get("referer"));
++
++  if (process.env.NODE_ENV === "production") {
++    const host = originHost ?? refererHost;
++    if (!host) return false;
++    return isTrustedEnquiryHost(host);
++  }
++
++  if (originHost) return isTrustedEnquiryHost(originHost);
++  if (refererHost) return isTrustedEnquiryHost(refererHost);
++  return true;
++}
++
+ export function enquirySiteBase(): string {
+   return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || SITE_URL;
+ }
+diff --git a/lib/html-sanitizer.ts b/lib/html-sanitizer.ts
+index 0853e9f..e548f15 100644
+--- a/lib/html-sanitizer.ts
++++ b/lib/html-sanitizer.ts
+@@ -5,7 +5,7 @@
+ 
+ import sanitizeHtml from 'sanitize-html';
+ 
+-const BLOG_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
++const CONTENT_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+   allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+     'img',
+     'h1',
+@@ -21,9 +21,9 @@ const BLOG_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+     ...sanitizeHtml.defaults.allowedAttributes,
+     img: ['src', 'srcset', 'alt', 'title', 'width', 'height', 'loading', 'class'],
+     a: ['href', 'name', 'target', 'rel', 'class'],
+-    div: ['class', 'id', 'style'],
+-    span: ['class', 'style'],
+-    p: ['class', 'style'],
++    div: ['class', 'id'],
++    span: ['class'],
++    p: ['class'],
+     h1: ['class', 'id'],
+     h2: ['class', 'id'],
+     h3: ['class', 'id'],
+@@ -32,10 +32,13 @@ const BLOG_SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+     h6: ['class', 'id'],
+     figure: ['class'],
+     figcaption: ['class'],
++    ul: ['class'],
++    ol: ['class'],
++    li: ['class'],
+   },
+-  allowedSchemes: ['http', 'https', 'mailto', 'tel', 'data'],
++  allowedSchemes: ['http', 'https', 'mailto', 'tel'],
+   allowedSchemesByTag: {
+-    img: ['http', 'https', 'data'],
++    img: ['http', 'https'],
+   },
+ };
+ 
+@@ -53,5 +56,11 @@ export function convertH1ToH2(html: string): string {
+ export function sanitizeBlogHtml(html: string): string {
+   if (!html) return html;
+   const withoutH1 = convertH1ToH2(html);
+-  return sanitizeHtml(withoutH1, BLOG_SANITIZE_OPTIONS);
++  return sanitizeHtml(withoutH1, CONTENT_SANITIZE_OPTIONS);
++}
++
++/** Sanitize scraped legacy HTML blobs before `dangerouslySetInnerHTML`. */
++export function sanitizeScrapedHtml(html: string): string {
++  if (!html) return html;
++  return sanitizeHtml(html, CONTENT_SANITIZE_OPTIONS);
+ }
+diff --git a/lib/scraped-html.ts b/lib/scraped-html.ts
+index 0dabbc0..e65f73f 100644
+--- a/lib/scraped-html.ts
++++ b/lib/scraped-html.ts
+@@ -1,5 +1,6 @@
+ import { stripFirmPhonesToContact } from "@/lib/seo/strip-firm-phones";
+ import { disambiguateStationHtml } from "@/lib/seo/disambiguate-station-html";
++import { sanitizeScrapedHtml } from "@/lib/html-sanitizer";
+ 
+ /** Strip embedded version badges from scraped HTML blobs. */
+ const VERSION_BADGE_PATTERN =
+@@ -52,5 +53,5 @@ export function normalizeScrapedHtml(
+   // Separate police contact (999/101) from solicitor phone; inject not-police intro.
+   out = disambiguateStationHtml(out);
+ 
+-  return out;
++  return sanitizeScrapedHtml(out);
+ }
+diff --git a/package-lock.json b/package-lock.json
+index b53b8cf..f95af78 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -1334,9 +1334,6 @@
+       "cpu": [
+         "arm"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1353,9 +1350,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1372,9 +1366,6 @@
+       "cpu": [
+         "ppc64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1391,9 +1382,6 @@
+       "cpu": [
+         "riscv64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1410,9 +1398,6 @@
+       "cpu": [
+         "s390x"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1429,9 +1414,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1448,9 +1430,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1467,9 +1446,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1486,9 +1462,6 @@
+       "cpu": [
+         "arm"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1511,9 +1484,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1536,9 +1506,6 @@
+       "cpu": [
+         "ppc64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1561,9 +1528,6 @@
+       "cpu": [
+         "riscv64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1586,9 +1550,6 @@
+       "cpu": [
+         "s390x"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1611,9 +1572,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1636,9 +1594,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1661,9 +1616,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1909,9 +1861,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -1928,9 +1877,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -1947,9 +1893,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -1966,9 +1909,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2352,9 +2292,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2372,9 +2309,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2392,9 +2326,6 @@
+         "ppc64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2412,9 +2343,6 @@
+         "s390x"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2432,9 +2360,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2452,9 +2377,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2746,9 +2668,6 @@
+       "cpu": [
+         "arm"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2762,9 +2681,6 @@
+       "cpu": [
+         "arm"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2778,9 +2694,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2794,9 +2707,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2810,9 +2720,6 @@
+       "cpu": [
+         "loong64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2826,9 +2733,6 @@
+       "cpu": [
+         "loong64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2842,9 +2746,6 @@
+       "cpu": [
+         "ppc64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2858,9 +2759,6 @@
+       "cpu": [
+         "ppc64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2874,9 +2772,6 @@
+       "cpu": [
+         "riscv64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2890,9 +2785,6 @@
+       "cpu": [
+         "riscv64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2906,9 +2798,6 @@
+       "cpu": [
+         "s390x"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2922,9 +2811,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -2938,9 +2824,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -9215,9 +9098,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -9239,9 +9119,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -9263,9 +9140,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -9287,9 +9161,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -10423,6 +10294,7 @@
+       "version": "2.3.2",
+       "resolved": "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz",
+       "integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==",
++      "dev": true,
+       "hasInstallScript": true,
+       "license": "MIT",
+       "optional": true,
+diff --git a/package.json b/package.json
+index cb65a78..fb5eac5 100644
+--- a/package.json
++++ b/package.json
+@@ -69,6 +69,7 @@
+     "audit:legal": "node scripts/audit-legal-content.mjs && node scripts/audit-static-legal-pages.mjs",
+     "audit:blog-images": "node scripts/audit-blog-images.mjs",
+     "audit:readability": "node scripts/audit-readability.mjs",
++    "audit:deps": "npm audit --audit-level=moderate",
+     "test:legal": "vitest run __tests__/legal-accuracy.test.ts __tests__/pace-references.test.ts",
+     "backfill:blog-sources": "node scripts/backfill-blog-sources.mjs",
+     "publish:first-12": "node scripts/publish-first-12-articles.mjs",
+-- 
+2.43.0
+

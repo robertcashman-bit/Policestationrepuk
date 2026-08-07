@@ -1,10 +1,25 @@
 import { NextResponse } from 'next/server';
 import { getAllReps, getAllCounties } from '@/lib/data';
+import { getClientIp, rateLimitOk } from '@/lib/contact-guards';
 
 export const dynamic = 'force-dynamic';
 
 /** Rep counts by county for map / coverage widgets. */
-export async function GET() {
+export async function GET(request: Request) {
+  const ip = getClientIp(request);
+  const limit = await rateLimitOk({
+    ip,
+    scope: 'public-reps-map',
+    max: 60,
+    windowMs: 15 * 60 * 1000,
+  });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429 },
+    );
+  }
+
   const [reps, counties] = await Promise.all([getAllReps(), getAllCounties()]);
   const counts = new Map<string, number>();
 

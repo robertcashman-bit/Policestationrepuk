@@ -131,18 +131,19 @@ jobs:
           }
 
           ensure_ready_url() {
+            # Logs go to stderr; only the final https URL is printed on stdout.
             URL="$(find_url || true)"
             if [ -z "$URL" ]; then
-              echo "No deployment for ${TIP}; triggering git production build"
+              echo "No deployment for ${TIP}; triggering git production build" >&2
               RESP=$(curl -sS -X POST "${API}/v13/deployments?teamId=${VERCEL_ORG_ID}" \
                 -H "${AUTH}" \
                 -H "Content-Type: application/json" \
                 -d "{\"name\":\"policestationrepuk-new\",\"project\":\"${VERCEL_PROJECT_ID}\",\"target\":\"production\",\"gitSource\":{\"type\":\"github\",\"repoId\":${BIT_REPO_ID},\"ref\":\"master\",\"sha\":\"${TIP}\"}}")
-              echo "$RESP" | jq '{id, url, readyState, error: .error}' || true
+              echo "$RESP" | jq '{id, url, readyState, error: .error}' >&2 || true
               URL=$(echo "$RESP" | jq -r '.url // empty')
             fi
             if [ -z "$URL" ]; then
-              echo "Failed to locate/trigger deployment"
+              echo "Failed to locate/trigger deployment" >&2
               return 1
             fi
             DEPLOY_URL="https://${URL#https://}"
@@ -150,16 +151,18 @@ jobs:
             for i in $(seq 1 40); do
               STATE=$(curl -sS "${API}/v13/deployments/${HOST}?teamId=${VERCEL_ORG_ID}" \
                 -H "${AUTH}" | jq -r '.readyState // "UNKNOWN"')
-              echo "deployment state=${STATE}"
+              echo "deployment state=${STATE}" >&2
               if [ "$STATE" = "READY" ]; then
-                echo "$DEPLOY_URL"
+                printf '%s\n' "$DEPLOY_URL"
                 return 0
               fi
               if [ "$STATE" = "ERROR" ] || [ "$STATE" = "CANCELED" ]; then
+                echo "Deployment failed: ${STATE}" >&2
                 return 1
               fi
               sleep 15
             done
+            echo "Timed out waiting for READY" >&2
             return 1
           }
 

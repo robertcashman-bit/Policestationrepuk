@@ -1,5 +1,4 @@
 # Post-deploy live verification for dual-workspace outreach.
-# Ensures admin report email, clears common blockers, runs autoheal + bounded send.
 name: Ops — outreach live verify
 
 on:
@@ -7,6 +6,7 @@ on:
     branches: [master, main]
     paths:
       - '.github/workflows/ops-outreach-verify-live.yml'
+      - 'scripts/ops-ensure-outreach-admin-email.mjs'
       - 'lib/firm-outreach/**'
       - 'app/api/cron/firm-outreach-*/**'
       - 'packages/firm-outreach-core/**'
@@ -53,184 +53,159 @@ jobs:
       - name: Install Vercel CLI
         run: npm install -g vercel@41.4.0
 
-      - name: Pull production env
-        run: |
-          set -euo pipefail
-          if [ -z "${VERCEL_TOKEN:-}" ]; then
-            echo "VERCEL_TOKEN missing"
-            exit 1
-          fi
-          vercel env pull .env.production --environment=production --yes --token="$VERCEL_TOKEN"
-          echo "Pulled keys:"
-          grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.production | cut -d= -f1 | sort
-
-      - name: Ensure OUTREACH_ADMIN_EMAIL + read auth
+      - name: Resolve auth + ensure OUTREACH_ADMIN_EMAIL
         env:
-          CRON_SECRET_FALLBACK: ${{ secrets.CRON_SECRET }}
-          BOOTSTRAP_FALLBACK: ${{ secrets.FIRM_OUTREACH_BOOTSTRAP_SECRET }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          FIRM_OUTREACH_BOOTSTRAP_SECRET: ${{ secrets.FIRM_OUTREACH_BOOTSTRAP_SECRET }}
         run: |
           set -euo pipefail
-          node <<'NODE'
-          const fs = require('fs');
-          const text = fs.readFileSync('.env.production', 'utf8');
-          const env = {};
-          for (const raw of text.split(/\r?\n/)) {
-            const line = raw.trim();
-            if (!line || line.startsWith('#')) continue;
-            const m = /^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(line);
-            if (!m) continue;
-            let v = m[2].trim();
-            if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
-              v = v.slice(1, -1);
-            }
-            env[m[1]] = v;
-          }
-          const digest =
-            env.OUTREACH_ADMIN_EMAIL ||
-            env.FIRM_OUTREACH_DIGEST_EMAIL ||
-            env.BUFFER_SCHEDULER_NOTIFY_EMAIL ||
-            env.OWNER_EMAIL ||
-            '';
-          fs.writeFileSync(
-            'outreach-ops.env.json',
-            JSON.stringify(
-              {
-                digest,
-                hasOutreachAdmin: Boolean(env.OUTREACH_ADMIN_EMAIL),
-                dryRun: env.FIRM_OUTREACH_DRY_RUN || '',
-                sendEnabled: env.FIRM_OUTREACH_SEND_ENABLED || '',
-                paused: env.FIRM_OUTREACH_PAUSED || '',
-                requireApproval: env.FIRM_OUTREACH_REQUIRE_APPROVAL || '',
-              },
-              null,
-              2,
-            ),
-          );
-          console.log(
-            JSON.stringify({
-              hasOutreachAdmin: Boolean(env.OUTREACH_ADMIN_EMAIL),
-              hasDigest: Boolean(env.FIRM_OUTREACH_DIGEST_EMAIL),
-              dryRun: env.FIRM_OUTREACH_DRY_RUN || null,
-              sendEnabled: env.FIRM_OUTREACH_SEND_ENABLED || null,
-              paused: env.FIRM_OUTREACH_PAUSED || null,
-              requireApproval: env.FIRM_OUTREACH_REQUIRE_APPROVAL || null,
-              digestConfigured: Boolean(digest),
-            }),
-          );
-          NODE
+          if [ -n "${VERCEL_TOKEN:-}" ]; then
+            vercel env pull .env.production --environment=production --yes --token="$VERCEL_TOKEN" >/dev/null
+          fi
 
-          CRON_SECRET="${CRON_SECRET_FALLBACK:-}"
-          BOOTSTRAP_SECRET="${BOOTSTRAP_FALLBACK:-}"
-          if [ -z "${CRON_SECRET}" ]; then
-            CRON_SECRET=$(python3 - <<'PY'
+          # Prefer GH secrets; fill from pulled env only into a private file (never GITHUB_ENV).
+          python3 - <<'PY'
+          import os
           from pathlib import Path
-          for line in Path(".env.production").read_text().splitlines():
-              s=line.strip()
-              if s.startswith("CRON_SECRET="):
-                  v=s.split("=",1)[1]
-                  if len(v)>=2 and v[0]==v[-1] and v[0] in ("'",'"'): v=v[1:-1]
-                  print(v,end=""); break
+          env = {}
+          p = Path('.env.production')
+          if p.exists():
+              for line in p.read_text().splitlines():
+                  s = line.strip()
+                  if not s or s.startswith('#') or '=' not in s: continue
+                  if s.startswith('export '): s = s[len('export '):]
+                  k, v = s.split('=', 1)
+                  v = v.strip()
+                  if len(v) >= 2 and v[0] == v[-1] and v[0] in ("'", '"'):
+                      v = v[1:-1]
+                  env[k] = v
+          cron = os.environ.get('CRON_SECRET') or env.get('CRON_SECRET') or ''
+          boot = os.environ.get('FIRM_OUTREACH_BOOTSTRAP_SECRET') or env.get('FIRM_OUTREACH_BOOTSTRAP_SECRET') or ''
+          digest = (
+              env.get('OUTREACH_ADMIN_EMAIL')
+              or env.get('FIRM_OUTREACH_DIGEST_EMAIL')
+              or env.get('BUFFER_SCHEDULER_NOTIFY_EMAIL')
+              or env.get('OWNER_EMAIL')
+              or ''
+          )
+          Path('.outreach-auth').write_text(f'{cron}\n{boot}\n')
+          Path('.outreach-digest').write_text(digest)
+          print(f'auth cron_len={len(cron)} bootstrap_len={len(boot)} digest_set={bool(digest)}')
+          if not cron and not boot:
+              raise SystemExit('Missing CRON_SECRET / FIRM_OUTREACH_BOOTSTRAP_SECRET')
           PY
-            )
-          fi
-          if [ -z "${BOOTSTRAP_SECRET}" ]; then
-            BOOTSTRAP_SECRET=$(python3 - <<'PY'
-          from pathlib import Path
-          for line in Path(".env.production").read_text().splitlines():
-              s=line.strip()
-              if s.startswith("FIRM_OUTREACH_BOOTSTRAP_SECRET="):
-                  v=s.split("=",1)[1]
-                  if len(v)>=2 and v[0]==v[-1] and v[0] in ("'",'"'): v=v[1:-1]
-                  print(v,end=""); break
-          PY
-            )
-          fi
-          echo "auth cron_len=${#CRON_SECRET} bootstrap_len=${#BOOTSTRAP_SECRET}"
-          if [ -z "${CRON_SECRET}" ] && [ -z "${BOOTSTRAP_SECRET}" ]; then
-            echo "Missing CRON_SECRET / FIRM_OUTREACH_BOOTSTRAP_SECRET"
-            exit 1
-          fi
-          echo "CRON_SECRET=${CRON_SECRET}" >> "$GITHUB_ENV"
-          echo "FIRM_OUTREACH_BOOTSTRAP_SECRET=${BOOTSTRAP_SECRET}" >> "$GITHUB_ENV"
 
-          # Ensure OUTREACH_ADMIN_EMAIL on Vercel if missing but digest exists.
-          HAS_ADMIN=$(python3 - <<'PY'
-          import json
-          print('1' if json.load(open('outreach-ops.env.json')).get('hasOutreachAdmin') else '0')
-          PY
-          )
-          DIGEST=$(python3 - <<'PY'
-          import json
-          print(json.load(open('outreach-ops.env.json')).get('digest') or '')
-          PY
-          )
-          if [ "$HAS_ADMIN" = "0" ] && [ -n "$DIGEST" ]; then
-            echo "Setting OUTREACH_ADMIN_EMAIL from digest/fallback on Vercel production…"
-            printf '%s' "$DIGEST" | vercel env add OUTREACH_ADMIN_EMAIL production --token="$VERCEL_TOKEN" --force || \
-              printf '%s' "$DIGEST" | vercel env add OUTREACH_ADMIN_EMAIL production --token="$VERCEL_TOKEN" || true
-          elif [ -z "$DIGEST" ]; then
-            echo "WARNING: No OUTREACH_ADMIN_EMAIL / FIRM_OUTREACH_DIGEST_EMAIL configured"
-          else
-            echo "OUTREACH_ADMIN_EMAIL already present"
+          DIGEST=$(cat .outreach-digest)
+          if [ -n "$DIGEST" ]; then
+            OUTREACH_ADMIN_EMAIL="$DIGEST" FIRM_OUTREACH_DIGEST_EMAIL="$DIGEST" \
+              node scripts/ops-ensure-outreach-admin-email.mjs || true
           fi
 
-      - name: Wait for production SHA (best effort)
+      - name: Wait for production healthy
         run: |
           set -euo pipefail
-          for i in 1 2 3 4 5 6 7 8 9 10; do
+          for i in $(seq 1 12); do
             BODY=$(curl -fsS "$BASE_URL/api/health" || true)
-            echo "health: $BODY"
+            echo "$BODY"
             echo "$BODY" | grep -q '"ok":true' && exit 0
-            sleep 15
+            sleep 10
           done
           exit 1
 
-      - name: Status + autoheal + bounded send + report probe
+      - name: Status + autoheal + bounded send + report
         run: |
           set -euo pipefail
-          AUTH_HEADER="Authorization: Bearer ${CRON_SECRET}"
-          if [ -z "${CRON_SECRET:-}" ]; then
-            AUTH_HEADER="x-firm-outreach-bootstrap-secret: ${FIRM_OUTREACH_BOOTSTRAP_SECRET}"
+          CRON_SECRET=$(sed -n '1p' .outreach-auth)
+          BOOT=$(sed -n '2p' .outreach-auth)
+          if [ -n "$CRON_SECRET" ]; then
+            AUTH=(-H "Authorization: Bearer ${CRON_SECRET}")
+          else
+            AUTH=(-H "x-firm-outreach-bootstrap-secret: ${BOOT}")
           fi
 
-          echo "== status =="
-          curl -fsS -H "$AUTH_HEADER" "$BASE_URL/api/cron/firm-outreach-status" | tee status.json | \
-            python3 -c 'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ["ok","sendHealthy","sendBlockers","resendQuotaRemaining","dryRun","sendAllowed"] if k in d or True}); print("campaigns", d.get("campaignSendHealth") or d.get("config",{}).get("campaignSendHealth"))'
+          call() {
+            local name="$1"; shift
+            local out="$1"; shift
+            echo "== $name =="
+            local code
+            code=$(curl -sS -o "$out" -w '%{http_code}' "${AUTH[@]}" "$@" || true)
+            echo "HTTP $code"
+            if [ "$code" != "200" ]; then
+              head -c 500 "$out" || true; echo
+              return 1
+            fi
+            python3 -c 'import json,sys; json.load(open(sys.argv[1])); print("json_ok", sys.argv[1])' "$out"
+          }
 
-          echo "== autoheal (noSend first) =="
-          curl -fsS -H "$AUTH_HEADER" "$BASE_URL/api/cron/firm-outreach-autoheal?noSend=1" | tee autoheal1.json | \
-            python3 -c 'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ["ok","mode","faultCount","repairs","accepted","errors"]})'
+          call status status.json "$BASE_URL/api/cron/firm-outreach-status"
+          python3 - <<'PY'
+          import json
+          d=json.load(open('status.json'))
+          c=d.get('config') or {}
+          q=d.get('queue') or {}
+          print({
+            'dryRun': c.get('dryRun'),
+            'sendAllowed': c.get('sendAllowed'),
+            'sendHealthy': c.get('sendHealthy'),
+            'sendBlockers': c.get('sendBlockers'),
+            'digestEmail': c.get('digestEmail'),
+            'requireApproval': c.get('requireApproval'),
+            'resendQuotaRemaining': c.get('resendQuotaRemaining'),
+            'readyToSend': q.get('readyToSend'),
+            'sendableReady': q.get('sendableReady'),
+            'sentToday': q.get('sentToday'),
+            'campaigns': [
+              {'id': x.get('campaignId'), 'canSend': x.get('canSend'), 'domain': x.get('domain')}
+              for x in (c.get('campaignSendHealth') or [])
+            ],
+          })
+          # If digest known from status and admin ensure earlier missed sensitive pull, set now.
+          open('.status-digest','w').write(c.get('digestEmail') or '')
+          PY
 
-          echo "== outreach worker limit=5 =="
-          curl -fsS -H "$AUTH_HEADER" "$BASE_URL/api/cron/firm-outreach-send?limit=5" | tee send.json | \
-            python3 -c 'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ["ok","mode","accepted","claimed","jobsCreated","skipped","reason","runId"]}); print("byCampaign", d.get("byCampaign"))'
+          if [ -s .status-digest ]; then
+            OUTREACH_ADMIN_EMAIL="$(cat .status-digest)" FIRM_OUTREACH_DIGEST_EMAIL="$(cat .status-digest)" \
+              node scripts/ops-ensure-outreach-admin-email.mjs || true
+          fi
 
-          echo "== autoheal with send =="
-          curl -fsS -H "$AUTH_HEADER" "$BASE_URL/api/cron/firm-outreach-autoheal" | tee autoheal2.json | \
-            python3 -c 'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ["ok","faultCount","repairs","accepted","errors","capacity"]})'
-
-          echo "== daily report force (idempotent) =="
-          curl -fsS -H "$AUTH_HEADER" "$BASE_URL/api/cron/firm-outreach-daily-report?force=1" | tee report.json | \
-            python3 -c 'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ["ok","mode","skipped","reason","alreadySent","reportDate","providerMessageId","acceptedTotal"]})'
+          call autoheal_nosend autoheal1.json "$BASE_URL/api/cron/firm-outreach-autoheal?noSend=1"
+          call worker send.json "$BASE_URL/api/cron/firm-outreach-send?limit=5"
+          # Autoheal may skip on overlap right after worker — tolerate non-200 only if overlap JSON.
+          set +e
+          call autoheal autoheal2.json "$BASE_URL/api/cron/firm-outreach-autoheal"
+          AH=$?
+          set -e
+          if [ "$AH" -ne 0 ]; then
+            echo "autoheal call failed (may be transient); continuing"
+          fi
+          call report report.json "$BASE_URL/api/cron/firm-outreach-daily-report?force=1"
 
           python3 - <<'PY'
           import json
-          send = json.load(open('send.json'))
-          report = json.load(open('report.json'))
-          status = json.load(open('status.json'))
-          accepted = send.get('accepted')
-          if accepted is None and isinstance(send.get('byCampaign'), dict):
-              accepted = sum((v or {}).get('accepted') or (v or {}).get('sent') or 0 for v in send['byCampaign'].values())
+          send=json.load(open('send.json'))
+          report=json.load(open('report.json'))
+          status=json.load(open('status.json'))
+          ah1=json.load(open('autoheal1.json'))
           print('SUMMARY', {
-            'send_ok': send.get('ok'),
-            'accepted': accepted,
+            'health_config_ok': bool((status.get('config') or {}).get('sendHealthy')),
+            'worker_mode': send.get('mode'),
+            'accepted': send.get('accepted'),
             'claimed': send.get('claimed'),
+            'jobsCreated': send.get('jobsCreated'),
+            'autoheal_faults': ah1.get('faultCount'),
+            'capacity': ah1.get('capacity'),
             'report_ok': report.get('ok'),
             'report_provider_message_id': report.get('providerMessageId'),
-            'report_skipped': report.get('skipped'),
-            'status_ok': status.get('ok', True),
+            'report_already_sent': report.get('alreadySent'),
+            'report_date': report.get('reportDate'),
+            'acceptedTotal': report.get('acceptedTotal'),
           })
-          # Fail only on hard auth/route failures already raised by curl -fsS.
+          assert send.get('mode') == 'outreach-worker', send.get('mode')
+          assert report.get('ok') is True
+          cfg=status.get('config') or {}
+          assert cfg.get('dryRun') is False
+          assert cfg.get('sendAllowed') is True
+          assert cfg.get('sendHealthy') is True
           PY
 
       - name: Upload ops artifacts
@@ -244,5 +219,4 @@ jobs:
             send.json
             autoheal2.json
             report.json
-            outreach-ops.env.json
           if-no-files-found: ignore

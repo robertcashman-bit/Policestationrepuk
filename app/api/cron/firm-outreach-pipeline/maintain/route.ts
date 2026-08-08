@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isCronAuthorized } from '@/lib/cron-auth';
+import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
 import { recoverEnrichPool } from '@/lib/firm-outreach/enrichment/recover-enrich-pool';
 import { requeueNoEmailProspects } from '@/lib/firm-outreach/enrichment/requeue-no-email';
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from '@/lib/firm-outreach/campaign-scope';
@@ -16,7 +16,7 @@ function isSundayUtc(): boolean {
 
 /** Nightly: LAA refresh (if stale) + DSCC + discovery — no sends. Sunday: requeue no_email for retry. */
 export async function GET(request: Request) {
-  if (!isCronAuthorized(request)) {
+  if (!isOutreachBootstrapAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

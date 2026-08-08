@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isCronAuthorized } from '@/lib/cron-auth';
+import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
 import { runFirmOutreachPipeline } from '@/lib/firm-outreach/run-pipeline';
 
 export const dynamic = 'force-dynamic';
@@ -8,7 +8,7 @@ export const maxDuration = 300;
 
 /** @deprecated Prefer /api/cron/firm-outreach-pipeline — kept for backwards compatibility. */
 export async function GET(request: Request) {
-  if (!isCronAuthorized(request)) {
+  if (!isOutreachBootstrapAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

@@ -17,6 +17,7 @@ If production health (`/api/health` → `version`) shows a SHA that only exists 
 2. Re-run **Ops — RepUK Vercel git link (bit)** if the Vercel project git link is wrong.
 3. **Ops — production source guard** polls every 5 minutes: re-links the Vercel project to `robertcashman-bit`, promotes bit `master`, and holds the alias through a short soak.
 4. `vercel.json` `ignoreCommand` (`scripts/vercel-ignore-non-bit.sh`) skips production builds whose git owner is not `robertcashman-bit`, so droid-linked auto-deploys cannot become production.
+5. **Disable on the droid mirror** (`robertdavidcashman-droid/Policestationrepuk`): workflow **Ops — production outreach hold** (and ideally **Deploy to Vercel (production)**). It shares the same `VERCEL_*` secrets and re-promotes droid tip `d79d2c6` every few minutes, racing bit’s source guard. Bit alone cannot turn that workflow off.
 
 Backup of the previous bit `master` tip (before prod-sync): branch `backup/bit-master-pre-prod-sync`.
 

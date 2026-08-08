@@ -112,6 +112,44 @@ interface SummaryPayload {
   }>;
 }
 
+interface DualWorkspaceCard {
+  id: string;
+  label: string;
+  health: string;
+  provider: string;
+  sendingEnabled: boolean;
+  providerVerified: boolean;
+  lastSchedulerRun: string | null;
+  lastSuccessfulProviderAcceptance: string | null;
+  lastRecipient: { firmName: string; email: string; providerMessageId?: string } | null;
+  acceptedToday: number;
+  deliveredToday: number;
+  failedToday: number;
+  retries: number;
+  pending: number;
+  eligibleUnsent: number;
+  providerLimit: number | null;
+  providerRemaining: number | null;
+  configuredLimit: number | null;
+  effectiveCapacity: number;
+  limitingFactor: string;
+  limitingDetail: string;
+  lastAutoheal: string | null;
+  autohealRepairs: string[];
+  recentErrors: string[];
+}
+
+interface DualDashboardPayload {
+  workspaces: DualWorkspaceCard[];
+  lastDailyReport: {
+    reportDate: string;
+    sentAt: string | null;
+    recipient: string;
+    totalAccepted: number;
+    status: string;
+  } | null;
+}
+
 interface TabCache {
   ready?: QueueRow[];
   excluded?: ExcludedRow[];
@@ -170,6 +208,7 @@ const FETCH_TIMEOUT_MS = 25_000;
 
 export function FirmOutreachDashboard() {
   const [summary, setSummary] = useState<SummaryPayload | null>(null);
+  const [dual, setDual] = useState<DualDashboardPayload | null>(null);
   const [tabCache, setTabCache] = useState<TabCache>({});
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -202,12 +241,25 @@ export function FirmOutreachDashboard() {
     };
   }, [summary, tabCache]);
 
+  const loadDual = useCallback(() => {
+    fetch('/api/admin/firm-outreach?view=dual')
+      .then(async (res) => {
+        const json = (await res.json()) as DualDashboardPayload & { error?: string };
+        if (!res.ok) throw new Error(json.error ?? 'Failed to load dual workspace status');
+        setDual(json);
+      })
+      .catch(() => {
+        /* dual panel is best-effort */
+      });
+  }, []);
+
   const loadSummary = useCallback((refresh = false) => {
     setLoading(true);
     setError(null);
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
     const qs = refresh ? '?view=summary&refresh=1' : '?view=summary';
+    loadDual();
 
     fetch(`/api/admin/firm-outreach${qs}`, { signal: controller.signal })
       .then(async (res) => {
@@ -237,7 +289,7 @@ export function FirmOutreachDashboard() {
       window.clearTimeout(timeoutId);
       controller.abort();
     };
-  }, []);
+  }, [loadDual]);
 
   const loadTabData = useCallback(async (tabId: TabId, force = false) => {
     const view = tabView(tabId);
@@ -574,6 +626,81 @@ export function FirmOutreachDashboard() {
           Download CSV
         </a>
       </div>
+
+      {dual?.workspaces?.length ? (
+        <div className="space-y-3">
+          <h2 className="text-sm font-bold text-[var(--navy)]">Both workspaces</h2>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {dual.workspaces.map((ws) => (
+              <div
+                key={ws.id}
+                className="rounded-xl border border-[var(--border)] bg-white p-4 shadow-sm text-sm"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-bold text-[var(--navy)]">{ws.label}</h3>
+                  <span className={`rounded px-2 py-0.5 text-xs font-semibold ${statusBadge(ws.health.toLowerCase())}`}>
+                    {ws.health}
+                  </span>
+                </div>
+                <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                  <dt className="text-[var(--muted)]">Provider</dt>
+                  <dd>{ws.provider}{ws.providerVerified ? ' ✓' : ' (unverified)'}</dd>
+                  <dt className="text-[var(--muted)]">Sending</dt>
+                  <dd>{ws.sendingEnabled ? 'enabled' : 'disabled'}</dd>
+                  <dt className="text-[var(--muted)]">Accepted today</dt>
+                  <dd>{ws.acceptedToday}</dd>
+                  <dt className="text-[var(--muted)]">Delivered today</dt>
+                  <dd>{ws.deliveredToday}</dd>
+                  <dt className="text-[var(--muted)]">Failed today</dt>
+                  <dd>{ws.failedToday}</dd>
+                  <dt className="text-[var(--muted)]">Pending / retries</dt>
+                  <dd>{ws.pending} / {ws.retries}</dd>
+                  <dt className="text-[var(--muted)]">Eligible unsent</dt>
+                  <dd>{ws.eligibleUnsent}</dd>
+                  <dt className="text-[var(--muted)]">Effective capacity</dt>
+                  <dd>{ws.effectiveCapacity}</dd>
+                  <dt className="text-[var(--muted)]">Provider remaining</dt>
+                  <dd>{ws.providerRemaining ?? 'unlimited'}</dd>
+                  <dt className="text-[var(--muted)]">Limiting factor</dt>
+                  <dd title={ws.limitingDetail}>{ws.limitingFactor}</dd>
+                  <dt className="text-[var(--muted)]">Last scheduler</dt>
+                  <dd>{fmt(ws.lastSchedulerRun ?? undefined)}</dd>
+                  <dt className="text-[var(--muted)]">Last acceptance</dt>
+                  <dd>{fmt(ws.lastSuccessfulProviderAcceptance ?? undefined)}</dd>
+                  <dt className="text-[var(--muted)]">Last recipient</dt>
+                  <dd className="truncate" title={ws.lastRecipient?.email}>
+                    {ws.lastRecipient
+                      ? `${ws.lastRecipient.firmName} — ${ws.lastRecipient.email}`
+                      : '—'}
+                  </dd>
+                  <dt className="text-[var(--muted)]">Last autoheal</dt>
+                  <dd>{fmt(ws.lastAutoheal ?? undefined)}</dd>
+                </dl>
+                {ws.autohealRepairs?.length ? (
+                  <p className="mt-2 text-xs text-[var(--muted)]">
+                    Autoheal repairs: {ws.autohealRepairs.slice(0, 4).join(', ')}
+                  </p>
+                ) : null}
+                {ws.recentErrors?.length ? (
+                  <p className="mt-1 text-xs text-red-700">{ws.recentErrors[0]}</p>
+                ) : null}
+              </div>
+            ))}
+          </div>
+          {dual.lastDailyReport ? (
+            <p className="text-xs text-[var(--muted)]">
+              Last daily report ({dual.lastDailyReport.reportDate}): status {dual.lastDailyReport.status}
+              {dual.lastDailyReport.sentAt ? ` · sent ${fmt(dual.lastDailyReport.sentAt)}` : ''}
+              {' · '}accepted {dual.lastDailyReport.totalAccepted}
+              {' · '}to {dual.lastDailyReport.recipient}
+            </p>
+          ) : (
+            <p className="text-xs text-[var(--muted)]">
+              No consolidated 07:00 Europe/London daily report recorded yet.
+            </p>
+          )}
+        </div>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">
         <StatCard label="Emails sent" value={s.totalSends} />

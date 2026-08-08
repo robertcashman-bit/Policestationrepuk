@@ -26,18 +26,27 @@ describe('maybeNotifyOutreachSendFailure', () => {
     process.env = ENV;
   });
 
-  it('notifies when errors > 0', async () => {
+  it('does not notify for ordinary errors (deferred to 07:00 report)', async () => {
     await maybeNotifyOutreachSendFailure({
       stats: { queued: 5, sent: 0, skipped: 0, suppressed: 0, errors: 2, elapsedMs: 0 },
       readyToSend: 10,
     });
-    expect(sendMock).toHaveBeenCalled();
+    expect(sendMock).not.toHaveBeenCalled();
   });
 
-  it('notifies when sent zero but queue had items', async () => {
+  it('does not notify for routine zero-sent (deferred to 07:00 report)', async () => {
     await maybeNotifyOutreachSendFailure({
       stats: { queued: 3, sent: 0, skipped: 0, suppressed: 0, errors: 0, elapsedMs: 0 },
       readyToSend: 10,
+    });
+    expect(sendMock).not.toHaveBeenCalled();
+  });
+
+  it('notifies only for critical unhealthy config reasons', async () => {
+    await maybeNotifyOutreachSendFailure({
+      stats: { queued: 5, sent: 0, skipped: 0, suppressed: 0, errors: 0, elapsedMs: 0 },
+      readyToSend: 10,
+      reason: 'Outreach send config unhealthy: domain not verified',
     });
     expect(sendMock).toHaveBeenCalled();
   });

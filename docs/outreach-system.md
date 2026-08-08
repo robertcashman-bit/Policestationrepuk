@@ -28,7 +28,7 @@ Failures: `retry_scheduled` / `permanently_failed` / `bounced` / `complained` / 
 
 ## Cron schedule (UTC)
 
-See `vercel.json`. Cost-aware defaults:
+See `vercel.json`. Self-healing defaults:
 
 | Time | Route |
 |------|-------|
@@ -36,10 +36,22 @@ See `vercel.json`. Cost-aware defaults:
 | 07:00 / 14:00 | enrich |
 | 09:15 | bootstrap |
 | 09:30 | full (send or approval email) |
-| 12:00 / 16:00 | send-only |
-| 17:00 | digest / approval reminder |
+| every 15 min | send worker (job-first drain) |
+| :05/:20/:35/:50 | autoheal / reconciliation |
+| 06:00 + 07:00 | consolidated daily report (sends only in 07:00 Europe/London hour) |
+| 17:00 | approval reminder only (legacy digest disabled) |
 
 All require `Authorization: Bearer $CRON_SECRET`.
+
+### Administrator email policy
+
+Exactly **one** routine outreach email per day at **07:00 Europe/London**:
+
+`Daily Outreach Report — PoliceStationAgent + PoliceStationRepUK — {{date}}`
+
+Recipient: `OUTREACH_ADMIN_EMAIL` (fallback `FIRM_OUTREACH_DIGEST_EMAIL`).  
+“Sent” in the report means **provider accepted** (Resend message ID stored).  
+Zero-accept days must include a precise `ZERO_REASON_*` explanation — never bare “0 emails sent”.
 
 ## Environment (Production)
 

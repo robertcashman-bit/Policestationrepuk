@@ -5,7 +5,7 @@ import { GET as sendGet } from '@/app/api/cron/firm-outreach-send/route';
 
 const mockPipeline = vi.fn();
 const mockApprovalEmail = vi.fn();
-const mockDigest = vi.fn();
+const mockWorker = vi.fn();
 
 vi.mock('@/lib/firm-outreach/run-pipeline', () => ({
   runFirmOutreachPipeline: (...args: unknown[]) => mockPipeline(...args),
@@ -15,8 +15,8 @@ vi.mock('@/lib/firm-outreach/outreach/approval-request-email', () => ({
   sendOutreachApprovalRequestEmail: (...args: unknown[]) => mockApprovalEmail(...args),
 }));
 
-vi.mock('@/lib/firm-outreach/outreach/digest-email', () => ({
-  sendDailyOutreachDigest: (...args: unknown[]) => mockDigest(...args),
+vi.mock('@/lib/firm-outreach/outreach/run-worker', () => ({
+  runOutreachWorkerTick: (...args: unknown[]) => mockWorker(...args),
 }));
 
 vi.mock('@robertcashman/firm-outreach-core', async (importOriginal) => {
@@ -36,7 +36,15 @@ describe('firm-outreach approval crons', () => {
     process.env = { ...ENV, CRON_SECRET: 'cron-test', FIRM_OUTREACH_REQUIRE_APPROVAL: 'true' };
     mockPipeline.mockResolvedValue({ skipped: false, send: { sent: 0 } });
     mockApprovalEmail.mockResolvedValue({ sent: true, date: '2026-06-13' });
-    mockDigest.mockResolvedValue({ sent: true, date: '2026-06-13' });
+    mockWorker.mockResolvedValue({
+      ok: true,
+      skipped: true,
+      reason: 'approval_required',
+      runId: 'w1',
+      accepted: 0,
+      claimed: 0,
+      jobsCreated: 0,
+    });
   });
 
   afterEach(() => {
@@ -83,7 +91,6 @@ describe('firm-outreach approval crons', () => {
       const json = await res.json();
       expect(json.mode).toBe('approval-reminder');
       expect(mockApprovalEmail).toHaveBeenCalledWith({ reminder: true });
-      expect(mockDigest).not.toHaveBeenCalled();
     });
   });
 });
@@ -92,33 +99,44 @@ describe('firm-outreach legacy digest cron', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env = { ...ENV, CRON_SECRET: 'cron-test', FIRM_OUTREACH_REQUIRE_APPROVAL: 'false' };
-    mockDigest.mockResolvedValue({ sent: true, date: '2026-06-13' });
   });
 
   afterEach(() => {
     process.env = { ...ENV };
   });
 
-  it('runs legacy digest when approval disabled', async () => {
+  it('disables routine digest when approval is off', async () => {
     const res = await digestGet(
       new Request('http://localhost/api/cron/firm-outreach-digest', {
         headers: { authorization: 'Bearer cron-test' },
       }),
     );
     const json = await res.json();
-    expect(json.mode).toBe('digest');
-    expect(mockDigest).toHaveBeenCalledOnce();
+    expect(json.mode).toBe('legacy_digest_disabled');
+    expect(json.skipped).toBe(true);
   });
 });
 
 describe('firm-outreach-send cron', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   afterEach(() => {
     process.env = { ...ENV };
   });
 
   it('skips send when approval is required', async () => {
     process.env = { ...ENV, CRON_SECRET: 'cron-test', FIRM_OUTREACH_REQUIRE_APPROVAL: 'true' };
-    mockPipeline.mockClear();
+    mockWorker.mockResolvedValue({
+      ok: true,
+      skipped: true,
+      reason: 'approval_required',
+      runId: 'w1',
+      accepted: 0,
+      claimed: 0,
+      jobsCreated: 0,
+    });
     const res = await sendGet(
       new Request('http://localhost/api/cron/firm-outreach-send', {
         headers: { authorization: 'Bearer cron-test' },
@@ -126,14 +144,21 @@ describe('firm-outreach-send cron', () => {
     );
     const json = await res.json();
     expect(res.status).toBe(200);
-    expect(json.mode).toBe('approval-required');
+    expect(json.mode).toBe('outreach-worker');
     expect(json.skipped).toBe(true);
-    expect(mockPipeline).not.toHaveBeenCalled();
+    expect(json.reason).toBe('approval_required');
+    expect(mockWorker).toHaveBeenCalledOnce();
   });
 
-  it('runs send pipeline when approval disabled', async () => {
+  it('runs outreach worker when approval disabled', async () => {
     process.env = { ...ENV, CRON_SECRET: 'cron-test', FIRM_OUTREACH_REQUIRE_APPROVAL: 'false' };
-    mockPipeline.mockResolvedValue({ skipped: false, send: { sent: 2 } });
+    mockWorker.mockResolvedValue({
+      ok: true,
+      runId: 'w2',
+      accepted: 2,
+      claimed: 2,
+      jobsCreated: 1,
+    });
     const res = await sendGet(
       new Request('http://localhost/api/cron/firm-outreach-send', {
         headers: { authorization: 'Bearer cron-test' },
@@ -141,7 +166,8 @@ describe('firm-outreach-send cron', () => {
     );
     const json = await res.json();
     expect(res.status).toBe(200);
-    expect(json.mode).toBe('send-only');
-    expect(mockPipeline).toHaveBeenCalledOnce();
+    expect(json.mode).toBe('outreach-worker');
+    expect(json.accepted).toBe(2);
+    expect(mockWorker).toHaveBeenCalledOnce();
   });
 });

@@ -128,6 +128,20 @@ export async function GET(request: Request) {
       });
     }
 
+    if (view === 'dual') {
+      const { buildDualOutreachDashboard } = await import(
+        '@/lib/firm-outreach/dual-dashboard'
+      );
+      const dual = await buildDualOutreachDashboard();
+      return NextResponse.json({
+        ok: true,
+        kvConfigured: true,
+        view: 'dual',
+        ...baseMeta(),
+        ...dual,
+      });
+    }
+
     const summaryView = await getCachedOutreachSummaryView(refresh);
     const config = await getOutreachConfigStatus();
     const { getOutreachOpsStatus } = await import('@/lib/firm-outreach/ops-status');

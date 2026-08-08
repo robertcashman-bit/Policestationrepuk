@@ -119,7 +119,11 @@ export async function sendOutreachSendFailureEmail(
   }
 }
 
-/** Notify when an auto-send cron had errors or accepted zero while work was intended. */
+/**
+ * Immediate notify ONLY for critical send-config failures.
+ * Zero-send / ordinary errors / permanent-fail counts are deferred to the
+ * 07:00 Europe/London consolidated daily report (and autoheal critical path).
+ */
 export async function maybeNotifyOutreachSendFailure(opts: {
   stats: OutreachRunStats;
   readyToSend: number;
@@ -127,7 +131,17 @@ export async function maybeNotifyOutreachSendFailure(opts: {
   reason?: string;
 }): Promise<void> {
   if (opts.skipped) return;
+
+  // Critical: unhealthy provider/domain config lasting across a send cycle.
   if (opts.reason) {
+    const r = opts.reason.toLowerCase();
+    const critical =
+      r.includes('unhealthy') ||
+      r.includes('not verified') ||
+      r.includes('api key') ||
+      r.includes('suspended') ||
+      r.includes('auth');
+    if (!critical) return;
     await sendOutreachSendFailureEmail({
       stats: opts.stats,
       readyToSend: opts.readyToSend,
@@ -135,27 +149,7 @@ export async function maybeNotifyOutreachSendFailure(opts: {
     });
     return;
   }
-  if (opts.stats.errors > 0) {
-    await sendOutreachSendFailureEmail({
-      stats: opts.stats,
-      readyToSend: opts.readyToSend,
-      reason: `${opts.stats.errors} send error(s) during the outreach cron run. Check Resend domain verification and /api/cron/firm-outreach-status.`,
-    });
-    return;
-  }
-  if (shouldAlertZeroSends(opts)) {
-    await sendOutreachSendFailureEmail({
-      stats: opts.stats,
-      readyToSend: opts.readyToSend,
-      reason: `No emails accepted despite ${opts.readyToSend} ready prospect(s) (queued=${opts.stats.queued}, jobsCreated=${opts.stats.jobsCreated ?? 0}, skipReasons=${JSON.stringify(opts.stats.skipReasons ?? {})}).`,
-    });
-    return;
-  }
-  if ((opts.stats.permanentlyFailed ?? 0) >= 3) {
-    await sendOutreachSendFailureEmail({
-      stats: opts.stats,
-      readyToSend: opts.readyToSend,
-      reason: `${opts.stats.permanentlyFailed} permanently failed send job(s) this run.`,
-    });
-  }
+
+  // Routine zero-send / error / permanent-fail emails disabled (Phase 9/12/20).
+  void shouldAlertZeroSends;
 }

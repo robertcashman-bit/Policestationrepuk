@@ -1,6 +1,9 @@
 import type { FirmProspect } from './types';
-/** Durable email job lifecycle (KV-backed outbox). */
-export type EmailJobStatus = 'pending' | 'claimed' | 'processing' | 'accepted' | 'delivered' | 'deferred' | 'bounced' | 'complained' | 'unsubscribed' | 'suppressed' | 'failed' | 'retry_scheduled' | 'permanently_failed';
+/**
+ * Durable email job lifecycle (KV-backed outbox).
+ * Principal “sent” for reporting = `accepted` (provider message ID stored).
+ */
+export type EmailJobStatus = 'pending' | 'claimed' | 'processing' | 'accepted' | 'delivered' | 'deferred' | 'bounced' | 'complained' | 'unsubscribed' | 'suppressed' | 'failed' | 'temporary_failure' | 'retry_scheduled' | 'permanently_failed' | 'cancelled' | 'manual_reconciliation_required';
 export declare const EMAIL_JOB_TERMINAL_STATUSES: ReadonlySet<EmailJobStatus>;
 export declare const EMAIL_JOB_CLAIMABLE_STATUSES: ReadonlySet<EmailJobStatus>;
 export declare const DEFAULT_EMAIL_JOB_MAX_ATTEMPTS = 5;

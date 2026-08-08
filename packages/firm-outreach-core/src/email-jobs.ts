@@ -2,7 +2,10 @@ import { createHash } from 'node:crypto';
 import { normalizeEmail } from './normalize';
 import type { FirmProspect } from './types';
 
-/** Durable email job lifecycle (KV-backed outbox). */
+/**
+ * Durable email job lifecycle (KV-backed outbox).
+ * Principal “sent” for reporting = `accepted` (provider message ID stored).
+ */
 export type EmailJobStatus =
   | 'pending'
   | 'claimed'
@@ -15,8 +18,11 @@ export type EmailJobStatus =
   | 'unsubscribed'
   | 'suppressed'
   | 'failed'
+  | 'temporary_failure'
   | 'retry_scheduled'
-  | 'permanently_failed';
+  | 'permanently_failed'
+  | 'cancelled'
+  | 'manual_reconciliation_required';
 
 export const EMAIL_JOB_TERMINAL_STATUSES: ReadonlySet<EmailJobStatus> = new Set([
   'accepted',
@@ -26,11 +32,14 @@ export const EMAIL_JOB_TERMINAL_STATUSES: ReadonlySet<EmailJobStatus> = new Set(
   'unsubscribed',
   'suppressed',
   'permanently_failed',
+  'cancelled',
+  'manual_reconciliation_required',
 ]);
 
 export const EMAIL_JOB_CLAIMABLE_STATUSES: ReadonlySet<EmailJobStatus> = new Set([
   'pending',
   'retry_scheduled',
+  'temporary_failure',
 ]);
 
 export const DEFAULT_EMAIL_JOB_MAX_ATTEMPTS = 5;

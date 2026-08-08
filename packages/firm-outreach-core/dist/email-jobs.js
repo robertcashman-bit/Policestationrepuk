@@ -20,10 +20,13 @@ exports.EMAIL_JOB_TERMINAL_STATUSES = new Set([
     'unsubscribed',
     'suppressed',
     'permanently_failed',
+    'cancelled',
+    'manual_reconciliation_required',
 ]);
 exports.EMAIL_JOB_CLAIMABLE_STATUSES = new Set([
     'pending',
     'retry_scheduled',
+    'temporary_failure',
 ]);
 exports.DEFAULT_EMAIL_JOB_MAX_ATTEMPTS = 5;
 exports.DEFAULT_EMAIL_JOB_LEASE_SECONDS = 120;

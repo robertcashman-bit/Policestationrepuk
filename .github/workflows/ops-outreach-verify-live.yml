@@ -101,15 +101,33 @@ jobs:
               node scripts/ops-ensure-outreach-admin-email.mjs || true
           fi
 
-      - name: Wait for production healthy
+      - name: Wait for production on bit tip (autoheal present)
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          for i in $(seq 1 12); do
+          TIP=$(gh api "repos/${{ github.repository }}/commits/master" --jq .sha)
+          TIP_SHORT="${TIP:0:7}"
+          echo "Want bit tip ${TIP_SHORT} with autoheal route"
+          for i in $(seq 1 60); do
             BODY=$(curl -fsS "$BASE_URL/api/health" || true)
-            echo "$BODY"
-            echo "$BODY" | grep -q '"ok":true' && exit 0
-            sleep 10
+            VER=$(echo "$BODY" | jq -r '.version // empty' 2>/dev/null || true)
+            AH=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE_URL/api/cron/firm-outreach-autoheal" || echo 000)
+            echo "[$i/60] health=${BODY} autoheal=${AH}"
+            if [ "$VER" = "$TIP_SHORT" ] && [ "$AH" != "404" ]; then
+              # Soak once more — droid races flip within ~1–2 minutes historically.
+              sleep 45
+              BODY2=$(curl -fsS "$BASE_URL/api/health" || true)
+              VER2=$(echo "$BODY2" | jq -r '.version // empty' 2>/dev/null || true)
+              AH2=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE_URL/api/cron/firm-outreach-autoheal" || echo 000)
+              echo "soak health=${BODY2} autoheal=${AH2}"
+              if [ "$VER2" = "$TIP_SHORT" ] && [ "$AH2" != "404" ]; then
+                exit 0
+              fi
+            fi
+            sleep 15
           done
+          echo "Production never stabilized on bit tip ${TIP_SHORT}"
           exit 1
 
       - name: Status + autoheal + bounded send + report

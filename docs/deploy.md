@@ -15,7 +15,8 @@ If production health (`/api/health` → `version`) shows a SHA that only exists 
 
 1. Merge/disable deploys on the droid mirror (it must not run `Deploy to Vercel (production)` — that workflow shares `VERCEL_*` secrets and overwrites bit).
 2. Re-run **Ops — RepUK Vercel git link (bit)** if the Vercel project git link is wrong.
-3. **Ops — production source guard** also polls every 30 minutes and re-promotes bit `master` when drift is detected.
+3. **Ops — production source guard** polls every 5 minutes: re-links the Vercel project to `robertcashman-bit`, promotes bit `master`, and holds the alias through a short soak.
+4. `vercel.json` `ignoreCommand` (`scripts/vercel-ignore-non-bit.sh`) skips production builds whose git owner is not `robertcashman-bit`, so droid-linked auto-deploys cannot become production.
 
 Backup of the previous bit `master` tip (before prod-sync): branch `backup/bit-master-pre-prod-sync`.
 

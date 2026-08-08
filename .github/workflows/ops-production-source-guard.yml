@@ -1,11 +1,17 @@
-# If production drifts onto a SHA that is not on origin/master (typically a
-# droid-mirror promote), re-promote the current bit master tip.
+# Keep production on robertcashman-bit/Policestationrepuk master.
+# On drift (or wrong Vercel git link), re-link to bit and promote tip.
 name: Ops — production source guard
 
 on:
   schedule:
-    # Every 30 minutes
-    - cron: '7,37 * * * *'
+    # Every 5 minutes — fight droid-mirror races quickly.
+    - cron: '*/5 * * * *'
+  push:
+    branches: [master, main]
+    paths:
+      - '.github/workflows/ops-production-source-guard.yml'
+      - 'scripts/vercel-ignore-non-bit.sh'
+      - 'vercel.json'
   workflow_dispatch:
 
 concurrency:
@@ -15,50 +21,244 @@ concurrency:
 jobs:
   guard:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     permissions:
       contents: read
       actions: write
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_SCOPE: robert-cashmans-projects
+      BIT_ORG: robertcashman-bit
+      BIT_REPO: Policestationrepuk
+      BIT_REPO_ID: '1185472756'
+      BASE_URL: https://policestationrepuk.org
     steps:
-      - name: Check live version is on bit master
+      - name: Install Vercel CLI
+        run: npm install -g vercel@41.4.0
+
+      - name: Require secrets
+        run: |
+          if [ -z "${VERCEL_TOKEN:-}" ] || [ -z "${VERCEL_ORG_ID:-}" ] || [ -z "${VERCEL_PROJECT_ID:-}" ]; then
+            echo "VERCEL_TOKEN / VERCEL_ORG_ID / VERCEL_PROJECT_ID required"
+            exit 1
+          fi
+
+      - name: Inspect live health + Vercel git link
         id: check
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          HEALTH=$(curl -sS "https://policestationrepuk.org/api/health")
+          HEALTH=$(curl -sS "$BASE_URL/api/health")
           VER=$(echo "$HEALTH" | jq -r '.version // empty')
           echo "Live version: ${VER}"
           echo "version=${VER}" >> "$GITHUB_OUTPUT"
 
+          TIP=$(gh api "repos/${BIT_ORG}/${BIT_REPO}/commits/master" --jq .sha)
+          TIP_SHORT="${TIP:0:7}"
+          echo "tip=${TIP}" >> "$GITHUB_OUTPUT"
+          echo "tip_short=${TIP_SHORT}" >> "$GITHUB_OUTPUT"
+          echo "Bit master tip: ${TIP_SHORT}"
+
+          MATCH=0
+          if [ -n "$VER" ] && [ "$VER" != "local" ]; then
+            MATCH=$(gh api "repos/${BIT_ORG}/${BIT_REPO}/commits?sha=master&per_page=100" \
+              | jq --arg v "$VER" '[.[] | select(.sha|startswith($v))] | length')
+          fi
+
+          proj=$(curl -sS \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}?teamId=${VERCEL_ORG_ID}" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}")
+          LINK_ORG=$(echo "$proj" | jq -r '.link.org // .link.repoOwner // empty')
+          LINK_REPO=$(echo "$proj" | jq -r '.link.repo // .link.repoName // empty')
+          echo "Vercel git link: ${LINK_ORG}/${LINK_REPO}"
+          echo "link_org=${LINK_ORG}" >> "$GITHUB_OUTPUT"
+          echo "link_repo=${LINK_REPO}" >> "$GITHUB_OUTPUT"
+          echo "$proj" | jq '{name, productionBranch, link: .link}'
+
+          drift=false
+          reason=ok
           if [ -z "$VER" ] || [ "$VER" = "local" ]; then
-            echo "drift=true" >> "$GITHUB_OUTPUT"
-            echo "reason=missing-or-local-version" >> "$GITHUB_OUTPUT"
-            exit 0
+            drift=true
+            reason=missing-or-local-version
+          elif [ "$MATCH" = "0" ]; then
+            drift=true
+            reason=sha-not-on-bit-master
+          elif [ "$VER" != "$TIP_SHORT" ]; then
+            # On ancestry but not tip — still heal to tip so outreach worker stays current.
+            drift=true
+            reason=not-tip
           fi
 
-          # Resolve short SHA against bit repo tip ancestry.
-          # Note: `gh api --jq` does not accept `--arg`; pipe to jq instead.
-          MATCH=$(gh api "repos/${{ github.repository }}/commits?sha=master&per_page=100" \
-            | jq --arg v "$VER" '[.[] | select(.sha|startswith($v))] | length')
-          if [ "$MATCH" != "0" ]; then
-            echo "drift=false" >> "$GITHUB_OUTPUT"
-            echo "Live SHA is on bit master history"
-            exit 0
+          relink=false
+          if [ "$LINK_ORG" != "$BIT_ORG" ] || [ "$LINK_REPO" != "$BIT_REPO" ]; then
+            relink=true
+            drift=true
+            if [ "$reason" = "ok" ]; then
+              reason=wrong-git-link
+            else
+              reason="${reason}+wrong-git-link"
+            fi
           fi
 
-          echo "drift=true" >> "$GITHUB_OUTPUT"
-          echo "reason=sha-not-on-bit-master" >> "$GITHUB_OUTPUT"
+          echo "drift=${drift}" >> "$GITHUB_OUTPUT"
+          echo "relink=${relink}" >> "$GITHUB_OUTPUT"
+          echo "reason=${reason}" >> "$GITHUB_OUTPUT"
+          echo "Decision drift=${drift} relink=${relink} reason=${reason}"
 
-      - name: Re-promote bit master
+      - name: Re-link Vercel project to bit
         if: steps.check.outputs.drift == 'true'
+        run: |
+          set -euo pipefail
+          echo "Unlinking existing git connection (if any)"
+          curl -sS -w "\nHTTP %{http_code}\n" -X DELETE \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}/link?teamId=${VERCEL_ORG_ID}" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" || true
+
+          linked=false
+          for body in \
+            "{\"type\":\"github\",\"org\":\"${BIT_ORG}\",\"repo\":\"${BIT_REPO}\"}" \
+            "{\"type\":\"github\",\"repo\":\"${BIT_ORG}/${BIT_REPO}\"}" \
+            "{\"type\":\"github\",\"repoId\":${BIT_REPO_ID}}"; do
+            echo "Trying link body: $body"
+            resp=$(curl -sS -w "\nHTTP %{http_code}\n" -X POST \
+              "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}/link?teamId=${VERCEL_ORG_ID}" \
+              -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "$body")
+            echo "$resp"
+            if echo "$resp" | tail -1 | grep -qE 'HTTP (200|201)'; then
+              linked=true
+              break
+            fi
+          done
+          if [ "$linked" != "true" ]; then
+            echo "Git link failed — grant Vercel GitHub app access to ${BIT_ORG}/${BIT_REPO}"
+            exit 1
+          fi
+
+          curl -sS -X PATCH \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}?teamId=${VERCEL_ORG_ID}" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"productionBranch":"master"}' | jq '{name, productionBranch, link}'
+
+      - name: Promote bit master tip and hold production
+        if: steps.check.outputs.drift == 'true'
+        id: heal
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          SHA=$(gh api "repos/${{ github.repository }}/commits/master" --jq .sha)
-          echo "Production drifted (live=${{ steps.check.outputs.version }} reason=${{ steps.check.outputs.reason }})"
-          echo "Dispatching production deploy for ${SHA}"
-          gh workflow run "Deploy to Vercel (production)" \
-            --repo "${{ github.repository }}" \
-            -f sha="$SHA" \
-            -f confirm_production=PRODUCTION
+          TIP="${{ steps.check.outputs.tip }}"
+          TIP_SHORT="${{ steps.check.outputs.tip_short }}"
+          echo "Healing production drift (live=${{ steps.check.outputs.version }} reason=${{ steps.check.outputs.reason }}) → ${TIP_SHORT}"
+
+          API="https://api.vercel.com"
+          AUTH="Authorization: Bearer ${VERCEL_TOKEN}"
+
+          find_url() {
+            curl -sS "${API}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_ORG_ID}&limit=40" \
+              -H "${AUTH}" \
+              | jq -r --arg sha "$TIP" '.deployments[] | select(.meta.githubCommitSha == $sha) | .url' \
+              | head -1
+          }
+
+          URL="$(find_url || true)"
+          if [ -z "$URL" ]; then
+            echo "No deployment for ${TIP}; triggering git production build"
+            RESP=$(curl -sS -X POST "${API}/v13/deployments?teamId=${VERCEL_ORG_ID}" \
+              -H "${AUTH}" \
+              -H "Content-Type: application/json" \
+              -d "{\"name\":\"policestationrepuk-new\",\"project\":\"${VERCEL_PROJECT_ID}\",\"target\":\"production\",\"gitSource\":{\"type\":\"github\",\"repoId\":${BIT_REPO_ID},\"ref\":\"master\",\"sha\":\"${TIP}\"}}")
+            echo "$RESP" | jq '{id, url, readyState, error: .error}'
+            URL=$(echo "$RESP" | jq -r '.url // empty')
+          fi
+          if [ -z "$URL" ]; then
+            echo "Failed to locate/trigger deployment — dispatching Deploy workflow as fallback"
+            gh workflow run "Deploy to Vercel (production)" \
+              --repo "${BIT_ORG}/${BIT_REPO}" \
+              -f sha="$TIP" \
+              -f confirm_production=PRODUCTION
+            exit 0
+          fi
+
+          DEPLOY_URL="https://${URL#https://}"
+          HOST="${DEPLOY_URL#https://}"
+          for i in $(seq 1 60); do
+            STATE=$(curl -sS "${API}/v13/deployments/${HOST}?teamId=${VERCEL_ORG_ID}" \
+              -H "${AUTH}" | jq -r '.readyState // "UNKNOWN"')
+            echo "[$i/60] deployment state=${STATE}"
+            if [ "$STATE" = "READY" ]; then
+              break
+            fi
+            if [ "$STATE" = "ERROR" ] || [ "$STATE" = "CANCELED" ]; then
+              echo "Deployment failed: ${STATE}"
+              exit 1
+            fi
+            sleep 15
+          done
+
+          # Promote, then re-check for ~4 minutes in case a droid race rewrites the alias.
+          for hold in $(seq 1 8); do
+            echo "Promote attempt ${hold}/8 → ${DEPLOY_URL}"
+            set +e
+            promo_out=$(vercel promote "$DEPLOY_URL" --yes --scope="$VERCEL_SCOPE" --timeout=15m --token="$VERCEL_TOKEN" 2>&1)
+            promo_code=$?
+            set -e
+            echo "$promo_out"
+            if [ "$promo_code" -ne 0 ] && ! echo "$promo_out" | grep -qi 'already the current production'; then
+              exit "$promo_code"
+            fi
+
+            ok=false
+            for i in $(seq 1 6); do
+              CODE=$(curl -sS -o /tmp/health.json -w "%{http_code}" "$BASE_URL/api/health" || echo "000")
+              VER=$(jq -r '.version // empty' /tmp/health.json 2>/dev/null || true)
+              echo "  hold[${hold}] check[$i] HTTP ${CODE} version=${VER} want=${TIP_SHORT}"
+              if [ "$CODE" = "200" ] && [ "$VER" = "$TIP_SHORT" ]; then
+                ok=true
+                break
+              fi
+              sleep 5
+            done
+
+            if [ "$ok" = "true" ]; then
+              # Extra soak: confirm it does not flip within 30s.
+              sleep 30
+              VER=$(curl -sS "$BASE_URL/api/health" | jq -r '.version // empty')
+              echo "Soak version=${VER}"
+              if [ "$VER" = "$TIP_SHORT" ]; then
+                echo "Production held on ${TIP_SHORT}"
+                # Soft probe: autoheal route should exist on current tip.
+                AH=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE_URL/api/cron/firm-outreach-autoheal" || true)
+                echo "autoheal unauth HTTP ${AH} (expect 401/403, not 404)"
+                if [ "$AH" = "404" ]; then
+                  echo "autoheal still 404 after promote — unexpected for tip"
+                  exit 1
+                fi
+                exit 0
+              fi
+              echo "Drifted during soak — re-promoting"
+            else
+              echo "Health not on tip yet — re-promoting"
+            fi
+          done
+
+          echo "Could not hold production on ${TIP_SHORT}"
+          exit 1
+
+      - name: Confirm stable when already healthy
+        if: steps.check.outputs.drift != 'true'
+        run: |
+          set -euo pipefail
+          VER=$(curl -sS "$BASE_URL/api/health" | jq -r '.version // empty')
+          echo "Stable on ${VER} (bit tip ${{ steps.check.outputs.tip_short }})"
+          AH=$(curl -sS -o /dev/null -w "%{http_code}" "$BASE_URL/api/cron/firm-outreach-autoheal" || true)
+          echo "autoheal unauth HTTP ${AH}"
+          if [ "$AH" = "404" ]; then
+            echo "Tip claimed healthy but autoheal missing — forcing heal next run"
+            exit 1
+          fi

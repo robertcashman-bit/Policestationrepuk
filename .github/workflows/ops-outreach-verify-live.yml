@@ -1,0 +1,248 @@
+# Post-deploy live verification for dual-workspace outreach.
+# Ensures admin report email, clears common blockers, runs autoheal + bounded send.
+name: Ops — outreach live verify
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - '.github/workflows/ops-outreach-verify-live.yml'
+      - 'lib/firm-outreach/**'
+      - 'app/api/cron/firm-outreach-*/**'
+      - 'packages/firm-outreach-core/**'
+      - 'vercel.json'
+  workflow_run:
+    workflows:
+      - Deploy to Vercel (production)
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type VERIFY to run live outreach verification'
+        required: true
+        type: string
+
+concurrency:
+  group: outreach-live-verify
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'VERIFY') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       (github.event.workflow_run.head_branch == 'master' ||
+        github.event.workflow_run.head_branch == 'main'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      BASE_URL: https://policestationrepuk.org
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@41.4.0
+
+      - name: Pull production env
+        run: |
+          set -euo pipefail
+          if [ -z "${VERCEL_TOKEN:-}" ]; then
+            echo "VERCEL_TOKEN missing"
+            exit 1
+          fi
+          vercel env pull .env.production --environment=production --yes --token="$VERCEL_TOKEN"
+          echo "Pulled keys:"
+          grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .env.production | cut -d= -f1 | sort
+
+      - name: Ensure OUTREACH_ADMIN_EMAIL + read auth
+        env:
+          CRON_SECRET_FALLBACK: ${{ secrets.CRON_SECRET }}
+          BOOTSTRAP_FALLBACK: ${{ secrets.FIRM_OUTREACH_BOOTSTRAP_SECRET }}
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const text = fs.readFileSync('.env.production', 'utf8');
+          const env = {};
+          for (const raw of text.split(/\r?\n/)) {
+            const line = raw.trim();
+            if (!line || line.startsWith('#')) continue;
+            const m = /^(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(line);
+            if (!m) continue;
+            let v = m[2].trim();
+            if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+              v = v.slice(1, -1);
+            }
+            env[m[1]] = v;
+          }
+          const digest =
+            env.OUTREACH_ADMIN_EMAIL ||
+            env.FIRM_OUTREACH_DIGEST_EMAIL ||
+            env.BUFFER_SCHEDULER_NOTIFY_EMAIL ||
+            env.OWNER_EMAIL ||
+            '';
+          fs.writeFileSync(
+            'outreach-ops.env.json',
+            JSON.stringify(
+              {
+                digest,
+                hasOutreachAdmin: Boolean(env.OUTREACH_ADMIN_EMAIL),
+                dryRun: env.FIRM_OUTREACH_DRY_RUN || '',
+                sendEnabled: env.FIRM_OUTREACH_SEND_ENABLED || '',
+                paused: env.FIRM_OUTREACH_PAUSED || '',
+                requireApproval: env.FIRM_OUTREACH_REQUIRE_APPROVAL || '',
+              },
+              null,
+              2,
+            ),
+          );
+          console.log(
+            JSON.stringify({
+              hasOutreachAdmin: Boolean(env.OUTREACH_ADMIN_EMAIL),
+              hasDigest: Boolean(env.FIRM_OUTREACH_DIGEST_EMAIL),
+              dryRun: env.FIRM_OUTREACH_DRY_RUN || null,
+              sendEnabled: env.FIRM_OUTREACH_SEND_ENABLED || null,
+              paused: env.FIRM_OUTREACH_PAUSED || null,
+              requireApproval: env.FIRM_OUTREACH_REQUIRE_APPROVAL || null,
+              digestConfigured: Boolean(digest),
+            }),
+          );
+          NODE
+
+          CRON_SECRET="${CRON_SECRET_FALLBACK:-}"
+          BOOTSTRAP_SECRET="${BOOTSTRAP_FALLBACK:-}"
+          if [ -z "${CRON_SECRET}" ]; then
+            CRON_SECRET=$(python3 - <<'PY'
+          from pathlib import Path
+          for line in Path(".env.production").read_text().splitlines():
+              s=line.strip()
+              if s.startswith("CRON_SECRET="):
+                  v=s.split("=",1)[1]
+                  if len(v)>=2 and v[0]==v[-1] and v[0] in ("'",'"'): v=v[1:-1]
+                  print(v,end=""); break
+          PY
+            )
+          fi
+          if [ -z "${BOOTSTRAP_SECRET}" ]; then
+            BOOTSTRAP_SECRET=$(python3 - <<'PY'
+          from pathlib import Path
+          for line in Path(".env.production").read_text().splitlines():
+              s=line.strip()
+              if s.startswith("FIRM_OUTREACH_BOOTSTRAP_SECRET="):
+                  v=s.split("=",1)[1]
+                  if len(v)>=2 and v[0]==v[-1] and v[0] in ("'",'"'): v=v[1:-1]
+                  print(v,end=""); break
+          PY
+            )
+          fi
+          echo "auth cron_len=${#CRON_SECRET} bootstrap_len=${#BOOTSTRAP_SECRET}"
+          if [ -z "${CRON_SECRET}" ] && [ -z "${BOOTSTRAP_SECRET}" ]; then
+            echo "Missing CRON_SECRET / FIRM_OUTREACH_BOOTSTRAP_SECRET"
+            exit 1
+          fi
+          echo "CRON_SECRET=${CRON_SECRET}" >> "$GITHUB_ENV"
+          echo "FIRM_OUTREACH_BOOTSTRAP_SECRET=${BOOTSTRAP_SECRET}" >> "$GITHUB_ENV"
+
+          # Ensure OUTREACH_ADMIN_EMAIL on Vercel if missing but digest exists.
+          HAS_ADMIN=$(python3 - <<'PY'
+          import json
+          print('1' if json.load(open('outreach-ops.env.json')).get('hasOutreachAdmin') else '0')
+          PY
+          )
+          DIGEST=$(python3 - <<'PY'
+          import json
+          print(json.load(open('outreach-ops.env.json')).get('digest') or '')
+          PY
+          )
+          if [ "$HAS_ADMIN" = "0" ] && [ -n "$DIGEST" ]; then
+            echo "Setting OUTREACH_ADMIN_EMAIL from digest/fallback on Vercel production…"
+            printf '%s' "$DIGEST" | vercel env add OUTREACH_ADMIN_EMAIL production --token="$VERCEL_TOKEN" --force || \
+              printf '%s' "$DIGEST" | vercel env add OUTREACH_ADMIN_EMAIL production --token="$VERCEL_TOKEN" || true
+          elif [ -z "$DIGEST" ]; then
+            echo "WARNING: No OUTREACH_ADMIN_EMAIL / FIRM_OUTREACH_DIGEST_EMAIL configured"
+          else
+            echo "OUTREACH_ADMIN_EMAIL already present"
+          fi
+
+      - name: Wait for production SHA (best effort)
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            BODY=$(curl -fsS "$BASE_URL/api/health" || true)
+            echo "health: $BODY"
+            echo "$BODY" | grep -q '"ok":true' && exit 0
+            sleep 15
+          done
+          exit 1
+
+      - name: Status + autoheal + bounded send + report probe
+        run: |
+          set -euo pipefail
+          AUTH_HEADER="Authorization: Bearer ${CRON_SECRET}"
+          if [ -z "${CRON_SECRET:-}" ]; then
+            AUTH_HEADER="x-firm-outreach-bootstrap-secret: ${FIRM_OUTREACH_BOOTSTRAP_SECRET}"
+          fi
+
+          echo "== status =="
+          curl -fsS -H "$AUTH_HEADER" "$BASE_URL/api/cron/firm-outreach-status" | tee status.json | \
+            python3 -c 'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ["ok","sendHealthy","sendBlockers","resendQuotaRemaining","dryRun","sendAllowed"] if k in d or True}); print("campaigns", d.get("campaignSendHealth") or d.get("config",{}).get("campaignSendHealth"))'
+
+          echo "== autoheal (noSend first) =="
+          curl -fsS -H "$AUTH_HEADER" "$BASE_URL/api/cron/firm-outreach-autoheal?noSend=1" | tee autoheal1.json | \
+            python3 -c 'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ["ok","mode","faultCount","repairs","accepted","errors"]})'
+
+          echo "== outreach worker limit=5 =="
+          curl -fsS -H "$AUTH_HEADER" "$BASE_URL/api/cron/firm-outreach-send?limit=5" | tee send.json | \
+            python3 -c 'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ["ok","mode","accepted","claimed","jobsCreated","skipped","reason","runId"]}); print("byCampaign", d.get("byCampaign"))'
+
+          echo "== autoheal with send =="
+          curl -fsS -H "$AUTH_HEADER" "$BASE_URL/api/cron/firm-outreach-autoheal" | tee autoheal2.json | \
+            python3 -c 'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ["ok","faultCount","repairs","accepted","errors","capacity"]})'
+
+          echo "== daily report force (idempotent) =="
+          curl -fsS -H "$AUTH_HEADER" "$BASE_URL/api/cron/firm-outreach-daily-report?force=1" | tee report.json | \
+            python3 -c 'import json,sys; d=json.load(sys.stdin); print({k:d.get(k) for k in ["ok","mode","skipped","reason","alreadySent","reportDate","providerMessageId","acceptedTotal"]})'
+
+          python3 - <<'PY'
+          import json
+          send = json.load(open('send.json'))
+          report = json.load(open('report.json'))
+          status = json.load(open('status.json'))
+          accepted = send.get('accepted')
+          if accepted is None and isinstance(send.get('byCampaign'), dict):
+              accepted = sum((v or {}).get('accepted') or (v or {}).get('sent') or 0 for v in send['byCampaign'].values())
+          print('SUMMARY', {
+            'send_ok': send.get('ok'),
+            'accepted': accepted,
+            'claimed': send.get('claimed'),
+            'report_ok': report.get('ok'),
+            'report_provider_message_id': report.get('providerMessageId'),
+            'report_skipped': report.get('skipped'),
+            'status_ok': status.get('ok', True),
+          })
+          # Fail only on hard auth/route failures already raised by curl -fsS.
+          PY
+
+      - name: Upload ops artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: outreach-live-verify
+          path: |
+            status.json
+            autoheal1.json
+            send.json
+            autoheal2.json
+            report.json
+            outreach-ops.env.json
+          if-no-files-found: ignore

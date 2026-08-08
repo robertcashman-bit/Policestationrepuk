@@ -54,6 +54,18 @@ Campaigns:
 7. Harden `claimKey` for `true | "OK"`.
 8. Operator scripts: `outreach:doctor`, `outreach:dry-run`, `outreach:test-send`, `outreach:process`, `outreach:recover-stale`.
 9. Docs: `docs/outreach-system.md` + this diagnosis.
+10. **2026-08-08 rebuild:** `getOutreachCapacity`, 15-min outreach worker, staggered autoheal, consolidated 07:00 Europe/London dual-workspace daily report, dual dashboard, legacy digest/zero-send emails disabled. See `docs/outreach-autoheal-reporting.md`.
+
+### Root causes of “0 emails sent” / vague limit reports (confirmed)
+
+| Cause | Mechanism |
+|-------|-----------|
+| Phase-1 enqueue starved Phase-2 drain | Dual-campaign elapsed budget consumed before `jobsClaimed` |
+| Sparse send cron (2–3×/day) | Pending jobs idle for hours; abandoned leases unrecovered |
+| Soft Resend budget (~90/day) reported vaguely | `resend_quota` skip without naming limit/used/remaining/reset |
+| Digest “sentToday” mixed UTC KV + London receipts | Stale/wrong zero figures in operator emails |
+| Digest scoped to RepUK only | PSA activity invisible in routine reports |
+| Routine failure/zero-send emails | Noise without authoritative dual-workspace truth |
 
 ## Verification checklist
 

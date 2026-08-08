@@ -268,8 +268,11 @@ export async function countEmailJobsByStatus(): Promise<Partial<Record<EmailJobS
     'unsubscribed',
     'suppressed',
     'failed',
+    'temporary_failure',
     'retry_scheduled',
     'permanently_failed',
+    'cancelled',
+    'manual_reconciliation_required',
   ];
   const out: Partial<Record<EmailJobStatus, number>> = {};
   for (const s of statuses) {

@@ -44,15 +44,24 @@ describe('vercel.json cron routes', () => {
     expect(byPath.get('/api/cron/automation-watchdog')).toBe('20 */6 * * *');
   });
 
-  it('uses cost-aware schedules for high-frequency jobs', () => {
+  it('schedules frequent outreach worker + autoheal + 07:00 London report', () => {
     const vercel = JSON.parse(
       readFileSync(join(ROOT, 'vercel.json'), 'utf8'),
     ) as { crons?: Array<{ path: string; schedule: string }> };
     const enrich = (vercel.crons ?? []).filter((c) => c.path === '/api/cron/firm-outreach-enrich');
     const send = (vercel.crons ?? []).filter((c) => c.path === '/api/cron/firm-outreach-send');
+    const autoheal = (vercel.crons ?? []).filter((c) => c.path === '/api/cron/firm-outreach-autoheal');
+    const dailyReport = (vercel.crons ?? []).filter(
+      (c) => c.path === '/api/cron/firm-outreach-daily-report',
+    );
     const byPath = new Map((vercel.crons ?? []).map((c) => [c.path, c.schedule]));
     expect(enrich).toHaveLength(2);
-    expect(send).toHaveLength(2);
+    expect(send).toHaveLength(1);
+    expect(send[0]?.schedule).toBe('*/15 * * * *');
+    expect(autoheal).toHaveLength(1);
+    expect(autoheal[0]?.schedule).toBe('5,20,35,50 * * * *');
+    expect(dailyReport).toHaveLength(1);
+    expect(dailyReport[0]?.schedule).toBe('0 6,7 * * *');
     expect(byPath.get('/api/cron/custody-number-discovery')).toBe('0 6 * * *');
     expect(byPath.get('/api/cron/custody-discovery-ai-review')).toBe('30 9 * * *');
     expect(byPath.get('/api/cron/buffer-selftest')).toBe('0 6 * * 1');

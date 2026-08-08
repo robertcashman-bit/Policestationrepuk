@@ -5,7 +5,6 @@ import { outreachEnabled, outreachSendEnabled } from './constants';
 import { cleanupNonFirmProspectEmails } from './cleanup-non-firm-emails';
 import { runFirmDiscovery } from './discovery/run-discovery';
 import { runFirmEnrichment } from './enrichment/run-enrich';
-import { sendDailyOutreachDigest } from './outreach/digest-email';
 import { getOutreachSendHealth } from './outreach/from-address';
 import { maybeNotifyOutreachSendFailure } from './outreach/send-failure-email';
 import {
@@ -71,9 +70,7 @@ export async function runFirmOutreachPipeline(opts?: {
   const started = Date.now();
 
   if (!outreachEnabled()) {
-    if (!opts?.skipDigest) {
-      await sendDailyOutreachDigest();
-    }
+    // Routine digests removed — consolidated 07:00 London report only.
     return {
       skipped: true,
       reason: 'FIRM_OUTREACH_ENABLED=false',
@@ -201,17 +198,9 @@ export async function runFirmOutreachPipeline(opts?: {
     }
   }
 
-  if (!opts?.skipDigest) {
-    await sendDailyOutreachDigest({
-      pipeline: {
-        discovery,
-        enrich,
-        send,
-        counts,
-        laaRefreshed: laaResult.refreshed,
-      },
-    });
-  }
+  // Routine post-pipeline digests removed (Phase 9/20).
+  // Exactly one consolidated admin email: /api/cron/firm-outreach-daily-report.
+  void opts?.skipDigest;
 
   return {
     skipped: false,

@@ -88,6 +88,7 @@ vi.mock('@/lib/firm-outreach/sync-kent-to-agent-cover', () => ({
     skippedSuppressed: 0,
     skippedDuplicate: 0,
     skippedExistingSent: 0,
+    skippedAlreadyReady: 0,
     dryRun: false,
   })),
 }));

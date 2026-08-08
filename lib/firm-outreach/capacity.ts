@@ -16,6 +16,7 @@ import {
 import { isOutreachSendAllowed } from './pause-state';
 import {
   countEmailJobsByStatus,
+  getEmailJob,
   listEmailJobIdsByStatus,
 } from './email-jobs/storage';
 import {
@@ -132,21 +133,25 @@ export async function getOutreachCapacity(
     getDailySendCount(utcDate, workspace.campaignId),
     getResendSendCount(utcDate),
     getGlobalResendQuotaRemaining(utcDate),
-    getHourlySendCount(hourBucket, workspace.campaignId),
+    getHourlySendCount(workspace.campaignId, hourBucket),
   ]);
 
-  // Pending jobs for this workspace — sample pending list (status index is global).
+  // Status indexes are global — filter pending/retry samples to this workspace.
   const pendingIds = await listEmailJobIdsByStatus('pending', 200);
   const retryIds = await listEmailJobIdsByStatus('retry_scheduled', 200);
-  // Status counts are global; pendingJobs below uses campaign-filtered sample when cheap.
-  // Prefer global status totals for dashboard health; capacity uses min of eligible+pending.
-  const pendingJobs = jobCounts.pending ?? 0;
-  const retryScheduledJobs = jobCounts.retry_scheduled ?? 0;
+  let pendingJobs = 0;
+  let retryScheduledJobs = 0;
+  for (const id of pendingIds) {
+    const job = await getEmailJob(id);
+    if (job?.campaignId === workspace.campaignId) pendingJobs++;
+  }
+  for (const id of retryIds) {
+    const job = await getEmailJob(id);
+    if (job?.campaignId === workspace.campaignId) retryScheduledJobs++;
+  }
+  // Claimed/processing stay global for overlap observability only.
   const claimedJobs = jobCounts.claimed ?? 0;
   const processingJobs = jobCounts.processing ?? 0;
-
-  void pendingIds;
-  void retryIds;
 
   const providerLimitRaw = resendDailyLimit();
   const providerBudgetUnlimited = isResendDailyLimitUnlimited(providerLimitRaw);

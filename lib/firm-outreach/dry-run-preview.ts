@@ -1,4 +1,5 @@
 import {
+  buildOutreachIdempotencyKey,
   bumpSkipReason,
   createEmptySkipReasons,
   nextOutreachStep,
@@ -8,6 +9,7 @@ import {
   AGENT_COVER_KENT_CAMPAIGN_ID,
 } from './campaign-scope';
 import { dailySendCap } from './constants';
+import { getEmailJobByIdempotencyKey } from './email-jobs/storage';
 import { isPlausibleOutreachEmail, validateEmailForSend } from './enrichment/validator';
 import { qualifyProspectForOutreach } from './qualification';
 import {
@@ -204,6 +206,23 @@ export async function previewFirmOutreachDryRun(opts?: {
       bumpSkipReason(skipReasons, 'duplicate');
       preview.push(row);
       continue;
+    }
+
+    // Align preview with worker: durable terminal jobs cannot be re-sent.
+    if (step !== null) {
+      const idemKey = buildOutreachIdempotencyKey(campaignId, normalizedEmail, step);
+      const existingJob = await getEmailJobByIdempotencyKey(idemKey);
+      if (
+        existingJob &&
+        (existingJob.status === 'accepted' ||
+          existingJob.status === 'delivered' ||
+          existingJob.status === 'permanently_failed')
+      ) {
+        row.skipReason = 'idempotent_exists';
+        bumpSkipReason(skipReasons, 'idempotent_exists');
+        preview.push(row);
+        continue;
+      }
     }
 
     if (

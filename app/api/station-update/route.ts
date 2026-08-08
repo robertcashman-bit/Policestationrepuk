@@ -111,10 +111,23 @@ export async function POST(request: Request) {
       submitterEmail,
     };
 
-    const [submissionId] = await Promise.all([
-      saveSubmission('station-update', payload),
-      sendStationUpdateNotification(payload),
-    ]);
+    let submissionId: string;
+    try {
+      submissionId = await saveSubmission('station-update', payload);
+    } catch {
+      return NextResponse.json(
+        {
+          error:
+            'Unable to save your suggestion right now. Please try again shortly or email us directly.',
+        },
+        { status: 503 },
+      );
+    }
+
+    const notified = await sendStationUpdateNotification(payload);
+    if (!notified) {
+      console.error('[station-update] notification failed after durable save', { id: submissionId });
+    }
 
     await savePendingStationUpdate({
       id: submissionId,

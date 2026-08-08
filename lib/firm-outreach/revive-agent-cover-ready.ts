@@ -1,4 +1,6 @@
+import { buildOutreachIdempotencyKey } from '@robertcashman/firm-outreach-core';
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from './campaign-scope';
+import { getEmailJobByIdempotencyKey } from './email-jobs/storage';
 import { normalizeEmail } from './normalize';
 import {
   getProspectsByIds,
@@ -17,6 +19,8 @@ export interface ReviveAgentCoverStats {
   skippedSuppressed: number;
   skippedTerminal: number;
   skippedHasSend: number;
+  /** Durable terminal PSA jobs (accepted/delivered/permanently_failed) for step 0. */
+  skippedTerminalJob: number;
   /** Retained for API compat; always 0 (recipients are nationwide). */
   skippedNotKent: number;
   dryRun: boolean;
@@ -33,6 +37,8 @@ const SCAN_STATUSES: FirmProspectStatus[] = [
 ];
 
 const SUCCESS_SEND = new Set(['sent', 'delivered', 'opened', 'clicked']);
+
+const TERMINAL_JOB = new Set(['accepted', 'delivered', 'permanently_failed']);
 
 function isSoftExclusion(reason: string | undefined): boolean {
   if (!reason) return true;
@@ -59,6 +65,10 @@ function scoreProspect(p: FirmProspect): number {
  * Revive PSA prospects nationwide that have email but are stuck excluded
  * (including former not_kent_for_agent_cover) when no successful PSA send exists.
  * Offer copy remains Kent cover; audience is England & Wales criminal defence.
+ *
+ * Does NOT revive when a durable PSA job already terminal-accepted/failed —
+ * that loop previously kept readyEligible high while the worker skipped
+ * everything as idempotent_exists.
  */
 export async function reviveAgentCoverKentReady(opts?: {
   dryRun?: boolean;
@@ -77,6 +87,7 @@ export async function reviveAgentCoverKentReady(opts?: {
     skippedSuppressed: 0,
     skippedTerminal: 0,
     skippedHasSend: 0,
+    skippedTerminalJob: 0,
     skippedNotKent: 0,
     dryRun,
     elapsedMs: 0,
@@ -99,6 +110,11 @@ export async function reviveAgentCoverKentReady(opts?: {
       for (const p of map.values()) {
         if (p.campaignId !== AGENT_COVER_KENT_CAMPAIGN_ID || !p.email?.trim()) continue;
         stats.scanned++;
+        // Never soft-revive terminal send failures — worker cannot re-enqueue them.
+        if (p.status === 'excluded' && p.excludedReason === 'send_permanently_failed') {
+          stats.skippedTerminal++;
+          continue;
+        }
         if (p.status === 'excluded' && !isSoftExclusion(p.excludedReason)) continue;
         if (p.status === 'bounced' || p.status === 'unsubscribed') continue;
 
@@ -134,6 +150,38 @@ export async function reviveAgentCoverKentReady(opts?: {
     );
     if (sends.some((s) => SUCCESS_SEND.has(s.status))) {
       stats.skippedHasSend++;
+      continue;
+    }
+
+    const step = 0;
+    const idemKey = buildOutreachIdempotencyKey(AGENT_COVER_KENT_CAMPAIGN_ID, email, step);
+    const existingJob = await getEmailJobByIdempotencyKey(idemKey);
+    if (existingJob && TERMINAL_JOB.has(existingJob.status)) {
+      stats.skippedTerminalJob++;
+      // Reconcile accepted/delivered jobs into sent so they leave the ready pool.
+      const winner = [...rows].sort((a, b) => scoreProspect(b) - scoreProspect(a))[0]!;
+      if (
+        !dryRun &&
+        (existingJob.status === 'accepted' || existingJob.status === 'delivered') &&
+        winner.status !== 'sent'
+      ) {
+        const prev = winner.status;
+        winner.status = 'sent';
+        winner.lastEmailAt = existingJob.acceptedAt ?? existingJob.updatedAt ?? winner.updatedAt;
+        winner.excludedReason = undefined;
+        winner.updatedAt = new Date().toISOString();
+        await saveProspect(winner, prev);
+      } else if (
+        !dryRun &&
+        existingJob.status === 'permanently_failed' &&
+        winner.excludedReason !== 'send_permanently_failed'
+      ) {
+        const prev = winner.status;
+        winner.status = 'excluded';
+        winner.excludedReason = 'send_permanently_failed';
+        winner.updatedAt = new Date().toISOString();
+        await saveProspect(winner, prev);
+      }
       continue;
     }
 

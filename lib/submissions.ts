@@ -1,6 +1,18 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { getKV } from '@/lib/kv';
 
+export class SubmissionPersistError extends Error {
+  constructor(message = 'No durable store accepted the submission') {
+    super(message);
+    this.name = 'SubmissionPersistError';
+  }
+}
+
+/**
+ * Persist a public-form submission. Returns the id only when KV or Supabase
+ * accepted the write. Throws {@link SubmissionPersistError} when neither store
+ * is available / writable — callers must not report success to the user then.
+ */
 export async function saveSubmission(
   type: 'contact' | 'registration' | 'station-update' | 'lead-magnet',
   data: Record<string, unknown>,
@@ -29,7 +41,10 @@ export async function saveSubmission(
 
   if (isSupabaseConfigured && supabase) {
     try {
-      await supabase.from('submissions').insert(record);
+      const { error } = await supabase.from('submissions').insert(record);
+      if (error) {
+        throw new Error(error.message);
+      }
       return id;
     } catch (err) {
       console.error(
@@ -39,7 +54,7 @@ export async function saveSubmission(
     }
   }
 
-  // Privacy-safe fallback — never log full PII payloads to runtime logs.
-  console.info('[saveSubmission — no durable store]', { id, type, submitted_at });
-  return id;
+  // Privacy-safe — never log full PII payloads. Do not pretend persistence succeeded.
+  console.error('[saveSubmission — no durable store]', { id, type, submitted_at });
+  throw new SubmissionPersistError();
 }

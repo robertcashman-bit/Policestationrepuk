@@ -5,7 +5,10 @@ import { requireAdmin } from '@/lib/admin-auth';
 import { getClientIp, rateLimitOk } from '@/lib/contact-guards';
 import { detectImageMimeFromBytes } from '@/lib/image-magic-bytes';
 import { resolveManagementToken } from '@/lib/legal-directory/storage';
-import { consumeLogoUploadToken } from '@/lib/legal-directory/logo-upload-token';
+import {
+  consumeLogoUploadToken,
+  restoreLogoUploadToken,
+} from '@/lib/legal-directory/logo-upload-token';
 
 export const runtime = 'nodejs';
 
@@ -97,6 +100,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, url: blob.url });
   } catch (err) {
     console.error('[legal-directory/logo] upload failed');
+    // Do not burn a valid one-shot token when storage fails after consume.
+    if (hasUploadToken && typeof uploadToken === 'string') {
+      await restoreLogoUploadToken(uploadToken);
+    }
     return NextResponse.json({ error: 'Upload failed.' }, { status: 500 });
   }
 }

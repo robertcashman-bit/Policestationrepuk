@@ -41,6 +41,24 @@ export async function consumeLogoUploadToken(token: string | null | undefined): 
   return Boolean(existing);
 }
 
+/**
+ * Restore a previously consumed one-shot token (e.g. Blob put() failed after
+ * consume). Best-effort — short remaining TTL is fine.
+ */
+export async function restoreLogoUploadToken(token: string | null | undefined): Promise<void> {
+  if (!token || typeof token !== 'string' || token.length < 16) return;
+  const kv = getKV();
+  if (!kv) {
+    memoryTokens.set(token, Date.now() + LOGO_UPLOAD_TOKEN_TTL_SECONDS * 1000);
+    return;
+  }
+  try {
+    await kv.set(tokenKey(token), { createdAt: Date.now() }, { ex: LOGO_UPLOAD_TOKEN_TTL_SECONDS });
+  } catch {
+    /* ignore — caller already returns 500 */
+  }
+}
+
 /** In-memory fallback for local/preview without KV. */
 const memoryTokens = new Map<string, number>();
 

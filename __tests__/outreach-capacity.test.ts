@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockCountJobs = vi.fn();
 const mockListJobIds = vi.fn();
+const mockGetEmailJob = vi.fn();
 const mockDailyCount = vi.fn();
 const mockResendCount = vi.fn();
 const mockQuotaRemaining = vi.fn();
@@ -12,6 +13,7 @@ const mockSendAllowed = vi.fn();
 vi.mock('@/lib/firm-outreach/email-jobs/storage', () => ({
   countEmailJobsByStatus: (...a: unknown[]) => mockCountJobs(...a),
   listEmailJobIdsByStatus: (...a: unknown[]) => mockListJobIds(...a),
+  getEmailJob: (...a: unknown[]) => mockGetEmailJob(...a),
 }));
 
 vi.mock('@/lib/firm-outreach/storage', () => ({
@@ -43,6 +45,7 @@ describe('getOutreachCapacity', () => {
     mockSendAllowed.mockResolvedValue(true);
     mockCountJobs.mockResolvedValue({ pending: 3, retry_scheduled: 1, claimed: 0, processing: 0 });
     mockListJobIds.mockResolvedValue([]);
+    mockGetEmailJob.mockResolvedValue(null);
     mockDailyCount.mockResolvedValue(0);
     mockResendCount.mockResolvedValue(10);
     mockQuotaRemaining.mockResolvedValue(80);
@@ -94,5 +97,30 @@ describe('getOutreachCapacity', () => {
     mockCountJobs.mockResolvedValue({ pending: 0, retry_scheduled: 0 });
     const cap = await getOutreachCapacity('repuk');
     expect(cap.limitingFactor).toBe('no_eligible_leads');
+  });
+
+  it('counts pending jobs only for the requested workspace campaign', async () => {
+    mockListReady.mockResolvedValue([]);
+    mockListJobIds.mockImplementation(async (status: string) => {
+      if (status === 'pending') return ['job_repuk', 'job_psa'];
+      return [];
+    });
+    mockGetEmailJob.mockImplementation(async (id: string) => {
+      if (id === 'job_repuk') {
+        return { id, campaignId: 'whatsapp_invite_v1', status: 'pending' };
+      }
+      if (id === 'job_psa') {
+        return { id, campaignId: 'agent_cover_kent_v1', status: 'pending' };
+      }
+      return null;
+    });
+    const psa = await getOutreachCapacity('psa');
+    expect(psa.pendingJobs).toBe(1);
+    expect(psa.limitingFactor).toBe('pending_jobs_only');
+  });
+
+  it('calls getHourlySendCount with campaignId first', async () => {
+    await getOutreachCapacity('psa');
+    expect(mockHourly).toHaveBeenCalledWith('agent_cover_kent_v1', '2026-08-08T12');
   });
 });

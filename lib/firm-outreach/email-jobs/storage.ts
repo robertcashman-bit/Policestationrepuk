@@ -297,48 +297,63 @@ export async function claimNextEmailJob(opts: {
   const leaseSeconds = opts.leaseSeconds ?? DEFAULT_EMAIL_JOB_LEASE_SECONDS;
   const nowMs = now.getTime();
 
-  let candidateIds: string[] = [];
-  try {
-    const due = await kv.zrange(JOB_PENDING_ZSET, 0, nowMs, {
-      byScore: true,
-      offset: 0,
-      count: 80,
-    });
-    if (Array.isArray(due)) candidateIds = due.map(String);
-  } catch {
-    /* fallback below */
-  }
+  // When filtering by campaign, page through the global due zset — the first
+  // 80 members are often all RepUK, which previously starved PSA claims.
+  const PAGE = 80;
+  const maxPages = opts.campaignId ? 25 : 1;
 
-  if (candidateIds.length === 0) {
-    const pending = await listEmailJobIdsByStatus('pending', 80);
-    const retry = await listEmailJobIdsByStatus('retry_scheduled', 80);
-    candidateIds = [...pending, ...retry];
-  }
-
-  for (const id of candidateIds) {
-    const job = await getEmailJob(id);
-    if (!job) continue;
-    if (opts.campaignId && job.campaignId !== opts.campaignId) continue;
-    if (!EMAIL_JOB_CLAIMABLE_STATUSES.has(job.status)) continue;
-    if (job.status === 'retry_scheduled' && job.nextRetryAt) {
-      if (Date.parse(job.nextRetryAt) > nowMs) continue;
+  for (let page = 0; page < maxPages; page++) {
+    let candidateIds: string[] = [];
+    try {
+      const due = await kv.zrange(JOB_PENDING_ZSET, 0, nowMs, {
+        byScore: true,
+        offset: page * PAGE,
+        count: PAGE,
+      });
+      if (Array.isArray(due)) candidateIds = due.map(String);
+    } catch {
+      /* fallback below */
     }
 
-    const leased = await claimKey(
-      `firmoutreach:job:lease:${job.id}`,
-      leaseSeconds,
-      opts.owner,
-    );
-    if (!leased) continue;
+    if (candidateIds.length === 0 && page === 0) {
+      const pending = await listEmailJobIdsByStatus('pending', opts.campaignId ? 400 : 80);
+      const retry = await listEmailJobIdsByStatus(
+        'retry_scheduled',
+        opts.campaignId ? 400 : 80,
+      );
+      candidateIds = [...pending, ...retry];
+    }
 
-    const prev = job.status;
-    job.status = 'claimed';
-    job.claimedAt = now.toISOString();
-    job.claimOwner = opts.owner;
-    job.claimExpiresAt = new Date(nowMs + leaseSeconds * 1000).toISOString();
-    job.updatedAt = now.toISOString();
-    await saveEmailJob(job, prev);
-    return job;
+    if (candidateIds.length === 0) break;
+
+    for (const id of candidateIds) {
+      const job = await getEmailJob(id);
+      if (!job) continue;
+      if (opts.campaignId && job.campaignId !== opts.campaignId) continue;
+      if (!EMAIL_JOB_CLAIMABLE_STATUSES.has(job.status)) continue;
+      if (job.status === 'retry_scheduled' && job.nextRetryAt) {
+        if (Date.parse(job.nextRetryAt) > nowMs) continue;
+      }
+
+      const leased = await claimKey(
+        `firmoutreach:job:lease:${job.id}`,
+        leaseSeconds,
+        opts.owner,
+      );
+      if (!leased) continue;
+
+      const prev = job.status;
+      job.status = 'claimed';
+      job.claimedAt = now.toISOString();
+      job.claimOwner = opts.owner;
+      job.claimExpiresAt = new Date(nowMs + leaseSeconds * 1000).toISOString();
+      job.updatedAt = now.toISOString();
+      await saveEmailJob(job, prev);
+      return job;
+    }
+
+    // Status-list fallback is unordered — only use it on the first empty zset page.
+    if (!opts.campaignId) break;
   }
 
   return null;

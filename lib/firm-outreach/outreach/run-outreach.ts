@@ -656,8 +656,27 @@ export async function runFirmOutreach(opts?: {
           enqueued.job.status === 'permanently_failed'
         ) {
           recordSkip(stats, 'idempotent_exists');
+          // Reconcile ready rows out of the sendable pool. Marking them
+          // duplicate_email was wrong: revive treated that as soft and put
+          // them straight back to ready_to_send (PSA starvation loop).
           if (step === 0 && prospect.status === 'ready_to_send') {
-            await excludeProspectDuplicateEmail(prospect);
+            const prevStatus = prospect.status;
+            if (
+              enqueued.job.status === 'accepted' ||
+              enqueued.job.status === 'delivered'
+            ) {
+              prospect.status = 'sent';
+              prospect.lastEmailAt =
+                enqueued.job.acceptedAt ?? enqueued.job.updatedAt ?? new Date().toISOString();
+              prospect.excludedReason = undefined;
+              prospect.updatedAt = new Date().toISOString();
+              await saveProspect(prospect, prevStatus);
+            } else {
+              prospect.status = 'excluded';
+              prospect.excludedReason = 'send_permanently_failed';
+              prospect.updatedAt = new Date().toISOString();
+              await saveProspect(prospect, prevStatus);
+            }
           }
         }
       }

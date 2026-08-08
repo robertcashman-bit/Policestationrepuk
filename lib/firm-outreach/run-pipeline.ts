@@ -141,10 +141,12 @@ export async function runFirmOutreachPipeline(opts?: {
       limit: enrichLimit,
       maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
     });
-    const kentLimit = Math.min(15, Math.max(1, Math.floor(enrichLimit / 4)));
+    // PSA previously capped at enrichLimit/4 (≤15) and stayed emailless while
+    // RepUK took the full batch. Give PSA a peer budget so sync is not the only supply.
+    const psaEnrichLimit = Math.max(40, Math.floor(enrichLimit / 2));
     agentCoverEnrich = await runFirmEnrichment({
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-      limit: kentLimit,
+      limit: psaEnrichLimit,
       maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
     });
     }

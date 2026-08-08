@@ -117,9 +117,24 @@ describe('logo upload route auth', () => {
       'utf-8',
     );
     expect(src).toContain('consumeLogoUploadToken');
+    expect(src).toContain('restoreLogoUploadToken');
     expect(src).toContain('requireAdmin');
     expect(src).toContain('detectImageMimeFromBytes');
     expect(src).toContain('rateLimitOk');
+  });
+});
+
+describe('submissions durability', () => {
+  it('throws when no durable store accepts the write (source guard)', () => {
+    const src = readFileSync(join(process.cwd(), 'lib/submissions.ts'), 'utf-8');
+    expect(src).toContain('SubmissionPersistError');
+    expect(src).toContain('throw new SubmissionPersistError');
+  });
+
+  it('contact route does not return ok when saveSubmission fails', () => {
+    const src = readFileSync(join(process.cwd(), 'app/api/contact/route.ts'), 'utf-8');
+    expect(src).toContain('status: 503');
+    expect(src).toMatch(/saveSubmission\([\s\S]*?catch/);
   });
 });
 

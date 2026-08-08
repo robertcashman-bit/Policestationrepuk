@@ -22,6 +22,8 @@ export interface SyncKentToAgentCoverStats {
   skippedSuppressed: number;
   skippedDuplicate: number;
   skippedExistingSent: number;
+  /** Already-cloned ready PSA rows — not counted toward the create/update budget. */
+  skippedAlreadyReady: number;
   dryRun: boolean;
   truncated: boolean;
   elapsedMs: number;
@@ -103,6 +105,7 @@ export async function syncKentProspectsToAgentCover(opts?: {
     skippedSuppressed: 0,
     skippedDuplicate: 0,
     skippedExistingSent: 0,
+    skippedAlreadyReady: 0,
     dryRun,
     truncated: false,
     elapsedMs: 0,
@@ -176,6 +179,20 @@ export async function syncKentProspectsToAgentCover(opts?: {
         continue;
       }
 
+      // Do not burn the create/update budget re-saving already-ready PSA clones.
+      // This was starving new nationwide inventory (sync truncated after ~200 no-ops).
+      if (
+        existing &&
+        existing.status === 'ready_to_send' &&
+        !existing.excludedReason &&
+        existing.email &&
+        built.email &&
+        existing.email.trim().toLowerCase() === built.email.trim().toLowerCase()
+      ) {
+        stats.skippedAlreadyReady++;
+        continue;
+      }
+
       if (
         built.email &&
         (await isDuplicateInitialSend(built.email, built.id, AGENT_COVER_KENT_CAMPAIGN_ID))
@@ -223,6 +240,18 @@ export async function syncKentProspectsToAgentCover(opts?: {
         merged.status = 'ready_to_send';
         merged.excludedReason = undefined;
       }
+
+      // Skip no-op writes so the budget advances past the same head forever.
+      const meaningfulChange =
+        merged.status !== existing.status ||
+        merged.email !== existing.email ||
+        merged.excludedReason !== existing.excludedReason ||
+        merged.websiteUrl !== existing.websiteUrl;
+      if (!meaningfulChange) {
+        stats.skippedAlreadyReady++;
+        continue;
+      }
+
       await saveProspect(merged, existing.status);
       stats.updated++;
     }

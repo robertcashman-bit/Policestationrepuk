@@ -62,10 +62,25 @@ export async function POST(request: Request) {
       );
     }
 
-    const [submissionId] = await Promise.all([
-      saveSubmission('contact', { name, email, subject, message }),
-      sendContactNotification({ name, email, subject: subject ?? undefined, message }),
-    ]);
+    let submissionId: string;
+    try {
+      submissionId = await saveSubmission('contact', { name, email, subject, message });
+    } catch {
+      return NextResponse.json(
+        { error: 'Unable to save your enquiry right now. Please try again or email us directly.' },
+        { status: 503 },
+      );
+    }
+
+    const notified = await sendContactNotification({
+      name,
+      email,
+      subject: subject ?? undefined,
+      message,
+    });
+    if (!notified) {
+      console.error('[contact] notification failed after durable save', { id: submissionId });
+    }
 
     return NextResponse.json({
       ok: true,

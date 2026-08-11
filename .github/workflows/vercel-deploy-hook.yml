@@ -306,3 +306,49 @@ jobs:
           check_path /directory 200
           check_path /register 200
           check_path /admin/automation 200
+
+      - name: Heal cross-site Buffer sibling quotas
+        env:
+          CRON_SECRET_FALLBACK: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          CRON_SECRET="${CRON_SECRET_FALLBACK:-}"
+          if [ -z "${CRON_SECRET}" ] && [ -n "${VERCEL_TOKEN}" ]; then
+            # Deploy job has no prior checkout; need repo for vercel project link.
+            git clone --depth 1 "https://github.com/${GITHUB_REPOSITORY}.git" /tmp/repuk-env
+            cd /tmp/repuk-env
+            vercel link --yes --project="${VERCEL_PROJECT_ID}" --scope="${VERCEL_SCOPE}" --token="${VERCEL_TOKEN}" || true
+            vercel env pull .env.production --environment=production --yes --token="${VERCEL_TOKEN}"
+            CRON_SECRET=$(python3 - <<'PY'
+          from pathlib import Path
+          for line in Path(".env.production").read_text().splitlines():
+              s = line.strip()
+              if not s or s.startswith("#"):
+                  continue
+              if s.startswith("export "):
+                  s = s[len("export "):]
+              if s.startswith("CRON_SECRET="):
+                  val = s.split("=", 1)[1]
+                  if len(val) >= 2 and val[0] == val[-1] and val[0] in ("'", '"'):
+                      val = val[1:-1]
+                  print(val, end="")
+                  break
+          PY
+            )
+          fi
+          if [ -z "${CRON_SECRET}" ]; then
+            echo "::warning::CRON_SECRET missing — skip sibling Buffer repair"
+            exit 0
+          fi
+          CODE=$(curl -sS -o /tmp/sibling-repair.json -w "%{http_code}" \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            --max-time 290 \
+            "https://policestationrepuk.org/api/cron/buffer-sibling-repair")
+          echo "HTTP ${CODE}"
+          cat /tmp/sibling-repair.json
+          echo
+          if [ "$CODE" != "200" ]; then
+            echo "::warning::Sibling Buffer repair returned HTTP ${CODE}"
+            exit 0
+          fi
+          echo "Sibling repair OK"

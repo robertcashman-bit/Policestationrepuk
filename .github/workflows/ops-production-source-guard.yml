@@ -257,15 +257,20 @@ jobs:
           fi
 
           for path in \
+            '/api/cron/buffer-sibling-repair' \
             '/api/cron/firm-outreach-psa-sync?limit=300' \
             '/api/cron/firm-outreach-discovery' \
             '/api/cron/firm-outreach-bootstrap?seedAgentCover=1&campaignId=agent_cover_kent_v1&batches=2&limit=60' \
             '/api/cron/firm-outreach-send?limit=45'
           do
             echo "== $path =="
-            code=$(curl -sS -m 180 -o /tmp/step.json -w '%{http_code}' "${AUTH_HEADER[@]}" "$BASE_URL$path" || echo 000)
+            code=$(curl -sS -m 290 -o /tmp/step.json -w '%{http_code}' "${AUTH_HEADER[@]}" "$BASE_URL$path" || echo 000)
             echo "HTTP $code"
-            python3 -c 'import json;d=json.load(open("/tmp/step.json")); print({k:d.get(k) for k in ("ok","mode","accepted","skipped","reason","error")}); s=d.get("send") or {}; print({k:s.get(k) for k in ("accepted","sent","queued","skipReasons","runId")})' || head -c 400 /tmp/step.json
+            if echo "$path" | grep -q 'buffer-sibling-repair'; then
+              python3 -c 'import json;d=json.load(open("/tmp/step.json")); print({k:d.get(k) for k in ("ok","date","expected","actual","resolvedIncidents","error")}); print("repairs", [{k:r.get(k) for k in ("kind","target","attempted","verified","summary")} for r in (d.get("repairs") or [])])' || head -c 600 /tmp/step.json
+            else
+              python3 -c 'import json;d=json.load(open("/tmp/step.json")); print({k:d.get(k) for k in ("ok","mode","accepted","skipped","reason","error")}); s=d.get("send") or {}; print({k:s.get(k) for k in ("accepted","sent","queued","skipReasons","runId")})' || head -c 400 /tmp/step.json
+            fi
             echo
           done
 

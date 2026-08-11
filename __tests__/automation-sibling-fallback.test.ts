@@ -9,8 +9,13 @@ describe('siblingFallbackPromos', () => {
     expect(promos.some((p) => p.path === '/')).toBe(true);
   });
 
-  it('has no catalog for sites that self-schedule', () => {
-    expect(siblingFallbackPromos('psrtrain')).toEqual([]);
+  it('provides psrtrain marketing URLs when sibling scheduler returns 0', () => {
+    const promos = siblingFallbackPromos('psrtrain');
+    expect(promos.length).toBeGreaterThanOrEqual(4);
+    expect(promos.some((p) => p.path === '/guides')).toBe(true);
+  });
+
+  it('has no catalog for PSA (self-scheduler with working feed)', () => {
     expect(siblingFallbackPromos('policestationagent')).toEqual([]);
   });
 });

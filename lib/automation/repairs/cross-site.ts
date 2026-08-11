@@ -6,7 +6,10 @@ import { canPerformLiveSideEffects } from '../env-guard';
 import { buildIncidentFingerprint } from '../notifications';
 import { logAutomationEvent } from '../observability';
 import type { HealthIssue, RepairAction } from '../types';
-import { scheduleSiblingFallbackFromRepuk } from './sibling-fallback';
+import {
+  scheduleSiblingFallbackFromRepuk,
+  siblingFallbackPromos,
+} from './sibling-fallback';
 import { triggerSiblingBufferSchedule } from './sibling-remote';
 
 export interface CrossSiteRepairResult {
@@ -171,7 +174,26 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
           force: true,
         });
 
-        if (remote.endpointMissing) {
+        if (remote.verified) {
+          healedToday = true;
+          repairs.push({
+            id: `crosssite-${site.id}`,
+            kind: 'crosssite_sibling_remote_schedule',
+            target: site.id,
+            attempted: remote.attempted,
+            verified: true,
+            dryRun: false,
+            summary: remote.summary,
+          });
+          logAutomationEvent('crosssite.quota.repaired', {
+            siteId: site.id,
+            via: 'remote_schedule',
+          });
+        } else if (
+          remote.endpointMissing ||
+          siblingFallbackPromos(site.id).length > 0
+        ) {
+          // Endpoint missing, or sibling scheduler returned 0 posts — use REPUK catalog.
           const fallback = await scheduleSiblingFallbackFromRepuk(target, {
             dryRun: false,
             now: options?.now,
@@ -181,28 +203,21 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
             id: `crosssite-${site.id}`,
             kind: 'crosssite_sibling_repuk_fallback',
             target: site.id,
-            attempted: fallback.attempted,
+            attempted: fallback.attempted || remote.attempted,
             verified: fallback.verified,
             dryRun: false,
             summary: `${remote.summary}; ${fallback.summary}`,
           });
         } else {
-          healedToday = remote.attempted && remote.verified;
           repairs.push({
             id: `crosssite-${site.id}`,
             kind: 'crosssite_sibling_remote_schedule',
             target: site.id,
             attempted: remote.attempted,
-            verified: remote.verified,
+            verified: false,
             dryRun: false,
             summary: remote.summary,
           });
-          if (remote.verified) {
-            logAutomationEvent('crosssite.quota.repaired', {
-              siteId: site.id,
-              via: 'remote_schedule',
-            });
-          }
         }
       }
 

@@ -89,6 +89,44 @@ const CUSTODYNOTE_PROMOS: PromoCandidate[] = [
   },
 ];
 
+/** Live URLs on psrtrain.com when the sibling scheduler returns 0 posts. */
+const PSRTRAIN_PROMOS: PromoCandidate[] = [
+  {
+    slug: 'home',
+    title: 'PSR Train — police station representative training',
+    excerpt:
+      'Interactive PSRAS preparation, timed MCQs, and CIT-style scenarios for trainee police station reps.',
+    path: '/',
+  },
+  {
+    slug: 'training',
+    title: 'PSR Train training modules',
+    excerpt:
+      'Structured training modules for police station accreditation support on psrtrain.com.',
+    path: '/training',
+  },
+  {
+    slug: 'guides',
+    title: 'PSR Train guides for trainee reps',
+    excerpt:
+      'Practical guides on PSRAS, disclosure, and police station practice — free on psrtrain.com/guides.',
+    path: '/guides',
+  },
+  {
+    slug: 'blog',
+    title: 'PSR Train blog',
+    excerpt:
+      'Articles for police station representatives preparing for accreditation and day-one practice.',
+    path: '/blog',
+  },
+  {
+    slug: 'pricing',
+    title: 'PSR Train pricing',
+    excerpt: 'See PSR Train plans for interactive police station representative training.',
+    path: '/pricing',
+  },
+];
+
 const CHANNEL_SERVICE_BY_ID: Record<string, BufferChannelService> = {
   '69d26c06031bfa423cd0c50d': 'linkedin',
   '69d26c3d031bfa423cd0c6b3': 'twitter',
@@ -121,6 +159,7 @@ function buildPromoText(
 
 export function siblingFallbackPromos(siteId: string): PromoCandidate[] {
   if (siteId === 'custodynote') return CUSTODYNOTE_PROMOS;
+  if (siteId === 'psrtrain') return PSRTRAIN_PROMOS;
   return [];
 }
 
@@ -274,7 +313,8 @@ export async function scheduleSiblingFallbackFromRepuk(
         text,
         dueAt,
         url,
-        imageUrl: channel.service === 'googlebusiness' ? imageUrl : undefined,
+        // Always attach a self-hosted raster — Buffer rejects posts with no image URL.
+        imageUrl,
         imageAlt: promo.title,
         feedId: site.id,
         siteUrl,

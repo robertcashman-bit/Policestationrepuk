@@ -37,7 +37,11 @@ else
   export GH_TOKEN="${GH_TOKEN:-$GITHUB_TOKEN}"
 fi
 
-AUTH="x-access-token:${GH_TOKEN}"
+# Per-invocation auth only - never embed the PAT in remote URLs / .git/config.
+BASIC_AUTH="$(printf 'x-access-token:%s' "${GH_TOKEN}" | base64 | tr -d '\n')"
+git_auth() {
+  git -c "http.extraHeader=Authorization: Basic ${BASIC_AUTH}" "$@"
+}
 
 # Warn early when the token is the Cloud Agent installation (cursor[bot]),
 # which can only push Policestationrepuk in this environment.
@@ -65,12 +69,32 @@ echo
 
 status_lines=()
 
+cleanup_remotes() {
+  local d name guess
+  for d in "${WORKDIR}"/*/; do
+    [[ -d "${d}/.git" ]] || continue
+    name="$(basename "$d")"
+    guess=""
+    case "$name" in
+      policestationagent) guess="https://github.com/robertcashman-bit/policestationagent.git" ;;
+      custody-note-app) guess="https://github.com/robertcashman-bit/custody-note-app.git" ;;
+      psrtrain) guess="https://github.com/robertdavidcashman-droid/psrtrain.git" ;;
+      custody-note-website) guess="https://github.com/robertdavidcashman-droid/custody-note-website.git" ;;
+    esac
+    if [[ -n "$guess" ]]; then
+      git -C "$d" remote set-url origin "$guess" >/dev/null 2>&1 || true
+    fi
+  done
+}
+trap cleanup_remotes EXIT
+
 push_target() {
   local dest="$1" patch_name="$2" title="$3"
   local name="${dest##*/}"
   local dir="${WORKDIR}/${name}"
   local patch="${PATCH_DIR}/${patch_name}"
-  local url="https://${AUTH}@github.com/${dest}.git"
+  local public_url="https://github.com/${dest}.git"
+  local subject=""
 
   echo "======== ${dest} ========"
   if [[ ! -f "$patch" ]]; then
@@ -80,38 +104,60 @@ push_target() {
   fi
 
   if [[ -d "${dir}/.git" ]]; then
-    git -C "$dir" remote set-url origin "$url"
-    git -C "$dir" fetch origin --prune
+    git -C "$dir" remote set-url origin "$public_url"
+    if ! git_auth -C "$dir" fetch origin --prune; then
+      echo "FETCH_FAIL ${dest}"
+      status_lines+=("| \`${dest}\` | FAIL | fetch denied - check PAT scopes/account access |")
+      return 1
+    fi
   else
     rm -rf "$dir"
-    git clone --depth 50 "$url" "$dir"
+    if ! git_auth clone --depth 50 "$public_url" "$dir"; then
+      echo "CLONE_FAIL ${dest}"
+      status_lines+=("| \`${dest}\` | FAIL | clone denied - check PAT scopes/account access |")
+      return 1
+    fi
+    git -C "$dir" remote set-url origin "$public_url"
   fi
 
   local default_branch
   default_branch="$(gh api "repos/${dest}" --jq .default_branch 2>/dev/null || echo master)"
 
-  git -C "$dir" checkout "$default_branch"
-  git -C "$dir" pull --ff-only origin "$default_branch" || true
+  if ! git -C "$dir" checkout "$default_branch"; then
+    if ! git_auth -C "$dir" checkout -B "$default_branch" "origin/${default_branch}"; then
+      echo "CHECKOUT_FAIL ${dest} (${default_branch})"
+      status_lines+=("| \`${dest}\` | FAIL | checkout ${default_branch} failed |")
+      return 1
+    fi
+  fi
 
-  # Recreate branch from default, then apply patch (idempotent-ish)
-  git -C "$dir" branch -D "$BRANCH" 2>/dev/null || true
-  git -C "$dir" checkout -b "$BRANCH"
+  if ! git_auth -C "$dir" pull --ff-only origin "$default_branch"; then
+    echo "PULL_FAIL ${dest}"
+    status_lines+=("| \`${dest}\` | FAIL | pull ${default_branch} failed |")
+    return 1
+  fi
+
+  if ! git -C "$dir" checkout -B "$BRANCH"; then
+    echo "BRANCH_FAIL ${dest}"
+    status_lines+=("| \`${dest}\` | FAIL | could not create branch ${BRANCH} |")
+    return 1
+  fi
 
   if git -C "$dir" am --3way "$patch"; then
     echo "Applied $patch_name"
   else
-    echo "git am failed — trying abort and check if commit already present"
+    echo "git am failed - aborting and checking for exact patch subject"
     git -C "$dir" am --abort 2>/dev/null || true
-    # If patch subject already on branch tip from a previous run, continue
-    if git -C "$dir" log --oneline -20 | grep -qi 'security hardening'; then
-      echo "Existing security hardening commit detected; continuing"
+    subject="$(sed -n 's/^Subject: \(\[PATCH\] \)*//p' "$patch" | head -n1 | sed 's/[[:space:]]*$//')"
+    if [[ -n "$subject" ]] && git -C "$dir" log --format=%s -20 | grep -Fxq "$subject"; then
+      echo "Patch subject already present on tip history; continuing"
     else
       status_lines+=("| \`${dest}\` | FAIL | patch apply failed |")
       return 1
     fi
   fi
 
-  if git -C "$dir" push -u origin "$BRANCH"; then
+  if git_auth -C "$dir" push -u origin "$BRANCH"; then
     echo "PUSH_OK ${dest}"
     local pr_url="(skipped)"
     if [[ "$SKIP_PR" != "1" ]]; then
@@ -132,7 +178,6 @@ EOF
 )" \
           --draft 2>&1 || true
       )"
-      # If PR already exists, print its URL
       if [[ "$pr_url" != http* ]]; then
         pr_url="$(gh pr view "$BRANCH" --repo "$dest" --json url -q .url 2>/dev/null || echo 'PR create skipped/exists')"
       fi
@@ -140,7 +185,7 @@ EOF
     status_lines+=("| \`${dest}\` | OK | ${pr_url} |")
   else
     echo "PUSH_FAIL ${dest}"
-    status_lines+=("| \`${dest}\` | FAIL | push denied — check PAT scopes/account access |")
+    status_lines+=("| \`${dest}\` | FAIL | push denied - check PAT scopes/account access |")
     return 1
   fi
 }

@@ -171,6 +171,23 @@ export function AutomationHealthPanel() {
         </button>
         <button
           type="button"
+          className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-base font-semibold text-[var(--navy)] disabled:opacity-50"
+          onClick={() => {
+            if (
+              !window.confirm(
+                'Live sibling Buffer repair now? This may call sibling /api/buffer/schedule or create custodynote fallback posts.',
+              )
+            ) {
+              return;
+            }
+            runAction('sibling_repair', false);
+          }}
+          disabled={pending}
+        >
+          Repair siblings (live)
+        </button>
+        <button
+          type="button"
           className="rounded-lg border border-[var(--border)] bg-white px-4 py-2 text-base font-semibold text-[var(--navy)] disabled:opacity-50"
           onClick={() => runAction('test_daily_report', true)}
           disabled={pending}

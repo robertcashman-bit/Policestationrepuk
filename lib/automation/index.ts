@@ -17,3 +17,5 @@ export * from './watchdog';
 export * from './status';
 export { repairBufferSchedule } from './repairs/buffer';
 export { inspectAndRepairCrossSiteQuota } from './repairs/cross-site';
+export { triggerSiblingBufferSchedule } from './repairs/sibling-remote';
+export { scheduleSiblingFallbackFromRepuk } from './repairs/sibling-fallback';

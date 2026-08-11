@@ -40,6 +40,7 @@ type Action =
   | 'gap_fill'
   | 'force_schedule'
   | 'cross_site_inspect'
+  | 'sibling_repair'
   | 'acknowledge_incident'
   | 'resolve_incident'
   | 'test_daily_report';
@@ -165,6 +166,13 @@ export async function POST(request: Request) {
       }
       case 'cross_site_inspect': {
         const result = await inspectAndRepairCrossSiteQuota({ dryRun });
+        return NextResponse.json({ ok: true, result, admin: auth.email });
+      }
+      case 'sibling_repair': {
+        const result = await inspectAndRepairCrossSiteQuota({
+          dryRun,
+          forceRemoteRepair: !dryRun,
+        });
         return NextResponse.json({ ok: true, result, admin: auth.email });
       }
       case 'acknowledge_incident': {

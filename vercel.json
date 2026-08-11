@@ -102,6 +102,10 @@
       "schedule": "30 4 * * *"
     },
     {
+      "path": "/api/cron/buffer-sibling-repair",
+      "schedule": "50 6 * * *"
+    },
+    {
       "path": "/api/cron/automation-healthcheck",
       "schedule": "15 7 * * *"
     },

@@ -10,6 +10,7 @@ Daily social scheduling for blog content across Twitter, LinkedIn, and Google Bu
 | `35 5 * * *` | `/api/cron/buffer-verify` | Verify today's schedule; gap-fill if under quota |
 | `30 4 * * *` | `/api/cron/buffer-daily-report` | Inspect yesterday's sent status (emails suppressed when healthcheck owns reports) |
 | `45 4 * * *` | `/api/cron/buffer-cross-site-report` | Inspect cross-site quotas (consolidated into daily health report) |
+| `50 6 * * *` | `/api/cron/buffer-sibling-repair` | Remote-trigger sibling schedulers (or REPUK custodynote fallback) when under quota |
 | `15 7 * * *` | `/api/cron/automation-healthcheck` | **Authoritative** daily health-check, safe repairs, one consolidated email |
 | `20 * * * *` | `/api/cron/automation-watchdog` | Lightweight overdue / stuck-lock / auth watchdog |
 | `0 6 * * *` | `/api/cron/buffer-selftest` | Buffer self-test |
@@ -35,6 +36,7 @@ Auth: `Authorization: Bearer $CRON_SECRET` (or `x-cron-secret` locally). Preview
 | `BUFFER_VERIFY_GBP_ONLY` | Optional | Set `1` for GBP-only verify scripts |
 | `AUTOMATION_DRY_RUN` | Optional | Default `1` — healthcheck inspects without live repairs/emails |
 | `AUTO_REPAIR_ENABLED` | Optional | Default `0` — enable after first dry-run looks correct |
+| `CROSS_SITE_REMOTE_REPAIR_ENABLED` | Optional | Default `0` — when `1`, healthcheck remote-triggers sibling `/api/buffer/schedule`; healthcheck also forces this when `AUTOMATION_DRY_RUN=0` |
 | `DAILY_HEALTHCHECK_ENABLED` | Optional | Default `true` — owns consolidated daily report email |
 | `AUTOMATION_ALERT_EMAIL` | Optional | Falls back to `BUFFER_SCHEDULER_NOTIFY_EMAIL` |
 | `AUTOMATION_ALLOW_NON_PROD` | Optional | Set `1` only for controlled non-prod ops |
@@ -68,6 +70,8 @@ Confirm:
 ### What auto-repairs
 
 - REPUK under-quota gap-fill (today) via existing verify/scheduler
+- Sibling under-quota: remote `GET /api/buffer/schedule?force=1` (+ verify) on psrtrain / PSA / custodynote when that route exists
+- Custodynote fallback: when `/api/buffer/schedule` is missing (404), REPUK schedules promo posts to live custodynote.com marketing URLs
 - Expired job locks
 - Missed `buffer-blog-posts` recovery from watchdog (when auto-repair on)
 - Duplicate alert suppression / reminder after `ALERT_REMINDER_HOURS`
@@ -75,9 +79,10 @@ Confirm:
 ### What still needs a human
 
 - Invalid/revoked Buffer credentials or disconnected channels
-- Sibling site (psrtrain / custodynote / PSA) quota deficits (they self-schedule)
-- Content-supply exhaustion / editorial issues
+- Sibling sites with no Buffer route **and** no REPUK fallback catalog
+- Content-supply exhaustion / editorial issues (empty RSS pools)
 - Changing quotas, recipients, or production domains
+- Publishing real blog/RSS content on custodynote.com (marketing fallback is temporary)
 
 ## Sibling under-quota (psrtrain / custodynote / PSA)
 
@@ -90,7 +95,15 @@ When REPUK emails `custodynote.com under quota: N/5`:
    npx tsx scripts/diagnose-custodynote-buffer.ts YYYY-MM-DD
    npm run buffer:verify-cross-site
    ```
-2. **On the sibling site** (Bearer `CRON_SECRET`):
+2. **Auto-heal from REPUK** (Bearer `CRON_SECRET`):
+   ```bash
+   curl -sS -H "Authorization: Bearer $CRON_SECRET" \
+     "https://policestationrepuk.org/api/cron/buffer-sibling-repair?dryRun=1" | jq .
+   curl -sS -H "Authorization: Bearer $CRON_SECRET" \
+     "https://policestationrepuk.org/api/cron/buffer-sibling-repair" | jq .
+   ```
+   Or use **Repair siblings (live)** on `/admin/automation`.
+3. **On the sibling site** (Bearer `CRON_SECRET`) when the route exists:
    ```bash
    curl -sS -H "Authorization: Bearer $CRON_SECRET" \
      "https://custodynote.com/api/buffer/schedule?dryRun=1" | jq .
@@ -98,9 +111,9 @@ When REPUK emails `custodynote.com under quota: N/5`:
      "https://custodynote.com/api/buffer/verify" | jq .
    ```
    Same pattern for `psrtrain.com` / `policestationagent.com` (`/api/buffer/schedule` + `/api/buffer/verify`).
-3. **If dry-run schedules 0 posts:** check RSS/local feed, cooldown KV, and Buffer channel connectivity; publish new blog content if the feed is exhausted.
-4. **Do not** re-enable REPUK multi-feed posting for siblings while sibling crons remain — that duplicates posts.
-5. **Ignore historical “scheduled 0/5” from old alerts** that used REPUK scheduler KV `feedIds` for siblings; that metric was always wrong after REPUK went local-feed-only. Current reports use Buffer scheduled+sent hostname counts instead.
+4. **If dry-run schedules 0 posts:** check RSS/local feed, cooldown KV, and Buffer channel connectivity; publish new blog content if the feed is exhausted.
+5. **Do not** re-enable REPUK multi-feed RSS for siblings while sibling crons remain — that duplicates posts. Custodynote is an exception while `/api/buffer/schedule` returns 404 (REPUK promo fallback only).
+6. **Ignore historical “scheduled 0/5” from old alerts** that used REPUK scheduler KV `feedIds` for siblings; that metric was always wrong after REPUK went local-feed-only. Current reports use Buffer scheduled+sent hostname counts instead.
 
 ### 2026-07-21 CustodyNote note
 

@@ -19,6 +19,7 @@ import { acquireJobLock, clearExpiredJobLock, getJobLock, releaseJobLock } from 
 import {
   buildIncidentFingerprint,
   notifyIncident,
+  resolveIncident,
   sendDailyHealthReportEmail,
 } from './notifications';
 import { logAutomationEvent } from './observability';
@@ -259,7 +260,12 @@ export async function runDailyHealthcheck(
       const probe = await probeBufferCredentials();
       issues.push(...probe.issues);
 
-      const bufferRepair = await repairBufferSchedule({ dryRun, now });
+      // Authoritative daily heal — do not require AUTO_REPAIR_ENABLED when live.
+      const bufferRepair = await repairBufferSchedule({
+        dryRun,
+        now,
+        forceLive: !dryRun,
+      });
       repairs.push(...bufferRepair.repairs);
       bufferExpected = bufferRepair.todayRequired || bufferExpected;
       bufferActual = bufferRepair.yesterdaySent;
@@ -289,11 +295,39 @@ export async function runDailyHealthcheck(
         dryRun,
         date: reportDate,
         now,
+        // Heal sibling self-schedulers from REPUK when CRON_SECRET is shared.
+        forceRemoteRepair: !dryRun,
       });
       repairs.push(...cross.repairs);
       issues.push(...cross.issues);
       crossSiteExpected = cross.expected;
       crossSiteActual = cross.actual;
+
+      // Resolve prior sibling incidents when today's remote schedule / fallback succeeded.
+      for (const repair of cross.repairs) {
+        if (
+          (repair.kind !== 'crosssite_sibling_remote_schedule' &&
+            repair.kind !== 'crosssite_sibling_repuk_fallback') ||
+          !repair.verified
+        ) {
+          continue;
+        }
+        for (const category of ['quota_supply', 'scheduler'] as const) {
+          const fingerprint = buildIncidentFingerprint({
+            jobName: 'buffer-cross-site-report',
+            category,
+            accountOrDestination: repair.target,
+            scheduledDate: reportDate,
+          });
+          await resolveIncident({
+            fingerprint,
+            executionId,
+            dryRun,
+            sendResolutionEmail: !dryRun,
+            summary: `Sibling today schedule healed (${repair.summary})`,
+          });
+        }
+      }
     }
 
     // Notify / resolve incidents

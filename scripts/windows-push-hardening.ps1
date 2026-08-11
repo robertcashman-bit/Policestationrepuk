@@ -73,7 +73,7 @@ $PreferredBranches = @(
 if (-not (Test-Path (Join-Path $RepoDir ".git"))) {
   Write-Host "Cloning Policestationrepuk..."
   New-Item -ItemType Directory -Force -Path (Split-Path $RepoDir) | Out-Null
-  $cloneCode = Invoke-Git clone https://github.com/robertcashman-bit/Policestationrepuk.git $RepoDir
+  $cloneCode = Invoke-Git -GitArgs @("clone", "https://github.com/robertcashman-bit/Policestationrepuk.git", $RepoDir)
   if ($cloneCode -ne 0) {
     Write-Err "git clone failed"
     Read-Host "Press Enter to close"
@@ -86,14 +86,14 @@ Set-Location $RepoDir
 $selected = $null
 foreach ($candidate in $PreferredBranches) {
   Write-Host "Trying branch: $candidate"
-  $fetchCode = Invoke-Git fetch origin $candidate
+  $fetchCode = Invoke-Git -GitArgs @("fetch", "origin", $candidate)
   if ($fetchCode -ne 0) { continue }
-  $coCode = Invoke-Git checkout -B $candidate "origin/$candidate"
+  $coCode = Invoke-Git -GitArgs @("checkout", "-B", $candidate, "origin/$candidate")
   if ($coCode -ne 0) {
-    $coCode = Invoke-Git checkout $candidate
+    $coCode = Invoke-Git -GitArgs @("checkout", $candidate)
   }
   if ($coCode -ne 0) { continue }
-  Invoke-Git pull --ff-only origin $candidate | Out-Null
+  Invoke-Git -GitArgs @("pull", "--ff-only", "origin", $candidate) | Out-Null
   $selected = $candidate
   break
 }

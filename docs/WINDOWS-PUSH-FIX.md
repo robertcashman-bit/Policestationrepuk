@@ -1,9 +1,10 @@
 # Windows PowerShell push - common errors
 
-## What caused `Unexpected token '}'`
+## What caused the recent errors
 
-Windows PowerShell 5.1 was choking on a Unicode em-dash (`—`) inside
-`scripts/windows-push-hardening.ps1`. The fixed scripts are ASCII-only.
+1. `Unexpected token '}'` - Unicode em-dash (`—`) in the script. Fixed (ASCII-only).
+2. `ERROR: From https://github.com/...` - `$ErrorActionPreference = Stop` made PowerShell
+   treat normal `git fetch` stderr as a fatal error. Fixed (`Continue` + safe git wrapper).
 
 ## Copy-paste this whole block into PowerShell
 

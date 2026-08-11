@@ -10,7 +10,8 @@
 #
 # Does NOT push Policestationrepuk to the droid mirror.
 
-$ErrorActionPreference = "Stop"
+# Do not use Stop: git stderr becomes terminating errors under Stop + 2>&1.
+$ErrorActionPreference = "Continue"
 
 $Root = Resolve-Path (Join-Path $PSScriptRoot "..")
 $PatchDir = Join-Path $Root "docs\sibling-hardening-patches"
@@ -18,6 +19,25 @@ $WorkDir = if ($env:WORKDIR) { $env:WORKDIR } else { Join-Path $env:TEMP "psr-po
 $Branch = "cursor/security-hardening-uplift-34ef"
 $SkipPr = ($env:SKIP_PR -eq "1")
 $HasGh = [bool](Get-Command gh -ErrorAction SilentlyContinue)
+
+function Invoke-Git {
+  param(
+    [string]$RepoPath,
+    [Parameter(ValueFromRemainingArguments = $true)][string[]]$GitArgs
+  )
+  # Explicit array avoids PowerShell eating args like -c as function parameters.
+  $argsList = @($GitArgs)
+  if ($RepoPath) {
+    $output = @(& git -C $RepoPath @argsList 2>&1)
+  } else {
+    $output = @(& git @argsList 2>&1)
+  }
+  $script:LastGitExit = $LASTEXITCODE
+  foreach ($line in $output) {
+    if ($null -ne $line) { Write-Host ("{0}" -f $line) }
+  }
+  return $script:LastGitExit
+}
 
 function Get-GitHubToken {
   if ($env:GH_TOKEN) { return $env:GH_TOKEN.Trim() }
@@ -73,12 +93,12 @@ foreach ($t in $Targets) {
   }
 
   if (Test-Path (Join-Path $dir ".git")) {
-    git -C $dir remote set-url origin $url
-    git -C $dir fetch origin --prune
+    Invoke-Git $dir remote set-url origin $url | Out-Null
+    Invoke-Git $dir fetch origin --prune | Out-Null
   } else {
     if (Test-Path $dir) { Remove-Item -Recurse -Force $dir }
-    git clone --depth 50 $url $dir
-    if ($LASTEXITCODE -ne 0) {
+    $cloneCode = Invoke-Git $null clone --depth 50 $url $dir
+    if ($cloneCode -ne 0) {
       Write-Host "CLONE_FAIL $dest" -ForegroundColor Red
       $Results += "| $dest | FAIL | clone denied - check PAT scopes/account access |"
       $Fail = $true
@@ -87,26 +107,27 @@ foreach ($t in $Targets) {
   }
 
   # Avoid CRLF mangling mailbox patches on Windows.
-  git -C $dir config core.autocrlf false
+  Invoke-Git $dir config core.autocrlf false | Out-Null
 
   $defaultBranch = "master"
   if ($HasGh) {
     try {
       $apiBranch = & gh api "repos/$dest" --jq .default_branch 2>$null
-      if ($apiBranch) { $defaultBranch = $apiBranch }
+      if ($apiBranch) { $defaultBranch = "$apiBranch".Trim() }
     } catch {}
   }
 
-  git -C $dir checkout $defaultBranch
-  git -C $dir pull --ff-only origin $defaultBranch 2>$null
+  Invoke-Git $dir checkout $defaultBranch | Out-Null
+  Invoke-Git $dir pull --ff-only origin $defaultBranch | Out-Null
 
-  git -C $dir branch -D $Branch 2>$null | Out-Null
-  git -C $dir checkout -b $Branch
+  Invoke-Git $dir branch -D $Branch | Out-Null
+  Invoke-Git $dir checkout -b $Branch | Out-Null
 
-  git -C $dir -c core.autocrlf=false am --3way --keep-cr $patch
-  if ($LASTEXITCODE -ne 0) {
-    git -C $dir am --abort 2>$null | Out-Null
-    $log = git -C $dir log --oneline -20
+  $amArgs = @("-c", "core.autocrlf=false", "am", "--3way", "--keep-cr", $patch)
+  $amCode = Invoke-Git $dir @amArgs
+  if ($amCode -ne 0) {
+    Invoke-Git $dir am --abort | Out-Null
+    $log = (& git -C $dir log --oneline -20 2>&1 | Out-String)
     if ($log -match "[Ss]ecurity hardening") {
       Write-Host "Existing security hardening commit detected; continuing"
     } else {
@@ -119,8 +140,8 @@ foreach ($t in $Targets) {
     Write-Host "Applied $($t.Patch)"
   }
 
-  git -C $dir push -u origin $Branch
-  if ($LASTEXITCODE -ne 0) {
+  $pushCode = Invoke-Git $dir push -u origin $Branch
+  if ($pushCode -ne 0) {
     Write-Host "PUSH_FAIL $dest" -ForegroundColor Red
     $Results += "| $dest | FAIL | push denied - check PAT scopes/account access |"
     $Fail = $true
@@ -139,9 +160,9 @@ See docs/security-hardening-report.md on this branch for findings, fixes, tests,
 
 This PR was opened by scripts/push-portfolio-security-hardening.ps1 from the PoliceStationRepUK portfolio hardening effort.
 "@
-    $prOut = & gh pr create --repo $dest --base $defaultBranch --head $Branch --title $t.Title --body $body --draft 2>&1
-    if ("$prOut" -match "https://github.com/") {
-      $prUrl = ([regex]::Match("$prOut", "https://github.com/\S+")).Value
+    $prOut = & gh pr create --repo $dest --base $defaultBranch --head $Branch --title $t.Title --body $body --draft 2>&1 | Out-String
+    if ($prOut -match "https://github.com/") {
+      $prUrl = ([regex]::Match($prOut, "https://github.com/\S+")).Value
     } else {
       try {
         $prUrl = & gh pr view $Branch --repo $dest --json url -q .url 2>$null

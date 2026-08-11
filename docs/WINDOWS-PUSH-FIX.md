@@ -10,6 +10,10 @@
 
 ## Copy-paste this whole block into PowerShell
 
+Important: if you still see `ERROR: From https://github.com/...`, the old script is
+still on disk. Use `reset --hard` below (a normal `git pull` is not enough when the
+broken script fails before it can update itself).
+
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass -Force
 
@@ -23,9 +27,14 @@ if (-not (Test-Path .\Policestationrepuk\.git)) {
   git clone https://github.com/robertcashman-bit/Policestationrepuk.git
 }
 cd .\Policestationrepuk
-git fetch origin cursor/windows-push-hardening-fix-34ef
-git checkout cursor/windows-push-hardening-fix-34ef
-git pull --ff-only origin cursor/windows-push-hardening-fix-34ef
+
+# Force the fixed scripts onto disk (do this BEFORE running the .ps1)
+git fetch origin cursor/security-hardening-uplift-34ef
+git checkout -B cursor/security-hardening-uplift-34ef origin/cursor/security-hardening-uplift-34ef
+git reset --hard origin/cursor/security-hardening-uplift-34ef
+
+# Sanity check - must print a line containing: cmd.exe /c "git
+Select-String -Path .\scripts\windows-push-hardening.ps1 -Pattern 'cmd.exe /c "git'
 
 # Create token in browser (repo scope), then paste when asked (input is hidden):
 # https://github.com/settings/tokens/new?scopes=repo&description=portfolio-security-push

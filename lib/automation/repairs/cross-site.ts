@@ -6,6 +6,8 @@ import { canPerformLiveSideEffects } from '../env-guard';
 import { buildIncidentFingerprint } from '../notifications';
 import { logAutomationEvent } from '../observability';
 import type { HealthIssue, RepairAction } from '../types';
+import { scheduleSiblingFallbackFromRepuk } from './sibling-fallback';
+import { triggerSiblingBufferSchedule } from './sibling-remote';
 
 export interface CrossSiteRepairResult {
   ok: boolean;
@@ -26,12 +28,17 @@ export interface CrossSiteRepairResult {
 
 /**
  * Cross-site quota check.
- * Auto-repair only REPUK (via local gap-fill). Sibling deficits → human/sibling-scheduler issues.
+ * Auto-repair REPUK via local gap-fill. Sibling deficits trigger that site's
+ * `/api/buffer/schedule` (+ verify) when remote repair is enabled / forced.
+ * If the sibling endpoint is missing (e.g. custodynote), fall back to REPUK
+ * promo scheduling for sites with a static catalog.
  */
 export async function inspectAndRepairCrossSiteQuota(options?: {
   dryRun?: boolean;
   date?: string;
   now?: Date;
+  /** Admin/ops override — attempt sibling remote repair even when flag is off. */
+  forceRemoteRepair?: boolean;
 }): Promise<CrossSiteRepairResult> {
   const config = getAutomationConfig();
   const dryRun = options?.dryRun ?? config.dryRun;
@@ -48,6 +55,9 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
   const repairs: RepairAction[] = [];
   const issues: HealthIssue[] = [];
 
+  const allowRemote =
+    Boolean(options?.forceRemoteRepair) || config.crossSiteRemoteRepairEnabled;
+
   for (const site of report.sites) {
     if (site.ok) continue;
 
@@ -58,9 +68,10 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
       date: report.date,
     });
 
+    const category = site.sentCount === 0 ? 'scheduler' : 'quota_supply';
     const fingerprint = buildIncidentFingerprint({
       jobName: 'buffer-cross-site-report',
-      category: 'quota_supply',
+      category,
       accountOrDestination: site.id,
       scheduledDate: report.date,
     });
@@ -107,7 +118,7 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
         id: fingerprint,
         fingerprint,
         jobName: 'buffer-cross-site-report',
-        category: site.sentCount === 0 ? 'scheduler' : 'quota_supply',
+        category,
         severity: 'error',
         summary: `REPUK cross-site quota deficit on ${report.date}: ${site.sentCount}/${site.requiredCount}`,
         details: site.issue,
@@ -115,28 +126,102 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
         requiresHumanAction: false,
       });
     } else {
-      // Sibling sites — do not auto-post from REPUK (avoids duplicate multi-feed path).
+      // Sibling sites — remote schedule; never flood from REPUK multi-feed RSS.
+      const target = CROSS_SITE_BUFFER_TARGETS.find((t) => t.id === site.id);
+      let healedToday = false;
+
+      if (!target) {
+        repairs.push({
+          id: `crosssite-${site.id}`,
+          kind: 'crosssite_sibling_alert',
+          target: site.id,
+          attempted: false,
+          verified: false,
+          dryRun,
+          summary: `Sibling deficit recorded — unknown production URL for ${site.id}`,
+        });
+      } else if (dryRun || !allowRemote || !canPerformLiveSideEffects()) {
+        const preview = await triggerSiblingBufferSchedule(target, {
+          dryRun: true,
+          fetchFn: fetch,
+        });
+        repairs.push({
+          id: `crosssite-${site.id}`,
+          kind: preview.endpointMissing
+            ? 'crosssite_sibling_repuk_fallback'
+            : 'crosssite_sibling_remote_schedule',
+          target: site.id,
+          attempted: false,
+          verified: false,
+          dryRun: true,
+          summary:
+            preview.endpointMissing
+              ? (
+                  await scheduleSiblingFallbackFromRepuk(target, {
+                    dryRun: true,
+                    now: options?.now,
+                  })
+                ).summary
+              : preview.summary ||
+                `Sibling deficit recorded — would remote-schedule ${site.hostname}`,
+        });
+      } else {
+        const remote = await triggerSiblingBufferSchedule(target, {
+          dryRun: false,
+          force: true,
+        });
+
+        if (remote.endpointMissing) {
+          const fallback = await scheduleSiblingFallbackFromRepuk(target, {
+            dryRun: false,
+            now: options?.now,
+          });
+          healedToday = fallback.attempted && fallback.verified;
+          repairs.push({
+            id: `crosssite-${site.id}`,
+            kind: 'crosssite_sibling_repuk_fallback',
+            target: site.id,
+            attempted: fallback.attempted,
+            verified: fallback.verified,
+            dryRun: false,
+            summary: `${remote.summary}; ${fallback.summary}`,
+          });
+        } else {
+          healedToday = remote.attempted && remote.verified;
+          repairs.push({
+            id: `crosssite-${site.id}`,
+            kind: 'crosssite_sibling_remote_schedule',
+            target: site.id,
+            attempted: remote.attempted,
+            verified: remote.verified,
+            dryRun: false,
+            summary: remote.summary,
+          });
+          if (remote.verified) {
+            logAutomationEvent('crosssite.quota.repaired', {
+              siteId: site.id,
+              via: 'remote_schedule',
+            });
+          }
+        }
+      }
+
+      // Yesterday's sent window cannot be rewritten. If we successfully kicked today's
+      // sibling scheduler (or REPUK fallback), treat as repaired so the daily report
+      // does not stay "Action Required" for a historical night-slot miss.
       issues.push({
         id: fingerprint,
         fingerprint,
         jobName: 'buffer-cross-site-report',
-        category: 'scheduler',
-        severity: 'error',
+        category,
+        severity: healedToday ? 'warning' : 'error',
         summary: `${site.hostname} under quota on ${report.date}: ${site.sentCount}/${site.requiredCount}`,
-        details:
-          site.issue ??
-          `Sibling site self-scheduler may have failed. On that site run /api/buffer/verify (Bearer CRON_SECRET), then see docs/buffer-ops.md “Sibling under-quota”.`,
-        recoverable: false,
-        requiresHumanAction: true,
-      });
-      repairs.push({
-        id: `crosssite-${site.id}`,
-        kind: 'crosssite_sibling_alert',
-        target: site.id,
-        attempted: false,
-        verified: false,
-        dryRun,
-        summary: `Sibling deficit recorded — requires sibling scheduler or human action`,
+        details: healedToday
+          ? `${site.issue ?? 'below quota'}; yesterday cannot be backfilled — today schedule healed`
+          : site.issue ??
+            'Sibling site self-scheduler may have failed; enable CROSS_SITE_REMOTE_REPAIR_ENABLED or run /api/cron/buffer-sibling-repair.',
+        recoverable: true,
+        requiresHumanAction: !healedToday,
       });
     }
   }

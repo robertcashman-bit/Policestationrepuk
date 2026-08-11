@@ -1,40 +1,59 @@
 # One-shot Windows helper: clone/update PSRUK, prompt for PAT, push sibling hardening.
 # ASCII-only on purpose: Windows PowerShell 5.1 breaks on UTF-8 em-dashes without BOM.
 #
-# Run in PowerShell:
-#   Set-ExecutionPolicy -Scope Process Bypass -Force
+# If you still see: ERROR: From https://github.com/...
+# the old script is still on disk. Reset FIRST (do not run this script yet):
 #   cd $env:USERPROFILE\Documents\Policestationrepuk
+#   git fetch origin cursor/security-hardening-uplift-34ef
+#   git checkout -B cursor/security-hardening-uplift-34ef origin/cursor/security-hardening-uplift-34ef
+#   git reset --hard origin/cursor/security-hardening-uplift-34ef
+# Then run:
 #   .\scripts\windows-push-hardening.ps1
 
-# IMPORTANT: do not use Stop around native git.exe calls.
-# PowerShell turns git stderr (e.g. "From https://...") into terminating errors
-# when ErrorActionPreference=Stop and stderr is redirected.
 $ErrorActionPreference = "Continue"
+$PSNativeCommandUseErrorActionPreference = $false
 
 function Write-Err([string]$Message) {
   Write-Host "ERROR: $Message" -ForegroundColor Red
 }
 
 function Invoke-Git {
-  param([Parameter(ValueFromRemainingArguments = $true)][string[]]$GitArgs)
-  # Merge stderr into output stream so it cannot become a terminating ErrorRecord.
-  # Force array wrap so a single-line response is not iterated character-by-character.
-  $output = @(& git @GitArgs 2>&1)
-  $code = $LASTEXITCODE
-  foreach ($line in $output) {
-    if ($null -ne $line) { Write-Host ("{0}" -f $line) }
+  param([Parameter(Mandatory = $true)][string[]]$GitArgs)
+  # Route through cmd.exe so PowerShell never turns git stderr into terminating errors.
+  # (PS 5.1 does that with 2>$null / 2>&1 under Stop, and some hosts still do with Continue.)
+  $parts = foreach ($a in $GitArgs) {
+    if ($null -eq $a) { continue }
+    $s = [string]$a
+    if ($s -match '[\s"&<>|^]') {
+      '"' + ($s.Replace('"', '""')) + '"'
+    } else {
+      $s
+    }
   }
-  return $code
+  $argLine = [string]::Join(' ', $parts)
+  cmd.exe /c "git $argLine 2>&1"
+  return $LASTEXITCODE
 }
 
 Write-Host ""
 Write-Host "=== Portfolio security hardening push (Windows) ===" -ForegroundColor Cyan
+Write-Host ("Script version: {0}" -f (Get-Date -Format 'yyyy-MM-dd')) 
 Write-Host "This will push hardened branches to:"
 Write-Host "  - robertcashman-bit/policestationagent"
 Write-Host "  - robertcashman-bit/custody-note-app"
 Write-Host "  - robertdavidcashman-droid/psrtrain"
 Write-Host "  - robertdavidcashman-droid/custody-note-website"
 Write-Host ""
+
+# Prove this is the fixed script (old broken ones had try/catch + Stop).
+if (-not (Get-Content -LiteralPath $PSCommandPath -Raw).Contains('cmd.exe /c "git')) {
+  Write-Err "This copy of windows-push-hardening.ps1 is outdated."
+  Write-Host "Run these commands, then try again:"
+  Write-Host '  git fetch origin cursor/security-hardening-uplift-34ef'
+  Write-Host '  git reset --hard origin/cursor/security-hardening-uplift-34ef'
+  Read-Host "Press Enter to close"
+  exit 1
+}
 
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
   Write-Err "Git not found. Install from https://git-scm.com/download/win then re-run."
@@ -46,15 +65,15 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
 $HomeDir = if ($env:USERPROFILE) { $env:USERPROFILE } else { [string]$HOME }
 $RepoDir = Join-Path $HomeDir "Documents\Policestationrepuk"
 $PreferredBranches = @(
-  "cursor/windows-push-hardening-fix-34ef",
   "cursor/security-hardening-uplift-34ef",
+  "cursor/windows-push-hardening-fix-34ef",
   "master"
 )
 
 if (-not (Test-Path (Join-Path $RepoDir ".git"))) {
   Write-Host "Cloning Policestationrepuk..."
   New-Item -ItemType Directory -Force -Path (Split-Path $RepoDir) | Out-Null
-  $cloneCode = Invoke-Git clone https://github.com/robertcashman-bit/Policestationrepuk.git $RepoDir
+  $cloneCode = Invoke-Git -GitArgs @("clone", "https://github.com/robertcashman-bit/Policestationrepuk.git", $RepoDir)
   if ($cloneCode -ne 0) {
     Write-Err "git clone failed"
     Read-Host "Press Enter to close"
@@ -67,11 +86,14 @@ Set-Location $RepoDir
 $selected = $null
 foreach ($candidate in $PreferredBranches) {
   Write-Host "Trying branch: $candidate"
-  $fetchCode = Invoke-Git fetch origin $candidate
+  $fetchCode = Invoke-Git -GitArgs @("fetch", "origin", $candidate)
   if ($fetchCode -ne 0) { continue }
-  $coCode = Invoke-Git checkout $candidate
+  $coCode = Invoke-Git -GitArgs @("checkout", "-B", $candidate, "origin/$candidate")
+  if ($coCode -ne 0) {
+    $coCode = Invoke-Git -GitArgs @("checkout", $candidate)
+  }
   if ($coCode -ne 0) { continue }
-  Invoke-Git pull --ff-only origin $candidate | Out-Null
+  Invoke-Git -GitArgs @("pull", "--ff-only", "origin", $candidate) | Out-Null
   $selected = $candidate
   break
 }
@@ -87,8 +109,8 @@ Write-Host "Using branch: $selected" -ForegroundColor Green
 $script = Join-Path $RepoDir "scripts\push-portfolio-security-hardening.ps1"
 if (-not (Test-Path $script)) {
   Write-Err "push script missing: $script"
-  Write-Host "Run: git fetch origin cursor/windows-push-hardening-fix-34ef"
-  Write-Host "     git checkout cursor/windows-push-hardening-fix-34ef"
+  Write-Host "Run: git fetch origin cursor/security-hardening-uplift-34ef"
+  Write-Host "     git reset --hard origin/cursor/security-hardening-uplift-34ef"
   Read-Host "Press Enter to close"
   exit 1
 }

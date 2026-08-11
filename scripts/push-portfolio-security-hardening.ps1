@@ -40,32 +40,28 @@ function Get-GitAuthArgs {
   return @("-c", "http.extraHeader=Authorization: Basic $basic")
 }
 
+function Escape-CmdArg([string]$Value) {
+  if ($Value -match '[\s"&<>|^]') {
+    return '"' + ($Value.Replace('"', '""')) + '"'
+  }
+  return $Value
+}
+
 function Invoke-Git {
   param(
     [string]$RepoPath = "",
     [switch]$Auth,
     [Parameter(Mandatory = $true)][string[]]$GitArgs
   )
-  $prefix = @()
-  if ($Auth) { $prefix = Get-GitAuthArgs -TokenValue $Token }
+  # Build a cmd.exe command line so PS 5.1 cannot turn git stderr into terminating errors.
+  $all = @()
+  if ($Auth) { $all += (Get-GitAuthArgs -TokenValue $Token) }
+  if ($RepoPath) { $all += @("-C", $RepoPath) }
+  $all += $GitArgs
 
-  if ($RepoPath) {
-    $output = @(& git -C $RepoPath @prefix @GitArgs 2>&1)
-  } else {
-    $output = @(& git @prefix @GitArgs 2>&1)
-  }
+  $argLine = [string]::Join(' ', ($all | ForEach-Object { Escape-CmdArg ([string]$_) }))
+  cmd.exe /c "git $argLine 2>&1"
   $script:LastGitExit = $LASTEXITCODE
-  foreach ($line in $output) {
-    if ($null -eq $line) { continue }
-    $text = "{0}" -f $line
-    if ($text -match 'Authorization:\s*Basic') {
-      $text = "[redacted auth header]"
-    }
-    if ($text -match 'x-access-token:') {
-      $text = ($text -replace 'x-access-token:[^@\s]+', 'x-access-token:[redacted]')
-    }
-    Write-Host $text
-  }
   return $script:LastGitExit
 }
 

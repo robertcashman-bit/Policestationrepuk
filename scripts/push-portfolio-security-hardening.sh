@@ -163,5 +163,12 @@ for line in "${status_lines[@]}"; do
 done
 echo
 echo "PoliceStationRepUK is already handled via the Cloud Agent PR on robertcashman-bit (do not push that hardening to the droid mirror for production)."
+if [[ "$fail" -ne 0 ]]; then
+  echo
+  echo "Next steps if pushes failed with 403:"
+  echo "  1) export GH_TOKEN=ghp_...  # classic PAT, repo scope, both GitHub accounts"
+  echo "  2) re-run: ./scripts/push-portfolio-security-hardening.sh"
+  echo "  3) or install Cursor GitHub App on both accounts (docs/MULTI_REPO_PUSH_STATUS.md)"
+fi
 
 exit "$fail"

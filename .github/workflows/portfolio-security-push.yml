@@ -1,0 +1,66 @@
+name: Portfolio security hardening push
+
+# One-click push of sibling hardening branches.
+# Setup (once):
+#   1. Create a classic PAT with "repo" scope that can write BOTH
+#      robertcashman-bit and robertdavidcashman-droid
+#      https://github.com/settings/tokens/new?scopes=repo&description=portfolio-security-push
+#   2. Repo Settings → Secrets and variables → Actions → New repository secret
+#      Name: PORTFOLIO_PUSH_PAT
+#      Value: the PAT
+#   3. Actions → "Portfolio security hardening push" → Run workflow
+#
+# Does NOT push Policestationrepuk hardening to the droid mirror.
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_pr:
+        description: "Skip opening draft PRs (push branches only)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  push-siblings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Policestationrepuk (patches)
+        uses: actions/checkout@v4
+
+      - name: Require PORTFOLIO_PUSH_PAT
+        env:
+          PORTFOLIO_PUSH_PAT: ${{ secrets.PORTFOLIO_PUSH_PAT }}
+        run: |
+          if [ -z "${PORTFOLIO_PUSH_PAT}" ]; then
+            echo "::error::Missing repository secret PORTFOLIO_PUSH_PAT."
+            echo "Create a classic PAT (repo scope) that can write both GitHub accounts,"
+            echo "then add it as Actions secret PORTFOLIO_PUSH_PAT and re-run this workflow."
+            exit 1
+          fi
+
+      - name: Identify token login
+        env:
+          PORTFOLIO_PUSH_PAT: ${{ secrets.PORTFOLIO_PUSH_PAT }}
+        run: |
+          login="$(curl -sS -H "Authorization: token ${PORTFOLIO_PUSH_PAT}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/user | jq -r '.login // .message')"
+          echo "Token login: ${login}"
+          if echo "$login" | grep -qiE 'cursor|Resource not accessible|Bad credentials'; then
+            echo "::error::PORTFOLIO_PUSH_PAT must be your personal PAT, not a Cursor bot token."
+            exit 1
+          fi
+
+      - name: Push hardened branches to siblings
+        env:
+          GH_TOKEN: ${{ secrets.PORTFOLIO_PUSH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.PORTFOLIO_PUSH_PAT }}
+          SKIP_PR: ${{ inputs.skip_pr && '1' || '0' }}
+          WORKDIR: ${{ runner.temp }}/psr-portfolio-security-push
+        run: |
+          chmod +x ./scripts/push-portfolio-security-hardening.sh
+          ./scripts/push-portfolio-security-hardening.sh

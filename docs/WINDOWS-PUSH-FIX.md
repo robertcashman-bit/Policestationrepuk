@@ -1,73 +1,33 @@
-# Windows PowerShell push - common errors
+# Push sibling security hardening (easiest path)
 
-## What caused the recent errors
+Stop fighting PowerShell. Use GitHub Actions once:
 
-1. `Unexpected token '}'` - Unicode em-dash (`—`) in the script. Fixed (ASCII-only).
-2. `ERROR: From https://github.com/...` - `$ErrorActionPreference = Stop` made PowerShell
-   treat normal `git fetch` stderr as a fatal error. Fixed (`Continue` + safe git wrapper).
-3. Agent review: PAT was previously written into `git remote` URLs / argv. Fixed - auth now
-   uses a per-invocation `http.extraHeader` and remotes stay token-free.
+## One-click (recommended)
 
-## Copy-paste this whole block into PowerShell
+1. Create a classic PAT with **repo** scope (must write both GitHub accounts):  
+   https://github.com/settings/tokens/new?scopes=repo&description=portfolio-security-push
+2. Add it as a repo secret:  
+   https://github.com/robertcashman-bit/Policestationrepuk/settings/secrets/actions  
+   - Name: `PORTFOLIO_PUSH_PAT`  
+   - Value: your `ghp_...` token
+3. Run the workflow:  
+   https://github.com/robertcashman-bit/Policestationrepuk/actions/workflows/portfolio-security-push.yml  
+   - Click **Run workflow** → **Run workflow**
 
-Important: if you still see `ERROR: From https://github.com/...`, the old script is
-still on disk. Use `reset --hard` below (a normal `git pull` is not enough when the
-broken script fails before it can update itself).
+That applies the sibling patches and pushes branches (and opens draft PRs unless you tick skip).
 
-```powershell
-Set-ExecutionPolicy -Scope Process Bypass -Force
+## Optional: from this PC (CMD, no PowerShell)
 
-if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-  winget install --id Git.Git -e --accept-package-agreements --accept-source-agreements
-  $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-}
+Double-click or run in **Command Prompt**:
 
-cd $env:USERPROFILE\Documents
-if (-not (Test-Path .\Policestationrepuk\.git)) {
-  git clone https://github.com/robertcashman-bit/Policestationrepuk.git
-}
-cd .\Policestationrepuk
-
-# Force the fixed scripts onto disk (do this BEFORE running the .ps1)
+```bat
+cd %USERPROFILE%\Documents\Policestationrepuk
 git fetch origin cursor/security-hardening-uplift-34ef
-git checkout -B cursor/security-hardening-uplift-34ef origin/cursor/security-hardening-uplift-34ef
 git reset --hard origin/cursor/security-hardening-uplift-34ef
-
-# Sanity check - must print a line containing: cmd.exe /c "git
-Select-String -Path .\scripts\windows-push-hardening.ps1 -Pattern 'cmd.exe /c "git'
-
-# Create token in browser (repo scope), then paste when asked (input is hidden):
-# https://github.com/settings/tokens/new?scopes=repo&description=portfolio-security-push
-.\scripts\windows-push-hardening.ps1
+scripts\windows-push-hardening.cmd
 ```
 
-## Common errors
+## Why PowerShell kept failing
 
-| Error | Fix |
-|-------|-----|
-| `Unexpected token '}'` | Old script with Unicode dashes - pull the fix branch above |
-| `ERROR: From https://github.com/...` | Pull latest script (git stderr handling fix) |
-| `running scripts is disabled` / `ExecutionPolicy` | `Set-ExecutionPolicy -Scope Process Bypass -Force` |
-| `git is not recognized` | `winget install --id Git.Git -e` then reopen PowerShell |
-| `windows-push-hardening.ps1` not found | Checkout `cursor/windows-push-hardening-fix-34ef` first |
-| `Token looks invalid` | Use a classic PAT starting `ghp_` with **repo** scope |
-| `Permission denied` / `403` on push | Token must write **both** GitHub accounts (bit + droid) |
-| `gh is not recognized` | Optional; script sets `SKIP_PR=1` automatically |
-
-## Manual fallback (avoid pasting tokens into history)
-
-Prefer `.\scripts\windows-push-hardening.ps1` so the PAT is read via SecureString.
-
-If you must run the core script alone:
-
-```powershell
-cd $env:USERPROFILE\Documents\Policestationrepuk
-git checkout cursor/windows-push-hardening-fix-34ef
-$secure = Read-Host "PAT" -AsSecureString
-$bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
-$env:GH_TOKEN = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr)
-[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr) | Out-Null
-$env:SKIP_PR = "1"
-.\scripts\push-portfolio-security-hardening.ps1
-Remove-Item Env:GH_TOKEN -ErrorAction SilentlyContinue
-```
+Older helper scripts turned normal `git fetch` messages into fatal errors, then failed
+before they could update themselves. Prefer Actions or the `.cmd` helper above.

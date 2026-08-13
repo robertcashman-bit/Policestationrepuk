@@ -1,5 +1,5 @@
 # One-shot: unsubscribe a domain across both outreach workspaces (PSA + RepUK).
-# Uses production KV via Vercel env pull.
+# Decrypts production KV from the Vercel API (env pull often omits Sensitive vars).
 #
 #   gh workflow run ops-firm-outreach-unsubscribe-domain.yml \
 #     -f domain=hpjv.co.uk -f confirm=UNSUBSCRIBE
@@ -29,6 +29,11 @@ jobs:
   unsubscribe:
     if: github.event.inputs.confirm == 'UNSUBSCRIBE'
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -40,26 +45,54 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Pull production env
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Decrypt production KV from Vercel API
         run: |
           set -euo pipefail
-          npx vercel env pull .env.production.local --environment=production --yes --token="$VERCEL_TOKEN"
-          test -s .env.production.local
-          # Fail early if KV missing (vercel may omit Sensitive values)
-          node -e "
-            require('dotenv').config({ path: '.env.production.local' });
-            const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-            const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-            if (!url || !token) {
-              console.error('KV credentials missing after vercel env pull');
-              process.exit(1);
-            }
-            console.log('KV credentials present');
-          "
+          if [ -z "${VERCEL_TOKEN:-}" ] || [ -z "${VERCEL_PROJECT_ID:-}" ]; then
+            echo "VERCEL_TOKEN / VERCEL_PROJECT_ID missing"
+            exit 1
+          fi
+          team=""
+          if [ -n "${VERCEL_ORG_ID:-}" ]; then
+            team="&teamId=${VERCEL_ORG_ID}"
+          fi
+          curl -sS \
+            "https://api.vercel.com/v9/projects/${VERCEL_PROJECT_ID}/env?decrypt=true${team}" \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+            > /tmp/vercel-env.json
+          python3 - <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          data = json.loads(Path("/tmp/vercel-env.json").read_text())
+          wanted = {
+            "KV_REST_API_URL",
+            "KV_REST_API_TOKEN",
+            "UPSTASH_REDIS_REST_URL",
+            "UPSTASH_REDIS_REST_TOKEN",
+          }
+          found = {}
+          for row in data.get("envs") or []:
+              key = row.get("key")
+              if key not in wanted:
+                  continue
+              target = row.get("target") or []
+              if target and "production" not in target:
+                  continue
+              val = row.get("value") or ""
+              if val and key not in found:
+                  found[key] = val
+          gh_env = Path(os.environ["GITHUB_ENV"])
+          with gh_env.open("a") as fh:
+              for k, v in found.items():
+                  fh.write(f"{k}={v}\n")
+          print("kv_keys:", ",".join(sorted(found)))
+          ok = (
+              (found.get("KV_REST_API_URL") and found.get("KV_REST_API_TOKEN"))
+              or (found.get("UPSTASH_REDIS_REST_URL") and found.get("UPSTASH_REDIS_REST_TOKEN"))
+          )
+          if not ok:
+              sys.exit("KV credentials missing after Vercel decrypt")
+          PY
 
       - name: Unsubscribe domain (both workspaces)
         env:

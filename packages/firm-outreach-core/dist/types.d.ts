@@ -155,7 +155,10 @@ export interface OutreachActivityReport {
 }
 export interface FirmOutreachSuppression {
     emailHash: string;
+    /** Exact address when suppressing one inbox; empty for domain-wide rows. */
     email: string;
+    /** When set (and email empty), blocks every address on this domain. */
+    domain?: string;
     reason: SuppressionReason;
     createdAt: string;
 }

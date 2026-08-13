@@ -1,7 +1,10 @@
 #!/usr/bin/env npx tsx
 /**
- * Unsubscribe every firm-outreach prospect whose email is on a given domain.
- * Mirrors the public unsubscribe page: suppression reason `unsubscribe` + prospect status.
+ * Unsubscribe a whole email domain across both outreach workspaces
+ * (PoliceStationAgent + PoliceStationRepUK). Shared KV + Resend.
+ *
+ * Mirrors the public unsubscribe page for every matching prospect, and adds a
+ * domain-wide suppression so future @domain addresses are blocked too.
  *
  *   npx tsx scripts/firm-outreach-unsubscribe-domain.ts --domain=hpjv.co.uk
  *   npx tsx scripts/firm-outreach-unsubscribe-domain.ts --domain=hpjv.co.uk --dry-run
@@ -41,13 +44,16 @@ async function main() {
   }
 
   const {
+    addDomainSuppression,
     addSuppression,
+    getDomainSuppression,
     getProspect,
     getSuppression,
     listAllProspectIds,
     saveProspect,
   } = await import('../lib/firm-outreach/storage');
   const { getKV } = await import('../lib/kv');
+  const { OUTREACH_WORKSPACES } = await import('../lib/firm-outreach/workspaces');
 
   if (!getKV()) {
     console.error(
@@ -61,6 +67,8 @@ async function main() {
     id: string;
     email: string;
     firmName: string;
+    campaignId: string;
+    workspace: string;
     prevStatus: string;
     alreadySuppressed: boolean;
   }> = [];
@@ -71,27 +79,46 @@ async function main() {
     const email = p.email.trim().toLowerCase();
     if (!email.endsWith(`@${domain}`)) continue;
     const existing = await getSuppression(email);
+    const ws = OUTREACH_WORKSPACES.find((w) => w.campaignId === p.campaignId);
     matched.push({
       id: p.id,
       email,
       firmName: p.firmName,
+      campaignId: p.campaignId,
+      workspace: ws?.id ?? 'unknown',
       prevStatus: p.status,
       alreadySuppressed: Boolean(existing),
     });
   }
+
+  const byWorkspace = Object.fromEntries(
+    OUTREACH_WORKSPACES.map((w) => [
+      w.id,
+      matched.filter((m) => m.workspace === w.id).map((m) => m.email),
+    ]),
+  ) as Record<string, string[]>;
 
   // Always ensure the shared inbox is suppressed even if no prospect row exists.
   const knownShared = `enquiries@${domain}`;
   const emails = new Set(matched.map((m) => m.email));
   emails.add(knownShared);
 
+  const existingDomain = await getDomainSuppression(domain);
+
   console.log(
     JSON.stringify(
       {
         domain,
         dryRun,
+        workspaces: OUTREACH_WORKSPACES.map((w) => ({
+          id: w.id,
+          label: w.label,
+          campaignId: w.campaignId,
+          matchingProspectEmails: byWorkspace[w.id] ?? [],
+        })),
         prospectMatches: matched.length,
         emailsToSuppress: [...emails].sort(),
+        domainSuppressionAlreadyPresent: Boolean(existingDomain),
         prospects: matched,
       },
       null,
@@ -104,6 +131,9 @@ async function main() {
     return;
   }
 
+  await addDomainSuppression(domain, 'unsubscribe');
+  console.log('[unsubscribe-domain] domain suppressed', `*@${domain}`);
+
   for (const email of emails) {
     await addSuppression(email, 'unsubscribe');
     console.log('[unsubscribe-domain] suppressed', email);
@@ -113,17 +143,30 @@ async function main() {
     const prospect = await getProspect(row.id);
     if (!prospect) continue;
     if (prospect.status === 'unsubscribed') {
-      console.log('[unsubscribe-domain] already unsubscribed', row.id, row.email);
+      console.log(
+        '[unsubscribe-domain] already unsubscribed',
+        row.workspace,
+        row.id,
+        row.email,
+      );
       continue;
     }
     const prev = prospect.status;
     prospect.status = 'unsubscribed';
     prospect.updatedAt = new Date().toISOString();
     await saveProspect(prospect, prev);
-    console.log('[unsubscribe-domain] prospect', row.id, prev, '-> unsubscribed');
+    console.log(
+      '[unsubscribe-domain] prospect',
+      row.workspace,
+      row.id,
+      prev,
+      '-> unsubscribed',
+    );
   }
 
   console.log('[unsubscribe-domain] done', {
+    domain,
+    workspaces: OUTREACH_WORKSPACES.map((w) => w.id),
     suppressedEmails: emails.size,
     prospectsUpdated: matched.length,
   });

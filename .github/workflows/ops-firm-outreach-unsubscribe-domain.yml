@@ -1,0 +1,74 @@
+# One-shot: unsubscribe a domain across both outreach workspaces (PSA + RepUK).
+# Uses production KV via Vercel env pull.
+#
+#   gh workflow run ops-firm-outreach-unsubscribe-domain.yml \
+#     -f domain=hpjv.co.uk -f confirm=UNSUBSCRIBE
+name: Ops firm outreach unsubscribe domain
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: Email domain to unsubscribe (e.g. hpjv.co.uk)
+        required: true
+        type: string
+      confirm:
+        description: Type UNSUBSCRIBE to run
+        required: true
+        type: string
+      dry_run:
+        description: Dry run (no writes)
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  unsubscribe:
+    if: github.event.inputs.confirm == 'UNSUBSCRIBE'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Pull production env
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+          npx vercel env pull .env.production.local --environment=production --yes --token="$VERCEL_TOKEN"
+          test -s .env.production.local
+          # Fail early if KV missing (vercel may omit Sensitive values)
+          node -e "
+            require('dotenv').config({ path: '.env.production.local' });
+            const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+            const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+            if (!url || !token) {
+              console.error('KV credentials missing after vercel env pull');
+              process.exit(1);
+            }
+            console.log('KV credentials present');
+          "
+
+      - name: Unsubscribe domain (both workspaces)
+        env:
+          DOMAIN: ${{ github.event.inputs.domain }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          args=(--domain="$DOMAIN")
+          if [ "$DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          npx tsx scripts/firm-outreach-unsubscribe-domain.ts "${args[@]}"

@@ -162,6 +162,36 @@ export async function getSuppressionsByEmails(
       if (row) map.set(email, row);
     });
   }
+
+  // Fill misses from domain-wide suppressions (shared across PSA + RepUK).
+  const missing = unique.filter((e) => !map.has(e));
+  if (missing.length === 0) return map;
+  const domains = [
+    ...new Set(
+      missing
+        .map((e) => {
+          const at = e.lastIndexOf('@');
+          return at >= 0 ? e.slice(at + 1) : '';
+        })
+        .filter(Boolean),
+    ),
+  ];
+  const domainRows = new Map<string, FirmOutreachSuppression>();
+  for (let i = 0; i < domains.length; i += MGET_CHUNK) {
+    const chunk = domains.slice(i, i + MGET_CHUNK);
+    const keys = chunk.map((d) => SUPPRESSION_PREFIX + domainSuppressionHash(d));
+    const values = await kv.mget<(FirmOutreachSuppression | null)[]>(...keys);
+    chunk.forEach((domain, idx) => {
+      const row = values[idx];
+      if (row?.domain) domainRows.set(domain, row);
+    });
+  }
+  for (const email of missing) {
+    const at = email.lastIndexOf('@');
+    if (at < 0) continue;
+    const row = domainRows.get(email.slice(at + 1));
+    if (row) map.set(email, row);
+  }
   return map;
 }
 
@@ -604,11 +634,62 @@ export async function incrementPaidLookupCount(date: string): Promise<number> {
   return incrementCounter(paidDailyKey(date), 60 * 60 * 24 * 2);
 }
 
+function normalizeDomain(domain: string): string {
+  return domain.trim().toLowerCase().replace(/^@/, '');
+}
+
+function domainSuppressionHash(domain: string): string {
+  return emailHash(`*@${normalizeDomain(domain)}`);
+}
+
+export async function isDomainSuppressed(domain: string): Promise<boolean> {
+  const kv = getKV();
+  if (!kv) return false;
+  const hit = await kv.get<FirmOutreachSuppression>(
+    SUPPRESSION_PREFIX + domainSuppressionHash(domain),
+  );
+  return Boolean(hit?.domain);
+}
+
+export async function addDomainSuppression(
+  domain: string,
+  reason: SuppressionReason,
+): Promise<void> {
+  const kv = getKV();
+  if (!kv) return;
+  const norm = normalizeDomain(domain);
+  if (!norm.includes('.')) return;
+  const record: FirmOutreachSuppression = {
+    emailHash: domainSuppressionHash(norm),
+    email: '',
+    domain: norm,
+    reason,
+    createdAt: new Date().toISOString(),
+  };
+  await kv.set(SUPPRESSION_PREFIX + record.emailHash, record);
+  await appendIndex(SUPPRESSION_INDEX, record.emailHash);
+}
+
+export async function getDomainSuppression(
+  domain: string,
+): Promise<FirmOutreachSuppression | null> {
+  const kv = getKV();
+  if (!kv) return null;
+  const hit = await kv.get<FirmOutreachSuppression>(
+    SUPPRESSION_PREFIX + domainSuppressionHash(domain),
+  );
+  return hit?.domain ? hit : null;
+}
+
 export async function isSuppressed(email: string): Promise<boolean> {
   const kv = getKV();
   if (!kv) return false;
-  const hit = await kv.get<FirmOutreachSuppression>(SUPPRESSION_PREFIX + emailHash(email));
-  return Boolean(hit);
+  const norm = normalizeEmail(email);
+  const hit = await kv.get<FirmOutreachSuppression>(SUPPRESSION_PREFIX + emailHash(norm));
+  if (hit) return true;
+  const at = norm.lastIndexOf('@');
+  if (at < 0) return false;
+  return isDomainSuppressed(norm.slice(at + 1));
 }
 
 export async function addSuppression(
@@ -631,7 +712,13 @@ export async function addSuppression(
 export async function getSuppression(email: string): Promise<FirmOutreachSuppression | null> {
   const kv = getKV();
   if (!kv) return null;
-  return (await kv.get<FirmOutreachSuppression>(SUPPRESSION_PREFIX + emailHash(email))) ?? null;
+  const norm = normalizeEmail(email);
+  const exact =
+    (await kv.get<FirmOutreachSuppression>(SUPPRESSION_PREFIX + emailHash(norm))) ?? null;
+  if (exact) return exact;
+  const at = norm.lastIndexOf('@');
+  if (at < 0) return null;
+  return getDomainSuppression(norm.slice(at + 1));
 }
 
 export async function listAllSuppressions(): Promise<FirmOutreachSuppression[]> {

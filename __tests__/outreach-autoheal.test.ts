@@ -56,6 +56,7 @@ vi.mock('@/lib/firm-outreach/job-runs', () => ({
 
 vi.mock('@/lib/firm-outreach/storage', () => ({
   getLatestOutreachRunLog: (...a: unknown[]) => mockRunLog(...a),
+  addDomainSuppression: async () => undefined,
 }));
 
 vi.mock('@/lib/firm-outreach/run-lock', () => ({

@@ -26,6 +26,7 @@ exports.REJECTED_EMAIL_LOCALS = new Set([
     'billing',
     'newsletter',
     'marketing',
+    'press',
 ]);
 exports.PREFERRED_EMAIL_LOCALS = {
     police: 30,
@@ -90,6 +91,18 @@ exports.NON_FIRM_EMAIL_DOMAINS = new Set([
     // Legal directories / review / lead-gen sites
     'thegoodsolicitorguide.com',
     'threebestrated.co.uk',
+    'threebestrated.com',
+    'policyexchange.org.uk',
+    'bebee.com',
+    'here4claims.uk',
+    'mylocalservices.co.uk',
+    'amazonaws.com',
+    'prospeo.io',
+    'studysmarter.co.uk',
+    'bigreddirectory.com',
+    'lawstreet.co.uk',
+    'thetradefinder.co.uk',
+    'qualia-law.org',
     'reviewsolicitors.co.uk',
     'review-solicitors.co.uk',
     'solicitors.co.uk',
@@ -181,6 +194,8 @@ exports.EXCLUDED_FIRM_PATTERNS = [
     /^pds\b/i,
     /crown prosecution/i,
     /^cps\b/i,
+    /\[pdf\]/i,
+    /policy exchange/i,
 ];
 exports.CRIMINAL_KEYWORDS = [
     'police station',

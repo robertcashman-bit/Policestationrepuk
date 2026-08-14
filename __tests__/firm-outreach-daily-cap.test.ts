@@ -14,6 +14,7 @@ vi.mock('../lib/firm-outreach/storage', () => ({
   incrementDailySendCount: vi.fn(),
   incrementResendSendCount: vi.fn(),
   isDuplicateInitialSend: vi.fn(async () => false),
+  hasAcceptedOutreachToday: vi.fn(async () => false),
   isSuppressed: vi.fn(async () => false),
   listProspectsByRecordStatus: vi.fn(async () => []),
   listProspectsForFirmKey: vi.fn(async () => []),

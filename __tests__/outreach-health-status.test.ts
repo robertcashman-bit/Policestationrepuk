@@ -91,6 +91,21 @@ describe('classifyWorkspaceHealth', () => {
     ).toBe('LIMIT_REACHED');
   });
 
+  it('is not FAILED when the reporting period already accepted sends', () => {
+    expect(
+      classifyWorkspaceHealth({
+        capacity: cap(),
+        lastSchedulerOk: false,
+        lastSchedulerAgeMs: 2 * 60 * 60_000,
+        outstandingFaults: [],
+        providerAuthOk: true,
+        acceptedToday: 217,
+        temporaryFailures: 0,
+        pendingBacklog: 5,
+      }),
+    ).toBe('DEGRADED');
+  });
+
   it('FAILED when eligible exist but scheduler stale', () => {
     expect(
       classifyWorkspaceHealth({

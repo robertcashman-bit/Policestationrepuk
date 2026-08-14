@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { emailHasInitialOutreachFromOtherProspect } from '@/lib/firm-outreach/storage';
+import {
+  emailHasAcceptedSendOnDate,
+  emailHasInitialOutreachFromOtherProspect,
+} from '@/lib/firm-outreach/storage';
 import type { FirmOutreachSend } from '@/lib/firm-outreach/types';
 
 function makeSend(overrides: Partial<FirmOutreachSend>): FirmOutreachSend {
@@ -62,6 +65,23 @@ describe('emailHasInitialOutreachFromOtherProspect', () => {
         [makeSend({ status: 'bounced' })],
         'info@firm.co.uk',
         'fop_a',
+      ),
+    ).toBe(false);
+  });
+
+  it('detects a same-day accepted send to the shared inbox', () => {
+    expect(
+      emailHasAcceptedSendOnDate(
+        [makeSend({ sentAt: '2026-08-13T12:03:10.000Z', status: 'sent' })],
+        'info@firm.co.uk',
+        '2026-08-13',
+      ),
+    ).toBe(true);
+    expect(
+      emailHasAcceptedSendOnDate(
+        [makeSend({ sentAt: '2026-08-12T12:03:10.000Z', status: 'sent' })],
+        'info@firm.co.uk',
+        '2026-08-13',
       ),
     ).toBe(false);
   });

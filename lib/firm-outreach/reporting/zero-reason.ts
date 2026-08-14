@@ -18,6 +18,8 @@ export type ZeroSendReasonCode =
   | 'ZERO_REASON_HOURLY_LIMIT'
   | 'ZERO_REASON_APPROVAL_REQUIRED'
   | 'ZERO_REASON_AUTOHEAL_REPAIRED'
+  | 'ZERO_REASON_BATCH_SIZE'
+  | 'ZERO_REASON_PENDING_JOBS'
   | 'ZERO_REASON_UNKNOWN';
 
 export interface ZeroSendExplanation {
@@ -33,6 +35,8 @@ const LIMIT_TO_CODE: Partial<Record<OutreachLimitingFactor, ZeroSendReasonCode>>
   sending_disabled: 'ZERO_REASON_SENDING_DISABLED',
   dry_run: 'ZERO_REASON_DRY_RUN_ENABLED',
   approval_required: 'ZERO_REASON_APPROVAL_REQUIRED',
+  batch_size: 'ZERO_REASON_BATCH_SIZE',
+  pending_jobs_only: 'ZERO_REASON_PENDING_JOBS',
 };
 
 export function explainZeroAccepted(input: {
@@ -119,7 +123,7 @@ export function explainZeroAccepted(input: {
   // Prefer capacity detail over UNKNOWN when capacity already explained idle state.
   if (input.capacity.limitingDetail && input.capacity.limitingFactor !== 'none') {
     return {
-      code: LIMIT_TO_CODE[input.capacity.limitingFactor] ?? 'ZERO_REASON_NO_ELIGIBLE_LEADS',
+      code: LIMIT_TO_CODE[input.capacity.limitingFactor] ?? 'ZERO_REASON_UNKNOWN',
       message: `0 emails accepted. ${input.capacity.limitingDetail}`,
     };
   }
@@ -147,6 +151,10 @@ function formatLimitZeroMessage(code: ZeroSendReasonCode, capacity: OutreachCapa
       return '0 emails accepted because FIRM_OUTREACH_DRY_RUN is enabled in this environment.';
     case 'ZERO_REASON_APPROVAL_REQUIRED':
       return '0 emails accepted because FIRM_OUTREACH_REQUIRE_APPROVAL=true (manual Confirm required).';
+    case 'ZERO_REASON_BATCH_SIZE':
+      return `0 emails accepted in this reporting period. Current batch capacity is ${capacity.currentBatchCapacity} — eligible leads remain and will send on later worker ticks.`;
+    case 'ZERO_REASON_PENDING_JOBS':
+      return `0 emails accepted in this reporting period. ${capacity.pendingJobs + capacity.retryScheduledJobs} durable job(s) are still drainable.`;
     default:
       return `0 emails accepted. ${capacity.limitingDetail}`;
   }

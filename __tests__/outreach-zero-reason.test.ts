@@ -114,6 +114,38 @@ describe('explainZeroAccepted', () => {
     expect(r?.code).toBe('ZERO_REASON_AUTOHEAL_REPAIRED');
   });
 
+  it('maps batch_size instead of pretending there are no leads', () => {
+    const r = explainZeroAccepted({
+      capacity: baseCapacity({
+        eligibleUnsent: 382,
+        pendingJobs: 1,
+        limitingFactor: 'batch_size',
+        limitingDetail: 'Current batch capacity is 50 (cron/worker batch size).',
+        currentBatchCapacity: 50,
+        effectiveAvailableCapacity: 50,
+      }),
+      attempted: 0,
+      accepted: 0,
+      suppressed: 0,
+    });
+    expect(r?.code).toBe('ZERO_REASON_BATCH_SIZE');
+    expect(r?.message).not.toMatch(/no new eligible/i);
+  });
+
+  it('never defaults an unknown limit to NO_ELIGIBLE_LEADS', () => {
+    const r = explainZeroAccepted({
+      capacity: baseCapacity({
+        eligibleUnsent: 10,
+        limitingFactor: 'none',
+        limitingDetail: '',
+      }),
+      attempted: 0,
+      accepted: 0,
+      suppressed: 0,
+    });
+    expect(r?.code).not.toBe('ZERO_REASON_NO_ELIGIBLE_LEADS');
+  });
+
   it('never returns bare "0 emails sent"', () => {
     const r = explainZeroAccepted({
       capacity: baseCapacity({ limitingFactor: 'sending_disabled' }),

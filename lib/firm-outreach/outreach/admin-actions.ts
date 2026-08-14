@@ -100,7 +100,7 @@ export async function manualSendProspect(
   const step = opts?.step ?? (prospect.sequenceStep === 0 && !prospect.lastEmailAt ? 0 : prospect.sequenceStep);
   const suppressed = await isSuppressed(email);
   const duplicateInitial =
-    step === 0 ? await isDuplicateInitialSend(email, prospect.id) : false;
+    step === 0 ? await isDuplicateInitialSend(email, prospect.id, prospect.campaignId) : false;
   const eligibility = canManualSendProspect(prospect, suppressed, duplicateInitial);
   if (!eligibility.ok) return { ok: false, error: eligibility.reason ?? 'not_eligible' };
 

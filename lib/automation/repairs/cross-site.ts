@@ -117,14 +117,19 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
         }
       }
 
+      const todayRepaired = repairs.some(
+        (r) => r.kind === 'crosssite_repuk_gap_fill' && r.verified,
+      );
       issues.push({
         id: fingerprint,
         fingerprint,
         jobName: 'buffer-cross-site-report',
         category,
-        severity: 'error',
+        severity: todayRepaired || site.sentCount > 0 ? 'warning' : 'error',
         summary: `REPUK cross-site quota deficit on ${report.date}: ${site.sentCount}/${site.requiredCount}`,
-        details: site.issue,
+        details: todayRepaired
+          ? `${site.issue ?? 'Yesterday publish incomplete'}; today's schedule is on track.`
+          : site.issue,
         recoverable: true,
         requiresHumanAction: false,
       });

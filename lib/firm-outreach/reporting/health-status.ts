@@ -21,13 +21,19 @@ export function classifyWorkspaceHealth(input: {
     return 'FAILED';
   }
 
+  const schedulerStale =
+    !input.lastSchedulerOk ||
+    (input.lastSchedulerAgeMs != null && input.lastSchedulerAgeMs > 45 * 60_000);
+
+  // Period accepts mean the worker already sent — do not fail the day because
+  // the 07:00 report runs while the scheduler is idle.
   if (
+    input.acceptedToday === 0 &&
     input.capacity.sendingEnabled &&
     !input.capacity.dryRun &&
     input.capacity.eligibleUnsent > 0 &&
     input.capacity.effectiveAvailableCapacity > 0 &&
-    (!input.lastSchedulerOk ||
-      (input.lastSchedulerAgeMs != null && input.lastSchedulerAgeMs > 45 * 60_000))
+    schedulerStale
   ) {
     return 'FAILED';
   }

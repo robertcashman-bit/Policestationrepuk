@@ -144,6 +144,12 @@ describe('firm-outreach email extract', () => {
     expect(isPlausibleOutreachEmail('crime@telegraph.co.uk')).toBe(false);
     expect(isPlausibleOutreachEmail('news@theguardian.com')).toBe(false);
     expect(isPlausibleOutreachEmail('info@realcriminalfirm.co.uk')).toBe(true);
+    expect(isPlausibleOutreachEmail('info@policyexchange.org.uk')).toBe(false);
+    expect(isPlausibleOutreachEmail('support@bebee.com')).toBe(false);
+    expect(isPlausibleOutreachEmail('crime@here4claims.uk')).toBe(false);
+    expect(isPlausibleOutreachEmail('press@threebestrated.com')).toBe(false);
+    expect(isPlausibleOutreachEmail('info@lawstreet.co.uk')).toBe(false);
+    expect(isPlausibleOutreachEmail('crime@amazonaws.com')).toBe(false);
   });
 });
 

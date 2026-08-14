@@ -11,7 +11,8 @@ import {
   saveExecution,
   startExecution,
 } from './execution-log';
-import { getJobState, markJobHealthChecked } from './job-registry';
+import { cronOutcomeCountsAsSuccess } from './cron-success';
+import { getJobState, markJobHealthChecked, recordJobAttempt } from './job-registry';
 import { acquireJobLock, clearExpiredJobLock, getJobLock, releaseJobLock } from './lock';
 import { buildIncidentFingerprint, notifyIncident } from './notifications';
 import { logAutomationEvent } from './observability';
@@ -162,12 +163,16 @@ export async function runAutomationWatchdog(
         (state?.lastSuccessfulAt &&
           localDateInTimezone(new Date(state.lastSuccessfulAt), timezone) === today) ||
         (cronLog &&
-          (cronLog.outcome === 'success' || cronLog.outcome === 'skipped') &&
+          cronOutcomeCountsAsSuccess(cronLog.outcome) &&
           localDateInTimezone(new Date(cronLog.finishedAt), timezone) === today);
 
       if (!successToday) {
         // Prefer Buffer truth over missing cron logs (e.g. mid-day deploy after morning run).
-        const inspect = await verifyRepukBufferSchedule({ now, gapFill: false }).catch(() => null);
+        let inspectError: string | null = null;
+        const inspect = await verifyRepukBufferSchedule({ now, gapFill: false }).catch((err) => {
+          inspectError = err instanceof Error ? err.message : String(err);
+          return null;
+        });
         const quotaMet =
           Boolean(inspect?.ok) &&
           typeof inspect?.scheduledCount === 'number' &&
@@ -178,6 +183,11 @@ export async function runAutomationWatchdog(
           notes.push(
             `buffer-blog-posts cron log missing but Buffer quota already met (${inspect!.scheduledCount}/${inspect!.requiredCount}) — not overdue`,
           );
+          await recordJobAttempt({
+            name: 'buffer-blog-posts',
+            ok: true,
+            repairAction: 'buffer_quota_met_without_cron_log',
+          });
           logAutomationEvent('automation.job.missed', {
             jobName: 'buffer-blog-posts',
             suppressed: true,
@@ -200,6 +210,13 @@ export async function runAutomationWatchdog(
                 ? `Watchdog gap-fill OK ${verify.scheduledCount}/${verify.requiredCount}`
                 : `Watchdog gap-fill incomplete ${verify.scheduledCount}/${verify.requiredCount}`,
             });
+            if (verify.ok) {
+              await recordJobAttempt({
+                name: 'buffer-blog-posts',
+                ok: true,
+                repairAction: 'watchdog_gap_fill',
+              });
+            }
             logAutomationEvent('automation.job.recovered', {
               jobName: 'buffer-blog-posts',
               ok: verify.ok,
@@ -228,7 +245,9 @@ export async function runAutomationWatchdog(
             summary: 'Critical job buffer-blog-posts appears overdue',
             details: inspect
               ? `Buffer quota ${inspect.scheduledCount}/${inspect.requiredCount}`
-              : 'Could not inspect Buffer quota',
+              : inspectError
+                ? `Could not inspect Buffer quota: ${inspectError}`
+                : 'Could not inspect Buffer quota',
             executionId,
             dryRun,
           });

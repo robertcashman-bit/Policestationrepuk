@@ -9,6 +9,7 @@ import { getKV, skipKVInPrerender } from '@/lib/kv';
 import { dailySendKeyForCampaign, dailySendKeyForCampaignId, isActiveCampaignProspect, isActiveCampaignSend, isCampaignProspect, isCampaignSend, activeOutreachCampaignId } from './campaign-scope';
 import { OUTREACH_CAMPAIGN_IDS } from './site-config';
 import { emailHash, normalizeEmail } from './normalize';
+import { isSeedSuppressedDomain, registrableEmailDomain } from './suppressed-domains';
 import type {
   FirmOutreachSend,
   FirmOutreachSendStatus,
@@ -33,6 +34,7 @@ const SEND_EMAIL_INDEX = 'firmoutreach:send:email:';
 const SUPPRESSION_INDEX = 'firmoutreach:suppression:index';
 const SEND_DAILY_PREFIX = 'firmoutreach:daily:';
 const SUPPRESSION_PREFIX = 'firmoutreach:suppression:';
+const DOMAIN_SUPPRESSION_PREFIX = 'firmoutreach:suppression:domain:';
 const CURSOR_ENRICH = 'firmoutreach:cursor:enrich';
 const CURSOR_SEND = 'firmoutreach:cursor:send';
 const PAID_DAILY_PREFIX = 'firmoutreach:paid:';
@@ -416,13 +418,34 @@ export function emailHasInitialOutreachFromOtherProspect(
 export async function isDuplicateInitialSend(
   email: string,
   prospectId: string,
-  campaignId?: string,
+  _campaignId?: string,
 ): Promise<boolean> {
-  const cid = campaignId ?? activeOutreachCampaignId();
-  const sends = (await listSendsForEmail(email, { allowFullScan: true })).filter((s) =>
-    isCampaignSend(s, cid),
-  );
+  // Cross-campaign: the same inbox must not get a second initial pitch.
+  const sends = await listSendsForEmail(email, { allowFullScan: true });
   return emailHasInitialOutreachFromOtherProspect(sends, email, prospectId);
+}
+
+/** True when this inbox already received a provider-accepted send on the UTC date. */
+export function emailHasAcceptedSendOnDate(
+  sends: FirmOutreachSend[],
+  email: string,
+  dateYyyyMmDd: string,
+): boolean {
+  const normalized = normalizeEmail(email);
+  return sends.some((s) => {
+    if (normalizeEmail(s.email) !== normalized) return false;
+    if (s.status === 'bounced' || s.status === 'queued' || s.status === 'complained') return false;
+    const at = s.sentAt ?? s.createdAt;
+    return Boolean(at) && at.slice(0, 10) === dateYyyyMmDd;
+  });
+}
+
+export async function hasAcceptedOutreachToday(
+  email: string,
+  dateYyyyMmDd = new Date().toISOString().slice(0, 10),
+): Promise<boolean> {
+  const sends = await listSendsForEmail(email, { allowFullScan: true });
+  return emailHasAcceptedSendOnDate(sends, email, dateYyyyMmDd);
 }
 
 export async function excludeProspectDuplicateEmail(
@@ -605,10 +628,46 @@ export async function incrementPaidLookupCount(date: string): Promise<number> {
 }
 
 export async function isSuppressed(email: string): Promise<boolean> {
+  if (isSeedSuppressedDomain(email)) return true;
   const kv = getKV();
   if (!kv) return false;
   const hit = await kv.get<FirmOutreachSuppression>(SUPPRESSION_PREFIX + emailHash(email));
-  return Boolean(hit);
+  if (hit) return true;
+  const domain = registrableEmailDomain(email);
+  if (!domain) return false;
+  const domainHit = await kv.get<FirmOutreachSuppression>(
+    DOMAIN_SUPPRESSION_PREFIX + emailHash(domain),
+  );
+  return Boolean(domainHit);
+}
+
+export async function addDomainSuppression(
+  domain: string,
+  reason: SuppressionReason = 'manual',
+): Promise<void> {
+  const kv = getKV();
+  if (!kv) return;
+  const norm = registrableEmailDomain(domain);
+  if (!norm) return;
+  const record: FirmOutreachSuppression = {
+    emailHash: emailHash(norm),
+    email: `@${norm}`,
+    reason,
+    createdAt: new Date().toISOString(),
+  };
+  await kv.set(DOMAIN_SUPPRESSION_PREFIX + record.emailHash, record);
+  await appendIndex(SUPPRESSION_INDEX, `domain:${record.emailHash}`);
+}
+
+export async function unsubscribeOutreachContact(email: string): Promise<void> {
+  await addSuppression(email, 'unsubscribe');
+  for (const campaignId of OUTREACH_CAMPAIGN_IDS) {
+    const prospect = await getProspectByEmail(email, campaignId);
+    if (!prospect || prospect.status === 'unsubscribed') continue;
+    prospect.status = 'unsubscribed';
+    prospect.updatedAt = new Date().toISOString();
+    await saveProspect(prospect);
+  }
 }
 
 export async function addSuppression(

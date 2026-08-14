@@ -4,6 +4,8 @@
  * Never resends when provider acceptance is ambiguous.
  */
 import { recoverAbandonedEmailJobs } from '../email-jobs/storage';
+import { addDomainSuppression } from '../storage';
+import { SEED_SUPPRESSED_DOMAINS } from '../suppressed-domains';
 import { runFirmOutreachAllCampaigns } from '../outreach/run-outreach';
 import { backfillDeliveryFromResend } from '../backfill-delivery';
 import { reviveAgentCoverKentReady } from '../revive-agent-cover-ready';
@@ -35,6 +37,15 @@ export async function applyAutohealRepairs(
   let jobsCreated = 0;
   let outreachTriggered = false;
   let accepted = 0;
+
+  try {
+    for (const domain of SEED_SUPPRESSED_DOMAINS) {
+      await addDomainSuppression(domain, 'manual');
+    }
+    repairs.push(`seed_domain_suppress:${SEED_SUPPRESSED_DOMAINS.join(',')}`);
+  } catch (err) {
+    errors.push(`seed_domain_suppress:${err instanceof Error ? err.message : String(err)}`);
+  }
 
   if (has(faults, 'manual_reconciliation_required') || has(faults, 'accepted_marked_failed')) {
     skipped.push('skip_resend_ambiguous_provider_acceptance');

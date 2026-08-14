@@ -3,7 +3,9 @@ import {
   addDaysToLocalDate,
   localDateInTimezone,
 } from '@/lib/buffer/scheduler-core';
+import { verifyRepukBufferSchedule } from '@/lib/buffer/engine-run';
 import { getCronRunLog } from '@/lib/cron-run-log';
+import { cronOutcomeCountsAsSuccess } from './cron-success';
 import { getAutomationConfig } from './config';
 import { probeBufferCredentials } from './buffer-probe';
 import { canPerformLiveSideEffects, requireCronSecretInProduction } from './env-guard';
@@ -108,9 +110,20 @@ async function inspectSchedulerHealth(
       if (!lastOk || lastOk < windowStart) {
         const cronOk =
           cronLog &&
-          (cronLog.outcome === 'success' || cronLog.outcome === 'skipped') &&
+          cronOutcomeCountsAsSuccess(cronLog.outcome) &&
           Date.parse(cronLog.finishedAt) >= windowStart;
-        if (!cronOk) {
+        let bufferQuotaMet = false;
+        if (!cronOk && job.name === 'buffer-blog-posts') {
+          const inspect = await verifyRepukBufferSchedule({ now, gapFill: false }).catch(
+            () => null,
+          );
+          bufferQuotaMet =
+            Boolean(inspect?.ok) &&
+            typeof inspect?.scheduledCount === 'number' &&
+            typeof inspect?.requiredCount === 'number' &&
+            inspect.scheduledCount >= inspect.requiredCount;
+        }
+        if (!cronOk && !bufferQuotaMet) {
           failedJobs.push(job.name);
           issues.push({
             id: `${job.name}-missed`,
@@ -128,6 +141,12 @@ async function inspectSchedulerHealth(
             requiresHumanAction: false,
           });
           logAutomationEvent('automation.job.missed', { jobName: job.name });
+        } else if (bufferQuotaMet) {
+          logAutomationEvent('automation.job.missed', {
+            jobName: job.name,
+            suppressed: true,
+            reason: 'buffer_quota_met',
+          });
         }
       }
     }

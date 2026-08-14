@@ -105,6 +105,7 @@ describe('watchdog uses overdue gate for overnight skip', () => {
     vi.doMock('@/lib/automation/job-registry', () => ({
       getJobState: async () => null,
       markJobHealthChecked: async () => {},
+      recordJobAttempt: async () => ({}),
       getJobDefinition: () => JOB,
     }));
     vi.doMock('@/lib/cron-run-log', () => ({
@@ -171,6 +172,7 @@ describe('watchdog uses overdue gate for overnight skip', () => {
     vi.doMock('@/lib/automation/job-registry', () => ({
       getJobState: async () => null,
       markJobHealthChecked: async () => {},
+      recordJobAttempt: async () => ({}),
       getJobDefinition: () => JOB,
     }));
     vi.doMock('@/lib/cron-run-log', () => ({

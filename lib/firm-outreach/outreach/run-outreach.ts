@@ -31,8 +31,6 @@ import {
   getGlobalResendQuotaRemaining,
   getSuppression,
   incrementResendSendCount,
-  isDuplicateInitialSend,
-  isSuppressed,
   releaseDailySendSlot,
   releaseHourlySendSlot,
   reserveDailySendSlot,
@@ -44,6 +42,7 @@ import {
 } from '../storage';
 import type { FirmProspect, OutreachRunStats } from '../types';
 import { assertOutreachSendReady } from './from-address';
+import { orderCampaignsByFewestSendsToday, outreachEmailSendBlocker } from './send-gates';
 import {
   firmRecentlyContacted,
   selectOutreachCandidates,
@@ -265,6 +264,7 @@ export async function runFirmOutreach(opts?: {
   }
 
   const emailsSentThisRun = new Set<string>();
+  const emailsQueuedThisRun = new Set<string>();
   let resendQuota = globalQuota;
   const correlationId = runId;
 
@@ -286,17 +286,25 @@ export async function runFirmOutreach(opts?: {
         recordSkip(stats, 'not_qualified');
         continue;
       }
-      if (await isSuppressed(email)) {
+      const blocked = await outreachEmailSendBlocker({
+        email,
+        prospectId: prospect.id,
+        campaignId,
+        step,
+        emailsSentThisRun,
+        today: date,
+      });
+      if (blocked === 'suppressed') {
         stats.suppressed++;
         stats.attempted = (stats.attempted ?? 0) + 1;
         continue;
       }
-      if (
-        step === 0 &&
-        (emailsSentThisRun.has(normalizedEmail) ||
-          (await isDuplicateInitialSend(email, prospect.id, campaignId)))
-      ) {
+      if (blocked === 'duplicate') {
         recordSkip(stats, 'duplicate');
+        continue;
+      }
+      if (blocked === 'junk_email') {
+        recordSkip(stats, 'mx_invalid');
         continue;
       }
       if (
@@ -366,7 +374,15 @@ export async function runFirmOutreach(opts?: {
         continue;
       }
 
-      if (await isSuppressed(job.email)) {
+      const jobBlocked = await outreachEmailSendBlocker({
+        email: job.email,
+        prospectId: prospect.id,
+        campaignId,
+        step: job.sequenceStep,
+        emailsSentThisRun,
+        today: date,
+      });
+      if (jobBlocked === 'suppressed') {
         await markJobSuppressed(job, 'suppressed');
         stats.suppressed++;
         const suppression = await getSuppression(job.email);
@@ -376,6 +392,33 @@ export async function runFirmOutreach(opts?: {
         else prospect.status = 'unsubscribed';
         prospect.updatedAt = new Date().toISOString();
         await saveProspect(prospect);
+        continue;
+      }
+      if (jobBlocked === 'duplicate') {
+        await markJobRetryOrPermanent(job, {
+          error: 'duplicate_same_day',
+          retryable: false,
+          delayMs: 0,
+        });
+        recordSkip(stats, 'duplicate');
+        if (prospect.status === 'ready_to_send') {
+          await excludeProspectDuplicateEmail(prospect);
+        }
+        continue;
+      }
+      if (jobBlocked === 'junk_email') {
+        await markJobRetryOrPermanent(job, {
+          error: 'junk_email',
+          retryable: false,
+          delayMs: 0,
+        });
+        recordSkip(stats, 'mx_invalid');
+        if (prospect.status === 'ready_to_send') {
+          prospect.status = 'excluded';
+          prospect.excludedReason = 'junk_email';
+          prospect.updatedAt = new Date().toISOString();
+          await saveProspect(prospect);
+        }
         continue;
       }
 
@@ -510,7 +553,7 @@ export async function runFirmOutreach(opts?: {
         await incrementResendSendCount(date);
         resendQuota = Math.max(0, resendQuota - 1);
 
-        emailsSentThisRun.add(job.email);
+        emailsSentThisRun.add(normalizeEmail(job.email));
         stats.sent++;
         stats.accepted = (stats.accepted ?? 0) + 1;
       } catch (err) {
@@ -584,7 +627,22 @@ export async function runFirmOutreach(opts?: {
         continue;
       }
 
-      if (await isSuppressed(email)) {
+      if (emailsQueuedThisRun.has(normalizedEmail)) {
+        recordSkip(stats, 'duplicate');
+        if (prospect.status === 'ready_to_send') {
+          await excludeProspectDuplicateEmail(prospect);
+        }
+        continue;
+      }
+      const blocked = await outreachEmailSendBlocker({
+        email,
+        prospectId: prospect.id,
+        campaignId,
+        step,
+        emailsSentThisRun,
+        today: date,
+      });
+      if (blocked === 'suppressed') {
         stats.suppressed++;
         stats.attempted = (stats.attempted ?? 0) + 1;
         const suppression = await getSuppression(email);
@@ -596,15 +654,20 @@ export async function runFirmOutreach(opts?: {
         await saveProspect(prospect);
         continue;
       }
-
-      if (
-        step === 0 &&
-        (emailsSentThisRun.has(normalizedEmail) ||
-          (await isDuplicateInitialSend(email, prospect.id, campaignId)))
-      ) {
+      if (blocked === 'duplicate') {
         recordSkip(stats, 'duplicate');
         if (prospect.status === 'ready_to_send') {
           await excludeProspectDuplicateEmail(prospect);
+        }
+        continue;
+      }
+      if (blocked === 'junk_email') {
+        recordSkip(stats, 'mx_invalid');
+        if (prospect.status === 'ready_to_send') {
+          prospect.status = 'excluded';
+          prospect.excludedReason = 'junk_email';
+          prospect.updatedAt = new Date().toISOString();
+          await saveProspect(prospect);
         }
         continue;
       }
@@ -649,6 +712,7 @@ export async function runFirmOutreach(opts?: {
       });
       if (enqueued.created) {
         stats.jobsCreated = (stats.jobsCreated ?? 0) + 1;
+        emailsQueuedThisRun.add(normalizedEmail);
       } else if (enqueued.duplicate) {
         if (
           enqueued.job.status === 'accepted' ||
@@ -768,7 +832,11 @@ export async function runFirmOutreachAllCampaigns(opts?: {
   byCampaign: Record<string, OutreachRunStats>;
   combined: OutreachRunStats;
 }> {
-  const campaignIds = opts?.campaignIds ?? OUTREACH_CAMPAIGN_IDS;
+  const requestedIds = opts?.campaignIds ?? OUTREACH_CAMPAIGN_IDS;
+  const date = new Date().toISOString().slice(0, 10);
+  const campaignIds = await orderCampaignsByFewestSendsToday(requestedIds, (id) =>
+    getDailySendCount(date, id),
+  );
   const byCampaign: Record<string, OutreachRunStats> = {};
   // Floor at 120s so job-first drain still completes under dual-campaign split.
   const perCampaignElapsed = opts?.maxElapsedMs

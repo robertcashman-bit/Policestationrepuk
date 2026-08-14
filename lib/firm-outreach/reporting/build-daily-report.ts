@@ -253,7 +253,11 @@ export async function buildConsolidatedDailyReport(
         actionRequired.push(`${section.label}: ${fault}`);
       }
     }
-    if (section.status === 'FAILED' && section.capacity.eligibleUnsent > 0) {
+    if (
+      section.status === 'FAILED' &&
+      section.capacity.eligibleUnsent > 0 &&
+      section.emailsAcceptedByProvider === 0
+    ) {
       actionRequired.push(
         `${section.label}: eligible recipients exist but system cannot send (${section.zeroReason?.code ?? section.status})`,
       );

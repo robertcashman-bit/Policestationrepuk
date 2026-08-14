@@ -1,9 +1,10 @@
 import { normalizeEmail } from '../normalize';
 import { isPlausibleOutreachEmail } from '../enrichment/validator';
 import {
-  hasAcceptedOutreachToday,
-  isDuplicateInitialSend,
+  emailHasAcceptedSendOnDate,
+  emailHasInitialOutreachFromOtherProspect,
   isSuppressed,
+  listSendsForEmail,
 } from '../storage';
 
 export type OutreachSendBlocker = 'suppressed' | 'duplicate' | 'junk_email';
@@ -20,11 +21,32 @@ export async function outreachEmailSendBlocker(opts: {
   if (opts.emailsSentThisRun.has(normalized)) return 'duplicate';
   if (await isSuppressed(opts.email)) return 'suppressed';
   if (!isPlausibleOutreachEmail(opts.email)) return 'junk_email';
-  if (await hasAcceptedOutreachToday(opts.email, opts.today)) return 'duplicate';
-  if (opts.step === 0 && (await isDuplicateInitialSend(opts.email, opts.prospectId, opts.campaignId))) {
+  // Indexed lookup only. A full send-table scan here (allowFullScan) made
+  // every never-mailed inbox reload all historical sends — Vercel 300s 504s.
+  const today = opts.today ?? new Date().toISOString().slice(0, 10);
+  const sends = await listSendsForEmail(opts.email);
+  if (emailHasAcceptedSendOnDate(sends, opts.email, today)) return 'duplicate';
+  if (
+    opts.step === 0 &&
+    emailHasInitialOutreachFromOtherProspect(sends, opts.email, opts.prospectId)
+  ) {
     return 'duplicate';
   }
   return null;
+}
+
+/** Remaining ms for the next campaign, or null when the shared tick budget is gone. */
+export function remainingCampaignBudgetMs(opts: {
+  startedMs: number;
+  nowMs: number;
+  totalBudgetMs: number;
+  reserveMs?: number;
+  minSliceMs?: number;
+}): number | null {
+  const reserveMs = opts.reserveMs ?? 8_000;
+  const minSliceMs = opts.minSliceMs ?? 12_000;
+  const remaining = opts.totalBudgetMs - (opts.nowMs - opts.startedMs) - reserveMs;
+  return remaining < minSliceMs ? null : remaining;
 }
 
 export async function orderCampaignsByFewestSendsToday(

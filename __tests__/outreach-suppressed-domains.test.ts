@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { orderCampaignsByFewestSendsToday } from '@/lib/firm-outreach/outreach/send-gates';
+import {
+  orderCampaignsByFewestSendsToday,
+  remainingCampaignBudgetMs,
+} from '@/lib/firm-outreach/outreach/send-gates';
 import {
   isSeedSuppressedDomain,
   registrableEmailDomain,
@@ -35,5 +38,27 @@ describe('orderCampaignsByFewestSendsToday', () => {
       async (id) => (id === 'whatsapp_invite_v1' ? 0 : 217),
     );
     expect(order[0]).toBe('whatsapp_invite_v1');
+  });
+});
+
+describe('remainingCampaignBudgetMs', () => {
+  it('returns the leftover slice after reserve', () => {
+    expect(
+      remainingCampaignBudgetMs({
+        startedMs: 1_000,
+        nowMs: 21_000,
+        totalBudgetMs: 280_000,
+      }),
+    ).toBe(252_000);
+  });
+
+  it('returns null when the shared tick budget is gone', () => {
+    expect(
+      remainingCampaignBudgetMs({
+        startedMs: 0,
+        nowMs: 275_000,
+        totalBudgetMs: 280_000,
+      }),
+    ).toBeNull();
   });
 });

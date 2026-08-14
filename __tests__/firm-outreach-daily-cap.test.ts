@@ -16,6 +16,10 @@ vi.mock('../lib/firm-outreach/storage', () => ({
   isDuplicateInitialSend: vi.fn(async () => false),
   hasAcceptedOutreachToday: vi.fn(async () => false),
   isSuppressed: vi.fn(async () => false),
+  listSendsForEmail: vi.fn(async () => []),
+  emailHasAcceptedSendOnDate: vi.fn(() => false),
+  emailHasInitialOutreachFromOtherProspect: vi.fn(() => false),
+  getProspect: vi.fn(async () => null),
   listProspectsByRecordStatus: vi.fn(async () => []),
   listProspectsForFirmKey: vi.fn(async () => []),
   releaseDailySendSlot: vi.fn(),
@@ -135,5 +139,47 @@ describe('runFirmOutreach daily cap vs batch limit', () => {
     // Cap 50, already 25 → remaining 25; batch limit 25 → send 25 in dry-run.
     expect(stats.sent).toBe(25);
     expect(mockSend).toHaveBeenCalledTimes(25);
+  });
+
+  it('drains claimed jobs without scanning ready/sent candidates when the limit is met', async () => {
+    delete process.env.FIRM_OUTREACH_DRY_RUN;
+    mockGetDailySendCount.mockResolvedValue(0);
+    const { claimNextEmailJob } = await import('../lib/firm-outreach/email-jobs/storage');
+    const { selectOutreachCandidates } = await import(
+      '../lib/firm-outreach/outreach/candidate-selection'
+    );
+    const storage = await import('../lib/firm-outreach/storage');
+    const prospect = readyProspect('p1');
+    vi.mocked(storage.getProspect).mockResolvedValue(prospect as never);
+    let claims = 0;
+    vi.mocked(claimNextEmailJob).mockImplementation(async () => {
+      claims += 1;
+      if (claims > 1) return null;
+      return {
+        id: 'foj_1',
+        idempotencyKey: 'idem-1',
+        campaignId: 'whatsapp_invite_v1',
+        prospectId: 'p1',
+        firmName: 'Firm p1',
+        prospectType: 'firm',
+        email: 'p1@example.com',
+        sequenceStep: 0,
+        status: 'claimed',
+        attemptCount: 1,
+        maxAttempts: 5,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        correlationId: 'corr-1',
+      };
+    });
+
+    const { runFirmOutreach } = await import('../lib/firm-outreach/outreach/run-outreach');
+    const stats = await runFirmOutreach({
+      campaignId: 'whatsapp_invite_v1',
+      limit: 1,
+    });
+
+    expect(stats.sent).toBe(1);
+    expect(selectOutreachCandidates).not.toHaveBeenCalled();
   });
 });

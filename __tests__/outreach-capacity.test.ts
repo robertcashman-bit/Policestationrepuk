@@ -123,4 +123,12 @@ describe('getOutreachCapacity', () => {
     await getOutreachCapacity('psa');
     expect(mockHourly).toHaveBeenCalledWith('agent_cover_kent_v1', '2026-08-08T12');
   });
+
+  it('skips per-job samples when sampleJobs is false', async () => {
+    mockCountJobs.mockResolvedValue({ pending: 12, retry_scheduled: 3, claimed: 0, processing: 0 });
+    const cap = await getOutreachCapacity('repuk', { sampleJobs: false });
+    expect(mockListJobIds).not.toHaveBeenCalled();
+    expect(cap.pendingJobs).toBe(12);
+    expect(cap.retryScheduledJobs).toBe(3);
+  });
 });

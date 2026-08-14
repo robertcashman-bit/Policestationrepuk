@@ -88,7 +88,8 @@ export async function runOutreachWorkerTick(opts?: {
     return { ok: true, skipped: true, reason: 'overlap', runId, accepted: 0, claimed: 0, jobsCreated: 0 };
   }
 
-  const before = await getAllWorkspacesCapacity();
+  const capacityOpts = { eligibleScanLimit: 80, sampleJobs: false as const };
+  const before = await getAllWorkspacesCapacity(new Date(), capacityOpts);
   const recovered = await recoverAbandonedEmailJobs({ limit: 80 });
 
   const multi = await runFirmOutreachAllCampaigns({
@@ -96,7 +97,11 @@ export async function runOutreachWorkerTick(opts?: {
     maxElapsedMs: opts?.maxElapsedMs ?? 240_000,
   });
 
-  const after = await getAllWorkspacesCapacity();
+  const elapsedMs = Date.now() - Date.parse(started);
+  const after =
+    elapsedMs > 240_000
+      ? before
+      : await getAllWorkspacesCapacity(new Date(), capacityOpts);
   const accepted = multi.combined.accepted ?? multi.combined.sent ?? 0;
   const claimed = multi.combined.jobsClaimed ?? 0;
   const jobsCreated = multi.combined.jobsCreated ?? 0;

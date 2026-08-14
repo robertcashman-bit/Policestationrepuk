@@ -44,9 +44,9 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       BASE_URL: https://policestationrepuk.org
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
 
@@ -155,6 +155,18 @@ jobs:
             python3 -c 'import json,sys; json.load(open(sys.argv[1])); print("json_ok", sys.argv[1])' "$out"
           }
 
+          # Vercel kills /firm-outreach-send at 300s. Retry once — overlap (200)
+          # means another tick is already draining the queue.
+          call_worker() {
+            local out="$1"; shift
+            if call worker "$out" "$@"; then
+              return 0
+            fi
+            echo "worker gateway timeout; retrying once"
+            sleep 20
+            call worker "$out" "$@"
+          }
+
           call status status.json "$BASE_URL/api/cron/firm-outreach-status"
           python3 - <<'PY'
           import json
@@ -187,7 +199,7 @@ jobs:
           fi
 
           call autoheal_nosend autoheal1.json "$BASE_URL/api/cron/firm-outreach-autoheal?noSend=1"
-          call worker send.json "$BASE_URL/api/cron/firm-outreach-send?limit=5"
+          call_worker send.json "$BASE_URL/api/cron/firm-outreach-send?limit=5"
           # Autoheal may skip on overlap right after worker — tolerate non-200 only if overlap JSON.
           set +e
           call autoheal autoheal2.json "$BASE_URL/api/cron/firm-outreach-autoheal"
@@ -228,7 +240,7 @@ jobs:
 
       - name: Upload ops artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: outreach-live-verify
           path: |

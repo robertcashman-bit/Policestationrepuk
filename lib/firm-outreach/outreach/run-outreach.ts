@@ -42,7 +42,11 @@ import {
 } from '../storage';
 import type { FirmProspect, OutreachRunStats } from '../types';
 import { assertOutreachSendReady } from './from-address';
-import { orderCampaignsByFewestSendsToday, outreachEmailSendBlocker } from './send-gates';
+import {
+  orderCampaignsByFewestSendsToday,
+  outreachEmailSendBlocker,
+  remainingCampaignBudgetMs,
+} from './send-gates';
 import {
   firmRecentlyContacted,
   selectOutreachCandidates,
@@ -239,37 +243,40 @@ export async function runFirmOutreach(opts?: {
     stats.abandonedRecovered = await recoverAbandonedEmailJobs({ limit: 50 });
   }
 
-  const selection = await selectOutreachCandidates({
-    campaignId,
-    readyLimit: 500,
-    sentLimit: 500,
-  });
-
-  structuredRunLog('info', 'outreach.run.selection', {
-    runId,
-    campaignId,
-    readyScanned: selection.readyScanned,
-    sentScanned: selection.sentScanned,
-    readyEligible: selection.readyEligible,
-    followUpEligible: selection.followUpEligible,
-    firmCooldownSkipped: selection.firmCooldownSkipped,
-    candidates: selection.candidates.length,
-    remaining,
-    dryRun,
-  });
-  if (selection.firmCooldownSkipped > 0) {
-    for (let i = 0; i < selection.firmCooldownSkipped; i++) {
-      recordSkip(stats, 'firm_cooldown');
-    }
-  }
-
   const emailsSentThisRun = new Set<string>();
   const emailsQueuedThisRun = new Set<string>();
   let resendQuota = globalQuota;
   const correlationId = runId;
 
+  async function loadCandidates(readyLimit: number, sentLimit: number) {
+    const selection = await selectOutreachCandidates({
+      campaignId,
+      readyLimit,
+      sentLimit,
+    });
+    structuredRunLog('info', 'outreach.run.selection', {
+      runId,
+      campaignId,
+      readyScanned: selection.readyScanned,
+      sentScanned: selection.sentScanned,
+      readyEligible: selection.readyEligible,
+      followUpEligible: selection.followUpEligible,
+      firmCooldownSkipped: selection.firmCooldownSkipped,
+      candidates: selection.candidates.length,
+      remaining,
+      dryRun,
+    });
+    if (selection.firmCooldownSkipped > 0) {
+      for (let i = 0; i < selection.firmCooldownSkipped; i++) {
+        recordSkip(stats, 'firm_cooldown');
+      }
+    }
+    return selection;
+  }
+
   // Dry-run: evaluate gates and simulate sends without writing jobs or calling provider for real.
   if (dryRun) {
+    const selection = await loadCandidates(500, 500);
     for (const { prospect, step } of selection.candidates) {
       if (stats.sent >= remaining) break;
       if (Date.now() - started >= maxElapsedMs) {
@@ -339,9 +346,8 @@ export async function runFirmOutreach(opts?: {
   }
 
   // Phase A: drain durable pending jobs FIRST.
-  // Dual-campaign ticks split ~240s → ~120s each. Scanning/demoting a polluted
-  // ready queue previously consumed the whole budget so jobsClaimed stayed 0
-  // while dozens of pending jobs sat idle.
+  // Do not scan the ready/sent indexes until this drain finishes — a 500+500
+  // candidate scan was blowing the Vercel 300s ceiling before any job sent.
   const owner = `${runId}:${campaignId}`;
 
   async function processDurableJobs(deadlineMs: number): Promise<void> {
@@ -595,6 +601,11 @@ export async function runFirmOutreach(opts?: {
     return finish(finalQuotaEarly, alreadySent, dailyCap);
   }
 
+  const selection = await loadCandidates(
+    Math.min(500, Math.max(60, remaining * 10)),
+    Math.min(200, Math.max(20, remaining * 4)),
+  );
+
   // Phase B: enqueue new jobs — hard-capped so we always leave time to send.
   const enqueueDeadline = Math.min(
     started + maxElapsedMs - 45_000,
@@ -838,17 +849,27 @@ export async function runFirmOutreachAllCampaigns(opts?: {
     getDailySendCount(date, id),
   );
   const byCampaign: Record<string, OutreachRunStats> = {};
-  // Floor at 120s so job-first drain still completes under dual-campaign split.
-  const perCampaignElapsed = opts?.maxElapsedMs
-    ? Math.max(120_000, Math.floor(opts.maxElapsedMs / Math.max(1, campaignIds.length)))
-    : undefined;
+  const started = Date.now();
+  const totalBudget = opts?.maxElapsedMs ?? DEFAULT_MAX_ELAPSED_MS;
 
   for (const campaignId of campaignIds) {
+    const slice = remainingCampaignBudgetMs({
+      startedMs: started,
+      nowMs: Date.now(),
+      totalBudgetMs: totalBudget,
+    });
+    if (slice == null) {
+      const skipped = emptyOutreachRunStats();
+      skipped.partial = true;
+      skipped.skippedReason = 'time_budget';
+      byCampaign[campaignId] = skipped;
+      continue;
+    }
     byCampaign[campaignId] = await runFirmOutreach({
       campaignId,
       dryRun: opts?.dryRun,
       limit: opts?.limit,
-      maxElapsedMs: perCampaignElapsed,
+      maxElapsedMs: slice,
     });
   }
 

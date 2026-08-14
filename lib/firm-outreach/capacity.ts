@@ -109,7 +109,7 @@ export async function countEligibleUnsent(campaignId: string, scanLimit = 400): 
 
 export async function getOutreachCapacity(
   workspaceId: OutreachWorkspaceId,
-  opts?: { now?: Date; eligibleScanLimit?: number },
+  opts?: { now?: Date; eligibleScanLimit?: number; sampleJobs?: boolean },
 ): Promise<OutreachCapacity> {
   const workspace: OutreachWorkspace = workspaceById(workspaceId);
   const now = opts?.now ?? new Date();
@@ -137,17 +137,24 @@ export async function getOutreachCapacity(
   ]);
 
   // Status indexes are global — filter pending/retry samples to this workspace.
-  const pendingIds = await listEmailJobIdsByStatus('pending', 200);
-  const retryIds = await listEmailJobIdsByStatus('retry_scheduled', 200);
+  // Worker ticks skip the per-job fetch (sampleJobs: false) so capacity
+  // snapshots cannot eat the 300s Vercel ceiling before any send happens.
   let pendingJobs = 0;
   let retryScheduledJobs = 0;
-  for (const id of pendingIds) {
-    const job = await getEmailJob(id);
-    if (job?.campaignId === workspace.campaignId) pendingJobs++;
-  }
-  for (const id of retryIds) {
-    const job = await getEmailJob(id);
-    if (job?.campaignId === workspace.campaignId) retryScheduledJobs++;
+  if (opts?.sampleJobs === false) {
+    pendingJobs = jobCounts.pending ?? 0;
+    retryScheduledJobs = jobCounts.retry_scheduled ?? 0;
+  } else {
+    const pendingIds = await listEmailJobIdsByStatus('pending', 200);
+    const retryIds = await listEmailJobIdsByStatus('retry_scheduled', 200);
+    for (const id of pendingIds) {
+      const job = await getEmailJob(id);
+      if (job?.campaignId === workspace.campaignId) pendingJobs++;
+    }
+    for (const id of retryIds) {
+      const job = await getEmailJob(id);
+      if (job?.campaignId === workspace.campaignId) retryScheduledJobs++;
+    }
   }
   // Claimed/processing stay global for overlap observability only.
   const claimedJobs = jobCounts.claimed ?? 0;
@@ -278,10 +285,13 @@ export async function getOutreachCapacity(
   };
 }
 
-export async function getAllWorkspacesCapacity(now = new Date()) {
+export async function getAllWorkspacesCapacity(
+  now = new Date(),
+  opts?: { eligibleScanLimit?: number; sampleJobs?: boolean },
+) {
   const [psa, repuk] = await Promise.all([
-    getOutreachCapacity('psa', { now }),
-    getOutreachCapacity('repuk', { now }),
+    getOutreachCapacity('psa', { now, ...opts }),
+    getOutreachCapacity('repuk', { now, ...opts }),
   ]);
   return { psa, repuk };
 }

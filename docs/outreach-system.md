@@ -12,12 +12,14 @@ Dependable production path for professional outreach to criminal defence firms /
 
 ### Campaigns
 
-| Campaign ID | Brand | Purpose |
-|-------------|-------|---------|
-| `whatsapp_invite_v1` | PoliceStationRepUK | WhatsApp group + directory |
-| `agent_cover_kent_v1` | Police Station Agent | Kent custody cover offer (nationwide recipients) |
+| Campaign ID | Brand | Purpose | Status |
+|-------------|-------|---------|--------|
+| `whatsapp_invite_v1` | PoliceStationRepUK | WhatsApp group + directory | **Active** |
+| `agent_cover_kent_v1` | Police Station Agent | Kent custody cover offer | **Permanently disabled** (no sends from this repo) |
 
 Selection is explicit per prospect `campaignId` — never random dual-send to the same person for both brands unless they exist as separate campaign rows.
+
+**PSA stop (2026-08-17):** Code hard-blocks `agent_cover_kent_v1` in `sendOutreachEmail`, `runFirmOutreach`, admin manual send, autoheal, PSA sync cron, and pipeline inventory. Only `whatsapp_invite_v1` is in `SENDABLE_OUTREACH_CAMPAIGN_IDS`.
 
 ### State machine (jobs)
 

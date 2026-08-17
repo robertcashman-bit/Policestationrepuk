@@ -164,8 +164,13 @@ export async function runSendHealthChecks(): Promise<RepoCheckResult[]> {
     name: 'send_health_psa_campaign_present',
     ok: Boolean(psa),
     detail: psa
-      ? `${psa.from}${psa.usedFallbackDefault ? ' (RepUK fallback active)' : ''}`
+      ? `${psa.from}${psa.canSend ? '' : ` (${psa.blockers.join(',') || 'disabled'})`}`
       : 'missing PSA campaign',
+  });
+  results.push({
+    name: 'send_health_psa_permanently_disabled',
+    ok: Boolean(psa && !psa.canSend),
+    detail: psa?.blockers.join('; ') || 'psa missing',
   });
 
   return results;
@@ -379,9 +384,9 @@ export async function runHttpChecks(
       const psaCampaign = campaigns.find((c) => c.campaignId === AGENT_COVER_KENT_CAMPAIGN_ID);
       const repukCampaign = campaigns.find((c) => c.campaignId === FIRM_OUTREACH_CAMPAIGN_ID);
       const campaignsOk =
-        campaigns.length >= 2 &&
         Boolean(repukCampaign?.canSend) &&
-        Boolean(psaCampaign?.canSend);
+        Boolean(psaCampaign) &&
+        psaCampaign?.canSend === false;
       results.push({
         name: 'cron_status_authenticated',
         ok: statusRes.status === 200 && payload?.ok === true,

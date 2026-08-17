@@ -1,5 +1,5 @@
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from '../campaign-scope';
-import { FIRM_OUTREACH_CAMPAIGN_ID } from '../site-config';
+import { FIRM_OUTREACH_CAMPAIGN_ID, isAgentCoverOutreachDisabled } from '../site-config';
 
 export const VERIFIED_FALLBACK_DOMAIN = 'policestationrepuk.org';
 
@@ -190,6 +190,19 @@ export async function getOutreachSendHealth(): Promise<{
     const resolved = resolveFromAddressForCampaign(campaignId, verified);
     const domainVerified = verified.has(resolved.domain);
     const blockers: string[] = [];
+    if (campaignId === AGENT_COVER_KENT_CAMPAIGN_ID && isAgentCoverOutreachDisabled()) {
+      blockers.push('agent_cover_outreach_permanently_disabled');
+      campaigns.push({
+        campaignId,
+        from: resolved.from,
+        domain: resolved.domain,
+        domainVerified,
+        usedFallbackDefault: resolved.usedFallback,
+        canSend: false,
+        blockers,
+      });
+      continue;
+    }
     if (!resendConfigured) blockers.push('resend_not_configured');
     if (!domainVerified) {
       blockers.push(`from_domain_not_verified:${resolved.domain}`);
@@ -211,8 +224,14 @@ export async function getOutreachSendHealth(): Promise<{
     });
   }
 
+  const sendableCampaigns = campaigns.filter(
+    (c) =>
+      !(
+        c.campaignId === AGENT_COVER_KENT_CAMPAIGN_ID && isAgentCoverOutreachDisabled()
+      ),
+  );
   const sendHealthy =
-    sendBlockers.length === 0 && campaigns.every((c) => c.canSend);
+    sendBlockers.length === 0 && sendableCampaigns.every((c) => c.canSend);
 
   return { sendHealthy, sendBlockers, campaigns, resendConfigured, verifiedDomains: verifiedList };
 }

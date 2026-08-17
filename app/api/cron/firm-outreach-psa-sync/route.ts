@@ -1,25 +1,49 @@
 import { NextResponse } from 'next/server';
 import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
-import { AGENT_COVER_KENT_CAMPAIGN_ID } from '@/lib/firm-outreach/campaign-scope';
-import { selectOutreachCandidates } from '@/lib/firm-outreach/outreach/candidate-selection';
-import { reviveAgentCoverKentReady } from '@/lib/firm-outreach/revive-agent-cover-ready';
-import { syncKentProspectsToAgentCover } from '@/lib/firm-outreach/sync-kent-to-agent-cover';
+import { isAgentCoverOutreachDisabled } from '@/lib/firm-outreach/site-config';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 export const maxDuration = 300;
 
 /**
- * Kent→PSA inventory sync + revive stuck send_failed / soft exclusions.
- * Runs before send crons so agent_cover_kent_v1 is not starved when maintain 504s.
- *
- * Time budget must be large enough to walk past already-cloned RepUK head rows
- * and create new PSA ready inventory (25s previously truncated after ~100 scans).
+ * Formerly: Kent→PSA inventory sync + revive.
+ * Police Station Agent firm outreach is permanently disabled — this cron is a no-op.
+ * RepUK WhatsApp outreach continues via firm-outreach-send / pipeline.
  */
 export async function GET(request: Request) {
   if (!isOutreachBootstrapAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  if (isAgentCoverOutreachDisabled()) {
+    return NextResponse.json({
+      ok: true,
+      mode: 'psa-sync',
+      disabled: true,
+      reason: 'agent_cover_outreach_permanently_disabled',
+      sync: null,
+      revive: null,
+      psa: {
+        readyScanned: 0,
+        readyEligible: 0,
+        sendableCandidates: 0,
+      },
+    });
+  }
+
+  // Unreachable while AGENT_COVER_OUTREACH_PERMANENTLY_DISABLED is true.
+  // Kept for clarity if the permanent flag is ever reviewed in a dedicated change.
+  const { AGENT_COVER_KENT_CAMPAIGN_ID } = await import('@/lib/firm-outreach/campaign-scope');
+  const { selectOutreachCandidates } = await import(
+    '@/lib/firm-outreach/outreach/candidate-selection'
+  );
+  const { reviveAgentCoverKentReady } = await import(
+    '@/lib/firm-outreach/revive-agent-cover-ready'
+  );
+  const { syncKentProspectsToAgentCover } = await import(
+    '@/lib/firm-outreach/sync-kent-to-agent-cover'
+  );
 
   const url = new URL(request.url);
   const limitRaw = Number(url.searchParams.get('limit') || 400);

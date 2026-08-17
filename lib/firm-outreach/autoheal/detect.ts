@@ -6,6 +6,7 @@ import { countEmailJobsByStatus, getEmailJob, listEmailJobIdsByStatus } from '..
 import { getLatestJobRun } from '../job-runs';
 import { getOutreachSendHealth } from '../outreach/from-address';
 import { getLatestOutreachRunLog } from '../storage';
+import { isAgentCoverOutreachDisabled } from '../site-config';
 import { OUTREACH_WORKSPACES, type OutreachWorkspaceId } from '../workspaces';
 
 export type AutohealFaultCode =
@@ -117,6 +118,9 @@ export async function detectAutohealFaults(now = new Date()): Promise<{
   }
 
   for (const ws of OUTREACH_WORKSPACES) {
+    // PSA agent-cover is permanently off — do not raise starvation / send faults for it.
+    if (ws.id === 'psa' && isAgentCoverOutreachDisabled()) continue;
+
     const cap = capacities[ws.id];
     if (!cap.sendingEnabled && !cap.dryRun) {
       faults.push({

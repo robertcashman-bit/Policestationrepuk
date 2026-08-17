@@ -14,6 +14,7 @@ import {
 import { isOutreachSendAllowed } from './pause-state';
 import { claimOutreachRunLock } from './run-lock';
 import { requalifyAllProspects } from './requalify-prospects';
+import { isAgentCoverOutreachDisabled } from './site-config';
 import { countProspectsByStatus } from './storage';
 import {
   syncKentProspectsToAgentCover,
@@ -101,14 +102,16 @@ export async function runFirmOutreachPipeline(opts?: {
   let agentCoverEnrich: EnrichmentRunStats | undefined;
 
   if (!opts?.skipDiscovery) {
-    // Kent→PSA sync FIRST: maintain often 504s during full discovery before sync ran.
-    agentCoverSync = await syncKentProspectsToAgentCover({
-      limit: 200,
-      maxElapsedMs: 55_000,
-    }).catch((err) => {
-      console.warn('[firm-outreach pipeline] Kent→PSA sync failed:', err);
-      return undefined;
-    });
+    // PSA agent-cover inventory sync/discovery is permanently disabled.
+    if (!isAgentCoverOutreachDisabled()) {
+      agentCoverSync = await syncKentProspectsToAgentCover({
+        limit: 200,
+        maxElapsedMs: 55_000,
+      }).catch((err) => {
+        console.warn('[firm-outreach pipeline] Kent→PSA sync failed:', err);
+        return undefined;
+      });
+    }
 
     const forceLaa = opts?.forceLaaRefresh ?? isSundayUtc();
     laaResult = await fetchLaaCrimeProviders({ force: forceLaa }).catch((err) => {
@@ -120,15 +123,15 @@ export async function runFirmOutreachPipeline(opts?: {
     dsccCount = dscc?.count ?? 0;
     dsccSyncedAt = dscc?.syncedAt ?? null;
     discovery = await runFirmDiscovery();
-    // Nationwide recipients; email copy still offers Kent agency cover.
-    agentCoverDiscovery = await runFirmDiscovery({
-      campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-      countyAllowlist: null,
-    });
+    if (!isAgentCoverOutreachDisabled()) {
+      agentCoverDiscovery = await runFirmDiscovery({
+        campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+        countyAllowlist: null,
+      });
+    }
     requalify = await requalifyAllProspects();
   } else if (!opts?.skipSend) {
-    // Keep send ticks send-first. Nationwide RepUK→PSA refill belongs on
-    // /api/cron/firm-outreach-psa-sync (and maintain), not inside the 300s send budget.
+    // Send ticks stay send-first; PSA sync cron is a no-op while agent-cover is disabled.
   }
 
   if (!opts?.skipEnrich) {
@@ -141,14 +144,14 @@ export async function runFirmOutreachPipeline(opts?: {
       limit: enrichLimit,
       maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
     });
-    // PSA previously capped at enrichLimit/4 (≤15) and stayed emailless while
-    // RepUK took the full batch. Give PSA a peer budget so sync is not the only supply.
-    const psaEnrichLimit = Math.max(40, Math.floor(enrichLimit / 2));
-    agentCoverEnrich = await runFirmEnrichment({
-      campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-      limit: psaEnrichLimit,
-      maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
-    });
+    if (!isAgentCoverOutreachDisabled()) {
+      const psaEnrichLimit = Math.max(40, Math.floor(enrichLimit / 2));
+      agentCoverEnrich = await runFirmEnrichment({
+        campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+        limit: psaEnrichLimit,
+        maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
+      });
+    }
     }
   }
 
@@ -165,10 +168,9 @@ export async function runFirmOutreachPipeline(opts?: {
             skipped.skippedReason = 'overlap';
             return skipped;
           }
-          // Send both RepUK WhatsApp invites and PSA agent-cover Kent emails.
+          // RepUK WhatsApp only — PSA agent-cover filtered inside runFirmOutreachAllCampaigns.
           const multi = await runFirmOutreachAllCampaigns({
             limit: opts?.sendLimit,
-            // Leave headroom under Vercel maxDuration=300s for both campaigns.
             maxElapsedMs: 280_000,
           });
           sendByCampaign = multi.byCampaign;
@@ -180,17 +182,11 @@ export async function runFirmOutreachPipeline(opts?: {
 
   if (!opts?.skipSend && !opts?.skipCounts) {
     const sendHealth = await getOutreachSendHealth();
-    const psaHealth = sendHealth.campaigns.find(
-      (c) => c.campaignId === AGENT_COVER_KENT_CAMPAIGN_ID,
-    );
-    const psaNote = psaHealth?.usedFallbackDefault
-      ? ' PSA agent-cover is sending from the verified RepUK domain until policestationagent.com is verified on Resend.'
-      : '';
     if (!sendHealth.sendHealthy) {
       await maybeNotifyOutreachSendFailure({
         stats: send,
         readyToSend: counts.ready_to_send ?? 0,
-        reason: `Outreach send config unhealthy: ${sendHealth.sendBlockers.join('; ')}.${psaNote}`,
+        reason: `Outreach send config unhealthy: ${sendHealth.sendBlockers.join('; ')}.`,
       });
     } else {
       await maybeNotifyOutreachSendFailure({

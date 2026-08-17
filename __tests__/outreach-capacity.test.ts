@@ -90,7 +90,7 @@ describe('getOutreachCapacity', () => {
 
   it('detects dry-run as limiting factor', async () => {
     process.env.FIRM_OUTREACH_DRY_RUN = '1';
-    const cap = await getOutreachCapacity('psa');
+    const cap = await getOutreachCapacity('repuk');
     expect(cap.limitingFactor).toBe('dry_run');
     expect(cap.effectiveAvailableCapacity).toBe(0);
   });
@@ -100,6 +100,16 @@ describe('getOutreachCapacity', () => {
     mockCountJobs.mockResolvedValue({ pending: 0, retry_scheduled: 0 });
     const cap = await getOutreachCapacity('repuk');
     expect(cap.limitingFactor).toBe('no_eligible_leads');
+  });
+
+  it('marks PSA agent-cover capacity as permanently sending_disabled', async () => {
+    mockListReady.mockResolvedValue([]);
+    mockCountJobs.mockResolvedValue({ pending: 0, retry_scheduled: 0 });
+    const psa = await getOutreachCapacity('psa');
+    expect(psa.sendingEnabled).toBe(false);
+    expect(psa.limitingFactor).toBe('sending_disabled');
+    expect(psa.limitingDetail).toMatch(/permanently disabled/i);
+    expect(psa.effectiveAvailableCapacity).toBe(0);
   });
 
   it('counts pending jobs only for the requested workspace campaign', async () => {
@@ -117,9 +127,9 @@ describe('getOutreachCapacity', () => {
       }
       return null;
     });
-    const psa = await getOutreachCapacity('psa');
-    expect(psa.pendingJobs).toBe(1);
-    expect(psa.limitingFactor).toBe('pending_jobs_only');
+    const repuk = await getOutreachCapacity('repuk');
+    expect(repuk.pendingJobs).toBe(1);
+    expect(repuk.limitingFactor).toBe('pending_jobs_only');
   });
 
   it('calls getHourlySendCount with campaignId first', async () => {

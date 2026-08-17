@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from '@/lib/firm-outreach/campaign-scope';
 import {
   FIRM_OUTREACH_CAMPAIGN_ID,
-  OUTREACH_CAMPAIGN_IDS,
+  SENDABLE_OUTREACH_CAMPAIGN_IDS,
 } from '@/lib/firm-outreach/site-config';
 import { psaSendReserve } from '@/lib/firm-outreach/send-quota-split';
 
@@ -26,7 +26,12 @@ vi.mock('@/lib/firm-outreach/outreach/run-outreach', async (importOriginal) => {
       maxElapsedMs?: number;
       campaignIds?: readonly string[];
     }) => {
-      const campaignIds = opts?.campaignIds ?? OUTREACH_CAMPAIGN_IDS;
+      const { SENDABLE_OUTREACH_CAMPAIGN_IDS, isOutreachCampaignSendable } = await import(
+        '@/lib/firm-outreach/site-config'
+      );
+      const campaignIds = (opts?.campaignIds ?? SENDABLE_OUTREACH_CAMPAIGN_IDS).filter((id) =>
+        isOutreachCampaignSendable(id),
+      );
       const byCampaign: Record<string, unknown> = {};
       for (const campaignId of campaignIds) {
         byCampaign[campaignId] = await mockRunFirmOutreach({
@@ -208,7 +213,7 @@ describe('runFirmOutreachPipeline dual-campaign send', () => {
     }));
   });
 
-  it('invokes runFirmOutreach for both PSA and RepUK campaign IDs', async () => {
+  it('invokes runFirmOutreach for RepUK only (PSA agent-cover permanently disabled)', async () => {
     const { runFirmOutreachPipeline } = await import('@/lib/firm-outreach/run-pipeline');
     const result = await runFirmOutreachPipeline({
       skipDiscovery: true,
@@ -223,13 +228,11 @@ describe('runFirmOutreachPipeline dual-campaign send', () => {
     const campaignIds = mockRunFirmOutreach.mock.calls.map(
       (c) => (c[0] as { campaignId?: string }).campaignId,
     );
-    expect(campaignIds).toContain(AGENT_COVER_KENT_CAMPAIGN_ID);
     expect(campaignIds).toContain(FIRM_OUTREACH_CAMPAIGN_ID);
+    expect(campaignIds).not.toContain(AGENT_COVER_KENT_CAMPAIGN_ID);
+    expect([...SENDABLE_OUTREACH_CAMPAIGN_IDS]).toEqual([FIRM_OUTREACH_CAMPAIGN_ID]);
 
-    // PSA first (daily reserve / Kent cover priority)
-    expect(campaignIds[0]).toBe(AGENT_COVER_KENT_CAMPAIGN_ID);
-    expect(result.agentCoverSend?.sent).toBe(5);
-    // `send` is the combined stats across both campaigns
-    expect(result.send.sent).toBe(25);
+    expect(result.agentCoverSend).toBeUndefined();
+    expect(result.send.sent).toBe(20);
   });
 });

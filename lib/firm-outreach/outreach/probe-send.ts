@@ -1,14 +1,15 @@
 /**
- * Pre-flight Resend probes for both outreach brands/sites:
+ * Pre-flight Resend probes for sendable outreach brands/sites.
+ * Police Station Agent / agent_cover_kent_v1 is permanently disabled — probe is skipped.
  * - policestationrepuk.com / .org → whatsapp_invite_v1
- * - policestationagent.com → agent_cover_kent_v1
- * Sends one operator-only test email per campaign so we confirm
- * from-address resolution before flushing live firm mail.
  */
 import { COMMUNITY_EMAIL } from '@/lib/site-navigation';
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from '../campaign-scope';
 import { getEmailProvider } from '../email-provider';
-import { FIRM_OUTREACH_CAMPAIGN_ID } from '../site-config';
+import {
+  FIRM_OUTREACH_CAMPAIGN_ID,
+  isAgentCoverOutreachDisabled,
+} from '../site-config';
 import {
   DEFAULT_PSA_FROM_FALLBACK,
   DEFAULT_PSA_FROM_PREFERRED,
@@ -102,6 +103,7 @@ export async function runOutreachSendProbes(opts?: {
     campaignId: string;
     site: string;
     preferredFrom: string;
+    permanentlyDisabled?: boolean;
   }> = [
     {
       campaignId: FIRM_OUTREACH_CAMPAIGN_ID,
@@ -110,13 +112,24 @@ export async function runOutreachSendProbes(opts?: {
         process.env.FIRM_OUTREACH_FROM_EMAIL?.trim() ||
         `PoliceStationRepUK <noreply@${VERIFIED_FALLBACK_DOMAIN}>`,
     },
-    {
+  ];
+
+  if (!isAgentCoverOutreachDisabled()) {
+    campaigns.push({
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
       site: 'policestationagent.com',
       preferredFrom:
         process.env.FIRM_OUTREACH_PSA_FROM_EMAIL?.trim() || DEFAULT_PSA_FROM_PREFERRED,
-    },
-  ];
+    });
+  } else {
+    campaigns.push({
+      campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+      site: 'policestationagent.com',
+      preferredFrom:
+        process.env.FIRM_OUTREACH_PSA_FROM_EMAIL?.trim() || DEFAULT_PSA_FROM_PREFERRED,
+      permanentlyDisabled: true,
+    });
+  }
 
   const probes: CampaignProbeResult[] = [];
 
@@ -136,6 +149,16 @@ export async function runOutreachSendProbes(opts?: {
       to,
       ok: false,
     };
+
+    if (c.permanentlyDisabled) {
+      probes.push({
+        ...base,
+        ok: true,
+        skipped: true,
+        reason: 'agent_cover_outreach_permanently_disabled',
+      });
+      continue;
+    }
 
     if (blockers.length > 0) {
       probes.push({ ...base, skipped: true, reason: blockers.join('; '), error: blockers[0] });
@@ -220,10 +243,10 @@ export async function runOutreachSendProbes(opts?: {
 
   const ok =
     blockers.length === 0 &&
-    probes.length === 2 &&
+    probes.length >= 1 &&
     probes.every((p) => p.ok) &&
     (repukCom || repukOrg) &&
-    (psaApex || psaWww);
+    (isAgentCoverOutreachDisabled() || psaApex || psaWww);
 
   return {
     ok,

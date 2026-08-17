@@ -1,0 +1,10 @@
+---
+description: PSA firm outreach is off; keep RepUK firm outreach running.
+alwaysApply: true
+---
+
+# Cross-site firm outreach
+
+- **policestationagent** firm outreach emails are permanently disabled. Never re-enable them from this repo or sibling patches.
+- **Policestationrepuk** firm outreach (WhatsApp / firm invites) must keep running.
+- If an agent task mentions “stop outreach”, confirm which site. Default for PSA = already off; default for RepUK = leave on unless the user names RepUK.

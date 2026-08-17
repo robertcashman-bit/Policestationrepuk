@@ -12,7 +12,6 @@ import {
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
 import { PSRTRAIN_CTA, PSRTRAIN_FREE_TESTING_NOTE, PSRTRAIN_NAME, PSRTRAIN_TRAINING_HREF } from '@/lib/psrtrain-promo';
-import { POLICESTATIONAGENT_HOME_HREF } from '@/lib/policestationagent-promo';
 import { PartnerOutboundLink } from '@/components/PartnerOutboundLink';
 import { SUPPORT_EMAIL, SUPPORT_MAILTO_HREF } from '@/lib/site-contact';
 import { SiteVersionStamp } from '@/components/SiteVersionStamp';
@@ -221,19 +220,15 @@ export function Footer() {
               href="/directory/kent"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
             >
-              Kent reps hub →
+              Kent directory →
             </Link>
             <span className="mx-1 text-xs text-slate-500">·</span>
-            <PartnerOutboundLink
-              href={POLICESTATIONAGENT_HOME_HREF}
-              partner="policestationagent"
-              placement="footer_kent"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/whatsapp/firms"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
             >
-              Police station agent (Kent) →
-            </PartnerOutboundLink>
+              Firm WhatsApp group →
+            </Link>
           </div>
           <div>
             <h4 className="text-sm font-bold text-white">{CUSTODYNOTE_BRAND_NAME} — PACE attendance note software</h4>

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { resolveCanonicalPathCase } from '@/lib/canonical-path-case';
 import { LEGACY_EXACT_REDIRECTS } from '@/lib/legacy-exact-redirects';
 import { EXTERNAL_SEO_REDIRECTS } from '@/lib/external-seo-redirects';
 import { COUNTY_SLUG_SET } from '@/lib/county-slugs-bundled';
@@ -86,6 +87,21 @@ export async function middleware(request: NextRequest) {
 
   if (path.startsWith('/_next') || path.startsWith('/api') || path.includes('.')) {
     return NextResponse.next();
+  }
+
+  // Lowercase public URLs for PascalCase App Router folders (301 + rewrite).
+  const caseFold = resolveCanonicalPathCase(path);
+  if (caseFold) {
+    if (!caseFold.isCanonical) {
+      const url = request.nextUrl.clone();
+      url.pathname = caseFold.canonicalPath;
+      return NextResponse.redirect(url, 301);
+    }
+    if (caseFold.rewritePath !== path) {
+      const url = request.nextUrl.clone();
+      url.pathname = caseFold.rewritePath;
+      return NextResponse.rewrite(url);
+    }
   }
 
   const key = path.toLowerCase();

@@ -23,7 +23,7 @@ const stub = (overrides: Partial<PoliceStation>): PoliceStation =>
 describe('station-numbers-campaign', () => {
   it('exports campaign constants', () => {
     expect(CAMPAIGN_HEADLINE).toBe('Help us to help you');
-    expect(CAMPAIGN_PATH).toBe('/HelpUsStationNumbers');
+    expect(CAMPAIGN_PATH).toBe('/helpusstationnumbers');
   });
 
   it('computeStationPhoneStats classifies stations', () => {

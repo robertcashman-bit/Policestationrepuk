@@ -1,19 +1,19 @@
 import { buildMetadata } from '@/lib/seo';
 import { SUPPORT_EMAIL, SUPPORT_MAILTO_HREF } from '@/lib/site-contact';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import Link from 'next/link';
 import { ContactForm } from './ContactForm';
 
 export const metadata = buildMetadata({
   title: 'Contact the Directory Team — PoliceStationRepUK',
   description:
     'Contact PoliceStationRepUK about the rep directory, listing, or registration. We are not the police — call 999 for emergencies or 101 for non-emergencies.',
-  path: '/Contact',
+  path: '/contact',
 });
 
 export default function ContactPage() {
   return (
     <>
-      {/* Navy header */}
       <section className="bg-[var(--navy)] py-10 sm:py-14">
         <div className="page-container !py-0">
           <Breadcrumbs
@@ -34,7 +34,6 @@ export default function ContactPage() {
 
       <div className="page-container">
         <div className="mx-auto max-w-2xl">
-          {/* NOT THE POLICE — unmissable red warning */}
           <div className="rounded-[var(--radius-lg)] border-2 border-red-600 bg-red-600 p-6 text-white shadow-lg">
             <p className="text-xl font-extrabold uppercase tracking-wide sm:text-2xl">
               We are not the police
@@ -64,58 +63,90 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* What this form IS for */}
-          <div className="mt-6 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-5 shadow-[var(--card-shadow)]">
-            <h2 className="text-base font-bold text-[var(--navy)]">What can we help with?</h2>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
-              Use this page only if you are a <strong>solicitor</strong>, a{' '}
-              <strong>police station representative</strong>, or have a question about the{' '}
-              <strong>PoliceStationRepUK directory</strong>. For example:
-            </p>
-            <ul className="mt-2 list-inside list-disc space-y-1 text-sm text-[var(--muted)]">
-              <li>Registering or updating your rep profile</li>
-              <li>Questions about the directory or listing</li>
-              <li>Technical issues with the website</li>
-              <li>Advertising or partnership enquiries</li>
-            </ul>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-5 shadow-[var(--card-shadow)]">
+              <h2 className="text-base font-bold text-[var(--navy)]">Solicitors &amp; firms</h2>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+                Directory listings, WhatsApp cover group, advertising, or technical issues with the site.
+              </p>
+              <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-[var(--muted)]">
+                <li>
+                  <Link href="/directory" className="font-semibold text-[var(--navy)] underline">
+                    Find a rep
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/whatsapp/firms" className="font-semibold text-[var(--navy)] underline">
+                    Firm WhatsApp cover group
+                  </Link>
+                </li>
+                <li>Use the form below for listing or partnership questions</li>
+              </ul>
+            </div>
+            <div className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-5 shadow-[var(--card-shadow)]">
+              <h2 className="text-base font-bold text-[var(--navy)]">Public / arrested?</h2>
+              <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+                We cannot give legal advice or contact the police for you. Ask for the duty solicitor at
+                the custody desk, or contact a criminal defence firm.
+              </p>
+              <ul className="mt-3 list-inside list-disc space-y-1 text-sm text-[var(--muted)]">
+                <li>
+                  <Link
+                    href="/free-legal-advice-police-station"
+                    className="font-semibold text-[var(--navy)] underline"
+                  >
+                    Your rights at the police station
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/police-station-rights-uk" className="font-semibold text-[var(--navy)] underline">
+                    Police station rights (UK)
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          {/* Website / directory support — email only (no SMS; WhatsApp & mobile stay on rep profiles e.g. /rep/robert-cashman) */}
+          <p className="mt-4 rounded-[var(--radius)] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-[var(--muted)]">
+            <strong className="text-[var(--navy)]">Response expectation:</strong> directory messages are usually
+            answered within <strong className="text-[var(--navy)]">1–2 working days</strong>. This is not an
+            emergency line and is not monitored 24/7.
+          </p>
+
           <div className="mt-6">
             <a
               href={SUPPORT_MAILTO_HREF}
               className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-5 no-underline shadow-[var(--card-shadow)] transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)]"
             >
-              <span className="mt-0.5 text-xl" aria-hidden="true">📧</span>
+              <span className="mt-0.5 text-xl" aria-hidden="true">
+                📧
+              </span>
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
                   Directory &amp; website support email
                 </p>
-                <p className="mt-1 text-sm font-semibold text-[var(--gold-link)] break-all">
-                  {SUPPORT_EMAIL}
-                </p>
+                <p className="mt-1 break-all text-sm font-semibold text-[var(--gold-link)]">{SUPPORT_EMAIL}</p>
               </div>
             </a>
           </div>
 
-          {/* Contact form */}
           <section className="mt-8 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-6 shadow-[var(--card-shadow)] sm:p-8">
             <h2 className="mb-1 text-lg font-bold text-[var(--navy)]">
               Send us a message about the directory
             </h2>
             <p className="mb-6 text-xs text-[var(--muted)]">
-              This form goes to the directory admin team — not the police. If you need the police, call 999 or 101.
+              For solicitors, reps, and directory questions only — not the police. If you need the police,
+              call 999 or 101.
             </p>
             <ContactForm />
           </section>
 
-          {/* Regulatory notice */}
           <div className="mt-6 rounded-[var(--radius)] border border-yellow-200 bg-yellow-50 p-4 text-xs leading-relaxed text-yellow-900">
             <strong>Important Notice:</strong> PoliceStationRepUK is operated by{' '}
             <strong>Defence Legal Services Ltd</strong> — an independent directory service. We are{' '}
-            <strong>not</strong> affiliated with The Law Society, SRA, LCCSA, CLSA, the Legal
-            Ombudsman, any UK police force, or any government body. We cannot provide legal advice,
-            access case management systems, or influence active cases.
+            <strong>not</strong> affiliated with The Law Society, SRA, LCCSA, CLSA, the Legal Ombudsman, any
+            UK police force, or any government body. We cannot provide legal advice, access case management
+            systems, or influence active cases.
           </div>
         </div>
       </div>

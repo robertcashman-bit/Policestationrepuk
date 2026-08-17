@@ -35,7 +35,7 @@ describe('assistant cover routing', () => {
   it('enrichCoverRouting leaves join-group responses unchanged', () => {
     const base = queryAssistant('join whatsapp group for reps');
     const enriched = enrichCoverRouting('join whatsapp group for reps', base);
-    expect(enriched.primaryMatch?.entry.href).toBe('/WhatsApp');
+    expect(enriched.primaryMatch?.entry.href).toBe('/whatsapp');
   });
 });
 

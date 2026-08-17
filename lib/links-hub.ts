@@ -44,7 +44,7 @@ export const LINKS_HUB_SECTIONS: LinksHubSection[] = [
         description: 'Find a station page with custody suite and main line numbers.',
       },
       {
-        href: '/HelpUsStationNumbers',
+        href: '/helpusstationnumbers',
         label: 'Help us to help you — station numbers',
         description: 'Report up-to-date custody desk and main line numbers for the community directory.',
       },

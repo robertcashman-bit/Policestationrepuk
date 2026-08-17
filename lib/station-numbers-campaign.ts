@@ -5,7 +5,7 @@ export const CAMPAIGN_HEADLINE = 'Help us to help you';
 export const CAMPAIGN_TAGLINE =
   'Keep UK police station telephone numbers accurate — for reps, firms, and anyone calling custody.';
 
-export const CAMPAIGN_PATH = '/HelpUsStationNumbers';
+export const CAMPAIGN_PATH = '/helpusstationnumbers';
 
 export const CAMPAIGN_WHY = [
   {

@@ -113,19 +113,16 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Directory job first: search + counties before promos/tools */}
+      <div className="cv-auto">
+        <HomeQuickSearch counties={counties.map((c) => c.name)} />
+      </div>
+
+      <HomeTopLocations counties={topCountiesForLinks} />
+
       <div className="cv-auto bg-[var(--navy)]">
         <HomeSeoConversionHub />
       </div>
-
-      <div className="cv-auto">
-        <HomeQuickSearch
-          counties={counties.map((c) => c.name)}
-        />
-      </div>
-
-      <HomeCustodyNote />
-
-      <HomeTopLocations counties={topCountiesForLinks} />
 
       <HomeCommunityWhatsAppPromo />
 
@@ -151,8 +148,6 @@ export default async function HomePage() {
 
       <HomeFeaturedCarousel featuredReps={featuredReps} />
 
-      <HomeKentSpotlight />
-
       <div className="cv-auto">
         <HomeWhyChoose />
       </div>
@@ -161,11 +156,16 @@ export default async function HomePage() {
         <HomeTestimonials />
       </div>
 
+      {/* Secondary: CustodyNote, Kent agent cover, tools — after directory job */}
+      <HomeCustodyNote />
+
+      <HomeKentSpotlight />
+
+      <ToolsForRepsSection />
+
       <div className="cv-auto">
         <HomeBlogPreview />
       </div>
-
-      <ToolsForRepsSection />
 
       <div className="cv-auto">
         <HomeTrainingResources />
@@ -191,7 +191,7 @@ export default async function HomePage() {
             firm, agency, or provider of legal services. It connects criminal defence firms with accredited
             representatives. Any engagement is a direct contract between the instructing firm and the
             representative. Firms retain responsibility for instruction, supervision, and regulatory compliance.{' '}
-            <Link href="/About" className="font-semibold text-[var(--navy)] underline">Learn more about the directory</Link>
+            <Link href="/about" className="font-semibold text-[var(--navy)] underline">Learn more about the directory</Link>
           </p>
         </div>
       </section>

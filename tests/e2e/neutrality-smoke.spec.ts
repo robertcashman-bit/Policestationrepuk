@@ -28,11 +28,11 @@ test.describe('Neutrality and directory smoke — desktop', () => {
     await expect(page.locator('input[type="search"], input[placeholder*="search" i], input[name="q"]').first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('Kent county page has Advertisement label on PSA box', async ({ page }) => {
+  test('Kent county page promotes directory cover paths (not PSA agent sell)', async ({ page }) => {
     await page.goto('/directory/kent');
-    const adLabel = page.getByText('Advertisement', { exact: true });
-    await expect(adLabel.first()).toBeVisible();
-    await expect(page.getByText(/separate from this directory/i)).toBeVisible();
+    await expect(page.getByText(/Looking for Kent police station cover/i)).toBeVisible();
+    await expect(page.getByRole('link', { name: /Kent cover guide/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Firm WhatsApp group/i })).toBeVisible();
   });
 
   test('Kent county page lists representatives neutrally', async ({ page }) => {
@@ -70,7 +70,7 @@ test.describe('Neutrality and directory smoke — desktop', () => {
     await expect(page.getByText(/no rep is given priority/i)).toBeVisible();
     const waLink = page.getByRole('link', { name: /post in the whatsapp group/i });
     await expect(waLink).toBeVisible();
-    await expect(waLink).toHaveAttribute('href', '/WhatsApp');
+    await expect(waLink).toHaveAttribute('href', '/whatsapp');
   });
 });
 

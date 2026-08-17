@@ -1,50 +1,33 @@
-import {
-  CONTACT_PHONE_TEL,
-  CONTACT_PHONE_DISPLAY,
-  CONTACT_WHATSAPP_HREF,
-} from '@/lib/contact-constants';
+import Link from 'next/link';
 import { AdvertisementLabel } from './AdvertisementLabel';
-import { PartnerOutboundLink } from './PartnerOutboundLink';
-import { POLICESTATIONAGENT_HOME_HREF } from '@/lib/policestationagent-promo';
+
+/** Soft secondary Kent note — directory acquisition first; no hard PSA sell. */
 export function HomeKentSpotlight() {
   return (
-    <section className="section-pad relative border-y-2 border-[var(--gold)]/30 bg-gradient-to-br from-[var(--gold-pale)] via-white to-[var(--gold-pale)]" aria-labelledby="kent-agency-heading">
+    <section
+      className="section-pad border-y border-[var(--border)] bg-slate-50"
+      aria-labelledby="kent-directory-heading"
+    >
       <div className="page-container !py-0">
         <div className="mx-auto max-w-3xl text-center">
-          <AdvertisementLabel variant="gold" label="Promoted Service" />
-          <h2 id="kent-agency-heading" className="text-h3 mt-3 text-[var(--navy)]">
-            Kent Police Station Agent Cover
+          <AdvertisementLabel variant="light" label="Related" />
+          <h2 id="kent-directory-heading" className="text-h3 mt-3 text-[var(--navy)]">
+            Looking for Kent police station cover?
           </h2>
-          <p className="mt-2 text-sm font-medium text-[var(--navy)]/85">
-            Experienced solicitor providing police station agent cover for Kent law firms — daytime and
-            evening attendance across all Kent custody suites. Operated independently by Robert Cashman
-            via Tuckers Solicitors LLP.
-          </p>
-          <p className="mt-2 text-xs text-[var(--muted)]">
-            This is a separate service from the PoliceStationRepUK directory.{' '}
-            <PartnerOutboundLink
-              href={POLICESTATIONAGENT_HOME_HREF}
-              partner="policestationagent"
-              placement="homepage_kent"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-[var(--navy)] underline"
-            >
-              Need a solicitor in Kent? Visit policestationagent.com
-            </PartnerOutboundLink>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+            Start with the free PoliceStationRepUK directory — filter Kent reps by station and contact them
+            directly. Agency solicitor cover is a separate service and is not required to use this site.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <a href={CONTACT_PHONE_TEL} className="btn-gold !text-sm">
-              {CONTACT_PHONE_DISPLAY}
-            </a>
-            <a
-              href={CONTACT_WHATSAPP_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-outline !text-sm"
-            >
-              WhatsApp
-            </a>
+            <Link href="/directory/kent" className="btn-primary !text-sm">
+              Browse Kent reps
+            </Link>
+            <Link href="/police-station-rep-kent" className="btn-outline !text-sm">
+              Kent cover guide
+            </Link>
+            <Link href="/whatsapp/firms" className="btn-outline !text-sm">
+              Firm WhatsApp group
+            </Link>
           </div>
         </div>
       </div>

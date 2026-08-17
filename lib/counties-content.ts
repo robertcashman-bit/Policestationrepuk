@@ -2,9 +2,9 @@ import type { CountyContent } from './types';
 
 const countyContentMap: Record<string, CountyContent> = {
   kent: {
-    metaTitle: 'Police Station Reps Kent — Accredited Directory',
+    metaTitle: 'Police Station Reps Kent — Directory',
     metaDescription:
-      'Find accredited police station representatives in Kent. Experienced reps available for custody attendance at Maidstone, Canterbury, Medway, Folkestone, and all Kent custody suites.',
+      'Find accredited police station representatives in Kent. Experienced reps available for custody attendance at Maidstone, Canterbury, Medway.',
     h1: 'Police Station Representatives in Kent',
     intro:
       'Kent is one of the busiest policing areas in the South East of England. With major custody suites at Maidstone, Canterbury, Medway, and Folkestone, criminal solicitors across the county frequently need reliable police station representatives to provide cover at short notice. Whether you are a duty solicitor looking for overnight cover or a firm needing full-time outsourced police station attendance, our directory connects you with experienced, accredited representatives throughout Kent.',
@@ -32,9 +32,9 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   london: {
-    metaTitle: 'Police Station Reps London — Met Police Cover',
+    metaTitle: 'Police Station Reps London — Directory',
     metaDescription:
-      'Find accredited police station representatives in London. Experienced reps covering all Metropolitan Police custody suites including Charing Cross, Brixton, Hackney, and more.',
+      'Find accredited police station representatives in London. Experienced reps covering all Metropolitan Police custody suites including Charing.',
     h1: 'Police Station Representatives in London',
     intro:
       'London is the busiest jurisdiction for criminal defence work in the United Kingdom. The Metropolitan Police Service operates dozens of custody suites across the capital, generating enormous demand for police station representatives. Solicitors across London rely on accredited representatives to attend police stations on their behalf, ensuring clients receive timely legal advice whilst allowing firms to manage their workload effectively. Our directory connects you with experienced police station representatives covering every borough in London.',
@@ -62,9 +62,9 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   essex: {
-    metaTitle: 'Police Station Reps Essex — Custody Suite Cover',
+    metaTitle: 'Police Station Reps Essex — Directory',
     metaDescription:
-      'Find accredited police station representatives in Essex. Professional reps available at Chelmsford, Southend, Basildon, Colchester, and all Essex custody suites.',
+      'Find accredited police station representatives in Essex. Professional reps available at Chelmsford, Southend, Basildon, Colchester, and all Essex.',
     h1: 'Police Station Representatives in Essex',
     intro:
       'Essex is a large and diverse county with significant demand for police station representation. Essex Police operates major custody suites at Chelmsford, Southend, Basildon, Colchester, and Harlow, each handling high volumes of detentions. Criminal solicitors across Essex need reliable, accredited police station representatives who can attend at short notice and deliver professional advice to clients in custody. Our directory provides a comprehensive listing of experienced representatives covering all Essex police stations.',
@@ -92,9 +92,9 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'greater-manchester': {
-    metaTitle: 'Police Station Representatives Manchester | 24/7 GMP Cover',
+    metaTitle: 'Police Station Reps Manchester — Directory',
     metaDescription:
-      'Find accredited police station representatives covering Greater Manchester. Reps available for duty solicitor cover at all GMP custody suites including Longsight, Pendleton, and Cheadle Heath.',
+      'Find accredited police station representatives covering Greater Manchester. Reps available for duty solicitor cover at all GMP custody suites.',
     h1: 'Police Station Representatives in Greater Manchester',
     intro:
       'Greater Manchester Police (GMP) is one of the largest forces in England, policing a population of nearly three million across ten metropolitan boroughs. Custody suites at Longsight, Pendleton, Cheadle Heath, and others process thousands of detentions annually. Criminal solicitors in Manchester need experienced representatives who know GMP procedures and can attend any suite at short notice.',
@@ -114,9 +114,9 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'lancashire': {
-    metaTitle: 'Police Station Reps Lancashire — Solicitor Cover',
+    metaTitle: 'Police Station Reps Lancashire — Directory',
     metaDescription:
-      'Find accredited police station representatives in Lancashire. Professional reps covering custody suites at Preston, Blackpool, Burnley, Lancaster, and across Lancashire Constabulary.',
+      'Find accredited police station representatives in Lancashire. Professional reps covering custody suites at Preston, Blackpool, Burnley, Lancaster.',
     h1: 'Police Station Representatives in Lancashire',
     intro:
       'Lancashire Constabulary covers a large and varied region from the urban centres of Preston, Blackpool, and Burnley to the rural north around Lancaster. Criminal solicitors across the county need police station representatives who can attend promptly and deliver quality advice across the full range of criminal matters dealt with in Lancashire custody suites.',
@@ -136,9 +136,9 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'surrey': {
-    metaTitle: 'Police Station Representatives Surrey | Custody Suite Cover',
+    metaTitle: 'Police Station Reps Surrey — Directory',
     metaDescription:
-      'Find accredited police station representatives in Surrey. Experienced reps covering Guildford, Staines, and Salfords custody suites with 24/7 availability for solicitors.',
+      'Find accredited police station representatives in Surrey. Experienced reps covering Guildford, Staines, and Salfords custody suites with 24/7.',
     h1: 'Police Station Representatives in Surrey',
     intro:
       'Surrey Police covers a largely suburban and rural area south of London with significant custody demand at Guildford, Staines, and Salfords. Many Surrey solicitors also handle Metropolitan Police call-outs from the London border. Our directory connects you with accredited representatives who cover all Surrey custody suites.',
@@ -154,9 +154,9 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'sussex': {
-    metaTitle: 'Police Station Reps Sussex — Brighton & Cover',
+    metaTitle: 'Police Station Reps Sussex — Directory',
     metaDescription:
-      'Find accredited police station representatives in Sussex. Reps covering Brighton, Worthing, Eastbourne, Hastings, and all Sussex Police custody suites across East and West Sussex.',
+      'Find accredited police station representatives in Sussex. Reps covering Brighton, Worthing, Eastbourne, Hastings, and all Sussex Police custody.',
     h1: 'Police Station Representatives in Sussex',
     intro:
       'Sussex Police covers East and West Sussex, serving a population of over 1.7 million. Major custody suites operate in Brighton, Worthing, Eastbourne, and Hastings. Criminal solicitors across Sussex depend on accredited police station representatives for duty solicitor cover and private client attendance at these busy custody facilities.',
@@ -172,9 +172,9 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'hampshire': {
-    metaTitle: 'Police Station Reps Hampshire — Custody Cover',
+    metaTitle: 'Police Station Reps Hampshire — Directory',
     metaDescription:
-      'Find accredited police station representatives in Hampshire. Duty solicitor cover at Southampton, Portsmouth, Basingstoke, and all Hampshire Constabulary custody suites.',
+      'Find accredited police station representatives in Hampshire. Duty solicitor cover at Southampton, Portsmouth, Basingstoke, and all Hampshire.',
     h1: 'Police Station Representatives in Hampshire',
     intro:
       'Hampshire Constabulary serves a large county with significant urban centres at Southampton, Portsmouth, and Basingstoke. Custody demand is driven by port activity, military bases, and major road networks that generate high volumes of criminal work. Our directory lists experienced representatives covering all Hampshire custody suites.',
@@ -190,9 +190,9 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'west-midlands': {
-    metaTitle: 'Police Station Reps West Midlands — Birmingham',
+    metaTitle: 'Police Station Reps West Midlands',
     metaDescription:
-      'Find accredited police station representatives in the West Midlands. Professional reps for duty solicitor cover at all WMP custody suites including Birmingham, Coventry, and Wolverhampton.',
+      'Find accredited police station representatives in the West Midlands. Professional reps for duty solicitor cover at all WMP custody suites.',
     h1: 'Police Station Representatives in the West Midlands',
     intro:
       'West Midlands Police (WMP) is the second-largest force in England, serving over 2.9 million people across Birmingham, Coventry, Wolverhampton, Solihull, Dudley, Sandwell, and Walsall. Criminal defence firms in the West Midlands need reliable police station representatives who understand the scale and pace of WMP custody operations.',
@@ -212,9 +212,9 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'merseyside': {
-    metaTitle: 'Police Station Representatives Merseyside | Liverpool Cover',
+    metaTitle: 'Police Station Reps Merseyside — Directory',
     metaDescription:
-      'Find accredited police station representatives in Merseyside. Experienced reps for custody attendance at all Merseyside Police custody suites including Liverpool, Wirral, and St Helens.',
+      'Find accredited police station representatives in Merseyside. Experienced reps for custody attendance at all Merseyside Police custody suites.',
     h1: 'Police Station Representatives in Merseyside',
     intro:
       'Merseyside Police serves Liverpool, Wirral, Sefton, Knowsley, and St Helens. As one of England\'s busiest metropolitan forces, Merseyside generates substantial demand for custody representation. Criminal solicitors across the region need experienced police station representatives who can attend promptly and handle the full range of offences dealt with in Merseyside custody suites.',
@@ -230,9 +230,9 @@ const countyContentMap: Record<string, CountyContent> = {
     ],
   },
   'west-yorkshire': {
-    metaTitle: 'Police Station Reps West Yorkshire — Leeds',
+    metaTitle: 'Police Station Reps West Yorkshire',
     metaDescription:
-      'Find accredited police station representatives in West Yorkshire. Professional reps for custody attendance at Leeds, Bradford, Wakefield, Huddersfield, and all WYP custody suites.',
+      'Find accredited police station representatives in West Yorkshire. Professional reps for custody attendance at Leeds, Bradford, Wakefield.',
     h1: 'Police Station Representatives in West Yorkshire',
     intro:
       'West Yorkshire Police (WYP) is one of England\'s largest forces, covering Leeds, Bradford, Wakefield, Huddersfield, and Halifax. The force processes a high volume of custody detentions across multiple suites, creating constant demand for reliable representative attendance. Our directory connects criminal defence firms with experienced, accredited reps covering the full WYP area.',

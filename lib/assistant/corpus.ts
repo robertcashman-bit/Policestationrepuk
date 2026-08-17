@@ -56,7 +56,7 @@ const SITE_INTENT_ENTRIES: AssistantEntry[] = [
     answer:
       'Text the published number or use the audience-specific join pages for reps, solicitors, or firms. Verification is required before you are added to the community group.',
     category: 'Community',
-    href: '/WhatsApp',
+    href: '/whatsapp',
     keywords: ['whatsapp', 'group chat', 'cover requests', 'community'],
   },
   {
@@ -110,7 +110,7 @@ const SITE_INTENT_ENTRIES: AssistantEntry[] = [
     answer:
       'Use the Contact page or email support for directory enquiries. For urgent police station cover, contact representatives directly via their listing details.',
     category: 'Site help',
-    href: '/Contact',
+    href: '/contact',
     keywords: ['email', 'support', 'enquiry', 'help'],
   },
   {
@@ -129,7 +129,7 @@ function buildCorpus(): AssistantEntry[] {
   return [
     ...SITE_INTENT_ENTRIES,
     ...faqEntries(HOMEPAGE_FAQS, 'General', '/'),
-    ...faqEntries(FAQ_PAGE_FAQS, 'FAQ', '/FAQ', 'faq-page'),
+    ...faqEntries(FAQ_PAGE_FAQS, 'FAQ', '/faq', 'faq-page'),
     ...faqEntries(repFaqFlat, 'Rep FAQ', '/RepFAQMaster', 'rep-faq'),
     ...faqEntries(PORTFOLIO_FAQS, 'PSRAS Portfolio', '/BuildPortfolioGuide', 'portfolio'),
     ...faqEntries(WRITTEN_EXAM_FAQS, 'PSRAS Written Exam', '/PrepareForWrittenExam', 'written-exam'),
@@ -142,7 +142,7 @@ function buildCorpus(): AssistantEntry[] {
     ...faqEntries(DISCLOSURE_FAQS, 'PACE', '/PoliceDisclosureGuide', 'disclosure'),
     ...faqEntries(STATIONS_DIRECTORY_FAQS, 'Directory', '/StationsDirectory', 'stations-dir'),
     ...faqEntries(UPDATE_STATION_FAQS, 'Directory', '/UpdateStation', 'update-station'),
-    ...faqEntries(CAMPAIGN_FAQS, 'Directory', '/HelpUsStationNumbers', 'campaign'),
+    ...faqEntries(CAMPAIGN_FAQS, 'Directory', '/helpusstationnumbers', 'campaign'),
   ];
 }
 
@@ -157,7 +157,7 @@ export const ASSISTANT_STARTER_PROMPTS = [
 ] as const;
 
 export const ASSISTANT_LOW_CONFIDENCE_LINKS = [
-  { href: '/FAQ', label: 'Help & FAQ' },
+  { href: '/faq', label: 'Help & FAQ' },
   { href: '/directory', label: 'Find a rep' },
-  { href: '/Contact', label: 'Contact us' },
+  { href: '/contact', label: 'Contact us' },
 ] as const;

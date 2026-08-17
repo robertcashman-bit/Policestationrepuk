@@ -36,7 +36,7 @@ describe('assistant content accuracy (corpus)', () => {
     expect(result.refused).toBe(false);
     expect(
       result.matches.some(
-        (m) => m.entry.href === '/WhatsApp' || /whatsapp/i.test(m.entry.answer)
+        (m) => m.entry.href === '/whatsapp' || /whatsapp/i.test(m.entry.answer)
       )
     ).toBe(true);
   });

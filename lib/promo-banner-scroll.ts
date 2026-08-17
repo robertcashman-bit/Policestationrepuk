@@ -1,5 +1,6 @@
-/** Scroll distance before full promo banners collapse (px). */
-export const SCROLL_HIDE_PX = 56;
+/** Scroll distance before full promo banners collapse (px).
+ * Kept low so sticky promos yield to primary CTAs quickly on mobile. */
+export const SCROLL_HIDE_PX = 24;
 
 /**
  * Scroll distance below which collapsed chrome may expand again (px).

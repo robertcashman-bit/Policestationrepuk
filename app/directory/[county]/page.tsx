@@ -11,8 +11,6 @@ import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotic
 import { DirectoryCredentialVerificationNotice } from '@/components/DirectoryCredentialVerificationNotice';
 import { CustodyNotePagePromo } from '@/components/CustodyNotePagePromo';
 import { StationNumbersPromo } from '@/components/StationNumbersPromo';
-import { AdvertisementLabel } from '@/components/AdvertisementLabel';
-import { POLICESTATIONAGENT_KENT_RESOURCES_HREF } from '@/lib/policestationagent-promo';
 
 export const dynamic = 'force-static';
 /** ISR so rep/station counts refresh without a full redeploy. */
@@ -120,7 +118,7 @@ export default async function DirectoryCountyPage({ params }: PageProps) {
               listed here; no rep is given priority.
             </p>
             <div className="mt-3 flex flex-wrap gap-3">
-              <Link href="/WhatsApp" className="btn-gold !text-sm no-underline">
+              <Link href="/whatsapp" className="btn-gold !text-sm no-underline">
                 Post in the WhatsApp group
               </Link>
               <a href="#reps" className="btn-outline !text-sm no-underline">
@@ -131,22 +129,31 @@ export default async function DirectoryCountyPage({ params }: PageProps) {
         )}
 
         {countySlug === "kent" && (
-          <div className="mb-8 rounded-2xl border-2 border-[var(--gold)]/40 bg-[var(--gold-pale)]/30 p-6">
-            <AdvertisementLabel variant="gold" label="Advertisement" />
-            <p className="mt-2 text-xs font-bold uppercase tracking-wider text-[var(--navy)]">
-              Kent duty solicitor resource
+          <div className="mb-8 rounded-2xl border border-[var(--card-border)] bg-white p-6 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-wider text-[var(--muted)]">
+              Kent cover
+            </p>
+            <p className="mt-2 text-sm font-semibold text-[var(--navy)]">
+              Looking for Kent police station cover?
             </p>
             <p className="mt-2 text-sm text-slate-700">
-              Free, sourced guide to police station rights in Kent — separate from this directory.
+              Use this free directory to contact accredited Kent reps directly, or read the Kent cover
+              guide for solicitors.
             </p>
-            <a
-              href={POLICESTATIONAGENT_KENT_RESOURCES_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-block text-sm font-bold text-[var(--navy)] underline"
-            >
-              Kent police custody resources →
-            </a>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <Link
+                href="/police-station-rep-kent"
+                className="text-sm font-bold text-[var(--navy)] underline"
+              >
+                Kent cover guide →
+              </Link>
+              <Link
+                href="/whatsapp/firms"
+                className="text-sm font-bold text-[var(--navy)] underline"
+              >
+                Firm WhatsApp group →
+              </Link>
+            </div>
           </div>
         )}
 

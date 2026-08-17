@@ -1,6 +1,5 @@
 import { BLOG_CATEGORIES } from '@/lib/blog/categories';
 import { CUSTODYNOTE_TRIAL_HREF } from '@/lib/custodynote-promo';
-import { POLICESTATIONAGENT_HOME_HREF } from '@/lib/policestationagent-promo';
 import { SUPPORT_MAILTO_HREF } from '@/lib/site-contact';
 import { PSRTRAIN_TRAINING_HREF } from '@/lib/psrtrain-promo';
 
@@ -23,7 +22,7 @@ export const HEADER_NAV_PRIMARY: HeaderNavLink[] = [
   { href: '/', text: 'Home' },
   { href: '/directory', text: 'Find a Rep' },
   { href: '/find-station', text: 'Station Numbers' },
-  { href: '/CustodyNote', text: 'Custody Note' },
+  { href: '/custodynote', text: 'Custody Note' },
 ];
 
 /** Blog hub + topic filters for the header Blog menu. */
@@ -50,17 +49,17 @@ export const WHATSAPP_SOLICITOR_JOIN_URL =
   'https://wa.me/447535494446?text=Hi%2C%20I%20am%20a%20criminal%20defence%20solicitor%20and%20would%20like%20to%20join%20the%20PoliceStationRepUK%20WhatsApp%20group.%20Firm%20name%3A%20';
 
 /** Audience-specific join guides (SEO landing pages). */
-export const WHATSAPP_PAGE_REPS = '/WhatsApp/reps';
-export const WHATSAPP_PAGE_SOLICITORS = '/WhatsApp/solicitors';
-export const WHATSAPP_PAGE_FIRMS = '/WhatsApp/firms';
+export const WHATSAPP_PAGE_REPS = '/whatsapp/reps';
+export const WHATSAPP_PAGE_SOLICITORS = '/whatsapp/solicitors';
+export const WHATSAPP_PAGE_FIRMS = '/whatsapp/firms';
 /** @deprecated Use WHATSAPP_FIRM_JOIN_URL for firm CTAs. Same group; firm-specific prefill. */
 export const WHATSAPP_FIRMS_JOIN_URL = WHATSAPP_FIRM_JOIN_URL;
 export const FACEBOOK_GROUP_URL =
   'https://www.facebook.com/groups/policestationrepuk';
 
 /** Right-rail actions on live Wix header */
-export const HEADER_HELP_HREF = '/FAQ';
-export const HEADER_LOGIN_HREF = '/Account';
+export const HEADER_HELP_HREF = '/faq';
+export const HEADER_LOGIN_HREF = '/account';
 
 /** Share strip CTA — same wording as current live footer/header behaviour */
 export const HEADER_SHARE_LABEL = 'Share this directory with colleagues';
@@ -76,7 +75,7 @@ export const FOOTER_DIRECTORIES: FooterLink[] = [
   { href: '/legal-services-directory', label: 'Legal Services Directory' },
   { href: '/search', label: 'Search directory' },
   { href: '/find-station', label: 'Station Numbers' },
-  { href: '/HelpUsStationNumbers', label: 'Help us — station numbers' },
+  { href: '/helpusstationnumbers', label: 'Help us — station numbers' },
   { href: '/Forces', label: 'Police Forces' },
   { href: '/legal-services-directory/category/solicitors', label: 'Criminal Defence Solicitors' },
   { href: '/Map', label: 'Interactive Map' },
@@ -193,10 +192,10 @@ export const HEADER_NAV_MORE: HeaderNavLink[] = dedupeNavLinks([
   ...footerLinksToNav(FOOTER_DIRECTORIES),
   ...footerLinksToNav(FOOTER_COMMUNITY),
   ...footerLinksToNav(FOOTER_LEGAL),
-  { href: '/CustodyNote', text: 'Custody Note — overview' },
+  { href: '/custodynote', text: 'Custody Note — overview' },
   { href: CUSTODYNOTE_TRIAL_HREF, text: 'Custody Note — download free', external: true },
   { href: PSRTRAIN_TRAINING_HREF, text: 'PSR Train (PSRAS prep)', external: true },
-  { href: POLICESTATIONAGENT_HOME_HREF, text: 'Police Station Agent — Kent solicitors', external: true },
+  { href: '/directory/kent', text: 'Kent police station reps' },
   { href: '/police-station-representative', text: 'Police station representative' },
   { href: '/criminal-solicitor-police-station', text: 'Criminal solicitor — police station' },
   { href: '/police-station-rep-kent', text: 'Police station rep — Kent' },
@@ -222,10 +221,10 @@ export const FOOTER_FEES_FORMS: FooterLink[] = HEADER_NAV_FEES_FORMS.map(({ href
 /** Footer column “Partners & SEO” — unique partner/SEO links only (not duplicated in other columns). */
 export const FOOTER_PARTNERS: FooterLink[] = [
   { href: '/links', label: 'Quick links hub' },
-  { href: '/CustodyNote', label: 'Custody Note — overview' },
+  { href: '/custodynote', label: 'Custody Note — overview' },
   { href: CUSTODYNOTE_TRIAL_HREF, label: 'Custody Note — download free', external: true },
   { href: PSRTRAIN_TRAINING_HREF, label: 'PSR Train (PSRAS prep)', external: true },
-  { href: POLICESTATIONAGENT_HOME_HREF, label: 'Police Station Agent — Kent solicitors', external: true },
+  { href: '/directory/kent', label: 'Kent police station reps' },
   { href: '/police-station-representative', label: 'Police station representative' },
   { href: '/criminal-solicitor-police-station', label: 'Criminal solicitor — police station' },
   { href: '/police-station-rep-kent', label: 'Police station rep — Kent' },
@@ -278,9 +277,9 @@ export function buildHeaderMobileLinks(): HeaderNavLink[] {
 export const PRIMARY_NAV = buildHeaderMobileLinks();
 
 /** Mid-footer spotlight — h3 + body from homepage headings/content */
-export const FOOTER_SPOTLIGHT_KENT_TITLE = 'Need a Police Station Rep in Kent?';
+export const FOOTER_SPOTLIGHT_KENT_TITLE = 'Need a police station rep in Kent?';
 export const FOOTER_SPOTLIGHT_KENT_BODY =
-  'Accredited Reps • 24/7 Immediate Coverage • All Kent Custody Suites';
+  'Browse accredited Kent reps in the free directory — contact them directly.';
 
 export const FOOTER_SPOTLIGHT_TRAINING_TITLE = 'Training Guides & Resources';
 export const FOOTER_SPOTLIGHT_TRAINING_BODY =
@@ -295,7 +294,7 @@ export const FOOTER_REGULATORY_BODY =
 
 /** Advertising disclosure text for footer */
 export const FOOTER_ADVERTISING_DISCLOSURE =
-  'This site features advertisements and promoted services, including from Custody Note and Police Station Agent (policestationagent.com). These are products and services of Defence Legal Services Ltd or affiliated businesses and are separate from the PoliceStationRepUK directory function. All advertisements are labelled.';
+  'This site features advertisements and promoted services, including from Custody Note. These are products and services of Defence Legal Services Ltd or affiliated businesses and are separate from the PoliceStationRepUK directory function. All advertisements are labelled.';
 
 /** Bottom utility row — hrefs as on source (Next redirects resolve to sitemap/blog) */
 export const FOOTER_UTILITY_SHARE = 'Share Directory';

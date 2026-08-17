@@ -117,7 +117,7 @@ export function StationVerificationBadge({ station }: { station: PoliceStation }
       {phone?.status === 'unverified' && isDialablePhone(station.phone) && (
         <p className="text-amber-700">
           Main line is shown as <strong>unverified</strong> — please confirm before relying on it, or{' '}
-          <Link href="/HelpUsStationNumbers" className="font-semibold underline">
+          <Link href="/helpusstationnumbers" className="font-semibold underline">
             report a correction
           </Link>
           .
@@ -126,7 +126,7 @@ export function StationVerificationBadge({ station }: { station: PoliceStation }
       {custody?.status === 'unverified' && isDialablePhone(station.custodyPhone) && (
         <p className="text-amber-700">
           Custody desk number is shown as <strong>unverified</strong> —{' '}
-          <Link href="/HelpUsStationNumbers" className="font-semibold underline">
+          <Link href="/helpusstationnumbers" className="font-semibold underline">
             help verify or update it
           </Link>
           .

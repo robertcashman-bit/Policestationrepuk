@@ -113,14 +113,7 @@ describe('sendOutreachEmail domain retry', () => {
     clearVerifiedDomainsCache();
   });
 
-  it('retries PSA send with verified RepUK from after domain-not-verified error', async () => {
-    sendMock
-      .mockResolvedValueOnce({
-        error: { message: 'The policestationagent.com domain is not verified.' },
-        data: null,
-      })
-      .mockResolvedValueOnce({ error: null, data: { id: 'msg_retry_ok' } });
-
+  it('refuses PSA send when agent-cover outreach is permanently disabled', async () => {
     vi.doMock('resend', () => ({
       Resend: vi.fn().mockImplementation(function ResendMock() {
         return {
@@ -157,9 +150,8 @@ describe('sendOutreachEmail domain retry', () => {
       step: 0,
     });
 
-    expect(result.ok).toBe(true);
-    expect(result.messageId).toBe('msg_retry_ok');
-    expect(sendMock).toHaveBeenCalledTimes(2);
-    expect(sendMock.mock.calls[1]?.[0]?.from).toBe(DEFAULT_PSA_FROM_FALLBACK);
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe('agent_cover_outreach_permanently_disabled');
+    expect(sendMock).not.toHaveBeenCalled();
   });
 });

@@ -397,6 +397,46 @@ export async function listSendsForEmail(
     .sort((a, b) => (b.sentAt ?? b.createdAt).localeCompare(a.sentAt ?? a.createdAt));
 }
 
+/**
+ * Cheap batch check: which inboxes already have an indexed send record.
+ * Uses EXISTS on send-email index keys (Redis SETs) so a 4k ready scan
+ * does not issue 4k SMEMBERS round-trips.
+ */
+export async function emailsWithIndexedSends(emails: string[]): Promise<Set<string>> {
+  const kv = getKV();
+  const hit = new Set<string>();
+  if (!kv || emails.length === 0) return hit;
+
+  const unique: string[] = [];
+  const seen = new Set<string>();
+  for (const email of emails) {
+    const normalized = normalizeEmail(email);
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    unique.push(normalized);
+  }
+
+  for (let i = 0; i < unique.length; i += MGET_CHUNK) {
+    const chunk = unique.slice(i, i + MGET_CHUNK);
+    const pipeline = kv.pipeline();
+    for (const email of chunk) {
+      pipeline.exists(SEND_EMAIL_INDEX + emailHash(email));
+    }
+    const rows = await pipeline.exec<(number | boolean | null)[]>();
+    chunk.forEach((email, idx) => {
+      const value = rows[idx];
+      if (value === 1 || value === true) hit.add(email);
+    });
+  }
+  return hit;
+}
+
+/** Cheap check: this inbox already has at least one indexed send record. */
+export async function emailHasIndexedSend(email: string): Promise<boolean> {
+  const hits = await emailsWithIndexedSends([email]);
+  return hits.size > 0;
+}
+
 /** True when another prospect already received the initial outreach at this email. */
 export function emailHasInitialOutreachFromOtherProspect(
   sends: FirmOutreachSend[],

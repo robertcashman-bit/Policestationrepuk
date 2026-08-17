@@ -61,6 +61,7 @@ export async function GET(request: Request) {
             readyScanned: selection.readyScanned,
             readyEligible: selection.readyEligible,
             followUpEligible: selection.followUpEligible,
+            skippedIndexedSend: selection.skippedIndexedSend,
             firmCooldownSkipped: selection.firmCooldownSkipped,
             sendableCandidates: selection.candidates.length,
             lastRun,

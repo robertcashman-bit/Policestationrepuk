@@ -245,6 +245,14 @@ export async function runFirmOutreach(opts?: {
 
   const emailsSentThisRun = new Set<string>();
   const emailsQueuedThisRun = new Set<string>();
+  let duplicateExcludes = 0;
+  const MAX_DUPLICATE_EXCLUDES = 8;
+  async function maybeExcludeDuplicate(prospect: FirmProspect): Promise<void> {
+    if (prospect.status !== 'ready_to_send') return;
+    if (duplicateExcludes >= MAX_DUPLICATE_EXCLUDES) return;
+    await excludeProspectDuplicateEmail(prospect);
+    duplicateExcludes += 1;
+  }
   let resendQuota = globalQuota;
   const correlationId = runId;
 
@@ -261,6 +269,7 @@ export async function runFirmOutreach(opts?: {
       sentScanned: selection.sentScanned,
       readyEligible: selection.readyEligible,
       followUpEligible: selection.followUpEligible,
+      skippedIndexedSend: selection.skippedIndexedSend,
       firmCooldownSkipped: selection.firmCooldownSkipped,
       candidates: selection.candidates.length,
       remaining,
@@ -407,9 +416,7 @@ export async function runFirmOutreach(opts?: {
           delayMs: 0,
         });
         recordSkip(stats, 'duplicate');
-        if (prospect.status === 'ready_to_send') {
-          await excludeProspectDuplicateEmail(prospect);
-        }
+        await maybeExcludeDuplicate(prospect);
         continue;
       }
       if (jobBlocked === 'junk_email') {
@@ -606,8 +613,8 @@ export async function runFirmOutreach(opts?: {
   }
 
   const selection = await loadCandidates(
-    Math.min(500, Math.max(60, remaining * 10)),
-    Math.min(200, Math.max(20, remaining * 4)),
+    Math.min(1200, Math.max(200, remaining * 20)),
+    Math.min(400, Math.max(40, remaining * 6)),
   );
 
   // Phase B: enqueue new jobs — hard-capped so we always leave time to send.
@@ -644,9 +651,7 @@ export async function runFirmOutreach(opts?: {
 
       if (emailsQueuedThisRun.has(normalizedEmail)) {
         recordSkip(stats, 'duplicate');
-        if (prospect.status === 'ready_to_send') {
-          await excludeProspectDuplicateEmail(prospect);
-        }
+        await maybeExcludeDuplicate(prospect);
         continue;
       }
       const blocked = await outreachEmailSendBlocker({
@@ -671,9 +676,7 @@ export async function runFirmOutreach(opts?: {
       }
       if (blocked === 'duplicate') {
         recordSkip(stats, 'duplicate');
-        if (prospect.status === 'ready_to_send') {
-          await excludeProspectDuplicateEmail(prospect);
-        }
+        await maybeExcludeDuplicate(prospect);
         continue;
       }
       if (blocked === 'junk_email') {

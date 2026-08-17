@@ -1,5 +1,6 @@
-import type { Metadata } from 'next';
-import { SITE_URL, SITE_NAME, socialPreviewImageUrl } from './config';
+import type { Metadata } from "next";
+import { publicPath } from "@/lib/canonical-path-case";
+import { SITE_URL, SITE_NAME, socialPreviewImageUrl } from "./config";
 
 export interface MetadataInput {
   title: string;
@@ -9,7 +10,7 @@ export interface MetadataInput {
   keywords?: string[];
   noIndex?: boolean;
   /** Set to 'article' for blog/news posts to emit correct OG type and dates. */
-  ogType?: 'website' | 'article';
+  ogType?: "website" | "article";
   publishedTime?: string;
   modifiedTime?: string;
   /** Absolute URL to Open Graph / Twitter image */
@@ -20,14 +21,14 @@ const MAX_DESC = 155;
 
 function capDescription(raw: string): string {
   if (raw.length <= MAX_DESC) return raw;
-  const cut = raw.lastIndexOf(' ', MAX_DESC - 1);
-  return (cut > 80 ? raw.slice(0, cut) : raw.slice(0, MAX_DESC - 1)) + '…';
+  const cut = raw.lastIndexOf(" ", MAX_DESC - 1);
+  return (cut > 80 ? raw.slice(0, cut) : raw.slice(0, MAX_DESC - 1)) + "…";
 }
 
 export function buildMetadata(opts: MetadataInput): Metadata {
-  const url = `${SITE_URL}${opts.path}`;
+  const url = `${SITE_URL}${publicPath(opts.path)}`;
   const description = capDescription(opts.description);
-  const ogType = opts.ogType ?? 'website';
+  const ogType = opts.ogType ?? "website";
 
   const defaultOgImage = {
     url: socialPreviewImageUrl(),
@@ -48,15 +49,15 @@ export function buildMetadata(opts: MetadataInput): Metadata {
         ]
       : [defaultOgImage];
 
-  const openGraph: Metadata['openGraph'] =
-    ogType === 'article'
+  const openGraph: Metadata["openGraph"] =
+    ogType === "article"
       ? {
           title: opts.title,
           description,
           url,
           siteName: SITE_NAME,
-          type: 'article',
-          locale: 'en_GB',
+          type: "article",
+          locale: "en_GB",
           ...(opts.publishedTime ? { publishedTime: opts.publishedTime } : {}),
           ...(opts.modifiedTime ? { modifiedTime: opts.modifiedTime } : {}),
           images: ogImages,
@@ -66,8 +67,8 @@ export function buildMetadata(opts: MetadataInput): Metadata {
           description,
           url,
           siteName: SITE_NAME,
-          type: 'website',
-          locale: 'en_GB',
+          type: "website",
+          locale: "en_GB",
           images: ogImages,
         };
 
@@ -80,7 +81,7 @@ export function buildMetadata(opts: MetadataInput): Metadata {
     alternates: { canonical: url },
     openGraph,
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: opts.title,
       description,
       images: [cardImageUrl],

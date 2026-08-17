@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useState } from 'react';
-import { WhatsAppCommunityBanner } from '@/components/WhatsAppCommunityBanner';
+import { useCallback, useEffect, useState } from "react";
+import { WhatsAppCommunityBanner } from "@/components/WhatsAppCommunityBanner";
 import {
   CUSTODYNOTE_BANNER_DISMISSED_KEY,
   CustodyNoteTopBanner,
-} from '@/components/CustodyNoteTopBanner';
-import { PromoRestoreBar } from '@/components/PromoRestoreBar';
+} from "@/components/CustodyNoteTopBanner";
+import { PromoRestoreBar } from "@/components/PromoRestoreBar";
 import {
   clearPinnedOnScroll,
   SCROLL_HIDE_PX,
   shouldCollapsePromos,
-} from '@/lib/promo-banner-scroll';
+} from "@/lib/promo-banner-scroll";
 
 /**
  * Sticky top promos. On narrow viewports, start collapsed so the directory/
@@ -25,14 +25,16 @@ export function PromoBannerStack() {
 
   useEffect(() => {
     try {
-      setCnDismissed(localStorage.getItem(CUSTODYNOTE_BANNER_DISMISSED_KEY) === '1');
+      setCnDismissed(
+        localStorage.getItem(CUSTODYNOTE_BANNER_DISMISSED_KEY) === "1",
+      );
     } catch {
       setCnDismissed(false);
     }
   }, []);
 
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)');
+    const mq = window.matchMedia("(min-width: 768px)");
     const apply = () => {
       const desktop = mq.matches;
       setShowCustodyNoteBanner(desktop);
@@ -45,25 +47,33 @@ export function PromoBannerStack() {
       }
     };
     apply();
-    mq.addEventListener('change', apply);
-    return () => mq.removeEventListener('change', apply);
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
   }, []);
 
   useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
     const onScroll = () => {
       const scrollY = window.scrollY;
+      const desktop = mq.matches;
       setPinnedOpen((prevPinned) => {
-        const nextPinned = clearPinnedOnScroll(scrollY, prevPinned, SCROLL_HIDE_PX);
-        setCollapsed((prevCollapsed) =>
-          shouldCollapsePromos(scrollY, nextPinned, prevCollapsed),
+        const nextPinned = clearPinnedOnScroll(
+          scrollY,
+          prevPinned,
+          SCROLL_HIDE_PX,
         );
+        setCollapsed((prevCollapsed) => {
+          // Mobile stays collapsed unless the user pinned open via the restore bar.
+          if (!desktop && !nextPinned) return true;
+          return shouldCollapsePromos(scrollY, nextPinned, prevCollapsed);
+        });
         return nextPinned;
       });
     };
 
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const handleExpand = useCallback(() => {
@@ -78,7 +88,7 @@ export function PromoBannerStack() {
   return (
     <div aria-label="Site promotions">
       <div
-        className={`promo-banner-stack-inner ${collapsed ? 'is-collapsed' : 'is-expanded'}`}
+        className={`promo-banner-stack-inner ${collapsed ? "is-collapsed" : "is-expanded"}`}
         aria-hidden={collapsed}
       >
         <div className="promo-banner-stack-content">
@@ -88,7 +98,12 @@ export function PromoBannerStack() {
           ) : null}
         </div>
       </div>
-      {collapsed && <PromoRestoreBar cnDismissed={cnDismissed || !showCustodyNoteBanner} onExpand={handleExpand} />}
+      {collapsed && (
+        <PromoRestoreBar
+          cnDismissed={cnDismissed || !showCustodyNoteBanner}
+          onExpand={handleExpand}
+        />
+      )}
     </div>
   );
 }

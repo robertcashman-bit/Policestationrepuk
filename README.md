@@ -1,5 +1,9 @@
 # Police Station Rep UK
 
+## Current status
+
+**Production.** Live at [https://policestationrepuk.org](https://policestationrepuk.org). Stack is Next.js 15 + Supabase. Vercel project: `policestationrepuk-new`. Deploy with `npm run deploy`. Related projects: Police Station Agent (`~/policestationagent`), PSR Train (`~/pstrain-rebuild`), Custody Note website (`~/custody-note-website`), and `~/shared-packages`. See `~/WORKSPACE_MAP.md`.
+
 A modern, SEO-optimised directory platform for police station representatives in the United Kingdom. Built with Next.js, Tailwind CSS, and Supabase. Designed for fast Core Web Vitals (LCP < 1s) and gradual migration from the existing Wix site.
 
 ## Tech Stack

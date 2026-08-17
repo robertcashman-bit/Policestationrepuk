@@ -29,6 +29,7 @@ import {
   utcHourBucket,
 } from './storage';
 import { isSendableReadyProspect } from './sendable-ready';
+import { isAgentCoverOutreachDisabled } from './site-config';
 import {
   type OutreachWorkspace,
   type OutreachWorkspaceId,
@@ -119,7 +120,10 @@ export async function getOutreachCapacity(
 
   const dryRun = isTruthyEnv(process.env.FIRM_OUTREACH_DRY_RUN);
   const sendAllowed = await isOutreachSendAllowed();
-  const sendingEnabled = outreachSendEnabled() && sendAllowed && !dryRun;
+  const campaignSendable =
+    workspaceId !== 'psa' || !isAgentCoverOutreachDisabled();
+  const sendingEnabled =
+    campaignSendable && outreachSendEnabled() && sendAllowed && !dryRun;
 
   const [
     eligibleUnsent,
@@ -185,6 +189,11 @@ export async function getOutreachCapacity(
   if (dryRun) {
     limitingFactor = 'dry_run';
     limitingDetail = 'FIRM_OUTREACH_DRY_RUN is enabled — live provider sends are blocked.';
+    effective = 0;
+  } else if (!campaignSendable) {
+    limitingFactor = 'sending_disabled';
+    limitingDetail =
+      'Police Station Agent / agent_cover_kent_v1 outreach is permanently disabled in this repo.';
     effective = 0;
   } else if (!outreachSendEnabled() || !sendAllowed) {
     limitingFactor = 'sending_disabled';

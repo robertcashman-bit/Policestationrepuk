@@ -2,6 +2,7 @@ import { dailySendCap } from '../constants';
 import { computeProspectPriority } from '../enrichment/scorer';
 import { normalizeEmail } from '../normalize';
 import { resolveStatusWithQualification } from '../qualification';
+import { isOutreachCampaignSendable } from '../site-config';
 import {
   createSendRecord,
   excludeProspectDuplicateEmail,
@@ -44,6 +45,9 @@ export function canManualSendProspect(
   suppressed: boolean,
   duplicateInitial?: boolean,
 ): { ok: boolean; reason?: string } {
+  if (!isOutreachCampaignSendable(prospect.campaignId)) {
+    return { ok: false, reason: 'agent_cover_outreach_permanently_disabled' };
+  }
   const email = prospect.email?.trim();
   if (!email) return { ok: false, reason: 'no_email' };
   if (suppressed) return { ok: false, reason: 'suppressed' };

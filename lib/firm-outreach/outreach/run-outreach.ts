@@ -22,7 +22,10 @@ import {
   qualifyProspectForOutreach,
   resolveStatusWithQualification,
 } from '../qualification';
-import { OUTREACH_CAMPAIGN_IDS } from '../site-config';
+import {
+  isOutreachCampaignSendable,
+  SENDABLE_OUTREACH_CAMPAIGN_IDS,
+} from '../site-config';
 import {
   addSuppression,
   createSendRecord,
@@ -204,6 +207,17 @@ export async function runFirmOutreach(opts?: {
 
   if (!outreachSendEnabled() || !(await isOutreachSendAllowed())) {
     recordSkip(stats, 'send_disabled');
+    return finish(0, 0, dailySendCap());
+  }
+
+  if (!isOutreachCampaignSendable(campaignId)) {
+    recordSkip(stats, 'send_disabled');
+    stats.skippedReason = 'agent_cover_outreach_permanently_disabled';
+    structuredRunLog('info', 'outreach.run.campaign_disabled', {
+      runId,
+      campaignId,
+      reason: 'agent_cover_outreach_permanently_disabled',
+    });
     return finish(0, 0, dailySendCap());
   }
 
@@ -837,8 +851,8 @@ export function mergeOutreachRunStats(
 }
 
 /**
- * Send for every shared KV campaign (RepUK WhatsApp + PSA agent-cover).
- * Each campaign keeps its own daily cap / queue; stats are returned per campaign and combined.
+ * Send for every sendable shared-KV campaign (RepUK WhatsApp only).
+ * Police Station Agent / agent_cover_kent_v1 is permanently excluded.
  */
 export async function runFirmOutreachAllCampaigns(opts?: {
   dryRun?: boolean;
@@ -849,7 +863,9 @@ export async function runFirmOutreachAllCampaigns(opts?: {
   byCampaign: Record<string, OutreachRunStats>;
   combined: OutreachRunStats;
 }> {
-  const requestedIds = opts?.campaignIds ?? OUTREACH_CAMPAIGN_IDS;
+  const requestedIds = (opts?.campaignIds ?? SENDABLE_OUTREACH_CAMPAIGN_IDS).filter(
+    (id) => isOutreachCampaignSendable(id),
+  );
   const date = new Date().toISOString().slice(0, 10);
   const campaignIds = await orderCampaignsByFewestSendsToday(requestedIds, (id) =>
     getDailySendCount(date, id),

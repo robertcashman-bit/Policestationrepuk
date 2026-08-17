@@ -6,7 +6,6 @@ import {
 } from '@robertcashman/firm-outreach-core';
 import {
   activeOutreachCampaignId,
-  AGENT_COVER_KENT_CAMPAIGN_ID,
 } from './campaign-scope';
 import { dailySendCap } from './constants';
 import { getEmailJobByIdempotencyKey } from './email-jobs/storage';
@@ -16,7 +15,7 @@ import {
   firmRecentlyContacted,
   selectOutreachCandidates,
 } from './outreach/candidate-selection';
-import { FIRM_OUTREACH_CAMPAIGN_ID } from './site-config';
+import { SENDABLE_OUTREACH_CAMPAIGN_IDS } from './site-config';
 import {
   getDailySendCount,
   getGlobalResendQuotaRemaining,
@@ -102,8 +101,8 @@ export function applySharedResendBudget(
 }
 
 /**
- * Dry-run both campaigns the production flush sends, with one shared Resend budget.
- * Per-campaign daily caps still apply independently; Resend remaining is global.
+ * Dry-run sendable campaigns the production flush sends (RepUK only).
+ * Shared Resend budget still applies across any future sendable campaigns.
  */
 export async function buildAllCampaignsDryRunPreview(opts?: {
   limit?: number;
@@ -111,7 +110,7 @@ export async function buildAllCampaignsDryRunPreview(opts?: {
 }): Promise<MultiCampaignDryRunPreviewResult> {
   const date = new Date().toISOString().slice(0, 10);
   const resendQuotaRemaining = await getGlobalResendQuotaRemaining(date);
-  const campaignIds = [FIRM_OUTREACH_CAMPAIGN_ID, AGENT_COVER_KENT_CAMPAIGN_ID];
+  const campaignIds = [...SENDABLE_OUTREACH_CAMPAIGN_IDS];
 
   const perCampaign: DryRunPreviewResult[] = [];
   for (const campaignId of campaignIds) {

@@ -111,7 +111,11 @@ Outreach uses Resend. Only **verified** domains can send.
 
 **Permanent auto-fix:** before each batch, the send path resolves from-address against Resend verified domains. If `policestationagent.com` is not verified, PSA emails send from the verified RepUK domain automatically (content and links remain PSA). On a Resend domain error, the send retries once with the verified fallback.
 
-**Both campaigns auto-send:** cron/pipeline/`send-approved` call `runFirmOutreachAllCampaigns` so `whatsapp_invite_v1` **and** `agent_cover_kent_v1` flush their `ready_to_send` queues (each with its own daily cap). Until PSA domain verification, agent-cover still sends via the RepUK fallback from-address.
+**Both campaigns historically shared one send worker.** As of 2026-08-17, **Police Station Agent / `agent_cover_kent_v1` is permanently disabled** in code (`AGENT_COVER_OUTREACH_PERMANENTLY_DISABLED`). Cron/pipeline/`send-approved` call `runFirmOutreachAllCampaigns`, which only flushes **`whatsapp_invite_v1`** (RepUK WhatsApp / firm invites). PSA sync cron and agent-cover seed/enrich are no-ops.
+
+Do **not** re-enable PSA sends from this repo. See `.cursor/rules/psa-outreach-disabled.mdc`.
+
+**Historical note:** agent-cover previously auto-sent alongside RepUK (with RepUK from-address fallback when `policestationagent.com` was unverified). That path is hard-blocked.
 
 **Verify PSA domain (optional but preferred):** Resend dashboard → Domains → add `policestationagent.com` (DNS records). Then set on Vercel:
 
@@ -128,7 +132,7 @@ Unset production blockers: `FIRM_OUTREACH_DRY_RUN`, `FIRM_OUTREACH_PAUSED`, `FIR
 - **Manual:** workflow **Firm outreach production kick** → `workflow_dispatch` with `sha=<full commit SHA>` and `confirm_kick=KICK`.
 - **Auth:** kick loads `CRON_SECRET` / `FIRM_OUTREACH_BOOTSTRAP_SECRET` via Vercel env API `decrypt=true` (same pattern as custody ops). `vercel env pull` often returns empty sensitive values. Status and send routes accept cron Bearer **or** `x-firm-outreach-bootstrap-secret`. If both secrets are empty, kick provisions `FIRM_OUTREACH_BOOTSTRAP_SECRET` on production and redeploys. If `FIRM_OUTREACH_REQUIRE_APPROVAL=true`, kick sets it to `false` and redeploys so send can flush.
 
-Kick steps: status → **pre-flight email probes** (RepUK + PSA) → send flush 1 + 1b → requalify → seed/enrich PSA agent-cover → enrich RepUK → send flush 2 (`/api/cron/firm-outreach-send?limit=150`) for both campaigns. Confirm probe `ok:true` and `sendByCampaign.agent_cover_kent_v1` in the kick log (or empty queue). Scheduled send crons also flush both campaigns (10:00 / 12:00 / 14:30 / 16:00 / 18:30 / 20:00 UTC).
+Kick steps: status → **pre-flight email probe** (RepUK; PSA probe skipped as permanently disabled) → send flush 1 + 1b → requalify → enrich RepUK → send flush 2 (`/api/cron/firm-outreach-send?limit=150`) for **whatsapp_invite_v1 only**. Confirm probe `ok:true` and RepUK sends in the kick log. Scheduled send crons flush RepUK on the `*/15` send worker.
 
 **Resend budget:** soft app ceiling via `FIRM_OUTREACH_RESEND_DAILY_LIMIT`. Unset defaults to **100/day** (minus headroom 10 → **90** outreach sends). On paid Resend plans with no daily quota, set `FIRM_OUTREACH_RESEND_DAILY_LIMIT=unlimited` (or `0` / `off`) so both campaigns share no soft daily Resend budget. Rate limits (≈10 req/s) and monthly plan quotas still apply at Resend.
 

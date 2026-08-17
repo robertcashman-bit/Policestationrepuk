@@ -11,17 +11,26 @@ import { backfillDeliveryFromResend } from '../backfill-delivery';
 import { reviveAgentCoverKentReady } from '../revive-agent-cover-ready';
 import { syncKentProspectsToAgentCover } from '../sync-kent-to-agent-cover';
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from '../campaign-scope';
-import { FIRM_OUTREACH_CAMPAIGN_ID } from '../site-config';
+import {
+  FIRM_OUTREACH_CAMPAIGN_ID,
+  isAgentCoverOutreachDisabled,
+  isOutreachCampaignSendable,
+} from '../site-config';
 import type { AutohealFault } from './detect';
 
 function campaignIdsForStarvedFaults(faults: AutohealFault[]): string[] {
   const ids = new Set<string>();
   for (const f of faults) {
     if (f.code !== 'campaign_starved' && f.code !== 'queue_empty_with_eligible') continue;
-    if (f.workspace === 'psa' || f.workspace === 'both') ids.add(AGENT_COVER_KENT_CAMPAIGN_ID);
+    if (
+      (f.workspace === 'psa' || f.workspace === 'both') &&
+      !isAgentCoverOutreachDisabled()
+    ) {
+      ids.add(AGENT_COVER_KENT_CAMPAIGN_ID);
+    }
     if (f.workspace === 'repuk' || f.workspace === 'both') ids.add(FIRM_OUTREACH_CAMPAIGN_ID);
   }
-  return [...ids];
+  return [...ids].filter((id) => isOutreachCampaignSendable(id));
 }
 
 export interface AutohealRepairResult {
@@ -82,11 +91,13 @@ export async function applyAutohealRepairs(
   }
 
   if (has(faults, 'queue_empty_with_eligible') || has(faults, 'campaign_starved')) {
-    const psaStarved = faults.some(
-      (f) =>
-        (f.code === 'queue_empty_with_eligible' || f.code === 'campaign_starved') &&
-        (f.workspace === 'psa' || f.workspace === 'both'),
-    );
+    const psaStarved =
+      !isAgentCoverOutreachDisabled() &&
+      faults.some(
+        (f) =>
+          (f.code === 'queue_empty_with_eligible' || f.code === 'campaign_starved') &&
+          (f.workspace === 'psa' || f.workspace === 'both'),
+      );
     if (psaStarved) {
       try {
         const sync = await syncKentProspectsToAgentCover({
@@ -99,6 +110,8 @@ export async function applyAutohealRepairs(
       } catch (err) {
         errors.push(`queue_refill:${err instanceof Error ? err.message : String(err)}`);
       }
+    } else if (isAgentCoverOutreachDisabled()) {
+      skipped.push('skip_psa_queue_refill_permanently_disabled');
     }
   }
 

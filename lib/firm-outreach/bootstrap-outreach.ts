@@ -4,6 +4,7 @@ import { recoverEnrichPool } from './enrichment/recover-enrich-pool';
 import { runFirmEnrichment } from './enrichment/run-enrich';
 import { reindexProspectStatuses } from './reindex-prospects';
 import { isOutreachSendAllowed, setAdminPauseState, getOutreachPauseSummary } from './pause-state';
+import { isAgentCoverOutreachDisabled } from './site-config';
 import { countProspectsByStatus } from './storage';
 import type { DiscoveryRunStats } from './types';
 
@@ -88,7 +89,9 @@ export async function bootstrapOutreach(opts?: {
   }
 
   let agentCoverDiscovery: DiscoveryRunStats | undefined;
-  if (opts?.seedAgentCover) {
+  const seedAgentCover =
+    Boolean(opts?.seedAgentCover) && !isAgentCoverOutreachDisabled();
+  if (seedAgentCover) {
     agentCoverDiscovery = await runFirmDiscovery({
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
       countyAllowlist: null,
@@ -98,11 +101,14 @@ export async function bootstrapOutreach(opts?: {
   const batchResults: Awaited<ReturnType<typeof runFirmEnrichment>>[] = [];
   // Enrich target — must match recoverEnrichPool campaign (Bugbot: do not recover
   // agent_cover when seedAgentCover is set but enrich still targets the default).
-  const campaignId = opts?.campaignId?.trim() || undefined;
+  const campaignId =
+    opts?.campaignId === AGENT_COVER_KENT_CAMPAIGN_ID && isAgentCoverOutreachDisabled()
+      ? undefined
+      : opts?.campaignId?.trim() || undefined;
 
   // If we seed Kent inventory but enrich a different campaign, recover Kent too.
   let seedCampaignRecovery: Awaited<ReturnType<typeof recoverEnrichPool>> | undefined;
-  if (opts?.seedAgentCover && campaignId !== AGENT_COVER_KENT_CAMPAIGN_ID) {
+  if (seedAgentCover && campaignId !== AGENT_COVER_KENT_CAMPAIGN_ID) {
     seedCampaignRecovery = await recoverEnrichPool({
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
     });

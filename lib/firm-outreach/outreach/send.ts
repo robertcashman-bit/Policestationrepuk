@@ -4,6 +4,7 @@ import { COMMUNITY_EMAIL } from '@/lib/site-navigation';
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from '../campaign-scope';
 import { loadBrochureAttachment } from '../brochure/load-attachment';
 import { getEmailProvider } from '../email-provider';
+import { isOutreachCampaignSendable } from '../site-config';
 import {
   DEFAULT_PSA_FROM_FALLBACK,
   isDomainNotVerifiedError,
@@ -53,6 +54,18 @@ export async function sendOutreachEmail(opts: {
 }> {
   const email = opts.prospect.email?.trim();
   if (!email) return { ok: false, subject: '', error: 'no_email' };
+
+  // Hard stop: Police Station Agent / agent_cover must never send from this repo.
+  if (!isOutreachCampaignSendable(opts.prospect.campaignId)) {
+    const subject = subjectForStep(opts.prospect, opts.step);
+    return {
+      ok: false,
+      subject,
+      error: 'agent_cover_outreach_permanently_disabled',
+      retryable: false,
+      statusCode: 403,
+    };
+  }
 
   const subject = subjectForStep(opts.prospect, opts.step);
   const token = issueUnsubscribeToken(email);

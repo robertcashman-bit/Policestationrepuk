@@ -1,6 +1,10 @@
 import { dailySendCap } from '../constants';
 import { computeProspectPriority } from '../enrichment/scorer';
 import { normalizeEmail } from '../normalize';
+import {
+  isPsaFirmOutreachBlocked,
+  PSA_FIRM_OUTREACH_DISABLED_REASON,
+} from '../psa-outreach-enabled';
 import { resolveStatusWithQualification } from '../qualification';
 import {
   createSendRecord,
@@ -44,6 +48,9 @@ export function canManualSendProspect(
   suppressed: boolean,
   duplicateInitial?: boolean,
 ): { ok: boolean; reason?: string } {
+  if (isPsaFirmOutreachBlocked(prospect.campaignId)) {
+    return { ok: false, reason: PSA_FIRM_OUTREACH_DISABLED_REASON };
+  }
   const email = prospect.email?.trim();
   if (!email) return { ok: false, reason: 'no_email' };
   if (suppressed) return { ok: false, reason: 'suppressed' };

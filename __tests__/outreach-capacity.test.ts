@@ -90,8 +90,16 @@ describe('getOutreachCapacity', () => {
 
   it('detects dry-run as limiting factor', async () => {
     process.env.FIRM_OUTREACH_DRY_RUN = '1';
-    const cap = await getOutreachCapacity('psa');
+    const cap = await getOutreachCapacity('repuk');
     expect(cap.limitingFactor).toBe('dry_run');
+    expect(cap.effectiveAvailableCapacity).toBe(0);
+  });
+
+  it('reports PSA permanently disabled even when eligible inventory remains', async () => {
+    const cap = await getOutreachCapacity('psa');
+    expect(cap.sendingEnabled).toBe(false);
+    expect(cap.limitingFactor).toBe('sending_disabled');
+    expect(cap.limitingDetail).toMatch(/permanently disabled/i);
     expect(cap.effectiveAvailableCapacity).toBe(0);
   });
 
@@ -119,7 +127,12 @@ describe('getOutreachCapacity', () => {
     });
     const psa = await getOutreachCapacity('psa');
     expect(psa.pendingJobs).toBe(1);
-    expect(psa.limitingFactor).toBe('pending_jobs_only');
+    // PSA send is hard-off; capacity stays disabled even with pending jobs.
+    expect(psa.limitingFactor).toBe('sending_disabled');
+
+    const repuk = await getOutreachCapacity('repuk');
+    expect(repuk.pendingJobs).toBe(1);
+    expect(repuk.limitingFactor).toBe('pending_jobs_only');
   });
 
   it('calls getHourlySendCount with campaignId first', async () => {

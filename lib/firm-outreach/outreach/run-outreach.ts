@@ -22,7 +22,11 @@ import {
   qualifyProspectForOutreach,
   resolveStatusWithQualification,
 } from '../qualification';
-import { OUTREACH_CAMPAIGN_IDS } from '../site-config';
+import {
+  isPsaFirmOutreachBlocked,
+  PSA_FIRM_OUTREACH_DISABLED_REASON,
+} from '../psa-outreach-enabled';
+import { ENABLED_OUTREACH_CAMPAIGN_IDS } from '../site-config';
 import {
   addSuppression,
   createSendRecord,
@@ -189,6 +193,17 @@ export async function runFirmOutreach(opts?: {
     }
     return stats;
   };
+
+  if (isPsaFirmOutreachBlocked(campaignId)) {
+    recordSkip(stats, 'send_disabled');
+    stats.skippedReason = PSA_FIRM_OUTREACH_DISABLED_REASON;
+    structuredRunLog('info', 'outreach.run.psa_disabled', {
+      runId,
+      campaignId,
+      reason: PSA_FIRM_OUTREACH_DISABLED_REASON,
+    });
+    return finish(0, 0, dailySendCap());
+  }
 
   const envCheck = validateOutreachEnv({ forLiveSend: !opts?.dryRun });
   if (!envCheck.ok && !opts?.dryRun && envCheck.sendingEnabled && !envCheck.dryRun) {
@@ -837,7 +852,7 @@ export function mergeOutreachRunStats(
 }
 
 /**
- * Send for every shared KV campaign (RepUK WhatsApp + PSA agent-cover).
+ * Send for every enabled outreach campaign (RepUK WhatsApp only while PSA is off).
  * Each campaign keeps its own daily cap / queue; stats are returned per campaign and combined.
  */
 export async function runFirmOutreachAllCampaigns(opts?: {
@@ -849,7 +864,15 @@ export async function runFirmOutreachAllCampaigns(opts?: {
   byCampaign: Record<string, OutreachRunStats>;
   combined: OutreachRunStats;
 }> {
-  const requestedIds = opts?.campaignIds ?? OUTREACH_CAMPAIGN_IDS;
+  const requestedIds = (opts?.campaignIds ?? ENABLED_OUTREACH_CAMPAIGN_IDS).filter(
+    (id) => !isPsaFirmOutreachBlocked(id),
+  );
+  if (requestedIds.length === 0) {
+    return {
+      byCampaign: {},
+      combined: emptyOutreachRunStats(),
+    };
+  }
   const date = new Date().toISOString().slice(0, 10);
   const campaignIds = await orderCampaignsByFewestSendsToday(requestedIds, (id) =>
     getDailySendCount(date, id),

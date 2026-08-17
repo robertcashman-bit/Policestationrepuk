@@ -2,6 +2,7 @@ import { AGENT_COVER_KENT_CAMPAIGN_ID } from './campaign-scope';
 import { runFirmDiscovery } from './discovery/run-discovery';
 import { recoverEnrichPool } from './enrichment/recover-enrich-pool';
 import { runFirmEnrichment } from './enrichment/run-enrich';
+import { isPsaFirmOutreachEnabled } from './psa-outreach-enabled';
 import { reindexProspectStatuses } from './reindex-prospects';
 import { isOutreachSendAllowed, setAdminPauseState, getOutreachPauseSummary } from './pause-state';
 import { countProspectsByStatus } from './storage';
@@ -88,7 +89,8 @@ export async function bootstrapOutreach(opts?: {
   }
 
   let agentCoverDiscovery: DiscoveryRunStats | undefined;
-  if (opts?.seedAgentCover) {
+  const seedAgentCover = Boolean(opts?.seedAgentCover) && isPsaFirmOutreachEnabled();
+  if (seedAgentCover) {
     agentCoverDiscovery = await runFirmDiscovery({
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
       countyAllowlist: null,
@@ -98,11 +100,16 @@ export async function bootstrapOutreach(opts?: {
   const batchResults: Awaited<ReturnType<typeof runFirmEnrichment>>[] = [];
   // Enrich target — must match recoverEnrichPool campaign (Bugbot: do not recover
   // agent_cover when seedAgentCover is set but enrich still targets the default).
-  const campaignId = opts?.campaignId?.trim() || undefined;
+  // When PSA is disabled, never enrich agent_cover even if a caller passes that campaignId.
+  const requestedCampaignId = opts?.campaignId?.trim() || undefined;
+  const campaignId =
+    requestedCampaignId === AGENT_COVER_KENT_CAMPAIGN_ID && !isPsaFirmOutreachEnabled()
+      ? undefined
+      : requestedCampaignId;
 
   // If we seed Kent inventory but enrich a different campaign, recover Kent too.
   let seedCampaignRecovery: Awaited<ReturnType<typeof recoverEnrichPool>> | undefined;
-  if (opts?.seedAgentCover && campaignId !== AGENT_COVER_KENT_CAMPAIGN_ID) {
+  if (seedAgentCover && campaignId !== AGENT_COVER_KENT_CAMPAIGN_ID) {
     seedCampaignRecovery = await recoverEnrichPool({
       campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
     });

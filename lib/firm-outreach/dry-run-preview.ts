@@ -16,7 +16,8 @@ import {
   firmRecentlyContacted,
   selectOutreachCandidates,
 } from './outreach/candidate-selection';
-import { FIRM_OUTREACH_CAMPAIGN_ID } from './site-config';
+import { isPsaFirmOutreachBlocked } from './psa-outreach-enabled';
+import { ENABLED_OUTREACH_CAMPAIGN_IDS, FIRM_OUTREACH_CAMPAIGN_ID } from './site-config';
 import {
   getDailySendCount,
   getGlobalResendQuotaRemaining,
@@ -102,8 +103,9 @@ export function applySharedResendBudget(
 }
 
 /**
- * Dry-run both campaigns the production flush sends, with one shared Resend budget.
+ * Dry-run enabled campaigns the production flush sends, with one shared Resend budget.
  * Per-campaign daily caps still apply independently; Resend remaining is global.
+ * PSA agent-cover is omitted while permanently disabled.
  */
 export async function buildAllCampaignsDryRunPreview(opts?: {
   limit?: number;
@@ -111,7 +113,12 @@ export async function buildAllCampaignsDryRunPreview(opts?: {
 }): Promise<MultiCampaignDryRunPreviewResult> {
   const date = new Date().toISOString().slice(0, 10);
   const resendQuotaRemaining = await getGlobalResendQuotaRemaining(date);
-  const campaignIds = [FIRM_OUTREACH_CAMPAIGN_ID, AGENT_COVER_KENT_CAMPAIGN_ID];
+  const campaignIds = [
+    ...ENABLED_OUTREACH_CAMPAIGN_IDS,
+    ...(isPsaFirmOutreachBlocked(AGENT_COVER_KENT_CAMPAIGN_ID)
+      ? []
+      : [AGENT_COVER_KENT_CAMPAIGN_ID]),
+  ];
 
   const perCampaign: DryRunPreviewResult[] = [];
   for (const campaignId of campaignIds) {

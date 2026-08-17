@@ -5,6 +5,7 @@ alwaysApply: true
 
 # Cross-site firm outreach
 
-- **policestationagent** firm outreach emails are permanently disabled. Never re-enable them from this repo or sibling patches.
+- **policestationagent** firm outreach emails are permanently disabled in code (`lib/firm-outreach/psa-outreach-enabled.ts`). Never re-enable them from this repo or sibling patches.
+- Kill switch blocks: `sendOutreachEmail`, dual-campaign flush, probes, Kent→PSA sync, PSA enrich/discovery, admin manual/bulk send, production-kick PSA seed.
 - **Policestationrepuk** firm outreach (WhatsApp / firm invites) must keep running.
 - If an agent task mentions “stop outreach”, confirm which site. Default for PSA = already off; default for RepUK = leave on unless the user names RepUK.

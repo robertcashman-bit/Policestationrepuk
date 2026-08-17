@@ -15,6 +15,10 @@ import {
 } from './constants';
 import { isOutreachSendAllowed } from './pause-state';
 import {
+  isPsaFirmOutreachBlocked,
+  PSA_FIRM_OUTREACH_DISABLED_REASON,
+} from './psa-outreach-enabled';
+import {
   countEmailJobsByStatus,
   countClaimableJobsForCampaign,
   getEmailJob,
@@ -119,7 +123,8 @@ export async function getOutreachCapacity(
 
   const dryRun = isTruthyEnv(process.env.FIRM_OUTREACH_DRY_RUN);
   const sendAllowed = await isOutreachSendAllowed();
-  const sendingEnabled = outreachSendEnabled() && sendAllowed && !dryRun;
+  const psaBlocked = isPsaFirmOutreachBlocked(workspace.campaignId);
+  const sendingEnabled = outreachSendEnabled() && sendAllowed && !dryRun && !psaBlocked;
 
   const [
     eligibleUnsent,
@@ -182,7 +187,11 @@ export async function getOutreachCapacity(
   let limitingDetail = 'Capacity available.';
   let effective = Number.MAX_SAFE_INTEGER;
 
-  if (dryRun) {
+  if (psaBlocked) {
+    limitingFactor = 'sending_disabled';
+    limitingDetail = `PSA firm outreach permanently disabled (${PSA_FIRM_OUTREACH_DISABLED_REASON}).`;
+    effective = 0;
+  } else if (dryRun) {
     limitingFactor = 'dry_run';
     limitingDetail = 'FIRM_OUTREACH_DRY_RUN is enabled — live provider sends are blocked.';
     effective = 0;

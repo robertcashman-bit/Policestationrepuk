@@ -3,6 +3,7 @@ import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
 import { recoverEnrichPool } from '@/lib/firm-outreach/enrichment/recover-enrich-pool';
 import { requeueNoEmailProspects } from '@/lib/firm-outreach/enrichment/requeue-no-email';
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from '@/lib/firm-outreach/campaign-scope';
+import { isPsaFirmOutreachEnabled } from '@/lib/firm-outreach/psa-outreach-enabled';
 import { FIRM_OUTREACH_CAMPAIGN_ID } from '@/lib/firm-outreach/site-config';
 import { runFirmOutreachPipeline } from '@/lib/firm-outreach/run-pipeline';
 
@@ -21,10 +22,14 @@ export async function GET(request: Request) {
   }
 
   const requeue = isSundayUtc() ? await requeueNoEmailProspects() : { requeued: 0 };
-  const enrichPoolRecovery = {
+  const enrichPoolRecovery: Record<string, Awaited<ReturnType<typeof recoverEnrichPool>>> = {
     whatsapp_invite_v1: await recoverEnrichPool({ campaignId: FIRM_OUTREACH_CAMPAIGN_ID }),
-    agent_cover_kent_v1: await recoverEnrichPool({ campaignId: AGENT_COVER_KENT_CAMPAIGN_ID }),
   };
+  if (isPsaFirmOutreachEnabled()) {
+    enrichPoolRecovery.agent_cover_kent_v1 = await recoverEnrichPool({
+      campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+    });
+  }
 
   const result = await runFirmOutreachPipeline({
     skipSend: true,

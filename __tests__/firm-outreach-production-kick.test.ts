@@ -158,6 +158,18 @@ describe('runProductionKickSteps', () => {
     expect(repukEnrich.length).toBeGreaterThanOrEqual(2);
     expect(repukEnrich.every((s) => s.path.includes('limit=80'))).toBe(true);
   });
+
+  it('does not seed or enrich PSA agent-cover while disabled', () => {
+    expect(
+      DEFAULT_PRODUCTION_KICK_STEPS.some((s) => s.path.includes('seedAgentCover=1')),
+    ).toBe(false);
+    expect(
+      DEFAULT_PRODUCTION_KICK_STEPS.some((s) => s.path.includes('campaignId=agent_cover_kent_v1')),
+    ).toBe(false);
+    expect(
+      DEFAULT_PRODUCTION_KICK_STEPS.find((s) => s.path.includes('firm-outreach-send'))?.label,
+    ).toMatch(/PSA disabled/i);
+  });
 });
 
 describe('waitForVercelProductionDeploy', () => {

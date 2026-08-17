@@ -1,13 +1,15 @@
 /**
- * Pre-flight Resend probes for both outreach brands/sites:
+ * Pre-flight Resend probes for enabled outreach brands/sites:
  * - policestationrepuk.com / .org → whatsapp_invite_v1
- * - policestationagent.com → agent_cover_kent_v1
- * Sends one operator-only test email per campaign so we confirm
- * from-address resolution before flushing live firm mail.
+ * Police Station Agent probes are permanently skipped (see psa-outreach-enabled.ts).
  */
 import { COMMUNITY_EMAIL } from '@/lib/site-navigation';
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from '../campaign-scope';
 import { getEmailProvider } from '../email-provider';
+import {
+  isPsaFirmOutreachBlocked,
+  PSA_FIRM_OUTREACH_DISABLED_REASON,
+} from '../psa-outreach-enabled';
 import { FIRM_OUTREACH_CAMPAIGN_ID } from '../site-config';
 import {
   DEFAULT_PSA_FROM_FALLBACK,
@@ -136,6 +138,16 @@ export async function runOutreachSendProbes(opts?: {
       to,
       ok: false,
     };
+
+    if (isPsaFirmOutreachBlocked(c.campaignId)) {
+      probes.push({
+        ...base,
+        ok: true,
+        skipped: true,
+        reason: PSA_FIRM_OUTREACH_DISABLED_REASON,
+      });
+      continue;
+    }
 
     if (blockers.length > 0) {
       probes.push({ ...base, skipped: true, reason: blockers.join('; '), error: blockers[0] });

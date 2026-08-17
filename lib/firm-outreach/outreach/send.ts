@@ -5,6 +5,10 @@ import { AGENT_COVER_KENT_CAMPAIGN_ID } from '../campaign-scope';
 import { loadBrochureAttachment } from '../brochure/load-attachment';
 import { getEmailProvider } from '../email-provider';
 import {
+  isPsaFirmOutreachBlocked,
+  PSA_FIRM_OUTREACH_DISABLED_REASON,
+} from '../psa-outreach-enabled';
+import {
   DEFAULT_PSA_FROM_FALLBACK,
   isDomainNotVerifiedError,
   resolveFromAddressForCampaign,
@@ -53,6 +57,16 @@ export async function sendOutreachEmail(opts: {
 }> {
   const email = opts.prospect.email?.trim();
   if (!email) return { ok: false, subject: '', error: 'no_email' };
+
+  // Hard kill: PSA agent-cover must never leave this deployment (cron, admin, scripts).
+  if (isPsaFirmOutreachBlocked(opts.prospect.campaignId)) {
+    return {
+      ok: false,
+      subject: '',
+      error: PSA_FIRM_OUTREACH_DISABLED_REASON,
+      retryable: false,
+    };
+  }
 
   const subject = subjectForStep(opts.prospect, opts.step);
   const token = issueUnsubscribeToken(email);

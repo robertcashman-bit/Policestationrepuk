@@ -103,20 +103,20 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Backfill delivery status from Resend',
     optional: true,
   },
-  // Operator-only Resend probes for both websites (fails kick if either path cannot send).
+  // Operator-only Resend probe for RepUK (PSA firm outreach permanently disabled).
   {
     path: '/api/cron/firm-outreach-probe',
-    label: 'Pre-flight email probes (policestationrepuk + policestationagent)',
+    label: 'Pre-flight email probe (policestationrepuk; PSA skipped)',
   },
   // Flush FIRST while cooldown override is live — do not let requalify/enrich burn the window.
   {
     path: '/api/cron/firm-outreach-bootstrap?dryRunPreview=1&allCampaigns=1&limit=150',
-    label: 'Dry-run preview (both campaigns, safe send limit)',
+    label: 'Dry-run preview (enabled campaigns, safe send limit)',
     optional: true,
   },
   {
     path: '/api/cron/firm-outreach-send?limit=150',
-    label: 'Send flush 1 (whatsapp_invite_v1 + agent_cover_kent_v1)',
+    label: 'Send flush 1 (whatsapp_invite_v1; PSA disabled)',
   },
   // Immediate second pass while Resend quota remains — large ready queues (200+)
   // often leave capacity after flush 1 finishes early on skips/suppressions.
@@ -146,12 +146,7 @@ export const DEFAULT_PRODUCTION_KICK_STEPS: KickStep[] = [
     label: 'Pipeline maintain (requalify + inventory)',
     optional: true,
   },
-  // PSA: seed Kent + larger enrich so agent_cover gains ready firm inboxes.
-  {
-    path: '/api/cron/firm-outreach-bootstrap?seedAgentCover=1&campaignId=agent_cover_kent_v1&batches=3&limit=80',
-    label: 'Seed + enrich PSA agent-cover Kent',
-    optional: true,
-  },
+  // PSA seed/enrich intentionally omitted — firm outreach permanently disabled.
   // RepUK: larger enrich batches to surface firm-type emails before flush.
   {
     path: '/api/cron/firm-outreach-bootstrap?batches=1&limit=80',

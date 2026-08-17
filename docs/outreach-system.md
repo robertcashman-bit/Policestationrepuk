@@ -12,12 +12,14 @@ Dependable production path for professional outreach to criminal defence firms /
 
 ### Campaigns
 
-| Campaign ID | Brand | Purpose |
-|-------------|-------|---------|
-| `whatsapp_invite_v1` | PoliceStationRepUK | WhatsApp group + directory |
-| `agent_cover_kent_v1` | Police Station Agent | Kent custody cover offer (nationwide recipients) |
+| Campaign ID | Brand | Purpose | Status |
+|-------------|-------|---------|--------|
+| `whatsapp_invite_v1` | PoliceStationRepUK | WhatsApp group + directory | **Live** |
+| `agent_cover_kent_v1` | Police Station Agent | Kent custody cover offer | **Permanently disabled** (`lib/firm-outreach/psa-outreach-enabled.ts`) |
 
 Selection is explicit per prospect `campaignId` — never random dual-send to the same person for both brands unless they exist as separate campaign rows.
+
+**PSA kill switch:** `PSA_FIRM_OUTREACH_ENABLED=false` hard-blocks `sendOutreachEmail`, dual-campaign flush, probes, Kent→PSA sync, PSA enrich/discovery, admin manual/bulk send, and production-kick seed. RepUK WhatsApp/firm invites keep running.
 
 ### State machine (jobs)
 

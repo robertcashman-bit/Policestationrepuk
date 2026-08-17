@@ -321,18 +321,21 @@ export async function detectAutohealFaults(now = new Date()): Promise<{
   }
 
   // Asymmetric: one workspace healthy with capacity, other failed with eligible.
+  // PSA permanently disabled is expected — do not treat as asymmetric failure.
   const psaFailed =
     capacities.psa.eligibleUnsent > 0 &&
     capacities.psa.effectiveAvailableCapacity === 0 &&
     capacities.psa.limitingFactor !== 'no_eligible_leads' &&
     capacities.psa.limitingFactor !== 'provider_daily_limit' &&
-    capacities.psa.limitingFactor !== 'configured_daily_limit';
+    capacities.psa.limitingFactor !== 'configured_daily_limit' &&
+    capacities.psa.limitingFactor !== 'sending_disabled';
   const repukFailed =
     capacities.repuk.eligibleUnsent > 0 &&
     capacities.repuk.effectiveAvailableCapacity === 0 &&
     capacities.repuk.limitingFactor !== 'no_eligible_leads' &&
     capacities.repuk.limitingFactor !== 'provider_daily_limit' &&
-    capacities.repuk.limitingFactor !== 'configured_daily_limit';
+    capacities.repuk.limitingFactor !== 'configured_daily_limit' &&
+    capacities.repuk.limitingFactor !== 'sending_disabled';
   if (psaFailed !== repukFailed) {
     faults.push({
       code: 'workspace_asymmetric_failure',

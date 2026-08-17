@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
 import { AGENT_COVER_KENT_CAMPAIGN_ID } from '@/lib/firm-outreach/campaign-scope';
 import { selectOutreachCandidates } from '@/lib/firm-outreach/outreach/candidate-selection';
+import {
+  isPsaFirmOutreachEnabled,
+  PSA_FIRM_OUTREACH_DISABLED_REASON,
+} from '@/lib/firm-outreach/psa-outreach-enabled';
 import { reviveAgentCoverKentReady } from '@/lib/firm-outreach/revive-agent-cover-ready';
 import { syncKentProspectsToAgentCover } from '@/lib/firm-outreach/sync-kent-to-agent-cover';
 
@@ -11,14 +15,23 @@ export const maxDuration = 300;
 
 /**
  * Kent→PSA inventory sync + revive stuck send_failed / soft exclusions.
- * Runs before send crons so agent_cover_kent_v1 is not starved when maintain 504s.
- *
- * Time budget must be large enough to walk past already-cloned RepUK head rows
- * and create new PSA ready inventory (25s previously truncated after ~100 scans).
+ * No-ops while PSA firm outreach is permanently disabled.
  */
 export async function GET(request: Request) {
   if (!isOutreachBootstrapAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (!isPsaFirmOutreachEnabled()) {
+    return NextResponse.json({
+      ok: true,
+      mode: 'psa-sync',
+      skipped: true,
+      reason: PSA_FIRM_OUTREACH_DISABLED_REASON,
+      sync: null,
+      revive: null,
+      psa: { readyScanned: 0, readyEligible: 0, sendableCandidates: 0 },
+    });
   }
 
   const url = new URL(request.url);

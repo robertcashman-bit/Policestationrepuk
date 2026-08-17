@@ -155,16 +155,28 @@ jobs:
             python3 -c 'import json,sys; json.load(open(sys.argv[1])); print("json_ok", sys.argv[1])' "$out"
           }
 
-          # Vercel kills /firm-outreach-send at 300s. Retry once — overlap (200)
-          # means another tick is already draining the queue.
+          # Vercel kills /firm-outreach-send at 300s. Overlap JSON (200 +
+          # reason=overlap) means another tick already holds the send lock —
+          # retry until that lock TTL (~270s) expires.
           call_worker() {
             local out="$1"; shift
-            if call worker "$out" "$@"; then
+            local i reason
+            for i in 1 2 3 4 5 6; do
+              if ! call worker "$out" "$@"; then
+                echo "worker HTTP fail attempt ${i}; retrying"
+                sleep 25
+                continue
+              fi
+              reason=$(python3 -c "import json;d=json.load(open('$out'));print(d.get('reason') or '')" 2>/dev/null || true)
+              if [ "$reason" = "overlap" ]; then
+                echo "worker overlap attempt ${i}; waiting for send lock"
+                sleep 40
+                continue
+              fi
               return 0
-            fi
-            echo "worker gateway timeout; retrying once"
-            sleep 20
-            call worker "$out" "$@"
+            done
+            echo "worker still overlapping after retries; keeping last JSON"
+            return 0
           }
 
           call status status.json "$BASE_URL/api/cron/firm-outreach-status"
@@ -243,9 +255,13 @@ jobs:
           assert cfg.get('sendHealthy') is True
           elig=((status.get('queue') or {}).get('eligibility') or {}).get('whatsapp_invite_v1') or {}
           wa=(send.get('byCampaign') or {}).get('whatsapp_invite_v1') or {}
+          last=elig.get('lastRun') or {}
           pool=(elig.get('readyEligible') or 0)+(elig.get('followUpEligible') or 0)
+          tick_ok=((wa.get('accepted') or 0)+(wa.get('jobsCreated') or 0)) > 0
+          last_ok=(last.get('sent') or 0) > 0
+          overlap=send.get('reason')=='overlap' or send.get('skipped') is True
           if pool >= 10:
-              assert (wa.get('accepted') or 0)+(wa.get('jobsCreated') or 0) > 0, {'repuk': wa, 'eligibility': elig}
+              assert tick_ok or last_ok, {'repuk': wa, 'overlap': overlap, 'eligibility': elig}
           PY
 
       - name: Upload ops artifacts

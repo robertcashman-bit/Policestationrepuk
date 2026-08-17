@@ -44,6 +44,15 @@ function has(faults: AutohealFault[], code: AutohealFault['code']): boolean {
   return faults.some((f) => f.code === code);
 }
 
+/** Global pause/dry-run only — PSA-only kill switch must not block RepUK sends. */
+function sendingDisabledBlocksOutreach(faults: AutohealFault[]): boolean {
+  return faults.some((f) => {
+    if (f.code !== 'sending_disabled') return false;
+    if (f.workspace === 'psa' && !isPsaFirmOutreachEnabled()) return false;
+    return true;
+  });
+}
+
 export async function applyAutohealRepairs(
   faults: AutohealFault[],
   opts?: { triggerOutreach?: boolean; maxElapsedMs?: number },
@@ -141,7 +150,7 @@ export async function applyAutohealRepairs(
       has(faults, 'network_timeouts') ||
       has(faults, 'provider_temporary_failures'));
 
-  if (has(faults, 'dry_run_enabled') || has(faults, 'sending_disabled')) {
+  if (has(faults, 'dry_run_enabled') || sendingDisabledBlocksOutreach(faults)) {
     skipped.push('will_not_send_while_disabled_or_dry_run');
   } else if (shouldTrigger) {
     try {

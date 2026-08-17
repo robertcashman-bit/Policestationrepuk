@@ -6,6 +6,7 @@ import { countEmailJobsByStatus, getEmailJob, listEmailJobIdsByStatus } from '..
 import { getLatestJobRun } from '../job-runs';
 import { getOutreachSendHealth } from '../outreach/from-address';
 import { getLatestOutreachRunLog } from '../storage';
+import { isPsaFirmOutreachEnabled } from '../psa-outreach-enabled';
 import { OUTREACH_WORKSPACES, type OutreachWorkspaceId } from '../workspaces';
 
 export type AutohealFaultCode =
@@ -117,6 +118,10 @@ export async function detectAutohealFaults(now = new Date()): Promise<{
   }
 
   for (const ws of OUTREACH_WORKSPACES) {
+    // Intentional PSA kill switch — do not raise send/starvation faults for it.
+    // Emitting sending_disabled here would block RepUK autoheal repairs and page operators.
+    if (ws.id === 'psa' && !isPsaFirmOutreachEnabled()) continue;
+
     const cap = capacities[ws.id];
     if (!cap.sendingEnabled && !cap.dryRun) {
       faults.push({

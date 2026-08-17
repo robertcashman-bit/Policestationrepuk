@@ -240,4 +240,40 @@ describe('autoheal detect + repair', () => {
     const call = mockRunAll.mock.calls[0]?.[0] as { campaignIds?: string[] };
     expect(call.campaignIds).toContain('whatsapp_invite_v1');
   });
+
+  it('PSA permanent disable does not emit sending_disabled or block RepUK autoheal', async () => {
+    mockCapacities.mockResolvedValue({
+      psa: healthyCap({
+        workspace: 'psa',
+        campaignId: 'agent_cover_kent_v1',
+        sendingEnabled: false,
+        eligibleUnsent: 40,
+        pendingJobs: 0,
+        effectiveAvailableCapacity: 0,
+        limitingFactor: 'sending_disabled',
+      }),
+      repuk: healthyCap({
+        eligibleUnsent: 50,
+        configuredUsedToday: 0,
+        pendingJobs: 0,
+        effectiveAvailableCapacity: 50,
+      }),
+    });
+    mockLatestRun.mockResolvedValue({
+      status: 'success',
+      finished: new Date(Date.now() - 2 * 60 * 60_000).toISOString(),
+      accepted: 0,
+      claimed: 0,
+    });
+    mockListJobIds.mockResolvedValue([]);
+    const { faults } = await detectAutohealFaults();
+    expect(faults.some((f) => f.code === 'sending_disabled')).toBe(false);
+    expect(faults.some((f) => f.code === 'campaign_starved' && f.workspace === 'repuk')).toBe(
+      true,
+    );
+    const repair = await applyAutohealRepairs(faults);
+    expect(repair.skipped).not.toContain('will_not_send_while_disabled_or_dry_run');
+    expect(repair.outreachTriggered).toBe(true);
+    expect(mockRunAll).toHaveBeenCalled();
+  });
 });

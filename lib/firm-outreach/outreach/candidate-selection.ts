@@ -14,6 +14,12 @@ export { nextOutreachStep, sequenceStepOf };
 
 const DEFAULT_READY_SCAN = 800;
 const DEFAULT_SENT_SCAN = 400;
+/** Hard cap: a 4k ready scan consumed the whole RepUK time slice (0 sends). */
+const MAX_READY_SCAN = 1200;
+
+export function readyProspectScanLimit(readyLimit: number): number {
+  return Math.min(MAX_READY_SCAN, Math.max(readyLimit * 6, readyLimit));
+}
 
 export async function firmRecentlyContacted(
   prospect: FirmProspect,
@@ -74,7 +80,7 @@ export async function selectOutreachCandidates(opts: {
 
   // Scan well past `readyLimit` so already-mailed inboxes at the front of the
   // ready index cannot hide never-contacted firms and due follow-ups.
-  const readyScan = Math.min(4000, Math.max(readyLimit * 6, readyLimit));
+  const readyScan = readyProspectScanLimit(readyLimit);
   const ready = await listProspectsByRecordStatus('ready_to_send', readyScan, campaignOpts);
   const sent = await listProspectsByRecordStatus('sent', sentLimit, campaignOpts);
   const indexedSends = await emailsWithIndexedSends(

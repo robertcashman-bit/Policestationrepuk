@@ -617,14 +617,13 @@ export async function runFirmOutreach(opts?: {
     Math.min(400, Math.max(40, remaining * 6)),
   );
 
-  // Phase B: enqueue new jobs — hard-capped so we always leave time to send.
-  const enqueueDeadline = Math.min(
-    started + maxElapsedMs - 45_000,
-    Date.now() + 40_000,
-  );
+  // Always keep a short enqueue burst even if the ready scan ran long —
+  // a 0-job tick with 179 eligible is worse than leaving send for next drain.
+  const remainingMs = started + maxElapsedMs - Date.now();
+  const enqueueDeadline = Date.now() + Math.min(40_000, Math.max(15_000, remainingMs - 30_000));
   // Phase B: enqueue durable jobs for eligible prospects (idempotent).
   for (const { prospect, step } of selection.candidates) {
-    if (Date.now() >= enqueueDeadline || Date.now() - started >= maxElapsedMs) {
+    if (Date.now() >= enqueueDeadline) {
       stats.partial = true;
       break;
     }

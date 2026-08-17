@@ -11,7 +11,7 @@ vi.mock('@/lib/firm-outreach/storage', () => ({
   listProspectsForFirmKey: (...a: unknown[]) => mockListForFirm(...a),
 }));
 
-import { selectOutreachCandidates } from '@/lib/firm-outreach/outreach/candidate-selection';
+import { readyProspectScanLimit, selectOutreachCandidates } from '@/lib/firm-outreach/outreach/candidate-selection';
 import type { FirmProspect } from '@/lib/firm-outreach/types';
 
 function prospect(over: Partial<FirmProspect> = {}): FirmProspect {
@@ -104,5 +104,19 @@ describe('selectOutreachCandidates', () => {
     expect(result.candidates.map((c) => c.prospect.id)).toEqual(['fop_fresh']);
     expect(result.skippedIndexedSend).toBe(40);
     expect(result.readyEligible).toBe(1);
+  });
+
+  it('caps the ready scan so a large send limit cannot exhaust the time slice', async () => {
+    expect(readyProspectScanLimit(200)).toBe(1200);
+    expect(readyProspectScanLimit(1200)).toBe(1200);
+    expect(readyProspectScanLimit(50)).toBe(300);
+    mockListByStatus.mockResolvedValue([]);
+    await selectOutreachCandidates({
+      campaignId: 'whatsapp_invite_v1',
+      readyLimit: 1200,
+      sentLimit: 40,
+    });
+    const readyCall = mockListByStatus.mock.calls.find((c) => c[0] === 'ready_to_send');
+    expect(readyCall?.[1]).toBe(1200);
   });
 });

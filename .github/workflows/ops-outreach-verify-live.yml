@@ -222,6 +222,11 @@ jobs:
             'accepted': send.get('accepted'),
             'claimed': send.get('claimed'),
             'jobsCreated': send.get('jobsCreated'),
+            'byCampaign': {
+              cid: {k: (row or {}).get(k) for k in ('accepted','jobsCreated','jobsClaimed','queued','sent','skipped','partial','elapsedMs','skipReasons')}
+              for cid, row in (send.get('byCampaign') or {}).items()
+            },
+            'eligibility': (status.get('queue') or {}).get('eligibility'),
             'autoheal_faults': ah1.get('faultCount'),
             'capacity': ah1.get('capacity'),
             'report_ok': report.get('ok'),
@@ -236,6 +241,11 @@ jobs:
           assert cfg.get('dryRun') is False
           assert cfg.get('sendAllowed') is True
           assert cfg.get('sendHealthy') is True
+          elig=((status.get('queue') or {}).get('eligibility') or {}).get('whatsapp_invite_v1') or {}
+          wa=(send.get('byCampaign') or {}).get('whatsapp_invite_v1') or {}
+          pool=(elig.get('readyEligible') or 0)+(elig.get('followUpEligible') or 0)
+          if pool >= 10:
+              assert (wa.get('accepted') or 0)+(wa.get('jobsCreated') or 0) > 0, {'repuk': wa, 'eligibility': elig}
           PY
 
       - name: Upload ops artifacts

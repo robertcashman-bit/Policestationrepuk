@@ -16,6 +16,42 @@ const JOB_INDEX = 'firmoutreach:job:index';
 const JOB_STATUS_PREFIX = 'firmoutreach:job:status:';
 const JOB_IDEM_PREFIX = 'firmoutreach:job:idem:';
 const JOB_PENDING_ZSET = 'firmoutreach:job:pending_z';
+/** Stop scanning the other campaign's pending jobs so one queue cannot starve the other. */
+export const MAX_FOREIGN_CAMPAIGN_SKIPS = 12;
+
+function campaignPendingZset(campaignId: string): string {
+  return `${JOB_PENDING_ZSET}:${campaignId}`;
+}
+
+async function addToPendingZsets(
+  job: EmailJob,
+  score: number,
+): Promise<void> {
+  const kv = getKV();
+  if (!kv) return;
+  try {
+    await kv.zadd(JOB_PENDING_ZSET, { score, member: job.id });
+    if (job.campaignId) {
+      await kv.zadd(campaignPendingZset(job.campaignId), { score, member: job.id });
+    }
+  } catch {
+    // zset optional — claim falls back to status set scan
+  }
+}
+
+async function removeFromPendingZsets(job: Pick<EmailJob, 'id' | 'campaignId'>): Promise<void> {
+  const kv = getKV();
+  if (!kv) return;
+  try {
+    await kv.zrem(JOB_PENDING_ZSET, job.id);
+    if (job.campaignId) {
+      await kv.zrem(campaignPendingZset(job.campaignId), job.id);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
 /** O(1) lookup by Resend message id — mirrors SEND_RESEND_INDEX for sends. */
 const JOB_RESEND_INDEX = 'firmoutreach:job:resend:';
 /** O(1) lookup by firm-outreach send id. */
@@ -126,17 +162,29 @@ export async function saveEmailJob(
   // Score pending/retry by nextRetryAt or createdAt for ordered claim.
   if (EMAIL_JOB_CLAIMABLE_STATUSES.has(job.status)) {
     const score = Date.parse(job.nextRetryAt ?? job.createdAt) || Date.now();
-    try {
-      await kv.zadd(JOB_PENDING_ZSET, { score, member: job.id });
-    } catch {
-      // zset optional — claim falls back to status set scan
-    }
+    await addToPendingZsets(job, score);
   } else {
-    try {
-      await kv.zrem(JOB_PENDING_ZSET, job.id);
-    } catch {
-      /* ignore */
-    }
+    await removeFromPendingZsets(job);
+  }
+}
+
+/** Due pending/retry jobs for one campaign (campaign zset; 0 when unset). */
+export async function countClaimableJobsForCampaign(campaignId: string): Promise<number> {
+  const kv = getKV();
+  if (!kv || !campaignId) return 0;
+  try {
+    const n = await kv.zcard(campaignPendingZset(campaignId));
+    if (typeof n === 'number' && Number.isFinite(n)) return n;
+  } catch {
+    /* fall through */
+  }
+  try {
+    const due = await kv.zrange(campaignPendingZset(campaignId), 0, Date.now() + 86_400_000, {
+      byScore: true,
+    });
+    return Array.isArray(due) ? due.length : 0;
+  } catch {
+    return 0;
   }
 }
 
@@ -297,15 +345,20 @@ export async function claimNextEmailJob(opts: {
   const leaseSeconds = opts.leaseSeconds ?? DEFAULT_EMAIL_JOB_LEASE_SECONDS;
   const nowMs = now.getTime();
 
-  // When filtering by campaign, page through the global due zset — the first
-  // 80 members are often all RepUK, which previously starved PSA claims.
+  // Campaign-scoped pending zset first. Global fallback is skip-capped so a
+  // sibling-dominated queue cannot burn the Vercel tick (RepUK 1/378 send).
   const PAGE = 80;
-  const maxPages = opts.campaignId ? 25 : 1;
+  const campaignZset = opts.campaignId ? campaignPendingZset(opts.campaignId) : JOB_PENDING_ZSET;
+  // Campaign zsets are already filtered — do not page through the other campaign.
+  const maxPages = opts.campaignId ? 8 : 1;
+  let foreignSkips = 0;
+  let usedGlobalFallback = false;
 
   for (let page = 0; page < maxPages; page++) {
     let candidateIds: string[] = [];
+    const zset = usedGlobalFallback ? JOB_PENDING_ZSET : campaignZset;
     try {
-      const due = await kv.zrange(JOB_PENDING_ZSET, 0, nowMs, {
+      const due = await kv.zrange(zset, 0, nowMs, {
         byScore: true,
         offset: page * PAGE,
         count: PAGE,
@@ -315,12 +368,16 @@ export async function claimNextEmailJob(opts: {
       /* fallback below */
     }
 
+    if (candidateIds.length === 0 && page === 0 && opts.campaignId && !usedGlobalFallback) {
+      // Legacy jobs may only live on the global zset until they are re-saved.
+      usedGlobalFallback = true;
+      page = -1;
+      continue;
+    }
+
     if (candidateIds.length === 0 && page === 0) {
-      const pending = await listEmailJobIdsByStatus('pending', opts.campaignId ? 400 : 80);
-      const retry = await listEmailJobIdsByStatus(
-        'retry_scheduled',
-        opts.campaignId ? 400 : 80,
-      );
+      const pending = await listEmailJobIdsByStatus('pending', 80);
+      const retry = await listEmailJobIdsByStatus('retry_scheduled', 80);
       candidateIds = [...pending, ...retry];
     }
 
@@ -329,7 +386,14 @@ export async function claimNextEmailJob(opts: {
     for (const id of candidateIds) {
       const job = await getEmailJob(id);
       if (!job) continue;
-      if (opts.campaignId && job.campaignId !== opts.campaignId) continue;
+      if (opts.campaignId && job.campaignId !== opts.campaignId) {
+        foreignSkips += 1;
+        if (foreignSkips >= MAX_FOREIGN_CAMPAIGN_SKIPS) {
+          // Other campaign dominates the global queue — stop wasting the tick.
+          return null;
+        }
+        continue;
+      }
       if (!EMAIL_JOB_CLAIMABLE_STATUSES.has(job.status)) continue;
       if (job.status === 'retry_scheduled' && job.nextRetryAt) {
         if (Date.parse(job.nextRetryAt) > nowMs) continue;

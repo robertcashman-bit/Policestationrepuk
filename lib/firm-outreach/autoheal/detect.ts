@@ -179,6 +179,25 @@ export async function detectAutohealFaults(now = new Date()): Promise<{
     }
 
     if (
+      cap.eligibleUnsent >= 20 &&
+      cap.configuredUsedToday < 5 &&
+      cap.effectiveAvailableCapacity > 0 &&
+      cap.sendingEnabled &&
+      !cap.dryRun
+    ) {
+      faults.push({
+        code: 'campaign_starved',
+        workspace: ws.id,
+        severity: 'recoverable',
+        detail: `${ws.label}: only ${cap.configuredUsedToday} accepted today with ${cap.eligibleUnsent} eligible and capacity ${cap.effectiveAvailableCapacity}.`,
+        meta: {
+          eligibleUnsent: cap.eligibleUnsent,
+          acceptedToday: cap.configuredUsedToday,
+        },
+      });
+    }
+
+    if (
       cap.providerRemainingToday > 0 &&
       !cap.providerBudgetUnlimited &&
       cap.eligibleUnsent + cap.pendingJobs > 0 &&

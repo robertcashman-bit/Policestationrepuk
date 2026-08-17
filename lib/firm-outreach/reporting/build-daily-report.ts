@@ -262,6 +262,15 @@ export async function buildConsolidatedDailyReport(
         `${section.label}: eligible recipients exist but system cannot send (${section.zeroReason?.code ?? section.status})`,
       );
     }
+    if (
+      section.status === 'DEGRADED' &&
+      section.capacity.eligibleUnsent >= 20 &&
+      section.emailsAcceptedByProvider < 5
+    ) {
+      actionRequired.push(
+        `${section.label}: campaign starved — ${section.emailsAcceptedByProvider} sent with ${section.capacity.eligibleUnsent} eligible`,
+      );
+    }
     if (section.zeroReason?.code === 'ZERO_REASON_UNKNOWN') {
       actionRequired.push(`${section.label}: zero-send reason unresolved — manual diagnostics required`);
     }

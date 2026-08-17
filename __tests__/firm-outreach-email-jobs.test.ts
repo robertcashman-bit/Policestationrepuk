@@ -164,20 +164,30 @@ vi.mock('@/lib/kv', () => ({
       store.zsets.get(key)?.delete(member);
       return 1;
     },
-    zrange: async (key: string, min: number, max: number) => {
+    zrange: async (
+      key: string,
+      min: number,
+      max: number,
+      opts?: { byScore?: boolean; offset?: number; count?: number },
+    ) => {
       const z = store.zsets.get(key);
       if (!z) return [];
-      return [...z.entries()]
+      const sorted = [...z.entries()]
         .filter(([, score]) => score >= min && score <= max)
         .sort((a, b) => a[1] - b[1])
         .map(([member]) => member);
+      const offset = opts?.offset ?? 0;
+      const count = opts?.count ?? sorted.length;
+      return sorted.slice(offset, offset + count);
     },
+    zcard: async (key: string) => store.zsets.get(key)?.size ?? 0,
   }),
   skipKVInPrerender: () => false,
 }));
 
 import {
   claimNextEmailJob,
+  countClaimableJobsForCampaign,
   enqueueEmailJob,
   getEmailJobByIdempotencyKey,
   markJobAccepted,
@@ -404,5 +414,38 @@ describe('email job queue (KV)', () => {
     expect(current.status).toBe('accepted');
     expect(current.providerMessageId).toBe('re_already');
     expect(job.id).toBe(current.id);
+  });
+
+  it('claims RepUK from a PSA-dominated pending queue without scanning every PSA job', async () => {
+    for (let i = 0; i < 20; i++) {
+      await enqueueEmailJob({
+        campaignId: 'agent_cover_kent_v1',
+        prospectId: `psa-${i}`,
+        firmName: 'PSA Firm',
+        prospectType: 'firm',
+        email: `psa${i}@firm.co.uk`,
+        sequenceStep: 1,
+        correlationId: 'psa',
+      });
+    }
+    const { job } = await enqueueEmailJob({
+      campaignId: 'whatsapp_invite_v1',
+      prospectId: 'repuk-1',
+      firmName: 'RepUK Firm',
+      prospectType: 'firm',
+      email: 'crime@repukfirm.co.uk',
+      sequenceStep: 0,
+      correlationId: 'repuk',
+    });
+
+    expect(await countClaimableJobsForCampaign('whatsapp_invite_v1')).toBe(1);
+    expect(await countClaimableJobsForCampaign('agent_cover_kent_v1')).toBe(20);
+
+    const claimed = await claimNextEmailJob({
+      owner: 'repuk-worker',
+      campaignId: 'whatsapp_invite_v1',
+    });
+    expect(claimed?.id).toBe(job.id);
+    expect(claimed?.campaignId).toBe('whatsapp_invite_v1');
   });
 });

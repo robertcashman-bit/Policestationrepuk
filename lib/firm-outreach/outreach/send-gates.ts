@@ -49,6 +49,22 @@ export function remainingCampaignBudgetMs(opts: {
   return remaining < minSliceMs ? null : remaining;
 }
 
+/**
+ * Equal guaranteed slice per campaign, plus leftover from campaigns that finished early.
+ * Prevents the first campaign from consuming the whole Vercel tick.
+ */
+export function nextCampaignTimeSlice(opts: {
+  totalBudgetMs: number;
+  campaignCount: number;
+  leftoverMs: number;
+  minSliceMs?: number;
+}): number {
+  const count = Math.max(1, opts.campaignCount);
+  const minSliceMs = opts.minSliceMs ?? 45_000;
+  const guaranteed = Math.max(minSliceMs, Math.floor(opts.totalBudgetMs / count));
+  return guaranteed + Math.max(0, opts.leftoverMs);
+}
+
 export async function orderCampaignsByFewestSendsToday(
   campaignIds: readonly string[],
   getSentToday: (campaignId: string) => Promise<number>,

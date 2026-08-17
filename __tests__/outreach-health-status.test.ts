@@ -135,4 +135,25 @@ describe('classifyWorkspaceHealth', () => {
       }),
     ).toBe('DEGRADED');
   });
+
+  it('DEGRADED when a campaign is starved despite eligible inventory', () => {
+    expect(
+      classifyWorkspaceHealth({
+        capacity: cap({
+          workspace: 'repuk',
+          campaignId: 'whatsapp_invite_v1',
+          eligibleUnsent: 378,
+          pendingJobs: 1,
+          configuredUsedToday: 1,
+        }),
+        lastSchedulerOk: true,
+        lastSchedulerAgeMs: 5 * 60_000,
+        outstandingFaults: [],
+        providerAuthOk: true,
+        acceptedToday: 1,
+        temporaryFailures: 0,
+        pendingBacklog: 1,
+      }),
+    ).toBe('DEGRADED');
+  });
 });

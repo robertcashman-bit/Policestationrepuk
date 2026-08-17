@@ -206,4 +206,38 @@ describe('autoheal detect + repair', () => {
     expect(mockRecover).toHaveBeenCalled();
     expect(repair.jobsRecovered).toBe(1);
   });
+
+  it('detects campaign_starved when RepUK has inventory but almost no sends', async () => {
+    mockCapacities.mockResolvedValue({
+      psa: healthyCap({
+        workspace: 'psa',
+        campaignId: 'agent_cover_kent_v1',
+        eligibleUnsent: 20,
+        configuredUsedToday: 46,
+        pendingJobs: 5,
+      }),
+      repuk: healthyCap({
+        eligibleUnsent: 378,
+        configuredUsedToday: 1,
+        pendingJobs: 0,
+        effectiveAvailableCapacity: 50,
+      }),
+    });
+    mockLatestRun.mockResolvedValue({
+      status: 'success',
+      finished: new Date().toISOString(),
+      accepted: 1,
+      claimed: 1,
+    });
+    mockListJobIds.mockResolvedValue([]);
+    const { faults } = await detectAutohealFaults();
+    expect(faults.some((f) => f.code === 'campaign_starved' && f.workspace === 'repuk')).toBe(
+      true,
+    );
+    const repair = await applyAutohealRepairs(faults);
+    expect(repair.outreachTriggered).toBe(true);
+    expect(mockRunAll).toHaveBeenCalled();
+    const call = mockRunAll.mock.calls[0]?.[0] as { campaignIds?: string[] };
+    expect(call.campaignIds).toContain('whatsapp_invite_v1');
+  });
 });

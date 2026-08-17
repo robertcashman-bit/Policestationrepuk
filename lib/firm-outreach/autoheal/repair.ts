@@ -10,7 +10,19 @@ import { runFirmOutreachAllCampaigns } from '../outreach/run-outreach';
 import { backfillDeliveryFromResend } from '../backfill-delivery';
 import { reviveAgentCoverKentReady } from '../revive-agent-cover-ready';
 import { syncKentProspectsToAgentCover } from '../sync-kent-to-agent-cover';
+import { AGENT_COVER_KENT_CAMPAIGN_ID } from '../campaign-scope';
+import { FIRM_OUTREACH_CAMPAIGN_ID } from '../site-config';
 import type { AutohealFault } from './detect';
+
+function campaignIdsForStarvedFaults(faults: AutohealFault[]): string[] {
+  const ids = new Set<string>();
+  for (const f of faults) {
+    if (f.code !== 'campaign_starved' && f.code !== 'queue_empty_with_eligible') continue;
+    if (f.workspace === 'psa' || f.workspace === 'both') ids.add(AGENT_COVER_KENT_CAMPAIGN_ID);
+    if (f.workspace === 'repuk' || f.workspace === 'both') ids.add(FIRM_OUTREACH_CAMPAIGN_ID);
+  }
+  return [...ids];
+}
 
 export interface AutohealRepairResult {
   repairs: string[];
@@ -70,16 +82,23 @@ export async function applyAutohealRepairs(
   }
 
   if (has(faults, 'queue_empty_with_eligible') || has(faults, 'campaign_starved')) {
-    try {
-      const sync = await syncKentProspectsToAgentCover({
-        limit: 80,
-        maxElapsedMs: 40_000,
-      });
-      repairs.push(`psa_sync:created=${sync.created ?? 0},updated=${sync.updated ?? 0}`);
-      const revived = await reviveAgentCoverKentReady({ limit: 80, maxElapsedMs: 30_000 });
-      repairs.push(`revive_psa_ready:${revived.revived ?? 0}`);
-    } catch (err) {
-      errors.push(`queue_refill:${err instanceof Error ? err.message : String(err)}`);
+    const psaStarved = faults.some(
+      (f) =>
+        (f.code === 'queue_empty_with_eligible' || f.code === 'campaign_starved') &&
+        (f.workspace === 'psa' || f.workspace === 'both'),
+    );
+    if (psaStarved) {
+      try {
+        const sync = await syncKentProspectsToAgentCover({
+          limit: 80,
+          maxElapsedMs: 40_000,
+        });
+        repairs.push(`psa_sync:created=${sync.created ?? 0},updated=${sync.updated ?? 0}`);
+        const revived = await reviveAgentCoverKentReady({ limit: 80, maxElapsedMs: 30_000 });
+        repairs.push(`revive_psa_ready:${revived.revived ?? 0}`);
+      } catch (err) {
+        errors.push(`queue_refill:${err instanceof Error ? err.message : String(err)}`);
+      }
     }
   }
 
@@ -105,6 +124,7 @@ export async function applyAutohealRepairs(
       has(faults, 'provider_capacity_idle') ||
       has(faults, 'retries_overdue') ||
       has(faults, 'queue_empty_with_eligible') ||
+      has(faults, 'campaign_starved') ||
       has(faults, 'expired_leases') ||
       has(faults, 'http_429') ||
       has(faults, 'http_5xx') ||
@@ -116,9 +136,11 @@ export async function applyAutohealRepairs(
   } else if (shouldTrigger) {
     try {
       outreachTriggered = true;
+      const starvedIds = campaignIdsForStarvedFaults(faults);
       const multi = await runFirmOutreachAllCampaigns({
-        limit: 25,
-        maxElapsedMs: opts?.maxElapsedMs ?? 120_000,
+        campaignIds: starvedIds.length > 0 ? starvedIds : undefined,
+        limit: 40,
+        maxElapsedMs: opts?.maxElapsedMs ?? 180_000,
       });
       accepted = multi.combined.accepted ?? multi.combined.sent ?? 0;
       jobsCreated = multi.combined.jobsCreated ?? 0;

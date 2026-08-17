@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   orderCampaignsByFewestSendsToday,
   remainingCampaignBudgetMs,
+  nextCampaignTimeSlice,
 } from '@/lib/firm-outreach/outreach/send-gates';
 import {
   isSeedSuppressedDomain,
@@ -60,5 +61,27 @@ describe('remainingCampaignBudgetMs', () => {
         totalBudgetMs: 280_000,
       }),
     ).toBeNull();
+  });
+});
+
+describe('nextCampaignTimeSlice', () => {
+  it('guarantees an equal slice so the first campaign cannot consume the tick', () => {
+    expect(
+      nextCampaignTimeSlice({
+        totalBudgetMs: 240_000,
+        campaignCount: 2,
+        leftoverMs: 0,
+      }),
+    ).toBe(120_000);
+  });
+
+  it('forwards leftover time from a campaign that finished early', () => {
+    expect(
+      nextCampaignTimeSlice({
+        totalBudgetMs: 240_000,
+        campaignCount: 2,
+        leftoverMs: 40_000,
+      }),
+    ).toBe(160_000);
   });
 });

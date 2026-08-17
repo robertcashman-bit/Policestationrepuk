@@ -71,5 +71,15 @@ export function classifyWorkspaceHealth(input: {
     return 'DEGRADED';
   }
 
+  if (
+    input.acceptedToday < 5 &&
+    input.capacity.eligibleUnsent >= 20 &&
+    input.capacity.effectiveAvailableCapacity > 0 &&
+    input.capacity.sendingEnabled &&
+    !input.capacity.dryRun
+  ) {
+    return 'DEGRADED';
+  }
+
   return 'HEALTHY';
 }

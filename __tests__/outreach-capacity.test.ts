@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockCountJobs = vi.fn();
+const mockClaimableForCampaign = vi.fn();
 const mockListJobIds = vi.fn();
 const mockGetEmailJob = vi.fn();
 const mockDailyCount = vi.fn();
@@ -12,6 +13,7 @@ const mockSendAllowed = vi.fn();
 
 vi.mock('@/lib/firm-outreach/email-jobs/storage', () => ({
   countEmailJobsByStatus: (...a: unknown[]) => mockCountJobs(...a),
+  countClaimableJobsForCampaign: (...a: unknown[]) => mockClaimableForCampaign(...a),
   listEmailJobIdsByStatus: (...a: unknown[]) => mockListJobIds(...a),
   getEmailJob: (...a: unknown[]) => mockGetEmailJob(...a),
 }));
@@ -44,6 +46,7 @@ describe('getOutreachCapacity', () => {
     delete process.env.FIRM_OUTREACH_HOURLY_CAP;
     mockSendAllowed.mockResolvedValue(true);
     mockCountJobs.mockResolvedValue({ pending: 3, retry_scheduled: 1, claimed: 0, processing: 0 });
+    mockClaimableForCampaign.mockResolvedValue(0);
     mockListJobIds.mockResolvedValue([]);
     mockGetEmailJob.mockResolvedValue(null);
     mockDailyCount.mockResolvedValue(0);
@@ -124,11 +127,13 @@ describe('getOutreachCapacity', () => {
     expect(mockHourly).toHaveBeenCalledWith('agent_cover_kent_v1', '2026-08-08T12');
   });
 
-  it('skips per-job samples when sampleJobs is false', async () => {
+  it('uses the campaign pending zset when sampleJobs is false', async () => {
+    mockClaimableForCampaign.mockResolvedValue(4);
     mockCountJobs.mockResolvedValue({ pending: 12, retry_scheduled: 3, claimed: 0, processing: 0 });
     const cap = await getOutreachCapacity('repuk', { sampleJobs: false });
     expect(mockListJobIds).not.toHaveBeenCalled();
-    expect(cap.pendingJobs).toBe(12);
-    expect(cap.retryScheduledJobs).toBe(3);
+    expect(mockClaimableForCampaign).toHaveBeenCalledWith('whatsapp_invite_v1');
+    expect(cap.pendingJobs).toBe(4);
+    expect(cap.retryScheduledJobs).toBe(0);
   });
 });

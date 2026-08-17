@@ -16,6 +16,7 @@ import {
 import { isOutreachSendAllowed } from './pause-state';
 import {
   countEmailJobsByStatus,
+  countClaimableJobsForCampaign,
   getEmailJob,
   listEmailJobIdsByStatus,
 } from './email-jobs/storage';
@@ -136,14 +137,14 @@ export async function getOutreachCapacity(
     getHourlySendCount(workspace.campaignId, hourBucket),
   ]);
 
-  // Status indexes are global — filter pending/retry samples to this workspace.
+  // Status indexes are global — filter pending/retry to this workspace.
   // Worker ticks skip the per-job fetch (sampleJobs: false) so capacity
   // snapshots cannot eat the 300s Vercel ceiling before any send happens.
   let pendingJobs = 0;
   let retryScheduledJobs = 0;
   if (opts?.sampleJobs === false) {
-    pendingJobs = jobCounts.pending ?? 0;
-    retryScheduledJobs = jobCounts.retry_scheduled ?? 0;
+    pendingJobs = await countClaimableJobsForCampaign(workspace.campaignId);
+    retryScheduledJobs = 0;
   } else {
     const pendingIds = await listEmailJobIdsByStatus('pending', 200);
     const retryIds = await listEmailJobIdsByStatus('retry_scheduled', 200);

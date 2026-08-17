@@ -43,9 +43,9 @@ import {
 import type { FirmProspect, OutreachRunStats } from '../types';
 import { assertOutreachSendReady } from './from-address';
 import {
+  nextCampaignTimeSlice,
   orderCampaignsByFewestSendsToday,
   outreachEmailSendBlocker,
-  remainingCampaignBudgetMs,
 } from './send-gates';
 import {
   firmRecentlyContacted,
@@ -594,9 +594,13 @@ export async function runFirmOutreach(opts?: {
     }
   }
 
-  // Drain existing queue before any ready-queue scan.
-  await processDurableJobs(started + maxElapsedMs);
-  if (stats.sent >= remaining || Date.now() - started >= maxElapsedMs) {
+  // Drain existing queue, but always leave time to enqueue this campaign's ready leads.
+  // A sibling-dominated pending zset used to consume the whole tick here, so RepUK
+  // queued 1 job/day while hundreds of WhatsApp invites sat ready.
+  const enqueueReserveMs = Math.min(75_000, Math.max(45_000, Math.floor(maxElapsedMs * 0.35)));
+  const drainDeadline = started + Math.max(20_000, maxElapsedMs - enqueueReserveMs);
+  await processDurableJobs(drainDeadline);
+  if (stats.sent >= remaining) {
     const finalQuotaEarly = await getGlobalResendQuotaRemaining(date);
     return finish(finalQuotaEarly, alreadySent, dailyCap);
   }
@@ -849,28 +853,23 @@ export async function runFirmOutreachAllCampaigns(opts?: {
     getDailySendCount(date, id),
   );
   const byCampaign: Record<string, OutreachRunStats> = {};
-  const started = Date.now();
   const totalBudget = opts?.maxElapsedMs ?? DEFAULT_MAX_ELAPSED_MS;
+  let leftoverMs = 0;
 
   for (const campaignId of campaignIds) {
-    const slice = remainingCampaignBudgetMs({
-      startedMs: started,
-      nowMs: Date.now(),
+    const slice = nextCampaignTimeSlice({
       totalBudgetMs: totalBudget,
+      campaignCount: campaignIds.length,
+      leftoverMs,
     });
-    if (slice == null) {
-      const skipped = emptyOutreachRunStats();
-      skipped.partial = true;
-      skipped.skippedReason = 'time_budget';
-      byCampaign[campaignId] = skipped;
-      continue;
-    }
+    const campaignStarted = Date.now();
     byCampaign[campaignId] = await runFirmOutreach({
       campaignId,
       dryRun: opts?.dryRun,
       limit: opts?.limit,
       maxElapsedMs: slice,
     });
+    leftoverMs = Math.max(0, slice - (Date.now() - campaignStarted));
   }
 
   return {

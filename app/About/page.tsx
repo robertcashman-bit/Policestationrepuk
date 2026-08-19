@@ -73,12 +73,20 @@ export default async function AboutPage() {
     getStationPhonePublicStats(),
   ]);
   const yearsOperating = directoryYearsOperating();
-  const stats = [
-    { value: String(reps.length), label: 'Listed Representatives' },
-    { value: String(stations.length), label: 'Stations Listed' },
-    { value: String(phoneStats.directLine), label: 'With a Direct Line' },
-    { value: `${yearsOperating}`, label: 'Years Operating' },
-  ];
+  const hasLiveCounts = reps.length > 0 && stations.length > 0;
+  const stats = hasLiveCounts
+    ? [
+        { value: String(reps.length), label: 'Listed Representatives' },
+        { value: String(stations.length), label: 'Stations Listed' },
+        { value: String(phoneStats.directLine), label: 'With a Direct Line' },
+        { value: `${yearsOperating}`, label: 'Years Operating' },
+      ]
+    : [
+        { value: '24/7', label: 'Always Available' },
+        { value: `${yearsOperating}`, label: 'Years Operating' },
+        { value: '100%', label: 'Free Service' },
+        { value: 'E&W', label: 'England & Wales' },
+      ];
 
   return (
     <>

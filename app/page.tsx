@@ -80,6 +80,7 @@ export default async function HomePage() {
   ]);
   const topCountiesForLinks = selectTopCountiesForHomepage(counties, reps, 12);
   const stationCount = stations.length || phoneStats.total;
+  const hasLiveDirectoryCounts = reps.length > 0 && stationCount > 0;
 
   return (
     <>
@@ -94,6 +95,7 @@ export default async function HomePage() {
       </div>
 
       {/* Trust stats strip — live listed counts, not marketing constants */}
+      {hasLiveDirectoryCounts && (
       <section className="border-b border-[var(--border)] bg-white py-8 sm:py-10" aria-label="Site statistics">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-6 text-center sm:grid-cols-4">
@@ -111,6 +113,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Directory job first: search + counties before promos/tools */}
       <div className="cv-auto">

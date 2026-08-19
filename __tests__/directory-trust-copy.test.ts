@@ -39,4 +39,10 @@ describe('directory trust copy', () => {
     expect(advert).not.toMatch(/PoliceStationRepUK\.com/);
     expect(advert).toMatch(/£4\.99/);
   });
+
+  it('guards FindYourRep against painting zero Total Reps', () => {
+    const src = read('app/FindYourRep/page.tsx');
+    expect(src).toContain('hasLiveCounts');
+    expect(src).toContain('Loading coverage data');
+  });
 });

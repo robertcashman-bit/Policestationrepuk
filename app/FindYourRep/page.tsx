@@ -48,13 +48,16 @@ function maxRepsPerStation(reps: Awaited<ReturnType<typeof getAllReps>>): number
 export default async function FindYourRepPage() {
   const [reps, stations] = await Promise.all([getAllReps(), getAllStations()]);
   const maxPerStation = maxRepsPerStation(reps);
+  const hasLiveCounts = reps.length > 0 && stations.length > 0;
 
-  const stats = [
-    { value: String(reps.length), label: 'Total Reps' },
-    { value: String(stations.length), label: 'Stations Covered' },
-    { value: String(maxPerStation || '—'), label: 'Max Reps per Station' },
-    { value: String(UK_FORCES_COUNT), label: 'Police Forces' },
-  ];
+  const stats = hasLiveCounts
+    ? [
+        { value: String(reps.length), label: 'Total Reps' },
+        { value: String(stations.length), label: 'Stations Covered' },
+        { value: maxPerStation > 0 ? String(maxPerStation) : '—', label: 'Max Reps per Station' },
+        { value: String(UK_FORCES_COUNT), label: 'Police Forces' },
+      ]
+    : null;
 
   return (
     <>
@@ -71,19 +74,25 @@ export default async function FindYourRepPage() {
           <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
             Discover which representatives cover police stations across England &amp; Wales.
           </p>
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {stats.map((s) => (
-              <div
-                key={s.label}
-                className="rounded-xl border border-white/15 bg-white/5 px-4 py-4 text-center"
-              >
-                <p className="text-2xl font-extrabold text-[var(--gold)] sm:text-3xl">{s.value}</p>
-                <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-300">
-                  {s.label}
-                </p>
-              </div>
-            ))}
-          </div>
+          {stats ? (
+            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {stats.map((s) => (
+                <div
+                  key={s.label}
+                  className="rounded-xl border border-white/15 bg-white/5 px-4 py-4 text-center"
+                >
+                  <p className="text-2xl font-extrabold text-[var(--gold)] sm:text-3xl">{s.value}</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-300">
+                    {s.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-8 text-sm font-medium text-slate-300" role="status">
+              Loading coverage data…
+            </p>
+          )}
         </div>
       </section>
 

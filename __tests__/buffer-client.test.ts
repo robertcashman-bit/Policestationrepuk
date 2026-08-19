@@ -5,6 +5,7 @@ import {
   fetchBufferPostStatusMap,
   getBufferPostById,
 } from '@/lib/buffer/client';
+import { resetBufferGraphqlThrottleForTests } from '@/lib/buffer/graphql-throttle';
 
 function mockImageProbeHeaders() {
   return new Headers({
@@ -313,6 +314,7 @@ describe('fetchBufferPostStatusMap', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.useRealTimers();
+    resetBufferGraphqlThrottleForTests();
   });
 
   it('looks up each post id individually', async () => {
@@ -350,7 +352,7 @@ describe('fetchBufferPostStatusMap', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     const promise = fetchBufferPostStatusMap('api-key', 'org-id', ['p1', 'p2']);
-    await vi.advanceTimersByTimeAsync(500);
+    await vi.runAllTimersAsync();
     const map = await promise;
 
     expect(map.size).toBe(1);

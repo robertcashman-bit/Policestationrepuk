@@ -20,6 +20,7 @@ import {
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+export const maxDuration = 300;
 
 /**
  * Daily Buffer publish inspection — verifies yesterday's London scheduler run.

@@ -5,6 +5,7 @@ import { isCronAuthorized } from '@/lib/cron-auth';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+export const maxDuration = 300;
 
 /** Daily verify — confirm >=5 posts scheduled today; gap-fill if under quota. */
 export async function GET(request: Request) {

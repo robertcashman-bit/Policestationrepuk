@@ -6,17 +6,18 @@ Daily social scheduling for blog content across Twitter, LinkedIn, and Google Bu
 
 | Schedule (UTC) | Route | Purpose |
 |----------------|-------|---------|
-| `5 5 * * *` | `/api/cron/buffer-blog-posts` | Schedule today's REPUK posts (buffer-engine) |
-| `35 5 * * *` | `/api/cron/buffer-verify` | Verify today's schedule; gap-fill if under quota |
 | `30 4 * * *` | `/api/cron/buffer-daily-report` | Inspect yesterday's sent status (emails suppressed when healthcheck owns reports) |
-| `45 4 * * *` | `/api/cron/buffer-cross-site-report` | Inspect cross-site quotas (consolidated into daily health report) |
+| `20 5 * * *` | `/api/cron/buffer-blog-posts` | Schedule today's REPUK posts (buffer-engine) |
+| `10 6 * * *` | `/api/cron/buffer-verify` | Verify today's schedule; gap-fill if under quota |
 | `50 6 * * *` | `/api/cron/buffer-sibling-repair` | Remote-trigger sibling schedulers (or REPUK custodynote fallback) when under quota |
 | `15 7 * * *` | `/api/cron/automation-healthcheck` | **Authoritative** daily health-check, safe repairs, one consolidated email |
-| `20 * * * *` | `/api/cron/automation-watchdog` | Lightweight overdue / stuck-lock / auth watchdog |
-| `0 6 * * *` | `/api/cron/buffer-selftest` | Buffer self-test |
-| `0 6 * * 1` | `/api/cron/buffer-health` | Weekly GBP scheduled-image verification (manual cron entry) |
+| `50 1,8,14,20 * * *` | `/api/cron/automation-watchdog` | Lightweight overdue / stuck-lock / auth watchdog (avoids morning Buffer stampede) |
+| `0 6 * * 1` | `/api/cron/buffer-selftest` | Buffer self-test (weekly Monday) |
+| `0 8 * * 1` | `/api/cron/buffer-weekly-report` | Weekly Buffer report |
 
-Overnight watchdogs do **not** flag `buffer-blog-posts` overdue until after today's UTC schedule (`5 5 * * *`) plus the job's grace window (`maxToleratedDelayMinutes`, 45). That prevents false alerts after Europe/London midnight before the morning run.
+Morning jobs are spaced so one Buffer token is not hammered 04:30–07:20. GraphQL calls share an in-process throttle with capped 429 backoff. Quota-inspect 429s are treated as transient (not “missed window” / critical overdue) when posts already exist or inspect fails.
+
+Overnight watchdogs do **not** flag `buffer-blog-posts` overdue until after today's UTC schedule (`20 5 * * *`) plus the job's grace window (`maxToleratedDelayMinutes`, 45). That prevents false alerts after Europe/London midnight before the morning run.
 
 **Authoritative scheduler:** Vercel Cron → `/api/cron/buffer-blog-posts` → `runRepukBufferScheduler` (buffer-engine). Do not run a second competing scheduler in production.
 

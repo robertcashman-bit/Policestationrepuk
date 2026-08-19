@@ -41,7 +41,10 @@ describe('vercel.json cron routes', () => {
     ) as { crons?: Array<{ path: string; schedule: string }> };
     const byPath = new Map((vercel.crons ?? []).map((c) => [c.path, c.schedule]));
     expect(byPath.get('/api/cron/automation-healthcheck')).toBe('15 7 * * *');
-    expect(byPath.get('/api/cron/automation-watchdog')).toBe('20 */6 * * *');
+    expect(byPath.get('/api/cron/automation-watchdog')).toBe('50 1,8,14,20 * * *');
+    expect(byPath.get('/api/cron/buffer-blog-posts')).toBe('20 5 * * *');
+    expect(byPath.get('/api/cron/buffer-verify')).toBe('10 6 * * *');
+    expect(byPath.get('/api/cron/buffer-daily-report')).toBe('30 4 * * *');
   });
 
   it('schedules frequent outreach worker + autoheal + 07:00 London report', () => {

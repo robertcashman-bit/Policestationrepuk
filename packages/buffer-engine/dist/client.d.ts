@@ -1,6 +1,6 @@
 import type { BufferChannelService } from './types';
+import { sleep } from './graphql-throttle';
 declare const STATUS_LOOKUP_DELAY_MS = 400;
-declare function sleep(ms: number): Promise<void>;
 export interface BufferGraphQLError {
     message: string;
     extensions?: {

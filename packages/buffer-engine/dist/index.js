@@ -32,3 +32,4 @@ __exportStar(require("./selftest"), exports);
 __exportStar(require("./assets"), exports);
 __exportStar(require("./google-business-text"), exports);
 __exportStar(require("./idempotency"), exports);
+__exportStar(require("./graphql-throttle"), exports);

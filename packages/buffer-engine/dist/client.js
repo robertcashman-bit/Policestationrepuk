@@ -1,30 +1,29 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.STATUS_LOOKUP_DELAY_MS = exports.BufferApiError = void 0;
+exports.STATUS_LOOKUP_DELAY_MS = exports.sleep = exports.BufferApiError = void 0;
 exports.metricsFromPostMetricArray = metricsFromPostMetricArray;
 exports.createScheduledBufferPost = createScheduledBufferPost;
 exports.listPostsInWindow = listPostsInWindow;
 exports.getBufferPostById = getBufferPostById;
 exports.deleteBufferPost = deleteBufferPost;
-exports.sleep = sleep;
 const assets_1 = require("./assets");
 const google_business_text_1 = require("./google-business-text");
 const image_url_1 = require("./image-url");
+const graphql_throttle_1 = require("./graphql-throttle");
+Object.defineProperty(exports, "sleep", { enumerable: true, get: function () { return graphql_throttle_1.sleep; } });
 const BUFFER_API_URL = 'https://api.buffer.com';
 const STATUS_LOOKUP_DELAY_MS = 400;
 exports.STATUS_LOOKUP_DELAY_MS = STATUS_LOOKUP_DELAY_MS;
-const GRAPHQL_MAX_RETRIES = 5;
-function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-function isRateLimitError(message) {
-    return /too many requests/i.test(message);
-}
-function retryAfterMs(errors) {
+function retryAfterMs(errors, res) {
     for (const err of errors ?? []) {
         const retryAfter = err.extensions?.retryAfter;
         if (typeof retryAfter === 'number' && retryAfter > 0)
             return retryAfter * 1000;
+    }
+    if (res) {
+        const headerWait = Number(res.headers.get('retry-after'));
+        if (Number.isFinite(headerWait) && headerWait > 0)
+            return headerWait * 1000;
     }
     return null;
 }
@@ -36,42 +35,46 @@ class BufferApiError extends Error {
     }
 }
 exports.BufferApiError = BufferApiError;
+async function bufferGraphqlOnce(apiKey, query, variables) {
+    const res = await fetch(BUFFER_API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({ query, variables }),
+    });
+    const json = (await res.json());
+    return { ...json, status: res.status, res };
+}
 async function bufferGraphql(apiKey, query, variables) {
     let lastError = null;
-    for (let attempt = 0; attempt <= GRAPHQL_MAX_RETRIES; attempt++) {
-        const res = await fetch(BUFFER_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${apiKey}`,
-            },
-            body: JSON.stringify({ query, variables }),
-        });
-        const json = (await res.json());
-        if (json.errors?.length) {
-            const message = json.errors.map((e) => e.message).join('; ');
-            const notFoundOnly = json.errors.every((e) => e.extensions?.code === 'NOT_FOUND');
+    for (let attempt = 0; attempt <= graphql_throttle_1.BUFFER_GRAPHQL_MAX_RETRIES; attempt++) {
+        const { data, errors, status, res } = await (0, graphql_throttle_1.withBufferApiSlot)(() => bufferGraphqlOnce(apiKey, query, variables));
+        if (errors?.length) {
+            const message = errors.map((e) => e.message).join('; ');
+            const notFoundOnly = errors.every((e) => e.extensions?.code === 'NOT_FOUND');
             if (notFoundOnly)
-                throw new BufferApiError(message, json.errors);
-            if (isRateLimitError(message) && attempt < GRAPHQL_MAX_RETRIES) {
-                const waitMs = retryAfterMs(json.errors) ?? Math.min(60000, 2000 * 2 ** attempt);
-                await sleep(waitMs);
+                throw new BufferApiError(message, errors);
+            if ((0, graphql_throttle_1.isRateLimitMessage)(message) && attempt < graphql_throttle_1.BUFFER_GRAPHQL_MAX_RETRIES) {
+                const waitMs = (0, graphql_throttle_1.rateLimitBackoffMs)(attempt, retryAfterMs(errors, res));
+                (0, graphql_throttle_1.noteBufferRateLimit)(waitMs);
+                await (0, graphql_throttle_1.sleep)(waitMs);
                 continue;
             }
-            throw new BufferApiError(message, json.errors);
+            throw new BufferApiError(message, errors);
         }
-        if (!json.data) {
-            lastError = new BufferApiError(`Buffer API returned no data (HTTP ${res.status})`, json);
-            if (res.status === 429 && attempt < GRAPHQL_MAX_RETRIES) {
-                const headerWait = Number(res.headers.get('retry-after'));
-                await sleep(Number.isFinite(headerWait) && headerWait > 0
-                    ? headerWait * 1000
-                    : Math.min(60000, 2000 * 2 ** attempt));
+        if (!data) {
+            lastError = new BufferApiError(`Buffer API returned no data (HTTP ${status})`, { status });
+            if (status === 429 && attempt < graphql_throttle_1.BUFFER_GRAPHQL_MAX_RETRIES) {
+                const waitMs = (0, graphql_throttle_1.rateLimitBackoffMs)(attempt, retryAfterMs(undefined, res));
+                (0, graphql_throttle_1.noteBufferRateLimit)(waitMs);
+                await (0, graphql_throttle_1.sleep)(waitMs);
                 continue;
             }
             throw lastError;
         }
-        return json.data;
+        return data;
     }
     throw lastError ?? new BufferApiError('Buffer API request failed after retries');
 }

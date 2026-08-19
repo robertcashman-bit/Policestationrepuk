@@ -8,7 +8,7 @@ export const maxDuration = 120;
 
 /**
  * Lightweight overdue/stuck/auth watchdog (every 6 hours).
- * Schedule: minute 20 of every 6th hour UTC (Vercel cron: 20 star-slash-6 * * *).
+ * Schedule: minute 50 at 01/08/14/20 UTC (avoids morning Buffer API stampede).
  */
 export async function GET(request: Request) {
   if (!isCronAuthorized(request)) {

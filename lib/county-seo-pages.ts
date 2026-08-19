@@ -18,7 +18,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
     pageSlug: 'PoliceStationRepsKent',
     metaTitle: 'Kent Police Station Reps | Directory for Firms',
     metaDescription:
-      'Accredited police station reps covering Kent custody suites — Maidstone, Medway, Folkestone, Tunbridge Wells. Free directory for criminal defence firms.',
+      'Accredited police station reps covering Kent custody suites — Maidstone, Medway, Folkestone, Tunbridge Wells. Free directory for criminal defence.',
     h1: 'Kent Police Station Cover Network',
     intro:
       'Accredited police station representatives covering Maidstone, Canterbury, Medway, Folkestone, Tunbridge Wells, and all Kent custody suites. Our Kent representatives are available 24/7 for criminal defence firms needing police station cover.',
@@ -52,7 +52,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
     slug: 'manchester',
     countyName: 'Greater Manchester',
     pageSlug: 'PoliceStationRepsManchester',
-    metaTitle: 'Manchester Police Station Representatives | Find Reps for Firms',
+    metaTitle: 'Manchester Police Station Reps — Directory',
     metaDescription:
       'Find accredited police station representatives covering Greater Manchester. Representatives available for all GMP custody suites.',
     h1: 'Manchester Police Station Representatives',
@@ -64,7 +64,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
     slug: 'west-midlands',
     countyName: 'West Midlands',
     pageSlug: 'PoliceStationRepsWestMidlands',
-    metaTitle: 'West Midlands Police Station Representatives | Find Reps for Firms',
+    metaTitle: 'West Midlands Police Station Reps — Directory',
     metaDescription:
       'Find accredited police station representatives covering the West Midlands. Representatives available for all WMP custody suites.',
     h1: 'West Midlands Police Station Representatives',
@@ -76,7 +76,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
     slug: 'west-yorkshire',
     countyName: 'West Yorkshire',
     pageSlug: 'PoliceStationRepsWestYorkshire',
-    metaTitle: 'West Yorkshire Police Station Representatives | Find Reps for Firms',
+    metaTitle: 'West Yorkshire Police Station Reps — Directory',
     metaDescription:
       'Find accredited police station representatives covering West Yorkshire. Representatives available for all WYP custody suites.',
     h1: 'West Yorkshire Police Station Representatives',
@@ -124,7 +124,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
     slug: 'norfolk',
     countyName: 'Norfolk',
     pageSlug: 'PoliceStationRepsNorfolk',
-    metaTitle: 'Norfolk Police Station Representatives | Find Reps for Firms',
+    metaTitle: 'Norfolk Police Station Reps — Directory',
     metaDescription:
       'Find accredited police station representatives covering Norfolk. Representatives available for all Norfolk Constabulary custody suites.',
     h1: 'Norfolk Police Station Representatives',
@@ -136,7 +136,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
     slug: 'suffolk',
     countyName: 'Suffolk',
     pageSlug: 'PoliceStationRepsSuffolk',
-    metaTitle: 'Suffolk Police Station Representatives | Find Reps for Firms',
+    metaTitle: 'Suffolk Police Station Reps — Directory',
     metaDescription:
       'Find accredited police station representatives covering Suffolk. Representatives available for all Suffolk Constabulary custody suites.',
     h1: 'Suffolk Police Station Representatives',
@@ -172,7 +172,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
     slug: 'merseyside',
     countyName: 'Merseyside',
     pageSlug: 'PoliceStationRepsMerseyside',
-    metaTitle: 'Merseyside Police Station Representatives | Find Reps for Firms',
+    metaTitle: 'Merseyside Police Station Reps — Directory',
     metaDescription:
       'Find accredited police station representatives covering Merseyside. Representatives available for all Merseyside Police custody suites.',
     h1: 'Merseyside Police Station Representatives',
@@ -184,7 +184,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
     slug: 'south-yorkshire',
     countyName: 'South Yorkshire',
     pageSlug: 'PoliceStationRepsSouthYorkshire',
-    metaTitle: 'South Yorkshire Police Station Representatives | Find Reps for Firms',
+    metaTitle: 'South Yorkshire Police Station Reps — Directory',
     metaDescription:
       'Find accredited police station representatives covering South Yorkshire. Representatives available for all SYP custody suites.',
     h1: 'South Yorkshire Police Station Representatives',
@@ -196,7 +196,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
     slug: 'nottinghamshire',
     countyName: 'Nottinghamshire',
     pageSlug: 'PoliceStationRepsNottinghamshire',
-    metaTitle: 'Nottinghamshire Police Station Representatives | Find Reps for Firms',
+    metaTitle: 'Nottinghamshire Police Station Reps — Directory',
     metaDescription:
       'Find accredited police station representatives covering Nottinghamshire. Representatives available for Nottinghamshire Police custody suites.',
     h1: 'Nottinghamshire Police Station Representatives',
@@ -208,7 +208,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
     slug: 'avon-and-somerset',
     countyName: 'Avon and Somerset',
     pageSlug: 'PoliceStationRepsAvonSomerset',
-    metaTitle: 'Bristol & Somerset Police Station Representatives | Find Reps for Firms',
+    metaTitle: 'Bristol & Somerset Police Station Reps — Directory',
     metaDescription:
       'Find accredited police station representatives covering Avon and Somerset. Representatives available for Bristol, Bath, and all ASP custody suites.',
     h1: 'Bristol & Somerset Police Station Representatives',
@@ -220,7 +220,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
     slug: 'lancashire',
     countyName: 'Lancashire',
     pageSlug: 'PoliceStationRepsLancashire',
-    metaTitle: 'Lancashire Police Station Representatives | Find Reps for Firms',
+    metaTitle: 'Lancashire Police Station Reps — Directory',
     metaDescription:
       'Find accredited police station representatives covering Lancashire. Representatives available for all Lancashire Constabulary custody suites.',
     h1: 'Lancashire Police Station Representatives',
@@ -232,7 +232,7 @@ export const COUNTY_SEO_PAGES: CountySeoPage[] = [
     slug: 'devon-and-cornwall',
     countyName: 'Devon and Cornwall',
     pageSlug: 'PoliceStationRepsDevonCornwall',
-    metaTitle: 'Devon & Cornwall Police Station Representatives | Find Reps for Firms',
+    metaTitle: 'Devon & Cornwall Police Station Reps — Directory',
     metaDescription:
       'Find accredited police station representatives covering Devon and Cornwall. Representatives available for all D&C Police custody suites.',
     h1: 'Devon & Cornwall Police Station Representatives',

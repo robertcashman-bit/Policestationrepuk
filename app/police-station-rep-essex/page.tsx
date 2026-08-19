@@ -4,9 +4,9 @@ import { PillarSeoLayout } from '@/components/PillarSeoLayout';
 import { StationNumbersPromo } from '@/components/StationNumbersPromo';
 
 export const metadata = buildMetadata({
-  title: 'Police Station Rep Essex — Custody Suite Cover',
+  title: 'Police Station Rep Essex — Directory',
   description:
-    'Find police station representatives covering Essex — Chelmsford, Basildon, Harlow, Southend areas. Free directory for criminal solicitor firms in England.',
+    'Accredited reps covering Essex custody — Chelmsford, Basildon, Harlow, Southend. Free directory for firms.',
   path: '/police-station-rep-essex',
 });
 

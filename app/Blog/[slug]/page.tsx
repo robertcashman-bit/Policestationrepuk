@@ -16,8 +16,6 @@ import { ResolvedContentSources } from '@/components/ContentSourcesFooter';
 import { BlogAuthorBio } from '@/components/BlogAuthorBio';
 import { BlogCustodyNotePromo } from '@/components/BlogCustodyNotePromo';
 import { PsrTrainPromo } from '@/components/PsrTrainPromo';
-import { PartnerOutboundLink } from '@/components/PartnerOutboundLink';
-import { POLICESTATIONAGENT_HOME_HREF } from '@/lib/policestationagent-promo';
 import { prefersPsrTrainBlogPromo } from '@/lib/blog-partner-promo';
 
 export const dynamic = 'force-static';
@@ -284,18 +282,21 @@ export default async function BlogArticlePage({ params }: PageProps) {
               PoliceStationRepUK is a directory — it does not provide regulated legal services.
             </p>
             <p className="mt-4">
-              Need a solicitor? Ask for the duty solicitor or a criminal defence firm local to the police station. Kent
-              or nearby:{' '}
-              <PartnerOutboundLink
-                href={POLICESTATIONAGENT_HOME_HREF}
-                partner="policestationagent"
-                placement="blog_footer"
-                target="_blank"
-                rel="noopener noreferrer"
+              Need police station cover for your firm?{' '}
+              <Link
+                href="/directory"
                 className="font-semibold text-[var(--gold-link)] underline underline-offset-2 hover:text-[var(--gold)]"
               >
-                Visit policestationagent.com
-              </PartnerOutboundLink>
+                Search the free directory
+              </Link>
+              {' · '}
+              <Link
+                href="/whatsapp/firms"
+                className="font-semibold text-[var(--gold-link)] underline underline-offset-2 hover:text-[var(--gold)]"
+              >
+                Firm WhatsApp group
+              </Link>
+              . Members of the public: ask for the duty solicitor at the custody desk.
             </p>
           </footer>
         </div>

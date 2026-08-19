@@ -40,7 +40,7 @@ describe('assistant guardrails', () => {
     const result = checkAssistantGuardrails('   ');
     expect(result.refused).toBe(true);
     if (result.refused) {
-      expect(result.suggestedLinks.some((l) => l.href === '/FAQ')).toBe(true);
+      expect(result.suggestedLinks.some((l) => l.href === '/faq')).toBe(true);
     }
   });
 });
@@ -79,7 +79,7 @@ describe('assistant matcher', () => {
     expect(result.refused).toBe(false);
     expect(
       result.matches.some(
-        (m) => m.entry.href === '/WhatsApp' || m.entry.answer.toLowerCase().includes('whatsapp')
+        (m) => m.entry.href === '/whatsapp' || m.entry.answer.toLowerCase().includes('whatsapp')
       )
     ).toBe(true);
   });

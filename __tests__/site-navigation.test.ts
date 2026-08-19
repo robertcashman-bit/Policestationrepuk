@@ -40,7 +40,7 @@ describe('site navigation', () => {
     expect(texts).toContain('Find a Rep');
     expect(texts.some((t) => /WhatsApp/i.test(t))).toBe(true);
     expect(texts).toContain('About');
-    expect(HEADER_NAV_MORE.some((l) => l.href === '/HelpUsStationNumbers')).toBe(true);
+    expect(HEADER_NAV_MORE.some((l) => l.href === '/helpusstationnumbers')).toBe(true);
   });
 
   it('mobile link builder dedupes hrefs', () => {
@@ -89,7 +89,7 @@ describe('site navigation', () => {
   it('FOOTER_PARTNERS includes partner and SEO landing pages', () => {
     const hrefs = FOOTER_PARTNERS.map((l) => l.href);
     expect(hrefs).toContain('/links');
-    expect(hrefs).toContain('/CustodyNote');
+    expect(hrefs).toContain('/custodynote');
     expect(hrefs).toContain('/police-station-rep-kent');
     expect(hrefs.some((h) => h.includes('psrtrain'))).toBe(true);
   });

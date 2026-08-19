@@ -127,7 +127,7 @@ function EntryMeta({ entry }: { entry: StationPhoneEntry }) {
         <>
           {' '}
           ·{' '}
-          <Link href="/HelpUsStationNumbers" className="font-semibold text-[var(--gold-link)] hover:underline">
+          <Link href="/helpusstationnumbers" className="font-semibold text-[var(--gold-link)] hover:underline">
             verify
           </Link>
         </>

@@ -77,7 +77,7 @@ export function StationNumbersPromo({
         <Link href={href} className="btn-gold w-full sm:w-auto">
           Station phone directory
         </Link>
-        <Link href="/HelpUsStationNumbers" className="btn-outline w-full sm:w-auto">
+        <Link href="/helpusstationnumbers" className="btn-outline w-full sm:w-auto">
           Help us — station numbers
         </Link>
         <Link href="/UpdateStation" className="btn-outline w-full sm:w-auto">

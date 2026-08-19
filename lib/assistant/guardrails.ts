@@ -55,9 +55,9 @@ export type GuardrailResult =
   | { refused: true; message: string; suggestedLinks: { href: string; label: string }[]; code?: string };
 
 const DEFAULT_SUGGESTED_LINKS = [
-  { href: '/FAQ', label: 'Help & FAQ' },
+  { href: '/faq', label: 'Help & FAQ' },
   { href: '/directory', label: 'Find a rep' },
-  { href: '/Contact', label: 'Contact us' },
+  { href: '/contact', label: 'Contact us' },
 ];
 
 export function checkAssistantGuardrails(message: string): GuardrailResult {
@@ -69,7 +69,7 @@ export function checkAssistantGuardrails(message: string): GuardrailResult {
       message: 'Please enter a question about the directory, registration, or our published guides.',
       suggestedLinks: [
         { href: '/ai-assistant', label: 'AI assistant' },
-        { href: '/FAQ', label: 'Help & FAQ' },
+        { href: '/faq', label: 'Help & FAQ' },
       ],
     };
   }
@@ -103,7 +103,7 @@ export function checkAssistantGuardrails(message: string): GuardrailResult {
         suggestedLinks: [
           { href: '/free-legal-advice-police-station', label: 'Free legal advice (police station)' },
           ...kentLinks,
-          { href: '/Contact', label: 'Contact us' },
+          { href: '/contact', label: 'Contact us' },
           { href: '/directory', label: 'Find a rep' },
         ],
       };

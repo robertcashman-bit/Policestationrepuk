@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 const HERO_QUICK_LINKS = [
   { href: '/police-station-representative', label: 'What Is a Rep?' },
-  { href: '/HelpUsStationNumbers', label: 'Report a number' },
+  { href: '/helpusstationnumbers', label: 'Report a number' },
   { href: '/FormsLibrary', label: 'Forms Library' },
   { href: '/Wiki', label: 'Rep Wiki' },
   { href: '/Resources', label: 'Resources' },

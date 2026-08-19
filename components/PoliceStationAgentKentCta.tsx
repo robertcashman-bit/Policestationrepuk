@@ -1,35 +1,24 @@
-import {
-  POLICESTATIONAGENT_CTA,
-  POLICESTATIONAGENT_HOME_HREF,
-  POLICESTATIONAGENT_SITE,
-} from '@/lib/policestationagent-promo';
-import { PartnerOutboundLink } from '@/components/PartnerOutboundLink';
+import Link from 'next/link';
 
-type Props = {
+/** Soft Kent directory nudge for FAQ/PACE pages — RepUK acquisition, not PSA sell. */
+export function PoliceStationAgentKentCta({ className, linkClassName }: {
   className?: string;
   linkClassName?: string;
-  /** GA4 placement override */
   placement?: string;
-};
-
-/** Kent-only solicitor promo — do not use on national pages without area context. */
-export function PoliceStationAgentKentCta({ className, linkClassName, placement = 'kent_cta' }: Props) {
+}) {
   return (
     <p className={className}>
-      {POLICESTATIONAGENT_CTA}{' '}
-      <PartnerOutboundLink
-        href={POLICESTATIONAGENT_HOME_HREF}
-        partner="policestationagent"
-        placement={placement}
-        target="_blank"
-        rel="noopener noreferrer"
+      Looking for Kent police station cover?{' '}
+      <Link
+        href="/directory/kent"
         className={
           linkClassName ??
           'font-semibold text-[var(--gold-link)] underline underline-offset-2 hover:text-[var(--gold)]'
         }
       >
-        Visit {POLICESTATIONAGENT_SITE.replace(/^https?:\/\/(www\.)?/, '')}
-      </PartnerOutboundLink>
+        Browse Kent reps in the free directory
+      </Link>
+      .
     </p>
   );
 }

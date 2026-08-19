@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import { PartnerOutboundLink } from '@/components/PartnerOutboundLink';
-import { POLICESTATIONAGENT_HOME_HREF } from '@/lib/policestationagent-promo';
 
 const COVERAGE_LINKS = [
   { href: '/police-station-rep-kent', label: 'Kent' },
@@ -15,7 +13,7 @@ const COVERAGE_LINKS = [
   { href: '/directory/west-midlands', label: 'West Midlands' },
   { href: '/directory/west-yorkshire', label: 'West Yorkshire' },
   { href: '/directory/merseyside', label: 'Merseyside' },
-  { href: '/PoliceStationRepsByCounty', label: 'All counties' },
+  { href: '/policestationrepsbycounty', label: 'All counties' },
 ] as const;
 
 export function HomeSeoConversionHub() {
@@ -36,11 +34,11 @@ export function HomeSeoConversionHub() {
             </p>
             <p className="mt-3 text-sm text-[var(--muted)]">
               Operated by <strong className="text-[var(--navy)]">Defence Legal Services Ltd</strong>.{' '}
-              <Link href="/AboutFounder" className="font-semibold text-[var(--navy)] underline decoration-[var(--navy)]/30 underline-offset-2">
+              <Link href="/aboutfounder" className="font-semibold text-[var(--navy)] underline decoration-[var(--navy)]/30 underline-offset-2">
                 About the founder
               </Link>
               {' · '}
-              <Link href="/About" className="font-semibold text-[var(--navy)] underline decoration-[var(--navy)]/30 underline-offset-2">
+              <Link href="/about" className="font-semibold text-[var(--navy)] underline decoration-[var(--navy)]/30 underline-offset-2">
                 About the directory
               </Link>
             </p>
@@ -230,24 +228,22 @@ export function HomeSeoConversionHub() {
                 solicitor or contact a criminal defence firm immediately.
               </p>
               <div className="mt-4 rounded-lg border border-[var(--gold)]/40 bg-white/10 p-4">
-                <p className="text-sm font-semibold text-[var(--gold)]">Kent &amp; nearby</p>
+                <p className="text-sm font-semibold text-[var(--gold)]">Need advice now?</p>
                 <p className="mt-2 text-sm text-white">
-                  Need a solicitor in Kent?{' '}
-                  <PartnerOutboundLink
-                    href={POLICESTATIONAGENT_HOME_HREF}
-                    partner="policestationagent"
-                    placement="homepage_hub"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-semibold text-[var(--gold)] underline"
-                  >
-                    Visit policestationagent.com
-                  </PartnerOutboundLink>{' '}
-                  — solicitor-led police station cover for Kent firms (separate from this directory).
+                  Ask for the <strong className="text-[var(--gold)]">duty solicitor</strong> at the custody
+                  desk, or contact a criminal defence firm. This directory is for firms and accredited reps —
+                  it does not provide emergency legal advice.
                 </p>
                 <p className="mt-2 text-xs text-slate-300">
-                  Outside Kent or nearby areas, contact a criminal defence firm local to your police station or use the
-                  duty solicitor scheme.
+                  Firms seeking cover:{' '}
+                  <Link href="/directory" className="font-semibold text-[var(--gold)] underline">
+                    search the free directory
+                  </Link>{' '}
+                  or join the{' '}
+                  <Link href="/whatsapp/firms" className="font-semibold text-[var(--gold)] underline">
+                    firm WhatsApp group
+                  </Link>
+                  .
                 </p>
               </div>
               <p className="mt-3 text-sm text-white">

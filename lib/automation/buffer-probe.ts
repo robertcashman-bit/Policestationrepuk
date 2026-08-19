@@ -3,10 +3,18 @@ import {
   getBufferChannels,
   getBufferOrganizationId,
 } from '@/lib/buffer/config';
+import {
+  isRateLimitMessage,
+  noteBufferRateLimit,
+  rateLimitBackoffMs,
+  sleep,
+  withBufferApiSlot,
+} from '@/lib/buffer/graphql-throttle';
 import type { ErrorCategory, HealthIssue } from './types';
 import { buildIncidentFingerprint } from './notifications';
 
 const BUFFER_API_URL = 'https://api.buffer.com';
+const PROBE_MAX_RETRIES = 3;
 
 export interface BufferCredentialProbe {
   ok: boolean;
@@ -34,6 +42,71 @@ function issue(partial: Omit<HealthIssue, 'fingerprint' | 'id'> & { id?: string 
     fingerprint,
     ...partial,
   };
+}
+
+type ProbeGraphqlResult = {
+  data?: {
+    account?: {
+      email: string;
+      organizations?: Array<{ id: string; name: string }>;
+    };
+    channels?: Array<{
+      id: string;
+      name: string;
+      service: string;
+      isDisconnected: boolean;
+    }>;
+  };
+  errors?: Array<{ message: string; extensions?: { retryAfter?: number } }>;
+  status: number;
+  retryAfterMs: number | null;
+};
+
+async function probeGraphqlOnce(
+  apiKey: string,
+  organizationId: string,
+): Promise<ProbeGraphqlResult> {
+  return withBufferApiSlot(async () => {
+    const res = await fetch(BUFFER_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        query: `query AutomationProbe($organizationId: OrganizationId!) {
+          account {
+            email
+            timezone
+            organizations { id name }
+          }
+          channels(input: { organizationId: $organizationId }) {
+            id
+            name
+            service
+            isDisconnected
+          }
+        }`,
+        variables: { organizationId },
+      }),
+    });
+
+    const json = (await res.json()) as {
+      data?: ProbeGraphqlResult['data'];
+      errors?: ProbeGraphqlResult['errors'];
+    };
+    const headerWait = Number(res.headers.get('retry-after'));
+    let retryAfterMs: number | null =
+      Number.isFinite(headerWait) && headerWait > 0 ? headerWait * 1000 : null;
+    for (const err of json.errors ?? []) {
+      const ra = err.extensions?.retryAfter;
+      if (typeof ra === 'number' && ra > 0) {
+        retryAfterMs = ra * 1000;
+        break;
+      }
+    }
+    return { ...json, status: res.status, retryAfterMs };
+  });
 }
 
 /** Read-only Buffer credential + channel accessibility probe (no test posts). */
@@ -111,48 +184,54 @@ export async function probeBufferCredentials(): Promise<BufferCredentialProbe> {
   }
 
   try {
-    const res = await fetch(BUFFER_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        query: `query AutomationProbe($organizationId: OrganizationId!) {
-          account {
-            email
-            timezone
-            organizations { id name }
-          }
-          channels(input: { organizationId: $organizationId }) {
-            id
-            name
-            service
-            isDisconnected
-          }
-        }`,
-        variables: { organizationId },
-      }),
-    });
+    let json: ProbeGraphqlResult | null = null;
+    for (let attempt = 0; attempt <= PROBE_MAX_RETRIES; attempt++) {
+      json = await probeGraphqlOnce(apiKey, organizationId);
+      const errorMessage = json.errors?.map((e) => e.message).join('; ') ?? '';
+      const rateLimited =
+        json.status === 429 || (errorMessage && isRateLimitMessage(errorMessage));
+      if (rateLimited && attempt < PROBE_MAX_RETRIES) {
+        const waitMs = rateLimitBackoffMs(attempt, json.retryAfterMs);
+        noteBufferRateLimit(waitMs);
+        await sleep(waitMs);
+        continue;
+      }
+      break;
+    }
 
-    const json = (await res.json()) as {
-      data?: {
-        account?: {
-          email: string;
-          organizations?: Array<{ id: string; name: string }>;
-        };
-        channels?: Array<{
-          id: string;
-          name: string;
-          service: string;
-          isDisconnected: boolean;
-        }>;
+    if (!json) {
+      throw new Error('Buffer probe returned no response');
+    }
+
+    const errorMessage = json.errors?.map((e) => e.message).join('; ') ?? '';
+    if (json.status === 429 || (errorMessage && isRateLimitMessage(errorMessage))) {
+      issues.push(
+        issue({
+          jobName: 'buffer-blog-posts',
+          category: 'rate_limit',
+          severity: 'warning',
+          summary: 'Buffer API rate-limited during credential probe',
+          details: errorMessage || `HTTP ${json.status}`,
+          recoverable: true,
+          requiresHumanAction: false,
+        }),
+      );
+      return {
+        ok: false,
+        apiKeyPresent: true,
+        apiKeyMalformed: malformed,
+        authenticated: false,
+        organizationAccessible: false,
+        channelsConfigured: channels.length,
+        channelsAccessible: 0,
+        missingChannelIds: [],
+        disconnectedChannelIds: [],
+        issues,
       };
-      errors?: Array<{ message: string }>;
-    };
+    }
 
     if (json.errors?.length) {
-      const message = json.errors.map((e) => e.message).join('; ');
+      const message = errorMessage;
       const category: ErrorCategory = /unauthor/i.test(message)
         ? 'auth'
         : /missing|not configured|invalid/i.test(message)
@@ -252,17 +331,31 @@ export async function probeBufferCredentials(): Promise<BufferCredentialProbe> {
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    issues.push(
-      issue({
-        jobName: 'buffer-blog-posts',
-        category: 'network',
-        severity: 'error',
-        summary: 'Buffer API network failure during credential probe',
-        details: message,
-        recoverable: true,
-        requiresHumanAction: false,
-      }),
-    );
+    if (isRateLimitMessage(message)) {
+      issues.push(
+        issue({
+          jobName: 'buffer-blog-posts',
+          category: 'rate_limit',
+          severity: 'warning',
+          summary: 'Buffer API rate-limited during credential probe',
+          details: message,
+          recoverable: true,
+          requiresHumanAction: false,
+        }),
+      );
+    } else {
+      issues.push(
+        issue({
+          jobName: 'buffer-blog-posts',
+          category: 'network',
+          severity: 'error',
+          summary: 'Buffer API network failure during credential probe',
+          details: message,
+          recoverable: true,
+          requiresHumanAction: false,
+        }),
+      );
+    }
     return {
       ok: false,
       apiKeyPresent: true,

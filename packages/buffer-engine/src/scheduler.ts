@@ -480,17 +480,20 @@ export async function runSiteBufferScheduler(
 async function createScheduledBufferPostWithRetry(
   apiKey: string,
   input: Parameters<typeof createScheduledBufferPost>[1],
-  maxAttempts = 6,
+  /** Outer attempts only — GraphQL client already retries 429 with capped backoff. */
+  maxAttempts = 2,
 ): Promise<Awaited<ReturnType<typeof createScheduledBufferPost>>> {
   let lastError: unknown;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
-      if (attempt > 0) await new Promise((r) => setTimeout(r, 4000 * attempt));
+      if (attempt > 0) await new Promise((r) => setTimeout(r, 1500 * attempt));
       return await createScheduledBufferPost(apiKey, input);
     } catch (err) {
       lastError = err;
       const message = err instanceof Error ? err.message : '';
-      if (!/too many requests/i.test(message) || attempt === maxAttempts - 1) throw err;
+      if (!/too many requests|rate limit|429|throttl/i.test(message) || attempt === maxAttempts - 1) {
+        throw err;
+      }
     }
   }
   throw lastError;

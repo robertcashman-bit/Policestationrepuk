@@ -79,9 +79,9 @@ export async function getAutomationAdminStatus() {
       lock: locks.find((l) => l.jobName === j.name)?.lock ?? null,
     })),
     nextScheduled: {
-      bufferBlogPosts: '5 5 * * * UTC',
+      bufferBlogPosts: '20 5 * * * UTC',
       healthcheck: '15 7 * * * UTC',
-      watchdog: '20 */6 * * * UTC',
+      watchdog: '50 1,8,14,20 * * * UTC',
     },
   };
 }

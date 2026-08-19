@@ -2,6 +2,10 @@ import { getSchedulerTimezone } from '@/lib/buffer/config';
 import { localDateInTimezone } from '@/lib/buffer/scheduler-core';
 import { verifyRepukBufferSchedule } from '@/lib/buffer/engine-run';
 import { getCronRunLog } from '@/lib/cron-run-log';
+import {
+  evaluateBufferWindowExemption,
+  inspectBufferScheduleSafe,
+} from './buffer-window-exemption';
 import { getAutomationConfig } from './config';
 import { probeBufferCredentials } from './buffer-probe';
 import { canPerformLiveSideEffects } from './env-guard';
@@ -130,9 +134,15 @@ export async function runAutomationWatchdog(
       }
     }
 
-    // Auth probe (cheap)
+    // Auth probe (cheap) — rate limits are not auth failures.
     const probe = await probeBufferCredentials();
-    authFailure = probe.issues.some((i) => i.category === 'auth' || i.category === 'config');
+    authFailure = probe.issues.some(
+      (i) =>
+        (i.category === 'auth' || i.category === 'config') && i.requiresHumanAction,
+    );
+    if (probe.issues.some((i) => i.category === 'rate_limit')) {
+      notes.push('Buffer credential probe rate-limited — treated as transient');
+    }
     if (authFailure) {
       const critical = probe.issues.find((i) => i.requiresHumanAction);
       if (critical) {
@@ -168,30 +178,31 @@ export async function runAutomationWatchdog(
 
       if (!successToday) {
         // Prefer Buffer truth over missing cron logs (e.g. mid-day deploy after morning run).
-        let inspectError: string | null = null;
-        const inspect = await verifyRepukBufferSchedule({ now, gapFill: false }).catch((err) => {
-          inspectError = err instanceof Error ? err.message : String(err);
-          return null;
-        });
-        const quotaMet =
-          Boolean(inspect?.ok) &&
-          typeof inspect?.scheduledCount === 'number' &&
-          typeof inspect?.requiredCount === 'number' &&
-          inspect.scheduledCount >= inspect.requiredCount;
+        const inspect = await inspectBufferScheduleSafe({ now });
+        const exemption = evaluateBufferWindowExemption('buffer-blog-posts', inspect);
 
-        if (quotaMet) {
-          notes.push(
-            `buffer-blog-posts cron log missing but Buffer quota already met (${inspect!.scheduledCount}/${inspect!.requiredCount}) — not overdue`,
-          );
+        if (exemption.suppress) {
+          const detail =
+            exemption.reason === 'buffer_inspect_transient'
+              ? `Buffer quota inspect transient (${exemption.errorMessage}) — not overdue`
+              : exemption.reason === 'buffer_quota_met'
+                ? `buffer-blog-posts cron log missing but Buffer quota already met (${exemption.scheduledCount}/${exemption.requiredCount}) — not overdue`
+                : `buffer-blog-posts cron log missing but Buffer already has ${exemption.scheduledCount}/${exemption.requiredCount ?? '?'} posts — not treating as missed window`;
+          notes.push(detail);
           await recordJobAttempt({
             name: 'buffer-blog-posts',
             ok: true,
-            repairAction: 'buffer_quota_met_without_cron_log',
+            repairAction:
+              exemption.reason === 'buffer_inspect_transient'
+                ? 'buffer_inspect_transient'
+                : exemption.reason === 'buffer_quota_met'
+                  ? 'buffer_quota_met_without_cron_log'
+                  : 'buffer_posts_exist_without_cron_log',
           });
           logAutomationEvent('automation.job.missed', {
             jobName: 'buffer-blog-posts',
             suppressed: true,
-            reason: 'buffer_quota_met',
+            reason: exemption.reason,
           });
         } else {
           overdueJobs.push('buffer-blog-posts');
@@ -233,6 +244,9 @@ export async function runAutomationWatchdog(
             });
           }
 
+          const inspectOk = inspect.kind === 'ok' ? inspect.result : null;
+          const inspectError =
+            inspect.kind === 'transient' || inspect.kind === 'error' ? inspect.message : null;
           const result = await notifyIncident({
             fingerprint: buildIncidentFingerprint({
               jobName: 'buffer-blog-posts',
@@ -243,8 +257,8 @@ export async function runAutomationWatchdog(
             jobName: 'buffer-blog-posts',
             severity: 'error',
             summary: 'Critical job buffer-blog-posts appears overdue',
-            details: inspect
-              ? `Buffer quota ${inspect.scheduledCount}/${inspect.requiredCount}`
+            details: inspectOk
+              ? `Buffer quota ${inspectOk.scheduledCount}/${inspectOk.requiredCount}`
               : inspectError
                 ? `Could not inspect Buffer quota: ${inspectError}`
                 : 'Could not inspect Buffer quota',

@@ -21,6 +21,8 @@ import { isProductionDeployment } from '@/lib/automation/env-guard';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+/** Allow GraphQL retries + multi-channel creates without Vercel 60s kill leaving cron-run-log unset. */
+export const maxDuration = 300;
 
 /**
  * Daily Buffer blog scheduler for policestationrepuk.org (RepUK KV run).

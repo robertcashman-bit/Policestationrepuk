@@ -61,7 +61,7 @@ export function isPastBufferOverdueGate(
   const job =
     options.job ??
     getJobDefinition('buffer-blog-posts') ?? {
-      expectedSchedule: '5 5 * * *',
+      expectedSchedule: '20 5 * * *',
       maxToleratedDelayMinutes: 45,
     };
 

@@ -83,11 +83,11 @@
     },
     {
       "path": "/api/cron/buffer-blog-posts",
-      "schedule": "5 5 * * *"
+      "schedule": "20 5 * * *"
     },
     {
       "path": "/api/cron/buffer-verify",
-      "schedule": "35 5 * * *"
+      "schedule": "10 6 * * *"
     },
     {
       "path": "/api/cron/buffer-selftest",
@@ -111,7 +111,7 @@
     },
     {
       "path": "/api/cron/automation-watchdog",
-      "schedule": "20 */6 * * *"
+      "schedule": "50 1,8,14,20 * * *"
     },
     {
       "path": "/api/cron/traffic-digest",

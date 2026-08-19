@@ -3,8 +3,12 @@ import {
   addDaysToLocalDate,
   localDateInTimezone,
 } from '@/lib/buffer/scheduler-core';
-import { verifyRepukBufferSchedule } from '@/lib/buffer/engine-run';
 import { getCronRunLog } from '@/lib/cron-run-log';
+import {
+  evaluateBufferWindowExemption,
+  inspectBufferScheduleSafe,
+  isBufferWindowExemptJob,
+} from './buffer-window-exemption';
 import { cronOutcomeCountsAsSuccess } from './cron-success';
 import { getAutomationConfig } from './config';
 import { probeBufferCredentials } from './buffer-probe';
@@ -63,6 +67,17 @@ async function inspectSchedulerHealth(
   let duplicatesPrevented = 0;
   const jobs = await ensureAllJobsRegistered();
 
+  // One Buffer inspect for all exempt jobs — avoids morning stampede of listPosts.
+  let bufferInspect: Awaited<ReturnType<typeof inspectBufferScheduleSafe>> | null = null;
+  let bufferInspectLoaded = false;
+  const loadBufferInspect = async () => {
+    if (!bufferInspectLoaded) {
+      bufferInspect = await inspectBufferScheduleSafe({ now });
+      bufferInspectLoaded = true;
+    }
+    return bufferInspect;
+  };
+
   for (const job of jobs) {
     if (job.name === 'automation-watchdog' || job.name === 'automation-daily-healthcheck') {
       continue;
@@ -112,18 +127,24 @@ async function inspectSchedulerHealth(
           cronLog &&
           cronOutcomeCountsAsSuccess(cronLog.outcome) &&
           Date.parse(cronLog.finishedAt) >= windowStart;
-        let bufferQuotaMet = false;
-        if (!cronOk && job.name === 'buffer-blog-posts') {
-          const inspect = await verifyRepukBufferSchedule({ now, gapFill: false }).catch(
-            () => null,
-          );
-          bufferQuotaMet =
-            Boolean(inspect?.ok) &&
-            typeof inspect?.scheduledCount === 'number' &&
-            typeof inspect?.requiredCount === 'number' &&
-            inspect.scheduledCount >= inspect.requiredCount;
+
+        let suppressed = false;
+        if (!cronOk && isBufferWindowExemptJob(job.name)) {
+          const inspect = await loadBufferInspect();
+          const exemption = evaluateBufferWindowExemption(job.name, inspect);
+          if (exemption.suppress) {
+            suppressed = true;
+            logAutomationEvent('automation.job.missed', {
+              jobName: job.name,
+              suppressed: true,
+              reason: exemption.reason,
+              scheduledCount: exemption.scheduledCount,
+              requiredCount: exemption.requiredCount,
+            });
+          }
         }
-        if (!cronOk && !bufferQuotaMet) {
+
+        if (!cronOk && !suppressed) {
           failedJobs.push(job.name);
           issues.push({
             id: `${job.name}-missed`,
@@ -141,12 +162,6 @@ async function inspectSchedulerHealth(
             requiresHumanAction: false,
           });
           logAutomationEvent('automation.job.missed', { jobName: job.name });
-        } else if (bufferQuotaMet) {
-          logAutomationEvent('automation.job.missed', {
-            jobName: job.name,
-            suppressed: true,
-            reason: 'buffer_quota_met',
-          });
         }
       }
     }

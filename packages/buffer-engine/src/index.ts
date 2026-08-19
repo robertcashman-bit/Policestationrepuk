@@ -16,3 +16,4 @@ export * from './selftest';
 export * from './assets';
 export * from './google-business-text';
 export * from './idempotency';
+export * from './graphql-throttle';

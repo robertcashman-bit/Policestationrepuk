@@ -34,6 +34,7 @@ import { HOMEPAGE_FAQS } from '@/lib/homepage-faqs';
 import { selectTopCountiesForHomepage } from '@/lib/home-top-locations';
 import { getStationPhonePublicStats } from '@/lib/station-phone-stats-server';
 import { SITE_NAME, SITE_URL, socialPreviewImageUrl } from '@/lib/seo-layer/config';
+import { UK_POLICE_FORCES_COUNT } from '@/lib/uk-police-forces';
 
 export const metadata: Metadata = {
   title: 'Find a Police Station Rep — UK Representative Directory',
@@ -66,9 +67,6 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = 'force-dynamic';
-
-/** Territorial + special forces listed on /Forces (England & Wales facing). */
-const UK_FORCES_COUNT = 42;
 
 export default async function HomePage() {
   const [reps, counties, stations, featuredReps, phoneStats] = await Promise.all([
@@ -103,7 +101,7 @@ export default async function HomePage() {
               { value: String(reps.length), label: 'Listed Reps' },
               { value: String(stationCount), label: 'Stations Listed' },
               { value: String(phoneStats.directLine), label: 'With Direct Line' },
-              { value: String(UK_FORCES_COUNT), label: 'Police Forces' },
+              { value: String(UK_POLICE_FORCES_COUNT), label: 'Police Forces' },
             ].map((s) => (
               <div key={s.label}>
                 <p className="text-2xl font-extrabold leading-none text-[var(--navy)] sm:text-3xl">{s.value}</p>

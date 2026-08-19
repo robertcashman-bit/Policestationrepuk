@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { getAllReps, getAllStations } from '@/lib/data';
 import { SITE_NAME, SITE_URL, socialPreviewImageUrl } from '@/lib/seo-layer/config';
+import { UK_POLICE_FORCES_COUNT } from '@/lib/uk-police-forces';
 
 const title = 'Find Your Rep — Station Coverage Across England & Wales';
 const description =
@@ -25,16 +26,16 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-/** England & Wales territorial forces commonly cited in directory marketing. */
-const UK_FORCES_COUNT = 43;
-
 function maxRepsPerStation(reps: Awaited<ReturnType<typeof getAllReps>>): number {
   const counts = new Map<string, number>();
   for (const rep of reps) {
-    const labels = [...(rep.stations || []), ...(rep.stationsCovered || [])];
-    for (const label of labels) {
+    // Deduplicate: registration/overrides often copy the same list into both fields.
+    const unique = new Set<string>();
+    for (const label of [...(rep.stations || []), ...(rep.stationsCovered || [])]) {
       const key = label.trim().toLowerCase();
-      if (!key) continue;
+      if (key) unique.add(key);
+    }
+    for (const key of unique) {
       counts.set(key, (counts.get(key) || 0) + 1);
     }
   }
@@ -55,7 +56,7 @@ export default async function FindYourRepPage() {
         { value: String(reps.length), label: 'Total Reps' },
         { value: String(stations.length), label: 'Stations Covered' },
         { value: maxPerStation > 0 ? String(maxPerStation) : '—', label: 'Max Reps per Station' },
-        { value: String(UK_FORCES_COUNT), label: 'Police Forces' },
+        { value: String(UK_POLICE_FORCES_COUNT), label: 'Police Forces' },
       ]
     : null;
 

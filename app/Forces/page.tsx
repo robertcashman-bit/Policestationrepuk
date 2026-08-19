@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 import { FORCE_TO_COUNTIES } from '@/lib/police-force-to-counties';
+import { UK_POLICE_FORCES } from '@/lib/uk-police-forces';
 
 export const metadata = buildMetadata({
   title: 'UK Police Forces Directory — Stations by Force Area',
@@ -10,53 +11,7 @@ export const metadata = buildMetadata({
   path: '/Forces',
 });
 
-const FORCES = [
-  'Avon and Somerset Constabulary',
-  'Bedfordshire Police',
-  'British Transport Police',
-  'Cambridgeshire Constabulary',
-  'Cheshire Constabulary',
-  'City of London Police',
-  'Cleveland Police',
-  'Cumbria Constabulary',
-  'Derbyshire Constabulary',
-  'Devon and Cornwall Police',
-  'Dorset Police',
-  'Durham Constabulary',
-  'Dyfed-Powys Police',
-  'Essex Police',
-  'Gloucestershire Constabulary',
-  'Greater Manchester Police',
-  'Gwent Police',
-  'Hampshire Constabulary',
-  'Hertfordshire Constabulary',
-  'Humberside Police',
-  'Kent Police',
-  'Lancashire Constabulary',
-  'Leicestershire Police',
-  'Lincolnshire Police',
-  'Merseyside Police',
-  'Metropolitan Police',
-  'Ministry of Defence Police',
-  'Norfolk Constabulary',
-  'North Wales Police',
-  'North Yorkshire Police',
-  'Northamptonshire Police',
-  'Northumbria Police',
-  'Nottinghamshire Police',
-  'South Wales Police',
-  'South Yorkshire Police',
-  'Staffordshire Police',
-  'Suffolk Constabulary',
-  'Surrey Police',
-  'Sussex Police',
-  'Thames Valley Police',
-  'Warwickshire Police',
-  'West Mercia Police',
-  'West Midlands Police',
-  'West Yorkshire Police',
-  'Wiltshire Police',
-];
+const FORCES = [...UK_POLICE_FORCES];
 
 const grouped = FORCES.reduce<Record<string, string[]>>((acc, force) => {
   const letter = force[0].toUpperCase();

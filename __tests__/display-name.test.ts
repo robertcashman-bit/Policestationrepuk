@@ -15,4 +15,14 @@ describe('formatPersonDisplayName', () => {
   it('keeps hyphenated segments', () => {
     expect(formatPersonDisplayName('MARY-JANE SMITH')).toBe('Mary-Jane Smith');
   });
+
+  it("preserves Mc and O' names that are already mixed-case", () => {
+    expect(formatPersonDisplayName('Dan McCurry')).toBe('Dan McCurry');
+    expect(formatPersonDisplayName("Sammie O'Blein")).toBe("Sammie O'Blein");
+  });
+
+  it("title-cases all-caps Mc and O' names correctly", () => {
+    expect(formatPersonDisplayName('DAN MCCURRY')).toBe('Dan McCurry');
+    expect(formatPersonDisplayName("SAMMIE O'BLEIN")).toBe("Sammie O'Blein");
+  });
 });

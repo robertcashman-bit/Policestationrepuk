@@ -43,42 +43,28 @@ interface PromoCandidate {
   path: string;
 }
 
-/** Live marketing URLs on custodynote.com (verified 200 as of 2026-08-11). */
+/** Live marketing URLs on custodynote.com (aligned with free-during-beta commercial line). */
 const CUSTODYNOTE_PROMOS: PromoCandidate[] = [
   {
     slug: 'home',
     title: 'Custody Note — attendance notes for police station reps',
     excerpt:
-      'Native Windows and Mac apps for structured police station attendance notes. Start free on custodynote.com.',
+      'Native Windows and Mac apps for structured police station attendance notes. Free during beta — no credit card.',
     path: '/',
   },
   {
     slug: 'download',
     title: 'Download Custody Note for Windows PC and Mac',
     excerpt:
-      'Install Custody Note on Windows 10+ or macOS 11+ (Apple Silicon and Intel). Free to start.',
+      'Install Custody Note on Windows 10+ or macOS 11+ (Apple Silicon and Intel). Free during beta — no credit card.',
     path: '/download',
-  },
-  {
-    slug: 'trial',
-    title: 'Try Custody Note free',
-    excerpt:
-      'Structured custody and attendance notes for criminal defence practitioners. Start your free trial.',
-    path: '/trial',
   },
   {
     slug: 'pricing',
     title: 'Custody Note pricing',
     excerpt:
-      'Simple pricing for police station representatives and criminal solicitors. See plans on custodynote.com.',
+      'Free during beta while we test with real police station work. Paid Pro is planned after beta — payments not wired yet.',
     path: '/pricing',
-  },
-  {
-    slug: 'buy',
-    title: 'Get Custody Note Pro',
-    excerpt:
-      'Upgrade to Custody Note Pro for full attendance-note workflows across Windows and Mac.',
-    path: '/buy',
   },
   {
     slug: 'cloud-backup',

@@ -1,4 +1,4 @@
-/** Central Custody Note conversion URLs, pricing and copy (UTM for funnel attribution). */
+/** Central Custody Note conversion URLs and copy (UTM for funnel attribution). */
 import { partnerHref } from '@/lib/utm';
 
 function cnHref(campaign: string, path = ''): string {
@@ -32,13 +32,11 @@ export const CUSTODYNOTE_APPS_LINE = 'Native desktop apps for Windows PC and Mac
 export const CUSTODYNOTE_PLATFORM_LINE =
   'Windows 10+ and macOS 11+ (Apple Silicon and Intel)';
 
-/** Planned Pro price after beta (GBP). */
+/**
+ * Planned Pro list price after beta (GBP), as stated on custodynote.com.
+ * Payments are not wired yet — do not promote as a current paid offer or discount.
+ */
 export const CUSTODYNOTE_PRICE_GBP = '9.99';
-/** Discounted Pro price for PSR UK readers using the member code (9.99 × 0.80 ≈ 7.99). */
-export const CUSTODYNOTE_MEMBER_PRICE_GBP = '7.99';
-/** Member discount code surfaced exclusively on PoliceStationRepUK. */
-export const CUSTODYNOTE_DISCOUNT_CODE = 'A2MJY2NQ';
-export const CUSTODYNOTE_DISCOUNT_PCT = 20;
 
 /** Free tier label during public beta. */
 export const CUSTODYNOTE_FREE_LABEL = 'Free during beta';
@@ -47,6 +45,7 @@ export const CUSTODYNOTE_TRIAL_CTA = 'Download Free';
 export const CUSTODYNOTE_DOWNLOAD_CTA = 'Download Free';
 export const CUSTODYNOTE_BETA_REASON =
   "Custody Note is in beta — that's why it's free while we test with real police station work.";
+export const CUSTODYNOTE_NO_CARD_LINE = 'No credit card required';
 
 /** Reusable pricing line for promos and banners. */
 export const CUSTODYNOTE_PROMO_PRICE_LINE = 'Free during beta';
@@ -58,8 +57,9 @@ export const CUSTODYNOTE_TAGLINE =
 export const CUSTODYNOTE_SHORT_DESCRIPTION =
   'Digital note-taking and workflow tool for criminal defence professionals attending police stations and managing pre-charge case preparation.';
 
-export const CUSTODYNOTE_MEMBER_DEAL =
-  `After beta, PSR UK readers ~£${CUSTODYNOTE_MEMBER_PRICE_GBP}/mo with code ${CUSTODYNOTE_DISCOUNT_CODE} (${CUSTODYNOTE_DISCOUNT_PCT}% off Pro)`;
+/** Soft post-beta note only — not a live paid offer or promo code. */
+export const CUSTODYNOTE_PLANNED_PRO_LINE =
+  `Paid Pro is planned after beta (around £${CUSTODYNOTE_PRICE_GBP}/month). Payments are not wired yet.`;
 
 export const CUSTODYNOTE_DOWNLOAD_APPS_CTA = 'Download for Windows & Mac';
 
@@ -67,7 +67,7 @@ export const CUSTODYNOTE_APPS_DETAIL =
   'Install on your Windows PC or Mac (Apple Silicon and Intel). Signed Mac builds, automatic updates on both platforms.';
 
 export const TOP_BANNER_TEXT =
-  'Custody Note for Windows PC & Mac — in beta, free while we test';
+  'Custody Note for Windows PC & Mac — structured attendance notes, free during beta';
 
 /** Shorter line for narrow phone screens (full text from `TOP_BANNER_TEXT` on sm+). */
 export const TOP_BANNER_TEXT_MOBILE = 'Custody Note — free during beta';

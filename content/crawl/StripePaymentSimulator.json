@@ -36,7 +36,7 @@
       "text": "Regulatory Notice"
     }
   ],
-  "content": "Post-Checkout Flow SimulatorTest complete payment verification flowSimulate Complete Post-Checkout FlowSimulates: KV Storage → Email Lookup → Base44 Check → Access DecisionDetailed LogsClick the button above to start testingWhat This Tests1️⃣Mock KV StorageSimulates payment data storage2️⃣KV Verification (by session_id)Tests PaymentSuccess page lookup3️⃣Email-based LookupTests PaywallGuard email lookup4️⃣Base44 Status CheckChecks current subscription in Base445️⃣PaywallGuard DecisionSimulates access grant logic (KV OR Base44)",
+  "content": "Post-Checkout Flow SimulatorTest complete payment verification flowSimulate Complete Post-Checkout FlowSimulates: KV Storage \u2192 Email Lookup \u2192 Base44 Check \u2192 Access DecisionDetailed LogsClick the button above to start testingWhat This Tests1\ufe0f\u20e3Mock KV StorageSimulates payment data storage2\ufe0f\u20e3KV Verification (by session_id)Tests PaymentSuccess page lookup3\ufe0f\u20e3Email-based LookupTests PaywallGuard email lookup4\ufe0f\u20e3Base44 Status CheckChecks current subscription in Base445\ufe0f\u20e3PaywallGuard DecisionSimulates access grant logic (KV OR Base44)",
   "links": [
     {
       "href": "/Home",
@@ -48,11 +48,11 @@
     },
     {
       "href": "/CustodyNote",
-      "text": "🆕 Custody Note"
+      "text": "\ud83c\udd95 Custody Note"
     },
     {
       "href": "/Premium",
-      "text": "Browse Resources →"
+      "text": "Browse Resources \u2192"
     },
     {
       "href": "/Directory",

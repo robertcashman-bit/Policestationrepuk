@@ -309,7 +309,7 @@ Register a free profile so firms can find you by area, station, and accreditatio
 
 **H2:** Tools for police station representatives
 
-- **CustodyNote** — Structure your attendance notes in minutes. Used by professional police station reps for consistent, shareable custody records. [Try free →]
+- **Custody Note** — Structure your attendance notes in minutes. Used by professional police station reps for consistent, shareable custody records. Free during beta — no credit card. [Download free →]
 - **Escape Fee Calculator** — Work out firm and rep earnings quickly [Calculate →]
 - **Forms Library** — Standard forms for police station work [View forms →]
 - **PACE Reference** — Codes A-H quick reference [PACE hub →]

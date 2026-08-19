@@ -70,7 +70,7 @@
 ## Gaps and next steps
 
 1. **Email/DB for forms** — Connect `/api/contact` and `/api/register` to Resend/SendGrid or Supabase.
-2. **CustodyNote discount code** — Replace placeholder `PSRUK` in `app/CustodyNote/page.tsx` with real code if provided.
+2. **Custody Note commercial line** — Promote free during beta (no credit card) via `lib/custodynote-promo.ts`. Do not invent discount codes or live paid offers while payments are unwired.
 3. **Redirects** — Optional: redirect `/Directory` → `/directory`, `/Register` → `/register` so one canonical URL per feature.
 4. **Blog index** — `/Blog` is mirror content; could add a dedicated blog index page that lists posts from crawl/mirror.
 5. **Performance** — Consider ISR or on-demand revalidation for directory if data becomes dynamic.

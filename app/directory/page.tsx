@@ -5,25 +5,15 @@ import { getAllReps, getAllCounties, getAllStations, stripPrivateFieldsAll } fro
 import { DirectorySearch } from '@/components/DirectorySearch';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotice';
-import { AdvertisementLabel } from '@/components/AdvertisementLabel';
-import { PsrTrainPromo } from '@/components/PsrTrainPromo';
+import { SisterToolsSlimBar } from '@/components/SisterToolsSlimBar';
 import { SITE_NAME, SITE_URL, socialPreviewImageUrl } from '@/lib/seo-layer/config';
 import { JsonLd } from '@/components/JsonLd';
 import { breadcrumbSchema, directoryItemListSchema } from '@/lib/seo';
 import { ResultsGridSkeleton } from '@/components/directory/ResultsGrid';
 import { JoinCTA } from '@/components/directory/JoinCTA';
 import { FeaturedListingAdvert } from '@/components/FeaturedListingAdvert';
-import { FeaturedListingFaq } from '@/components/FeaturedListingFaq';
-import { LegalDirectoryPromo } from '@/components/legal-directory/LegalDirectoryPromo';
-import {
-  CUSTODYNOTE_APPS_LINE,
-  CUSTODYNOTE_BETA_REASON,
-  CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DOWNLOAD_APPS_CTA,
-  CUSTODYNOTE_FREE_LABEL,
-  CUSTODYNOTE_TRIAL_HREF,
-} from '@/lib/custodynote-promo';
 import { DIRECTORY_LISTING_TRUST_SENTENCE } from '@/lib/directory-trust-copy';
+import { repMatchesCountyName } from '@/lib/county-matching';
 
 const directoryTitle = 'Police Station Rep Directory — County & Station';
 const directoryDescription =
@@ -66,9 +56,16 @@ export default async function DirectoryPage() {
     getAllStations(),
   ]);
 
-  // Defence-in-depth: scrub PIN, postcode and verification metadata before
-  // anything is rendered or serialised into the page.
   const reps = stripPrivateFieldsAll(repsRaw);
+
+  const countyCards = counties
+    .map((c) => ({
+      ...c,
+      listedRepCount: reps.filter((r) => repMatchesCountyName(r.county, c.name)).length,
+    }))
+    .filter((c) => c.listedRepCount > 0)
+    .sort((a, b) => b.listedRepCount - a.listedRepCount)
+    .slice(0, 8);
 
   const bc = breadcrumbSchema([
     { name: 'Home', url: '/' },
@@ -81,145 +78,135 @@ export default async function DirectoryPage() {
       <JsonLd data={bc} />
       <JsonLd data={itemList} />
 
-      {/* Hero */}
       <section className="relative overflow-hidden bg-[var(--navy)]">
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--navy)] via-[#0f1d45] to-[#0a1633]" />
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-        <div className="relative mx-auto max-w-7xl px-4 pb-10 pt-8 sm:px-6 sm:pb-14 sm:pt-10 lg:px-8">
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }}
+        />
+        <div className="relative mx-auto max-w-7xl px-4 pb-6 pt-6 sm:px-6 sm:pb-8 sm:pt-8 lg:px-8">
           <Breadcrumbs
             light
             className="!mb-0"
-            items={[{ label: 'Home', href: '/' }, { label: 'Police Station Rep Directory' }]}
+            items={[{ label: 'Home', href: '/' }, { label: 'Directory' }]}
           />
-          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
-            Find a Police Station Rep
-          </h1>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-lg">
-            Free directory of accredited police station representatives across England &amp; Wales.
-            Search by name, county, force, station, or postcode.
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3 text-sm">
-            <span className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 font-semibold text-white">
-              <span className="text-lg font-extrabold text-[var(--gold)]">{reps.length}</span>
-              Representatives
-            </span>
-            <span className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 font-semibold text-white">
-              <span className="text-lg font-extrabold text-[var(--gold)]">{counties.length}</span>
-              Counties
-            </span>
-            <span className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 font-semibold text-white">
-              <span className="text-lg font-extrabold text-[var(--gold)]">{stations.length}</span>
-              Stations
-            </span>
+          <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
+            <div className="min-w-0 max-w-2xl">
+              <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl">
+                Police station rep directory
+              </h1>
+              <p className="mt-2 text-sm leading-relaxed text-slate-300 sm:text-base">
+                Search accredited representatives by name, county, force, or station. Contact details
+                are on each profile — instruct the rep directly.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs sm:text-sm">
+              <span className="rounded-lg bg-white/10 px-3 py-1.5 font-semibold text-white">
+                <span className="font-extrabold text-[var(--gold)]">{reps.length}</span> reps
+              </span>
+              <span className="rounded-lg bg-white/10 px-3 py-1.5 font-semibold text-white">
+                <span className="font-extrabold text-[var(--gold)]">{counties.length}</span> counties
+              </span>
+              <span className="rounded-lg bg-white/10 px-3 py-1.5 font-semibold text-white">
+                <span className="font-extrabold text-[var(--gold)]">{stations.length}</span> stations
+              </span>
+            </div>
           </div>
-          <div className="mt-6">
-            <JoinCTA variant="hero" />
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2.5">
+          <div className="mt-4 flex flex-wrap gap-2">
             <Link
               href="/Map"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:bg-white/20"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white no-underline hover:bg-white/20 sm:text-sm"
             >
-              Map View
+              Map
             </Link>
             <Link
               href="/Forces"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:bg-white/20"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white no-underline hover:bg-white/20 sm:text-sm"
             >
-              Browse by Force
+              By force
             </Link>
             <Link
               href="/StationsDirectory"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:bg-white/20"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white no-underline hover:bg-white/20 sm:text-sm"
             >
-              Stations Directory
+              Stations
+            </Link>
+            <Link
+              href="/register"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gold)]/40 bg-[var(--gold)]/15 px-3 py-1.5 text-xs font-semibold text-[var(--gold)] no-underline hover:bg-[var(--gold)]/25 sm:text-sm"
+            >
+              Join free
             </Link>
           </div>
-          <p className="mt-3 max-w-2xl text-xs text-slate-400">
-            Wrong details for a custody site?{' '}
+        </div>
+      </section>
+
+      <SisterToolsSlimBar />
+
+      <section className="border-b border-yellow-200 bg-yellow-50 py-2.5">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="text-xs leading-relaxed text-yellow-800">
+            <strong className="font-bold">Accredited listings only.</strong> Profiles are reviewed
+            before publication. {DIRECTORY_LISTING_TRUST_SENTENCE}{' '}
             <Link
-              href="/UpdateStation"
-              className="font-semibold text-[var(--gold)] no-underline hover:underline"
+              href="/AccreditedRepresentativeGuide"
+              className="font-semibold text-yellow-900 no-underline hover:underline"
             >
-              Correct a station phone number or address
+              Requirements →
             </Link>
-            {' '}
-            (via{' '}
-            <Link href="/StationsDirectory" className="font-semibold text-white/90 no-underline hover:underline">
-              Stations Directory
-            </Link>
-            ).
           </p>
         </div>
       </section>
 
-      {/* Accreditation notice */}
-      <section className="border-b border-yellow-200 bg-yellow-50 py-3">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-3">
-            <span className="text-xl leading-none text-yellow-600" aria-hidden>
-              &#9888;&#65039;
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs leading-relaxed text-yellow-700">
-                <strong className="font-bold text-yellow-800">Accredited listings only.</strong>{' '}
-                Only fully accredited PSRAS police station representatives, duty solicitors and
-                solicitors are listed. Every profile is reviewed by an admin before publication.{' '}
-                {DIRECTORY_LISTING_TRUST_SENTENCE} Probationary representatives, trainees and
-                unaccredited applicants are <strong>not</strong> eligible.{' '}
-                <Link
-                  href="/AccreditedRepresentativeGuide"
-                  className="font-semibold text-yellow-800 no-underline hover:text-yellow-600"
-                >
-                  Accreditation requirements &rarr;
-                </Link>
-              </p>
+      {countyCards.length > 0 && (
+        <section
+          className="border-b border-[var(--border)] bg-white py-5"
+          aria-label="Browse by county"
+        >
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-sm font-bold text-[var(--navy)]">Browse by area</h2>
+              <Link
+                href="/directory/counties"
+                className="text-xs font-semibold text-[var(--gold-link)] no-underline hover:underline"
+              >
+                All counties →
+              </Link>
             </div>
+            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
+              {countyCards.map((c) => (
+                <li key={c.slug}>
+                  <Link
+                    href={`/directory/${c.slug}`}
+                    className="flex flex-col rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 no-underline transition-colors hover:border-[var(--gold)]/50 hover:bg-white"
+                  >
+                    <span className="truncate text-xs font-bold text-[var(--navy)]">{c.name}</span>
+                    <span className="mt-0.5 text-[10px] text-[var(--muted)]">
+                      {c.listedRepCount} listed
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Main content */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <DirectoryComplianceNotice className="mb-6" />
-
-        <LegalDirectoryPromo className="mb-6" />
-
-        <FeaturedListingAdvert className="mb-4" />
-        <FeaturedListingFaq className="mb-6" />
-
-        {/* Custody Note — promoted product */}
-        <aside className="mb-6 flex flex-col items-stretch gap-3 rounded-xl border border-[var(--gold)]/25 bg-gradient-to-r from-[var(--navy)] to-[#152e6e] px-5 py-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
-            <AdvertisementLabel variant="dark" label="Featured product" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold text-white">
-                {CUSTODYNOTE_BRAND_NAME} — {CUSTODYNOTE_APPS_LINE}
-              </p>
-              <p className="mt-0.5 text-xs text-white/70">
-                {CUSTODYNOTE_FREE_LABEL} &middot; {CUSTODYNOTE_BETA_REASON}
-              </p>
-            </div>
-          </div>
-          <a
-            href={CUSTODYNOTE_TRIAL_HREF}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-gold shrink-0 self-start !px-4 !py-2 !text-xs no-underline sm:self-auto"
-          >
-            {CUSTODYNOTE_DOWNLOAD_APPS_CTA}
-          </a>
-        </aside>
-
-        <PsrTrainPromo variant="slim" campaign="directory" className="mb-6" />
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <DirectoryComplianceNotice className="mb-5" />
 
         <Suspense fallback={<ResultsGridSkeleton />}>
-          <DirectorySearch
-            reps={reps}
-            counties={counties}
-            stations={stations}
-          />
+          <DirectorySearch reps={reps} counties={counties} stations={stations} />
         </Suspense>
+
+        <div className="mt-8 space-y-4">
+          <JoinCTA variant="inline" totalReps={reps.length} />
+          <FeaturedListingAdvert />
+        </div>
 
         <p className="mt-8 text-xs text-[var(--muted)]">
           Listings are based on information provided at registration. Availability and station

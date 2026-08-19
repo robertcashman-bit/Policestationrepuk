@@ -1,98 +1,96 @@
 import Link from 'next/link';
+import type { Representative } from '@/lib/types';
+import { HomeHeroSearch } from '@/components/HomeHeroSearch';
+import {
+  HomeDirectoryPreview,
+  type CountyEntry,
+} from '@/components/HomeDirectoryPreview';
 
-const HERO_QUICK_LINKS = [
-  { href: '/police-station-representative', label: 'What Is a Rep?' },
-  { href: '/helpusstationnumbers', label: 'Report a number' },
-  { href: '/FormsLibrary', label: 'Forms Library' },
-  { href: '/Wiki', label: 'Rep Wiki' },
-  { href: '/Resources', label: 'Resources' },
-  { href: '/PrepareForCIT', label: 'PSRAS prep' },
-] as const;
+interface HomeHeroProps {
+  listedRepCount: number;
+  countyNames: string[];
+  topCounties: CountyEntry[];
+  previewReps: Representative[];
+}
 
-export function HomeHero({ listedRepCount }: { listedRepCount: number }) {
+export function HomeHero({
+  listedRepCount,
+  countyNames,
+  topCounties,
+  previewReps,
+}: HomeHeroProps) {
   const trustLabel =
     listedRepCount > 0
-      ? `Trusted by ${listedRepCount} listed professionals · Free since 2016`
+      ? `${listedRepCount} listed reps · Free directory since 2016`
       : 'Free UK directory since 2016';
 
   return (
     <section
       className="hero-gradient-source relative overflow-hidden"
-      style={{ paddingTop: 'var(--hero-pad-y)', paddingBottom: 'var(--hero-pad-y)' }}
+      style={{ paddingTop: 'clamp(1.5rem, 3vw, 2.5rem)', paddingBottom: 'clamp(1.75rem, 4vw, 3rem)' }}
     >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)',
+          backgroundSize: '22px 22px',
+        }}
+        aria-hidden
+      />
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <div className="mb-5 inline-flex max-w-full flex-wrap items-center justify-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[#1e3a8a]/80 px-3 py-2 text-xs font-semibold text-white/90 sm:px-4 sm:text-sm">
-            <span className="text-balance">{trustLabel}</span>
-          </div>
-
-          <h1 className="text-h1 text-white">
-            Find a <span className="text-[var(--gold)]">Police Station Representative</span>{' '}
-            — UK Directory
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--gold)]">
+            PoliceStationRepUK
+          </p>
+          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-[2.75rem] lg:leading-tight">
+            Police station rep directory
           </h1>
-
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-white/90 sm:text-xl">
-            The UK&apos;s free directory connecting{' '}
-            <strong className="text-white">criminal defence firms</strong> with{' '}
-            <strong className="text-white">accredited police station reps</strong> — plus{' '}
-            <strong className="text-white">police station telephone numbers</strong> for custody
-            suites across England &amp; Wales. Free to search, 24/7.
+          <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
+            Free UK directory of accredited representatives for criminal defence firms.
+            Search by name, county, or station — instruct the rep directly.
           </p>
-
-          <div className="mt-6 flex flex-wrap justify-center gap-2">
-            {['Free to search', 'Reps & station numbers', 'No middleman fees'].map((label) => (
-              <span
-                key={label}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-[#1e3a8a]/60 px-4 py-2 text-sm font-medium text-white"
-              >
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
-                  <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                {label}
-              </span>
-            ))}
-          </div>
-
-          <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
-            <Link
-              href="/directory"
-              className="flex min-h-[52px] items-center justify-center rounded-xl bg-[var(--gold)] px-8 py-3 text-base font-extrabold text-[var(--navy)] shadow-lg no-underline transition-all hover:bg-[var(--gold-hover)] hover:shadow-xl sm:min-w-[200px]"
-            >
-              Find a Representative
-            </Link>
-            <Link
-              href="/find-station"
-              className="flex min-h-[52px] items-center justify-center rounded-xl border-2 border-[var(--gold)] bg-[var(--gold)]/10 px-8 py-3 text-base font-extrabold text-white no-underline transition-all hover:bg-[var(--gold)]/20 sm:min-w-[200px]"
-            >
-              Station phone numbers
-            </Link>
-          </div>
-
-          <p className="mt-4 text-sm text-white/75">
-            <Link href="/register" className="font-semibold text-white no-underline hover:text-[var(--gold)]">
-              Join the directory (free)
-            </Link>
-            {' · '}
-            <Link href="/UpdateStation" className="font-semibold text-white no-underline hover:text-[var(--gold)]">
-              Report an updated number
-            </Link>
-          </p>
-
-          <div className="mt-6 flex flex-wrap justify-center gap-4 text-sm">
-            {HERO_QUICK_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className="inline-flex items-center gap-1 text-white/80 no-underline transition-colors hover:text-[var(--gold)]"
-              >
-                {label}
-                <span aria-hidden className="text-xs">→</span>
-              </Link>
-            ))}
-          </div>
+          <p className="mt-2 text-xs font-semibold text-white/65">{trustLabel}</p>
         </div>
+
+        <HomeHeroSearch counties={countyNames} />
+
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+          <Link
+            href="/directory"
+            className="font-semibold text-white no-underline hover:text-[var(--gold)]"
+          >
+            Browse all reps
+          </Link>
+          <span className="text-white/30" aria-hidden>
+            ·
+          </span>
+          <Link
+            href="/find-station"
+            className="font-semibold text-white/80 no-underline hover:text-[var(--gold)]"
+          >
+            Station phone numbers
+          </Link>
+          <span className="text-white/30" aria-hidden>
+            ·
+          </span>
+          <Link
+            href="/register"
+            className="font-semibold text-white/80 no-underline hover:text-[var(--gold)]"
+          >
+            Join free
+          </Link>
+        </div>
+
+        <HomeDirectoryPreview
+          counties={topCounties}
+          previewReps={previewReps}
+          totalReps={listedRepCount}
+        />
       </div>
     </section>
   );
 }
+
+/** Re-export for callers that build county entries. */
+export type { CountyEntry };

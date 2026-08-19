@@ -6,6 +6,8 @@ import type { Representative } from '@/lib/types';
 import { phoneToTelHref } from '@/lib/phone';
 import { withSisterSiteUtm } from '@/lib/partner-website-href';
 import { RepTrustBadges } from '@/components/RepTrustBadges';
+import { formatPersonDisplayName } from '@/lib/display-name';
+import { initialsFromName } from '@/lib/display-name-initials';
 
 function getAvailabilityBadge(raw: string): { label: string; color: string; live?: boolean } {
   const lower = raw.toLowerCase().trim();
@@ -48,6 +50,8 @@ export interface DirectoryCardProps {
 
 export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardProps) {
   const [quickOpen, setQuickOpen] = useState(false);
+  const displayName = formatPersonDisplayName(rep.name);
+  const initials = initialsFromName(displayName);
   const avail = getAvailabilityBadge(rep.availability || '');
   const phoneHref = rep.phone ? phoneToTelHref(rep.phone) : null;
   const excerpt = (rep.bio || rep.notes || '').trim();
@@ -78,11 +82,11 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
         className="group flex items-start gap-3 rounded-lg border border-slate-100 bg-slate-50/50 p-3 no-underline transition-all hover:border-[var(--gold)]/40 hover:bg-white hover:shadow-sm"
       >
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--navy)] text-xs font-bold text-white">
-          {(rep.name || '?')[0]}
+          {initials}
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-[var(--navy)] group-hover:text-[var(--gold-link)]">
-            {rep.name}
+            {displayName}
           </p>
           <p className="mt-0.5 truncate text-xs text-slate-500">{rep.county || 'England & Wales'}</p>
           <span className={`mt-1 inline-flex rounded-full border px-2 py-0.5 text-[10px] font-bold ${avail.color}`}>
@@ -120,6 +124,34 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
       )}
 
       <div className="flex flex-1 flex-col p-5 pt-6 sm:p-6">
+        {/* Identity row: avatar + name */}
+        <div className="mb-3 flex items-start gap-3">
+          <div
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--navy)] text-sm font-extrabold text-white ring-2 ring-[var(--gold)]/35"
+            aria-hidden
+          >
+            {initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-xl font-bold tracking-tight text-[var(--navy)] sm:text-[1.35rem]">
+              {displayName}
+            </h3>
+            <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-sm text-[var(--muted)]">
+              <span className="font-medium text-slate-700">
+                {rep.county?.trim() || 'Coverage on profile'}
+              </span>
+              {rep.yearsExperience != null && rep.yearsExperience > 0 && (
+                <>
+                  <span className="text-slate-300" aria-hidden>
+                    &middot;
+                  </span>
+                  <span>{rep.yearsExperience}+ yrs experience</span>
+                </>
+              )}
+            </p>
+          </div>
+        </div>
+
         {/* Badges row */}
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <span
@@ -139,26 +171,6 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
             </span>
           )}
         </div>
-
-        {/* Name */}
-        <h3 className="text-xl font-bold tracking-tight text-[var(--navy)] sm:text-[1.35rem]">{rep.name}</h3>
-
-        {/* County + experience */}
-        <p className="mt-1.5 flex flex-wrap items-center gap-x-2 text-sm text-[var(--muted)]">
-          <span className="font-medium text-slate-700">{rep.county?.trim() || 'Coverage on profile'}</span>
-          {rep.yearsExperience != null && rep.yearsExperience > 0 && (
-            <>
-              <span className="text-slate-300" aria-hidden>&middot;</span>
-              <span>{rep.yearsExperience}+ yrs experience</span>
-            </>
-          )}
-          {phoneHref && (
-            <>
-              <span className="text-slate-300" aria-hidden>&middot;</span>
-              <span className="text-emerald-700">Fast response</span>
-            </>
-          )}
-        </p>
 
         {/* Trust badges */}
         <div className="mt-3">
@@ -290,7 +302,7 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
               href={`/rep/${rep.slug}`}
               className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white py-2.5 text-sm font-semibold text-[var(--navy)] no-underline transition-colors hover:border-[var(--gold)]/40 hover:bg-slate-50"
             >
-              Profile
+              Instruct
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>

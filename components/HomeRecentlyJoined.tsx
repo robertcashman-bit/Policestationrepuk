@@ -1,27 +1,31 @@
 import Link from 'next/link';
 import type { Representative } from '@/lib/types';
+import { formatPersonDisplayName } from '@/lib/display-name';
 
 export function HomeRecentlyJoined({ reps }: { reps: Representative[] }) {
   const recent = reps.slice(-10).reverse();
   const useMarquee = recent.length >= 4;
 
-  const card = (rep: Representative, i: number, ariaHidden: boolean) => (
-    <Link
-      key={`${rep.slug}-${i}-${ariaHidden ? 'dup' : 'main'}`}
-      href={`/rep/${rep.slug}`}
-      className="flex w-[min(100%,16rem)] shrink-0 items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-4 shadow-[var(--card-shadow)] no-underline transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)] sm:w-60"
-      aria-hidden={ariaHidden || undefined}
-      tabIndex={ariaHidden ? -1 : undefined}
-    >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--navy)] text-sm font-bold text-white">
-        {rep.name.charAt(0)}
-      </div>
-      <div className="min-w-0">
-        <p className="truncate text-sm font-semibold text-[var(--navy)]">{rep.name}</p>
-        <p className="truncate text-xs text-[var(--muted)]">{rep.county}</p>
-      </div>
-    </Link>
-  );
+  const card = (rep: Representative, i: number, ariaHidden: boolean) => {
+    const displayName = formatPersonDisplayName(rep.name);
+    return (
+      <Link
+        key={`${rep.slug}-${i}-${ariaHidden ? 'dup' : 'main'}`}
+        href={`/rep/${rep.slug}`}
+        className={`flex w-[min(100%,16rem)] shrink-0 items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-white p-4 shadow-[var(--card-shadow)] no-underline transition-all hover:border-[var(--gold)]/40 hover:shadow-[var(--card-shadow-hover)] sm:w-60${ariaHidden ? ' home-recent-marquee-dup' : ''}`}
+        aria-hidden={ariaHidden || undefined}
+        tabIndex={ariaHidden ? -1 : undefined}
+      >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--navy)] text-sm font-bold text-white">
+          {displayName.charAt(0)}
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold text-[var(--navy)]">{displayName}</p>
+          <p className="truncate text-xs text-[var(--muted)]">{rep.county}</p>
+        </div>
+      </Link>
+    );
+  };
 
   return (
     <section className="section-pad group bg-[var(--background)]" aria-label="Recently joined feed">

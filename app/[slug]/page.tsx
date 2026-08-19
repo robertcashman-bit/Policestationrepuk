@@ -52,6 +52,7 @@ const DEDICATED_ROUTES = new Set([
   'CustodyNote', 'custodynote',
   'DataProtection', 'dataprotection',
   'FAQ', 'faq',
+  'FindYourRep', 'findyourrep',
   'Firms', 'firms',
   'Forces', 'forces',
   'FormsLibrary', 'formslibrary',

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
+import { DIRECTORY_LISTING_TRUST_SENTENCE } from '@/lib/directory-trust-copy';
 
 export const metadata = buildMetadata({
   title: 'Terms & Conditions — PoliceStationRepUK Directory Usage',
@@ -126,8 +127,9 @@ export default function TermsPage() {
               Important &mdash; Please Read:
             </p>
             <p className="mb-3 text-sm leading-relaxed text-[var(--muted)]">
-              We confirm information provided by representatives at the point of registration, such
-              as contact details and stated accreditation. We do not independently audit:
+              {DIRECTORY_LISTING_TRUST_SENTENCE} We confirm information provided by representatives
+              at the point of registration, such as contact details and stated accreditation. We do
+              not independently audit:
             </p>
             <ul className="mb-4 space-y-1.5 text-sm text-[var(--muted)]">
               <li className="flex gap-2">

@@ -2,6 +2,12 @@ import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { buildMetadata } from '@/lib/seo';
 import { POLICESTATIONAGENT_HOME_HREF } from '@/lib/policestationagent-promo';
+import { getAllReps, getAllStations } from '@/lib/data';
+import { getStationPhonePublicStats } from '@/lib/station-phone-stats-server';
+import {
+  DIRECTORY_LISTING_TRUST_SENTENCE,
+  directoryYearsOperating,
+} from '@/lib/directory-trust-copy';
 
 export const metadata = buildMetadata({
   title: "About PoliceStationRepUK — Free Rep Directory Since 2016",
@@ -9,6 +15,8 @@ export const metadata = buildMetadata({
     "PoliceStationRepUK connects criminal defence firms with accredited police station representatives across England & Wales. Free to join and search — 100% independent directory since 2016.",
   path: '/About',
 });
+
+export const dynamic = 'force-dynamic';
 
 const TIMELINE = [
   {
@@ -27,9 +35,9 @@ const TIMELINE = [
     desc: 'Introduction of WhatsApp integration, real-time job notifications, and enhanced search capabilities. The platform evolved from a simple directory to a comprehensive legal networking solution.',
   },
   {
-    year: '2024',
-    milestone: 'Leading the Industry',
-    desc: "Today we serve hundreds of legal professionals daily, providing 24/7 access to the UK's most comprehensive network of accredited police station representatives and criminal solicitors.",
+    year: '2024–2026',
+    milestone: 'Live directory at scale',
+    desc: "A decade on, the directory continues to list accredited representatives and station contacts across England & Wales — free to search, free to join, and independent of any single firm.",
   },
 ];
 
@@ -58,14 +66,28 @@ const EXPLORE_LINKS = [
   { href: '/Forces', label: 'Police Forces', desc: 'Browse stations by force' },
 ];
 
-const STATS = [
-  { value: '500+', label: 'Active Members' },
-  { value: '24/7', label: 'Always Available' },
-  { value: '8+', label: 'Years Operating' },
-  { value: '100%', label: 'Free Service' },
-];
+export default async function AboutPage() {
+  const [reps, stations, phoneStats] = await Promise.all([
+    getAllReps(),
+    getAllStations(),
+    getStationPhonePublicStats(),
+  ]);
+  const yearsOperating = directoryYearsOperating();
+  const hasLiveCounts = reps.length > 0 && stations.length > 0;
+  const stats = hasLiveCounts
+    ? [
+        { value: String(reps.length), label: 'Listed Representatives' },
+        { value: String(stations.length), label: 'Stations Listed' },
+        { value: String(phoneStats.directLine), label: 'With a Direct Line' },
+        { value: `${yearsOperating}`, label: 'Years Operating' },
+      ]
+    : [
+        { value: '24/7', label: 'Always Available' },
+        { value: `${yearsOperating}`, label: 'Years Operating' },
+        { value: '100%', label: 'Free Service' },
+        { value: 'E&W', label: 'England & Wales' },
+      ];
 
-export default function AboutPage() {
   return (
     <>
       {/* Navy header */}
@@ -89,7 +111,7 @@ export default function AboutPage() {
       <div className="page-container">
         {/* Stats */}
         <div className="mb-14 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {STATS.map((stat) => (
+        {stats.map((stat) => (
           <div
             key={stat.label}
             className="rounded-[var(--radius)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 text-center shadow-[var(--card-shadow)]"
@@ -177,11 +199,9 @@ export default function AboutPage() {
         <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
           <p className="text-sm font-semibold text-amber-900">Important</p>
           <p className="mt-1 text-xs leading-relaxed text-amber-800">
-            PoliceStationRepUK does not supervise legal case conduct, guarantee the quality of any
-            representative, or become a party to the arrangement between a firm and a rep.
-            Firms remain responsible for their own instruction, supervision, insurance checks where
-            required, and regulatory compliance. Representatives are independently responsible for
-            their accreditation and professional obligations.
+            {DIRECTORY_LISTING_TRUST_SENTENCE} Firms remain responsible for their own instruction,
+            supervision, insurance checks where required, and regulatory compliance. Representatives
+            are independently responsible for their accreditation and professional obligations.
           </p>
         </div>
       </section>

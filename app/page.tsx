@@ -90,7 +90,7 @@ export default async function HomePage() {
     ...c,
     listedRepCount: reps.filter((r) => repMatchesAnyCounty(r, c.name)).length,
   }));
-  const previewReps = selectHomepagePreviewReps(reps, featuredReps, 6);
+  const previewReps = selectHomepagePreviewReps(reps, featuredReps, 3);
   const stationCount = stations.length || phoneStats.total;
   const hasLiveDirectoryCounts = reps.length > 0 && stationCount > 0;
 
@@ -103,7 +103,7 @@ export default async function HomePage() {
       <HomeHero
         listedRepCount={reps.length}
         countyNames={counties.map((c) => c.name)}
-        topCounties={topCounties.slice(0, 8)}
+        topCounties={topCounties.slice(0, 6)}
         previewReps={previewReps}
       />
 

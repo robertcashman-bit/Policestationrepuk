@@ -146,8 +146,11 @@ export async function runSendHealthChecks(): Promise<RepoCheckResult[]> {
       detail: `count=${health.campaigns.length}`,
     },
     {
+      // PSA agent-cover is permanently disabled; only RepUK must be able to send.
       name: 'send_health_both_campaigns_can_send',
-      ok: health.campaigns.every((c) => c.canSend),
+      ok: health.campaigns
+        .filter((c) => c.campaignId === FIRM_OUTREACH_CAMPAIGN_ID)
+        .every((c) => c.canSend),
       detail: health.campaigns
         .map((c) => `${c.campaignId}:${c.canSend ? 'ok' : c.blockers.join(',')}`)
         .join('; '),

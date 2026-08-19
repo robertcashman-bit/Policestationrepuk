@@ -325,25 +325,29 @@ export async function detectAutohealFaults(now = new Date()): Promise<{
   }
 
   // Asymmetric: one workspace healthy with capacity, other failed with eligible.
-  const psaFailed =
-    capacities.psa.eligibleUnsent > 0 &&
-    capacities.psa.effectiveAvailableCapacity === 0 &&
-    capacities.psa.limitingFactor !== 'no_eligible_leads' &&
-    capacities.psa.limitingFactor !== 'provider_daily_limit' &&
-    capacities.psa.limitingFactor !== 'configured_daily_limit';
-  const repukFailed =
-    capacities.repuk.eligibleUnsent > 0 &&
-    capacities.repuk.effectiveAvailableCapacity === 0 &&
-    capacities.repuk.limitingFactor !== 'no_eligible_leads' &&
-    capacities.repuk.limitingFactor !== 'provider_daily_limit' &&
-    capacities.repuk.limitingFactor !== 'configured_daily_limit';
-  if (psaFailed !== repukFailed) {
-    faults.push({
-      code: 'workspace_asymmetric_failure',
-      workspace: 'both',
-      severity: 'recoverable',
-      detail: `Asymmetric workspace health: PSA limiting=${capacities.psa.limitingFactor}, RepUK limiting=${capacities.repuk.limitingFactor}.`,
-    });
+  // PSA agent-cover is permanently off — do not compare it to RepUK (its
+  // sending_disabled / eligibleUnsent inventory would always look like a failure).
+  if (!isAgentCoverOutreachDisabled()) {
+    const psaFailed =
+      capacities.psa.eligibleUnsent > 0 &&
+      capacities.psa.effectiveAvailableCapacity === 0 &&
+      capacities.psa.limitingFactor !== 'no_eligible_leads' &&
+      capacities.psa.limitingFactor !== 'provider_daily_limit' &&
+      capacities.psa.limitingFactor !== 'configured_daily_limit';
+    const repukFailed =
+      capacities.repuk.eligibleUnsent > 0 &&
+      capacities.repuk.effectiveAvailableCapacity === 0 &&
+      capacities.repuk.limitingFactor !== 'no_eligible_leads' &&
+      capacities.repuk.limitingFactor !== 'provider_daily_limit' &&
+      capacities.repuk.limitingFactor !== 'configured_daily_limit';
+    if (psaFailed !== repukFailed) {
+      faults.push({
+        code: 'workspace_asymmetric_failure',
+        workspace: 'both',
+        severity: 'recoverable',
+        detail: `Asymmetric workspace health: PSA limiting=${capacities.psa.limitingFactor}, RepUK limiting=${capacities.repuk.limitingFactor}.`,
+      });
+    }
   }
 
   if (!sendHealth.resendConfigured) {

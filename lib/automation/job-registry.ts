@@ -1,27 +1,27 @@
-import { getKV } from '@/lib/kv';
+import { getKV } from "@/lib/kv";
 import {
   getAutomationConfig,
   getDeploymentId,
   getRuntimeEnvironment,
-} from './config';
+} from "./config";
 import type {
   AutomationHealthStatus,
   AutomationJobDefinition,
   AutomationJobState,
   ErrorCategory,
-} from './types';
+} from "./types";
 
-const JOB_PREFIX = 'automation:job:';
-const JOB_INDEX_KEY = 'automation:job-index';
+const JOB_PREFIX = "automation:job:";
+const JOB_INDEX_KEY = "automation:job-index";
 
 /** Built-in job definitions for Buffer automation on this site. */
 export const AUTOMATION_JOB_DEFINITIONS: AutomationJobDefinition[] = [
   {
-    name: 'buffer-blog-posts',
-    jobType: 'buffer_schedule',
-    description: 'Daily Buffer scheduler for REPUK blog posts',
+    name: "buffer-blog-posts",
+    jobType: "buffer_schedule",
+    description: "Daily Buffer scheduler for REPUK blog posts",
     enabled: true,
-    expectedSchedule: '20 5 * * *',
+    expectedSchedule: "20 5 * * *",
     expectedExecutionsPerDay: 1,
     expectedDailyQuota: 5,
     allowedWindowStartHourUtc: 5,
@@ -30,24 +30,25 @@ export const AUTOMATION_JOB_DEFINITIONS: AutomationJobDefinition[] = [
     maxToleratedDelayMinutes: 45,
   },
   {
-    name: 'buffer-verify',
-    jobType: 'buffer_verify',
-    description: 'Verify today schedule and gap-fill under-quota days',
+    name: "buffer-verify",
+    jobType: "buffer_verify",
+    description: "Verify today schedule and gap-fill under-quota days",
     enabled: true,
-    expectedSchedule: '10 6 * * *',
+    expectedSchedule: "10 6 * * *",
     expectedExecutionsPerDay: 1,
     expectedDailyQuota: 5,
     allowedWindowStartHourUtc: 6,
-    allowedWindowEndHourUtc: 8,
+    // End at 7 so the 07:15 UTC daily healthcheck (hourUtc === 7) can flag a miss.
+    allowedWindowEndHourUtc: 7,
     maxRetries: 2,
     maxToleratedDelayMinutes: 45,
   },
   {
-    name: 'buffer-daily-report',
-    jobType: 'buffer_report',
-    description: 'Verify yesterday Buffer posts reached sent status',
+    name: "buffer-daily-report",
+    jobType: "buffer_report",
+    description: "Verify yesterday Buffer posts reached sent status",
     enabled: true,
-    expectedSchedule: '30 4 * * *',
+    expectedSchedule: "30 4 * * *",
     expectedExecutionsPerDay: 1,
     allowedWindowStartHourUtc: 4,
     allowedWindowEndHourUtc: 7,
@@ -55,11 +56,12 @@ export const AUTOMATION_JOB_DEFINITIONS: AutomationJobDefinition[] = [
     maxToleratedDelayMinutes: 60,
   },
   {
-    name: 'buffer-cross-site-report',
-    jobType: 'buffer_report',
-    description: 'Cross-site quota verification (on-demand / healthcheck repair — not cron-scheduled)',
+    name: "buffer-cross-site-report",
+    jobType: "buffer_report",
+    description:
+      "Cross-site quota verification (on-demand / healthcheck repair — not cron-scheduled)",
     enabled: false,
-    expectedSchedule: '45 4 * * *',
+    expectedSchedule: "45 4 * * *",
     expectedExecutionsPerDay: 0,
     expectedDailyQuota: 20,
     allowedWindowStartHourUtc: 4,
@@ -68,11 +70,12 @@ export const AUTOMATION_JOB_DEFINITIONS: AutomationJobDefinition[] = [
     maxToleratedDelayMinutes: 60,
   },
   {
-    name: 'buffer-sibling-repair',
-    jobType: 'buffer_verify',
-    description: 'Remote-trigger sibling Buffer schedulers / REPUK custodynote fallback',
+    name: "buffer-sibling-repair",
+    jobType: "buffer_verify",
+    description:
+      "Remote-trigger sibling Buffer schedulers / REPUK custodynote fallback",
     enabled: true,
-    expectedSchedule: '50 6 * * *',
+    expectedSchedule: "50 6 * * *",
     expectedExecutionsPerDay: 1,
     expectedDailyQuota: 20,
     allowedWindowStartHourUtc: 6,
@@ -81,11 +84,11 @@ export const AUTOMATION_JOB_DEFINITIONS: AutomationJobDefinition[] = [
     maxToleratedDelayMinutes: 45,
   },
   {
-    name: 'buffer-selftest',
-    jobType: 'buffer_verify',
-    description: 'Buffer scheduler self-test (weekly)',
+    name: "buffer-selftest",
+    jobType: "buffer_verify",
+    description: "Buffer scheduler self-test (weekly)",
     enabled: true,
-    expectedSchedule: '0 6 * * 1',
+    expectedSchedule: "0 6 * * 1",
     expectedExecutionsPerDay: 1,
     allowedWindowStartHourUtc: 6,
     allowedWindowEndHourUtc: 8,
@@ -93,11 +96,11 @@ export const AUTOMATION_JOB_DEFINITIONS: AutomationJobDefinition[] = [
     maxToleratedDelayMinutes: 60,
   },
   {
-    name: 'automation-daily-healthcheck',
-    jobType: 'healthcheck',
-    description: 'Authoritative daily automation health-check and self-heal',
+    name: "automation-daily-healthcheck",
+    jobType: "healthcheck",
+    description: "Authoritative daily automation health-check and self-heal",
     enabled: true,
-    expectedSchedule: '15 7 * * *',
+    expectedSchedule: "15 7 * * *",
     expectedExecutionsPerDay: 1,
     allowedWindowStartHourUtc: 7,
     allowedWindowEndHourUtc: 9,
@@ -105,11 +108,12 @@ export const AUTOMATION_JOB_DEFINITIONS: AutomationJobDefinition[] = [
     maxToleratedDelayMinutes: 90,
   },
   {
-    name: 'automation-watchdog',
-    jobType: 'watchdog',
-    description: 'Lightweight overdue/stuck/auth watchdog (off morning Buffer stampede)',
+    name: "automation-watchdog",
+    jobType: "watchdog",
+    description:
+      "Lightweight overdue/stuck/auth watchdog (off morning Buffer stampede)",
     enabled: true,
-    expectedSchedule: '50 1,8,14,20 * * *',
+    expectedSchedule: "50 1,8,14,20 * * *",
     expectedExecutionsPerDay: 4,
     allowedWindowStartHourUtc: 0,
     allowedWindowEndHourUtc: 24,
@@ -131,7 +135,7 @@ function emptyState(def: AutomationJobDefinition): AutomationJobState {
     lastError: null,
     consecutiveFailureCount: 0,
     retryCount: 0,
-    healthStatus: 'unknown',
+    healthStatus: "unknown",
     lockOwner: null,
     lockExpiresAt: null,
     lastHealthCheckAt: null,
@@ -164,7 +168,9 @@ export async function ensureAllJobsRegistered(): Promise<AutomationJobState[]> {
   return out;
 }
 
-export async function getJobState(name: string): Promise<AutomationJobState | null> {
+export async function getJobState(
+  name: string,
+): Promise<AutomationJobState | null> {
   const kv = getKV();
   if (!kv) return null;
   return (await kv.get<AutomationJobState>(jobKey(name))) ?? null;
@@ -213,12 +219,12 @@ export async function recordJobAttempt(input: {
     state.consecutiveFailureCount = 0;
     state.retryCount = 0;
     state.lastError = null;
-    state.healthStatus = input.healthStatus ?? 'healthy';
+    state.healthStatus = input.healthStatus ?? "healthy";
   } else {
     state.lastFailureAt = now;
-    state.lastError = input.error ?? 'unknown error';
+    state.lastError = input.error ?? "unknown error";
     state.consecutiveFailureCount += 1;
-    state.healthStatus = input.healthStatus ?? 'failing';
+    state.healthStatus = input.healthStatus ?? "failing";
   }
   if (input.repairAction) state.lastRepairAction = input.repairAction;
   await saveJobState(state);
@@ -237,7 +243,9 @@ export async function markJobHealthChecked(
   await saveJobState(state);
 }
 
-export function getJobDefinition(name: string): AutomationJobDefinition | undefined {
+export function getJobDefinition(
+  name: string,
+): AutomationJobDefinition | undefined {
   return AUTOMATION_JOB_DEFINITIONS.find((j) => j.name === name);
 }
 

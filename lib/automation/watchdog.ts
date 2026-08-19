@@ -1,29 +1,38 @@
-import { getSchedulerTimezone } from '@/lib/buffer/config';
-import { localDateInTimezone } from '@/lib/buffer/scheduler-core';
-import { verifyRepukBufferSchedule } from '@/lib/buffer/engine-run';
-import { getCronRunLog } from '@/lib/cron-run-log';
+import { getSchedulerTimezone } from "@/lib/buffer/config";
+import { localDateInTimezone } from "@/lib/buffer/scheduler-core";
+import { verifyRepukBufferSchedule } from "@/lib/buffer/engine-run";
+import { getCronRunLog } from "@/lib/cron-run-log";
 import {
   evaluateBufferWindowExemption,
   inspectBufferScheduleSafe,
-} from './buffer-window-exemption';
-import { getAutomationConfig } from './config';
-import { probeBufferCredentials } from './buffer-probe';
-import { canPerformLiveSideEffects } from './env-guard';
+} from "./buffer-window-exemption";
+import { getAutomationConfig } from "./config";
+import { probeBufferCredentials } from "./buffer-probe";
+import { canPerformLiveSideEffects } from "./env-guard";
 import {
   completeExecution,
   createExecutionId,
   saveExecution,
   startExecution,
-} from './execution-log';
-import { cronOutcomeCountsAsSuccess } from './cron-success';
-import { getJobState, markJobHealthChecked, recordJobAttempt } from './job-registry';
-import { acquireJobLock, clearExpiredJobLock, getJobLock, releaseJobLock } from './lock';
-import { buildIncidentFingerprint, notifyIncident } from './notifications';
-import { logAutomationEvent } from './observability';
-import { isPastBufferOverdueGate } from './overdue-gate';
-import type { RepairAction, WatchdogResult } from './types';
+} from "./execution-log";
+import { cronOutcomeCountsAsSuccess } from "./cron-success";
+import {
+  getJobState,
+  markJobHealthChecked,
+  recordJobAttempt,
+} from "./job-registry";
+import {
+  acquireJobLock,
+  clearExpiredJobLock,
+  getJobLock,
+  releaseJobLock,
+} from "./lock";
+import { buildIncidentFingerprint, notifyIncident } from "./notifications";
+import { logAutomationEvent } from "./observability";
+import { isPastBufferOverdueGate } from "./overdue-gate";
+import type { RepairAction, WatchdogResult } from "./types";
 
-const CRITICAL_JOBS = ['buffer-blog-posts', 'buffer-verify'] as const;
+const CRITICAL_JOBS = ["buffer-blog-posts", "buffer-verify"] as const;
 
 export interface WatchdogOptions {
   dryRun?: boolean;
@@ -53,12 +62,12 @@ export async function runAutomationWatchdog(
       authFailure: false,
       repairs: [],
       alertsSent: 0,
-      notes: ['Watchdog disabled'],
+      notes: ["Watchdog disabled"],
     };
   }
 
   if (!options.skipLock) {
-    const lock = await acquireJobLock('automation-watchdog', executionId);
+    const lock = await acquireJobLock("automation-watchdog", executionId);
     if (!lock) {
       return {
         ok: true,
@@ -69,19 +78,19 @@ export async function runAutomationWatchdog(
         authFailure: false,
         repairs: [],
         alertsSent: 0,
-        notes: ['Skipped — lock held'],
+        notes: ["Skipped — lock held"],
       };
     }
   }
 
   const execution = startExecution({
-    jobName: 'automation-watchdog',
-    triggerSource: 'watchdog',
+    jobName: "automation-watchdog",
+    triggerSource: "watchdog",
     dryRun,
     executionId,
   });
   await saveExecution(execution);
-  logAutomationEvent('automation.watchdog.started', { executionId, dryRun });
+  logAutomationEvent("automation.watchdog.started", { executionId, dryRun });
 
   const overdueJobs: string[] = [];
   const stuckJobs: string[] = [];
@@ -94,8 +103,8 @@ export async function runAutomationWatchdog(
     // Stuck / expired locks
     for (const jobName of [
       ...CRITICAL_JOBS,
-      'automation-daily-healthcheck',
-      'buffer-daily-report',
+      "automation-daily-healthcheck",
+      "buffer-daily-report",
     ]) {
       const lock = await getJobLock(jobName);
       if (!lock) continue;
@@ -105,7 +114,7 @@ export async function runAutomationWatchdog(
           const cleared = await clearExpiredJobLock(jobName);
           repairs.push({
             id: `clear-lock-${jobName}`,
-            kind: 'clear_expired_lock',
+            kind: "clear_expired_lock",
             target: jobName,
             attempted: cleared,
             verified: cleared,
@@ -117,7 +126,7 @@ export async function runAutomationWatchdog(
         } else {
           repairs.push({
             id: `clear-lock-${jobName}`,
-            kind: 'clear_expired_lock',
+            kind: "clear_expired_lock",
             target: jobName,
             attempted: false,
             verified: false,
@@ -138,19 +147,20 @@ export async function runAutomationWatchdog(
     const probe = await probeBufferCredentials();
     authFailure = probe.issues.some(
       (i) =>
-        (i.category === 'auth' || i.category === 'config') && i.requiresHumanAction,
+        (i.category === "auth" || i.category === "config") &&
+        i.requiresHumanAction,
     );
-    if (probe.issues.some((i) => i.category === 'rate_limit')) {
-      notes.push('Buffer credential probe rate-limited — treated as transient');
+    if (probe.issues.some((i) => i.category === "rate_limit")) {
+      notes.push("Buffer credential probe rate-limited — treated as transient");
     }
     if (authFailure) {
       const critical = probe.issues.find((i) => i.requiresHumanAction);
       if (critical) {
         const result = await notifyIncident({
           fingerprint: critical.fingerprint,
-          notificationType: 'buffer_auth',
-          jobName: 'buffer-blog-posts',
-          severity: 'critical',
+          notificationType: "buffer_auth",
+          jobName: "buffer-blog-posts",
+          severity: "critical",
           summary: critical.summary,
           details: critical.details,
           category: critical.category,
@@ -158,61 +168,99 @@ export async function runAutomationWatchdog(
           dryRun,
         });
         if (result.sent) alertsSent += 1;
-        logAutomationEvent('buffer.auth.failed', { summary: critical.summary });
+        logAutomationEvent("buffer.auth.failed", { summary: critical.summary });
       }
     }
 
     // Overdue buffer-blog-posts only after today's schedule + grace (scheduler TZ).
     // Do not use UTC hour alone — that false-alerts after London midnight before 05:05 UTC.
     if (isPastBufferOverdueGate(now)) {
-      const state = await getJobState('buffer-blog-posts');
+      const state = await getJobState("buffer-blog-posts");
       const timezone = getSchedulerTimezone();
       const today = localDateInTimezone(now, timezone);
-      const cronLog = await getCronRunLog('buffer-blog-posts');
+      const cronLog = await getCronRunLog("buffer-blog-posts");
       const successToday =
         (state?.lastSuccessfulAt &&
-          localDateInTimezone(new Date(state.lastSuccessfulAt), timezone) === today) ||
+          localDateInTimezone(new Date(state.lastSuccessfulAt), timezone) ===
+            today) ||
         (cronLog &&
           cronOutcomeCountsAsSuccess(cronLog.outcome) &&
-          localDateInTimezone(new Date(cronLog.finishedAt), timezone) === today);
+          localDateInTimezone(new Date(cronLog.finishedAt), timezone) ===
+            today);
 
       if (!successToday) {
         // Prefer Buffer truth over missing cron logs (e.g. mid-day deploy after morning run).
         const inspect = await inspectBufferScheduleSafe({ now });
-        const exemption = evaluateBufferWindowExemption('buffer-blog-posts', inspect);
+        const exemption = evaluateBufferWindowExemption(
+          "buffer-blog-posts",
+          inspect,
+        );
 
-        if (exemption.suppress) {
-          const detail =
-            exemption.reason === 'buffer_inspect_transient'
-              ? `Buffer quota inspect transient (${exemption.errorMessage}) — not overdue`
-              : exemption.reason === 'buffer_quota_met'
-                ? `buffer-blog-posts cron log missing but Buffer quota already met (${exemption.scheduledCount}/${exemption.requiredCount}) — not overdue`
-                : `buffer-blog-posts cron log missing but Buffer already has ${exemption.scheduledCount}/${exemption.requiredCount ?? '?'} posts — not treating as missed window`;
-          notes.push(detail);
+        if (exemption.suppress && exemption.reason === "buffer_quota_met") {
+          notes.push(
+            `buffer-blog-posts cron log missing but Buffer quota already met (${exemption.scheduledCount}/${exemption.requiredCount}) — not overdue`,
+          );
+          // Only stamp success when quota is actually met — otherwise later
+          // same-day watchdogs would skip under-quota recovery.
           await recordJobAttempt({
-            name: 'buffer-blog-posts',
+            name: "buffer-blog-posts",
             ok: true,
-            repairAction:
-              exemption.reason === 'buffer_inspect_transient'
-                ? 'buffer_inspect_transient'
-                : exemption.reason === 'buffer_quota_met'
-                  ? 'buffer_quota_met_without_cron_log'
-                  : 'buffer_posts_exist_without_cron_log',
+            repairAction: "buffer_quota_met_without_cron_log",
           });
-          logAutomationEvent('automation.job.missed', {
-            jobName: 'buffer-blog-posts',
+          logAutomationEvent("automation.job.missed", {
+            jobName: "buffer-blog-posts",
+            suppressed: true,
+            reason: exemption.reason,
+          });
+        } else if (
+          exemption.suppress &&
+          exemption.reason === "buffer_inspect_transient"
+        ) {
+          notes.push(
+            `Buffer quota inspect transient (${exemption.errorMessage}) — not overdue`,
+          );
+          // Do not recordJobAttempt(ok) — leave lastSuccessfulAt unset so 14:50/20:50 can heal.
+          logAutomationEvent("automation.job.missed", {
+            jobName: "buffer-blog-posts",
             suppressed: true,
             reason: exemption.reason,
           });
         } else {
-          overdueJobs.push('buffer-blog-posts');
-          logAutomationEvent('automation.job.missed', { jobName: 'buffer-blog-posts' });
+          // True miss, or under-quota with posts already present (heal without paging as missed).
+          const underQuotaPartial =
+            exemption.suppress &&
+            exemption.reason === "buffer_posts_already_exist";
 
-          if (!dryRun && config.autoRepairEnabled && canPerformLiveSideEffects() && !authFailure) {
-            const verify = await verifyRepukBufferSchedule({ now, gapFill: true });
+          if (underQuotaPartial) {
+            notes.push(
+              `buffer-blog-posts cron log missing but Buffer already has ${exemption.scheduledCount}/${exemption.requiredCount ?? "?"} posts — gap-filling under-quota without missed-window page`,
+            );
+            logAutomationEvent("automation.job.missed", {
+              jobName: "buffer-blog-posts",
+              suppressed: true,
+              reason: exemption.reason,
+              gapFill: true,
+            });
+          } else {
+            overdueJobs.push("buffer-blog-posts");
+            logAutomationEvent("automation.job.missed", {
+              jobName: "buffer-blog-posts",
+            });
+          }
+
+          if (
+            !dryRun &&
+            config.autoRepairEnabled &&
+            canPerformLiveSideEffects() &&
+            !authFailure
+          ) {
+            const verify = await verifyRepukBufferSchedule({
+              now,
+              gapFill: true,
+            });
             repairs.push({
-              id: 'watchdog-gap-fill',
-              kind: 'buffer_gap_fill',
+              id: "watchdog-gap-fill",
+              kind: "buffer_gap_fill",
               target: today,
               attempted: true,
               verified: verify.ok,
@@ -223,59 +271,72 @@ export async function runAutomationWatchdog(
             });
             if (verify.ok) {
               await recordJobAttempt({
-                name: 'buffer-blog-posts',
+                name: "buffer-blog-posts",
                 ok: true,
-                repairAction: 'watchdog_gap_fill',
+                repairAction: "watchdog_gap_fill",
               });
             }
-            logAutomationEvent('automation.job.recovered', {
-              jobName: 'buffer-blog-posts',
+            logAutomationEvent("automation.job.recovered", {
+              jobName: "buffer-blog-posts",
               ok: verify.ok,
             });
           } else {
             repairs.push({
-              id: 'watchdog-gap-fill',
-              kind: 'buffer_gap_fill',
-              target: 'buffer-blog-posts',
+              id: "watchdog-gap-fill",
+              kind: "buffer_gap_fill",
+              target: "buffer-blog-posts",
               attempted: false,
               verified: false,
               dryRun: true,
-              summary: 'Would gap-fill missed buffer-blog-posts',
+              summary: underQuotaPartial
+                ? "Would gap-fill under-quota buffer-blog-posts"
+                : "Would gap-fill missed buffer-blog-posts",
             });
           }
 
-          const inspectOk = inspect.kind === 'ok' ? inspect.result : null;
-          const inspectError =
-            inspect.kind === 'transient' || inspect.kind === 'error' ? inspect.message : null;
-          const result = await notifyIncident({
-            fingerprint: buildIncidentFingerprint({
-              jobName: 'buffer-blog-posts',
-              category: 'scheduler',
-              scheduledDate: localDateInTimezone(now, getSchedulerTimezone()),
-            }),
-            notificationType: 'job_overdue',
-            jobName: 'buffer-blog-posts',
-            severity: 'error',
-            summary: 'Critical job buffer-blog-posts appears overdue',
-            details: inspectOk
-              ? `Buffer quota ${inspectOk.scheduledCount}/${inspectOk.requiredCount}`
-              : inspectError
-                ? `Could not inspect Buffer quota: ${inspectError}`
-                : 'Could not inspect Buffer quota',
-            executionId,
-            dryRun,
-          });
-          if (result.sent) alertsSent += 1;
-          if (result.suppressed) notes.push('overdue alert suppressed (dedup)');
+          if (!underQuotaPartial) {
+            const inspectOk = inspect.kind === "ok" ? inspect.result : null;
+            const inspectError =
+              inspect.kind === "transient" || inspect.kind === "error"
+                ? inspect.message
+                : null;
+            const result = await notifyIncident({
+              fingerprint: buildIncidentFingerprint({
+                jobName: "buffer-blog-posts",
+                category: "scheduler",
+                scheduledDate: localDateInTimezone(now, getSchedulerTimezone()),
+              }),
+              notificationType: "job_overdue",
+              jobName: "buffer-blog-posts",
+              severity: "error",
+              summary: "Critical job buffer-blog-posts appears overdue",
+              details: inspectOk
+                ? `Buffer quota ${inspectOk.scheduledCount}/${inspectOk.requiredCount}`
+                : inspectError
+                  ? `Could not inspect Buffer quota: ${inspectError}`
+                  : "Could not inspect Buffer quota",
+              executionId,
+              dryRun,
+            });
+            if (result.sent) alertsSent += 1;
+            if (result.suppressed)
+              notes.push("overdue alert suppressed (dedup)");
+          }
         }
       }
     } else {
-      notes.push('buffer-blog-posts overdue check skipped — before schedule+grace in scheduler TZ');
+      notes.push(
+        "buffer-blog-posts overdue check skipped — before schedule+grace in scheduler TZ",
+      );
     }
 
     const ok = overdueJobs.length === 0 && !authFailure;
     await completeExecution(execution, {
-      status: ok ? 'successful' : authFailure ? 'requires_human_action' : 'partially_successful',
+      status: ok
+        ? "successful"
+        : authFailure
+          ? "requires_human_action"
+          : "partially_successful",
       counts: {
         recordsRepaired: repairs.filter((r) => r.verified).length,
       },
@@ -283,12 +344,12 @@ export async function runAutomationWatchdog(
       notes,
     });
     await markJobHealthChecked(
-      'automation-watchdog',
-      ok ? 'healthy' : 'degraded',
+      "automation-watchdog",
+      ok ? "healthy" : "degraded",
       repairs[0]?.summary ?? null,
     );
 
-    logAutomationEvent('automation.watchdog.completed', {
+    logAutomationEvent("automation.watchdog.completed", {
       executionId,
       ok,
       overdueJobs,
@@ -310,13 +371,13 @@ export async function runAutomationWatchdog(
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     await completeExecution(execution, {
-      status: 'failed',
+      status: "failed",
       errorMessage: message,
     });
     throw err;
   } finally {
     if (!options.skipLock) {
-      await releaseJobLock('automation-watchdog', executionId);
+      await releaseJobLock("automation-watchdog", executionId);
     }
   }
 }

@@ -1,81 +1,81 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from "vitest";
 import {
   isPastBufferOverdueGate,
   parseDailyUtcCron,
   scheduledRunUtcForLocalDate,
-} from '@/lib/automation/overdue-gate';
-import { localDateInTimezone } from '@/lib/buffer/scheduler-core';
+} from "@/lib/automation/overdue-gate";
+import { localDateInTimezone } from "@/lib/buffer/scheduler-core";
 
 const JOB = {
-  expectedSchedule: '20 5 * * *',
+  expectedSchedule: "20 5 * * *",
   maxToleratedDelayMinutes: 45,
 } as const;
 
-describe('buffer overdue gate', () => {
-  it('parses daily UTC cron schedules', () => {
-    expect(parseDailyUtcCron('20 5 * * *')).toEqual({ minute: 20, hourUtc: 5 });
-    expect(parseDailyUtcCron('10 6 * * *')).toEqual({ minute: 10, hourUtc: 6 });
-    expect(parseDailyUtcCron('bad')).toBeNull();
+describe("buffer overdue gate", () => {
+  it("parses daily UTC cron schedules", () => {
+    expect(parseDailyUtcCron("20 5 * * *")).toEqual({ minute: 20, hourUtc: 5 });
+    expect(parseDailyUtcCron("10 6 * * *")).toEqual({ minute: 10, hourUtc: 6 });
+    expect(parseDailyUtcCron("bad")).toBeNull();
   });
 
-  it('maps local date to UTC cron instant', () => {
-    expect(scheduledRunUtcForLocalDate('2026-07-21', 5, 5).toISOString()).toBe(
-      '2026-07-21T05:05:00.000Z',
+  it("maps local date to UTC cron instant", () => {
+    expect(scheduledRunUtcForLocalDate("2026-07-21", 5, 5).toISOString()).toBe(
+      "2026-07-21T05:05:00.000Z",
     );
   });
 
-  it('keeps gate closed at London midnight watchdog (false-positive fixture)', () => {
+  it("keeps gate closed at London midnight watchdog (false-positive fixture)", () => {
     // 2026-07-20 23:20 UTC = 00:20 BST Jul 21 — alert that fired overnight
-    const now = new Date('2026-07-20T23:20:00.000Z');
-    expect(localDateInTimezone(now, 'Europe/London')).toBe('2026-07-21');
+    const now = new Date("2026-07-20T23:20:00.000Z");
+    expect(localDateInTimezone(now, "Europe/London")).toBe("2026-07-21");
     expect(
-      isPastBufferOverdueGate(now, { timezone: 'Europe/London', job: JOB }),
+      isPastBufferOverdueGate(now, { timezone: "Europe/London", job: JOB }),
     ).toBe(false);
   });
 
-  it('opens gate after schedule + grace (05:20 UTC + 45m = 06:05 UTC)', () => {
+  it("opens gate after schedule + grace (05:20 UTC + 45m = 06:05 UTC)", () => {
     expect(
-      isPastBufferOverdueGate(new Date('2026-07-21T06:04:00.000Z'), {
-        timezone: 'Europe/London',
+      isPastBufferOverdueGate(new Date("2026-07-21T06:04:00.000Z"), {
+        timezone: "Europe/London",
         job: JOB,
       }),
     ).toBe(false);
     expect(
-      isPastBufferOverdueGate(new Date('2026-07-21T06:05:00.000Z'), {
-        timezone: 'Europe/London',
-        job: JOB,
-      }),
-    ).toBe(true);
-  });
-
-  it('is open at 07:00 UTC mid-morning when quota would be checked', () => {
-    expect(
-      isPastBufferOverdueGate(new Date('2026-07-21T07:00:00.000Z'), {
-        timezone: 'Europe/London',
+      isPastBufferOverdueGate(new Date("2026-07-21T06:05:00.000Z"), {
+        timezone: "Europe/London",
         job: JOB,
       }),
     ).toBe(true);
   });
 
-  it('stays closed through winter morning before grace', () => {
-    const before = new Date('2026-01-15T05:45:00.000Z');
-    expect(localDateInTimezone(before, 'Europe/London')).toBe('2026-01-15');
+  it("is open at 07:00 UTC mid-morning when quota would be checked", () => {
     expect(
-      isPastBufferOverdueGate(before, { timezone: 'Europe/London', job: JOB }),
+      isPastBufferOverdueGate(new Date("2026-07-21T07:00:00.000Z"), {
+        timezone: "Europe/London",
+        job: JOB,
+      }),
+    ).toBe(true);
+  });
+
+  it("stays closed through winter morning before grace", () => {
+    const before = new Date("2026-01-15T05:45:00.000Z");
+    expect(localDateInTimezone(before, "Europe/London")).toBe("2026-01-15");
+    expect(
+      isPastBufferOverdueGate(before, { timezone: "Europe/London", job: JOB }),
     ).toBe(false);
     expect(
-      isPastBufferOverdueGate(new Date('2026-01-15T06:05:00.000Z'), {
-        timezone: 'Europe/London',
+      isPastBufferOverdueGate(new Date("2026-01-15T06:05:00.000Z"), {
+        timezone: "Europe/London",
         job: JOB,
       }),
     ).toBe(true);
   });
 });
 
-describe('watchdog uses overdue gate for overnight skip', () => {
-  it('does not mark buffer-blog-posts overdue before schedule+grace', async () => {
+describe("watchdog uses overdue gate for overnight skip", () => {
+  it("does not mark buffer-blog-posts overdue before schedule+grace", async () => {
     vi.resetModules();
-    vi.doMock('@/lib/automation/config', () => ({
+    vi.doMock("@/lib/automation/config", () => ({
       getAutomationConfig: () => ({
         enabled: true,
         watchdogEnabled: true,
@@ -84,65 +84,67 @@ describe('watchdog uses overdue gate for overnight skip', () => {
         stuckJobTimeoutMinutes: 120,
       }),
     }));
-    vi.doMock('@/lib/automation/env-guard', () => ({
+    vi.doMock("@/lib/automation/env-guard", () => ({
       canPerformLiveSideEffects: () => false,
     }));
-    vi.doMock('@/lib/automation/buffer-probe', () => ({
+    vi.doMock("@/lib/automation/buffer-probe", () => ({
       probeBufferCredentials: async () => ({ issues: [] }),
     }));
-    vi.doMock('@/lib/automation/lock', () => ({
+    vi.doMock("@/lib/automation/lock", () => ({
       acquireJobLock: async () => true,
       releaseJobLock: async () => {},
       getJobLock: async () => null,
       clearExpiredJobLock: async () => false,
     }));
-    vi.doMock('@/lib/automation/execution-log', () => ({
-      createExecutionId: () => 'test-exec',
-      startExecution: () => ({ id: 'test-exec' }),
+    vi.doMock("@/lib/automation/execution-log", () => ({
+      createExecutionId: () => "test-exec",
+      startExecution: () => ({ id: "test-exec" }),
       saveExecution: async () => {},
       completeExecution: async () => {},
     }));
-    vi.doMock('@/lib/automation/job-registry', () => ({
+    vi.doMock("@/lib/automation/job-registry", () => ({
       getJobState: async () => null,
       markJobHealthChecked: async () => {},
       recordJobAttempt: async () => ({}),
       getJobDefinition: () => JOB,
     }));
-    vi.doMock('@/lib/cron-run-log', () => ({
+    vi.doMock("@/lib/cron-run-log", () => ({
       getCronRunLog: async () => null,
     }));
-    vi.doMock('@/lib/buffer/engine-run', () => ({
+    vi.doMock("@/lib/buffer/engine-run", () => ({
       verifyRepukBufferSchedule: async () => ({
         ok: false,
         scheduledCount: 1,
         requiredCount: 5,
       }),
     }));
-    vi.doMock('@/lib/automation/notifications', () => ({
-      buildIncidentFingerprint: () => 'fp',
+    vi.doMock("@/lib/automation/notifications", () => ({
+      buildIncidentFingerprint: () => "fp",
       notifyIncident: async () => ({ sent: false, suppressed: false }),
     }));
-    vi.doMock('@/lib/automation/observability', () => ({
+    vi.doMock("@/lib/automation/observability", () => ({
       logAutomationEvent: () => {},
     }));
-    vi.doMock('@/lib/buffer/config', () => ({
-      getSchedulerTimezone: () => 'Europe/London',
+    vi.doMock("@/lib/buffer/config", () => ({
+      getSchedulerTimezone: () => "Europe/London",
     }));
 
-    const { runAutomationWatchdog } = await import('@/lib/automation/watchdog');
+    const { runAutomationWatchdog } = await import("@/lib/automation/watchdog");
     const result = await runAutomationWatchdog({
       dryRun: true,
       skipLock: true,
-      now: new Date('2026-07-20T23:20:00.000Z'),
+      now: new Date("2026-07-20T23:20:00.000Z"),
     });
 
     expect(result.overdueJobs).toEqual([]);
-    expect(result.notes.some((n) => n.includes('before schedule+grace'))).toBe(true);
+    expect(result.notes.some((n) => n.includes("before schedule+grace"))).toBe(
+      true,
+    );
   });
 
-  it('suppresses overdue when past gate but Buffer quota already met', async () => {
+  it("suppresses overdue when past gate but Buffer quota already met", async () => {
     vi.resetModules();
-    vi.doMock('@/lib/automation/config', () => ({
+    vi.doMock("@/lib/automation/config", () => ({
       getAutomationConfig: () => ({
         enabled: true,
         watchdogEnabled: true,
@@ -151,65 +153,75 @@ describe('watchdog uses overdue gate for overnight skip', () => {
         stuckJobTimeoutMinutes: 120,
       }),
     }));
-    vi.doMock('@/lib/automation/env-guard', () => ({
+    vi.doMock("@/lib/automation/env-guard", () => ({
       canPerformLiveSideEffects: () => false,
     }));
-    vi.doMock('@/lib/automation/buffer-probe', () => ({
+    vi.doMock("@/lib/automation/buffer-probe", () => ({
       probeBufferCredentials: async () => ({ issues: [] }),
     }));
-    vi.doMock('@/lib/automation/lock', () => ({
+    vi.doMock("@/lib/automation/lock", () => ({
       acquireJobLock: async () => true,
       releaseJobLock: async () => {},
       getJobLock: async () => null,
       clearExpiredJobLock: async () => false,
     }));
-    vi.doMock('@/lib/automation/execution-log', () => ({
-      createExecutionId: () => 'test-exec-quota',
-      startExecution: () => ({ id: 'test-exec-quota' }),
+    vi.doMock("@/lib/automation/execution-log", () => ({
+      createExecutionId: () => "test-exec-quota",
+      startExecution: () => ({ id: "test-exec-quota" }),
       saveExecution: async () => {},
       completeExecution: async () => {},
     }));
-    vi.doMock('@/lib/automation/job-registry', () => ({
+    const recordJobAttempt = vi.fn(async () => ({}));
+    vi.doMock("@/lib/automation/job-registry", () => ({
       getJobState: async () => null,
       markJobHealthChecked: async () => {},
-      recordJobAttempt: async () => ({}),
+      recordJobAttempt,
       getJobDefinition: () => JOB,
     }));
-    vi.doMock('@/lib/cron-run-log', () => ({
+    vi.doMock("@/lib/cron-run-log", () => ({
       getCronRunLog: async () => null,
     }));
-    vi.doMock('@/lib/buffer/engine-run', () => ({
+    vi.doMock("@/lib/buffer/engine-run", () => ({
       verifyRepukBufferSchedule: async () => ({
         ok: true,
         scheduledCount: 5,
         requiredCount: 5,
       }),
     }));
-    vi.doMock('@/lib/automation/notifications', () => ({
-      buildIncidentFingerprint: () => 'fp',
+    vi.doMock("@/lib/automation/notifications", () => ({
+      buildIncidentFingerprint: () => "fp",
       notifyIncident: async () => ({ sent: false, suppressed: false }),
     }));
-    vi.doMock('@/lib/automation/observability', () => ({
+    vi.doMock("@/lib/automation/observability", () => ({
       logAutomationEvent: () => {},
     }));
-    vi.doMock('@/lib/buffer/config', () => ({
-      getSchedulerTimezone: () => 'Europe/London',
+    vi.doMock("@/lib/buffer/config", () => ({
+      getSchedulerTimezone: () => "Europe/London",
     }));
 
-    const { runAutomationWatchdog } = await import('@/lib/automation/watchdog');
+    const { runAutomationWatchdog } = await import("@/lib/automation/watchdog");
     const result = await runAutomationWatchdog({
       dryRun: true,
       skipLock: true,
-      now: new Date('2026-07-21T07:00:00.000Z'),
+      now: new Date("2026-07-21T07:00:00.000Z"),
     });
 
     expect(result.overdueJobs).toEqual([]);
-    expect(result.notes.some((n) => n.includes('quota already met'))).toBe(true);
+    expect(result.notes.some((n) => n.includes("quota already met"))).toBe(
+      true,
+    );
+    expect(recordJobAttempt).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "buffer-blog-posts",
+        ok: true,
+        repairAction: "buffer_quota_met_without_cron_log",
+      }),
+    );
   });
 
-  it('treats quota inspect 429 as transient — not critical overdue', async () => {
+  it("treats quota inspect 429 as transient — not critical overdue", async () => {
     vi.resetModules();
-    vi.doMock('@/lib/automation/config', () => ({
+    vi.doMock("@/lib/automation/config", () => ({
       getAutomationConfig: () => ({
         enabled: true,
         watchdogEnabled: true,
@@ -218,59 +230,142 @@ describe('watchdog uses overdue gate for overnight skip', () => {
         stuckJobTimeoutMinutes: 120,
       }),
     }));
-    vi.doMock('@/lib/automation/env-guard', () => ({
+    vi.doMock("@/lib/automation/env-guard", () => ({
       canPerformLiveSideEffects: () => false,
     }));
-    vi.doMock('@/lib/automation/buffer-probe', () => ({
+    vi.doMock("@/lib/automation/buffer-probe", () => ({
       probeBufferCredentials: async () => ({ issues: [] }),
     }));
-    vi.doMock('@/lib/automation/lock', () => ({
+    vi.doMock("@/lib/automation/lock", () => ({
       acquireJobLock: async () => true,
       releaseJobLock: async () => {},
       getJobLock: async () => null,
       clearExpiredJobLock: async () => false,
     }));
-    vi.doMock('@/lib/automation/execution-log', () => ({
-      createExecutionId: () => 'test-exec-429',
-      startExecution: () => ({ id: 'test-exec-429' }),
+    vi.doMock("@/lib/automation/execution-log", () => ({
+      createExecutionId: () => "test-exec-429",
+      startExecution: () => ({ id: "test-exec-429" }),
       saveExecution: async () => {},
       completeExecution: async () => {},
     }));
-    vi.doMock('@/lib/automation/job-registry', () => ({
+    const recordJobAttempt = vi.fn(async () => ({}));
+    vi.doMock("@/lib/automation/job-registry", () => ({
       getJobState: async () => null,
       markJobHealthChecked: async () => {},
-      recordJobAttempt: async () => ({}),
+      recordJobAttempt,
       getJobDefinition: () => JOB,
     }));
-    vi.doMock('@/lib/cron-run-log', () => ({
+    vi.doMock("@/lib/cron-run-log", () => ({
       getCronRunLog: async () => null,
     }));
-    vi.doMock('@/lib/buffer/engine-run', () => ({
+    vi.doMock("@/lib/buffer/engine-run", () => ({
       verifyRepukBufferSchedule: async () => {
-        throw new Error('Too many requests from this client.');
+        throw new Error("Too many requests from this client.");
       },
     }));
-    const notifyIncident = vi.fn(async () => ({ sent: false, suppressed: false }));
-    vi.doMock('@/lib/automation/notifications', () => ({
-      buildIncidentFingerprint: () => 'fp',
+    const notifyIncident = vi.fn(async () => ({
+      sent: false,
+      suppressed: false,
+    }));
+    vi.doMock("@/lib/automation/notifications", () => ({
+      buildIncidentFingerprint: () => "fp",
       notifyIncident,
     }));
-    vi.doMock('@/lib/automation/observability', () => ({
+    vi.doMock("@/lib/automation/observability", () => ({
       logAutomationEvent: () => {},
     }));
-    vi.doMock('@/lib/buffer/config', () => ({
-      getSchedulerTimezone: () => 'Europe/London',
+    vi.doMock("@/lib/buffer/config", () => ({
+      getSchedulerTimezone: () => "Europe/London",
     }));
 
-    const { runAutomationWatchdog } = await import('@/lib/automation/watchdog');
+    const { runAutomationWatchdog } = await import("@/lib/automation/watchdog");
     const result = await runAutomationWatchdog({
       dryRun: true,
       skipLock: true,
-      now: new Date('2026-07-21T07:00:00.000Z'),
+      now: new Date("2026-07-21T07:00:00.000Z"),
     });
 
     expect(result.overdueJobs).toEqual([]);
-    expect(result.notes.some((n) => n.includes('transient'))).toBe(true);
+    expect(result.notes.some((n) => n.includes("transient"))).toBe(true);
     expect(notifyIncident).not.toHaveBeenCalled();
+    // Must not stamp lastSuccessfulAt or afternoon recovery is blocked.
+    expect(recordJobAttempt).not.toHaveBeenCalled();
+  });
+
+  it("gap-fills under-quota without paging missed window or stamping success", async () => {
+    vi.resetModules();
+    vi.doMock("@/lib/automation/config", () => ({
+      getAutomationConfig: () => ({
+        enabled: true,
+        watchdogEnabled: true,
+        dryRun: true,
+        autoRepairEnabled: true,
+        stuckJobTimeoutMinutes: 120,
+      }),
+    }));
+    vi.doMock("@/lib/automation/env-guard", () => ({
+      canPerformLiveSideEffects: () => false,
+    }));
+    vi.doMock("@/lib/automation/buffer-probe", () => ({
+      probeBufferCredentials: async () => ({ issues: [] }),
+    }));
+    vi.doMock("@/lib/automation/lock", () => ({
+      acquireJobLock: async () => true,
+      releaseJobLock: async () => {},
+      getJobLock: async () => null,
+      clearExpiredJobLock: async () => false,
+    }));
+    vi.doMock("@/lib/automation/execution-log", () => ({
+      createExecutionId: () => "test-exec-partial",
+      startExecution: () => ({ id: "test-exec-partial" }),
+      saveExecution: async () => {},
+      completeExecution: async () => {},
+    }));
+    const recordJobAttempt = vi.fn(async () => ({}));
+    vi.doMock("@/lib/automation/job-registry", () => ({
+      getJobState: async () => null,
+      markJobHealthChecked: async () => {},
+      recordJobAttempt,
+      getJobDefinition: () => JOB,
+    }));
+    vi.doMock("@/lib/cron-run-log", () => ({
+      getCronRunLog: async () => null,
+    }));
+    vi.doMock("@/lib/buffer/engine-run", () => ({
+      verifyRepukBufferSchedule: async () => ({
+        ok: false,
+        scheduledCount: 2,
+        requiredCount: 5,
+      }),
+    }));
+    const notifyIncident = vi.fn(async () => ({
+      sent: false,
+      suppressed: false,
+    }));
+    vi.doMock("@/lib/automation/notifications", () => ({
+      buildIncidentFingerprint: () => "fp",
+      notifyIncident,
+    }));
+    vi.doMock("@/lib/automation/observability", () => ({
+      logAutomationEvent: () => {},
+    }));
+    vi.doMock("@/lib/buffer/config", () => ({
+      getSchedulerTimezone: () => "Europe/London",
+    }));
+
+    const { runAutomationWatchdog } = await import("@/lib/automation/watchdog");
+    const result = await runAutomationWatchdog({
+      dryRun: true,
+      skipLock: true,
+      now: new Date("2026-07-21T08:50:00.000Z"),
+    });
+
+    expect(result.overdueJobs).toEqual([]);
+    expect(notifyIncident).not.toHaveBeenCalled();
+    expect(recordJobAttempt).not.toHaveBeenCalled();
+    expect(result.repairs.some((r) => r.kind === "buffer_gap_fill")).toBe(true);
+    expect(
+      result.notes.some((n) => n.includes("gap-filling under-quota")),
+    ).toBe(true);
   });
 });

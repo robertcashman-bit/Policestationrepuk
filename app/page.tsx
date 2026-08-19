@@ -42,7 +42,7 @@ import { selectHomepagePreviewReps } from '@/lib/home-directory-preview';
 import { getStationPhonePublicStats } from '@/lib/station-phone-stats-server';
 import { SITE_NAME, SITE_URL, socialPreviewImageUrl } from '@/lib/seo-layer/config';
 import { UK_POLICE_FORCES_COUNT } from '@/lib/uk-police-forces';
-import { repMatchesCountyName } from '@/lib/county-matching';
+import { repMatchesAnyCounty } from '@/lib/county-matching';
 
 export const metadata: Metadata = {
   title: 'Find a Police Station Rep — UK Representative Directory',
@@ -88,7 +88,7 @@ export default async function HomePage() {
   const topCountiesBase = selectTopCountiesForHomepage(counties, reps, 12);
   const topCounties = topCountiesBase.map((c) => ({
     ...c,
-    listedRepCount: reps.filter((r) => repMatchesCountyName(r.county, c.name)).length,
+    listedRepCount: reps.filter((r) => repMatchesAnyCounty(r, c.name)).length,
   }));
   const previewReps = selectHomepagePreviewReps(reps, featuredReps, 6);
   const stationCount = stations.length || phoneStats.total;

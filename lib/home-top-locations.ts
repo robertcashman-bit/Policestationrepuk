@@ -1,5 +1,5 @@
 import type { County, Representative } from '@/lib/types';
-import { repMatchesCountyName } from '@/lib/county-matching';
+import { repMatchesAnyCounty } from '@/lib/county-matching';
 
 const FALLBACK_COUNTY_SLUGS = [
   'kent',
@@ -24,7 +24,7 @@ export function selectTopCountiesForHomepage(
 ): County[] {
   const scored = counties.map((c) => ({
     c,
-    n: reps.filter((r) => repMatchesCountyName(r.county, c.name)).length,
+    n: reps.filter((r) => repMatchesAnyCounty(r, c.name)).length,
   }));
   scored.sort((a, b) => b.n - a.n);
   const withReps = scored.filter((x) => x.n > 0).map((x) => x.c);

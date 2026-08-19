@@ -13,7 +13,7 @@ import { ResultsGridSkeleton } from '@/components/directory/ResultsGrid';
 import { JoinCTA } from '@/components/directory/JoinCTA';
 import { FeaturedListingAdvert } from '@/components/FeaturedListingAdvert';
 import { DIRECTORY_LISTING_TRUST_SENTENCE } from '@/lib/directory-trust-copy';
-import { repMatchesCountyName } from '@/lib/county-matching';
+import { repMatchesAnyCounty } from '@/lib/county-matching';
 
 const directoryTitle = 'Police Station Rep Directory — County & Station';
 const directoryDescription =
@@ -61,7 +61,7 @@ export default async function DirectoryPage() {
   const countyCards = counties
     .map((c) => ({
       ...c,
-      listedRepCount: reps.filter((r) => repMatchesCountyName(r.county, c.name)).length,
+      listedRepCount: reps.filter((r) => repMatchesAnyCounty(r, c.name)).length,
     }))
     .filter((c) => c.listedRepCount > 0)
     .sort((a, b) => b.listedRepCount - a.listedRepCount)

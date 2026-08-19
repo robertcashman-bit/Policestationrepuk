@@ -13,11 +13,14 @@ export function RepTrustBadges({
   rep,
   variant = 'card',
   directoryVerified = false,
+  hideFeatured = false,
 }: {
   rep: Representative;
   variant?: Variant;
   /** Passed strict admin verification gate (see lib/rep-public-trust.ts). */
   directoryVerified?: boolean;
+  /** When the parent already shows a Featured pill (avoids stacked badges). */
+  hideFeatured?: boolean;
 }) {
   const full = isFullProfileListing(rep);
   const contactReady = Boolean(rep.phone?.trim() && rep.email?.trim());
@@ -38,7 +41,7 @@ export function RepTrustBadges({
           Admin-verified listing
         </span>
       )}
-      {rep.featured && (
+      {rep.featured && !hideFeatured && (
         <span
           className={`${base} border-amber-300/60 bg-amber-50 text-amber-900`}
           title="Promoted directory placement"

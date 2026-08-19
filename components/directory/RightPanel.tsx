@@ -26,7 +26,6 @@ export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
 
   return (
     <div className="space-y-4">
-      {/* Trust banner */}
       <div className="rounded-xl border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/50 p-4 shadow-sm">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--navy)]/10">
@@ -43,15 +42,6 @@ export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
         </div>
       </div>
 
-      <CustodyNoteInlineCTA variant="compact" />
-
-      <StationNumbersPromo variant="sidebar" />
-
-      <SidebarKentAgentPromo />
-
-      <SidebarWhatsAppPromo />
-
-      {/* Featured spotlight */}
       {topFeatured.length > 0 && (
         <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
           <AdvertisementLabel label="Featured listings (paid placement)" className="mb-2" />
@@ -72,10 +62,6 @@ export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
         </div>
       )}
 
-      {/* Join CTA */}
-      <JoinCTA variant="sidebar" totalReps={totalReps} />
-
-      {/* Quick navigation */}
       <div className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm">
         <h3 className="mb-3 text-sm font-bold text-[var(--navy)]">Explore</h3>
         <div className="grid grid-cols-2 gap-2">
@@ -91,6 +77,13 @@ export function RightPanel({ featuredReps, totalReps }: RightPanelProps) {
           ))}
         </div>
       </div>
+
+      <StationNumbersPromo variant="sidebar" />
+      <JoinCTA variant="sidebar" totalReps={totalReps} />
+
+      <CustodyNoteInlineCTA variant="compact" />
+      <SidebarKentAgentPromo />
+      <SidebarWhatsAppPromo />
     </div>
   );
 }

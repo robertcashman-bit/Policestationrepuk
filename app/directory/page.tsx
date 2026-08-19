@@ -9,9 +9,10 @@ import { SisterToolsSlimBar } from '@/components/SisterToolsSlimBar';
 import { SITE_NAME, SITE_URL, socialPreviewImageUrl } from '@/lib/seo-layer/config';
 import { JsonLd } from '@/components/JsonLd';
 import { breadcrumbSchema, directoryItemListSchema } from '@/lib/seo';
-import { ResultsGridSkeleton } from '@/components/directory/ResultsGrid';
+import { DirectorySeededResults } from '@/components/directory/DirectorySeededResults';
 import { JoinCTA } from '@/components/directory/JoinCTA';
 import { FeaturedListingAdvert } from '@/components/FeaturedListingAdvert';
+import { FeaturedListingFaq } from '@/components/FeaturedListingFaq';
 import { DIRECTORY_LISTING_TRUST_SENTENCE } from '@/lib/directory-trust-copy';
 import { repMatchesAnyCounty } from '@/lib/county-matching';
 
@@ -88,20 +89,19 @@ export default async function DirectoryPage() {
             backgroundSize: '24px 24px',
           }}
         />
-        <div className="relative mx-auto max-w-7xl px-4 pb-6 pt-6 sm:px-6 sm:pb-8 sm:pt-8 lg:px-8">
+        <div className="relative mx-auto max-w-7xl px-4 pb-5 pt-5 sm:px-6 sm:pb-6 sm:pt-6 lg:px-8">
           <Breadcrumbs
             light
             className="!mb-0"
             items={[{ label: 'Home', href: '/' }, { label: 'Directory' }]}
           />
-          <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
+          <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
             <div className="min-w-0 max-w-2xl">
-              <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl">
+              <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
                 Police station rep directory
               </h1>
-              <p className="mt-2 text-sm leading-relaxed text-slate-300 sm:text-base">
-                Search accredited representatives by name, county, force, or station. Contact details
-                are on each profile — instruct the rep directly.
+              <p className="mt-1.5 text-sm leading-relaxed text-slate-300">
+                Search by name, county, force, or station — instruct the rep directly.
               </p>
             </div>
             <div className="flex flex-wrap gap-2 text-xs sm:text-sm">
@@ -116,28 +116,28 @@ export default async function DirectoryPage() {
               </span>
             </div>
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             <Link
               href="/Map"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white no-underline hover:bg-white/20 sm:text-sm"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white no-underline hover:bg-white/20"
             >
               Map
             </Link>
             <Link
               href="/Forces"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white no-underline hover:bg-white/20 sm:text-sm"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white no-underline hover:bg-white/20"
             >
               By force
             </Link>
             <Link
               href="/StationsDirectory"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white no-underline hover:bg-white/20 sm:text-sm"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white no-underline hover:bg-white/20"
             >
               Stations
             </Link>
             <Link
               href="/register"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gold)]/40 bg-[var(--gold)]/15 px-3 py-1.5 text-xs font-semibold text-[var(--gold)] no-underline hover:bg-[var(--gold)]/25 sm:text-sm"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gold)]/40 bg-[var(--gold)]/15 px-3 py-1.5 text-xs font-semibold text-[var(--gold)] no-underline hover:bg-[var(--gold)]/25"
             >
               Join free
             </Link>
@@ -147,27 +147,25 @@ export default async function DirectoryPage() {
 
       <SisterToolsSlimBar />
 
-      <section className="border-b border-yellow-200 bg-yellow-50 py-2.5">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="text-xs leading-relaxed text-yellow-800">
-            <strong className="font-bold">Accredited listings only.</strong> Profiles are reviewed
-            before publication. {DIRECTORY_LISTING_TRUST_SENTENCE}{' '}
-            <Link
-              href="/AccreditedRepresentativeGuide"
-              className="font-semibold text-yellow-900 no-underline hover:underline"
-            >
-              Requirements →
-            </Link>
-          </p>
-        </div>
-      </section>
-
-      {countyCards.length > 0 && (
-        <section
-          className="border-b border-[var(--border)] bg-white py-5"
-          aria-label="Browse by county"
+      <p className="border-b border-yellow-200 bg-yellow-50 px-4 py-2 text-center text-xs text-yellow-800 sm:px-6">
+        <strong className="font-bold">Accredited listings only.</strong>{' '}
+        {DIRECTORY_LISTING_TRUST_SENTENCE}{' '}
+        <Link
+          href="/AccreditedRepresentativeGuide"
+          className="font-semibold text-yellow-900 no-underline hover:underline"
         >
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          Requirements →
+        </Link>
+      </p>
+
+      {/* Search + filters + cards immediately — no upsell wall above */}
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+        <Suspense fallback={<DirectorySeededResults reps={reps} />}>
+          <DirectorySearch reps={reps} counties={counties} stations={stations} />
+        </Suspense>
+
+        {countyCards.length > 0 && (
+          <section className="mt-10 border-t border-[var(--border)] pt-8" aria-label="Browse by county">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="text-sm font-bold text-[var(--navy)]">Browse by area</h2>
               <Link
@@ -192,20 +190,15 @@ export default async function DirectoryPage() {
                 </li>
               ))}
             </ul>
-          </div>
-        </section>
-      )}
+          </section>
+        )}
 
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <DirectoryComplianceNotice className="mb-5" />
-
-        <Suspense fallback={<ResultsGridSkeleton />}>
-          <DirectorySearch reps={reps} counties={counties} stations={stations} />
-        </Suspense>
-
-        <div className="mt-8 space-y-4">
+        {/* Upsell / FAQ / compliance — below results only */}
+        <div className="mt-10 space-y-4 border-t border-[var(--border)] pt-8">
           <JoinCTA variant="inline" totalReps={reps.length} />
           <FeaturedListingAdvert />
+          <FeaturedListingFaq />
+          <DirectoryComplianceNotice />
         </div>
 
         <p className="mt-8 text-xs text-[var(--muted)]">

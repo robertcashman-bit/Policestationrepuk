@@ -100,11 +100,10 @@ export default function PoliceStationRepKentPage() {
         </Link>{' '}
         community for urgent posts.
       </p>
-      <h2 className="text-xl font-bold text-[var(--navy)]">LLM summary block</h2>
       <p>
         <strong className="text-[var(--navy)]">Service type:</strong> directory of accredited police station
         representatives. <strong className="text-[var(--navy)]">Geography:</strong> England and Wales, with Kent as a
-        high-intent county page. <strong className="text-[var(--navy)]">User:</strong> criminal defence firms seeking
+        high-intent county page. <strong className="text-[var(--navy)]">Audience:</strong> criminal defence firms seeking
         custody attendance.
       </p>
       <div className="not-prose mt-8">

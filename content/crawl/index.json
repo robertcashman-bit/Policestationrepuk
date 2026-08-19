@@ -1,7 +1,7 @@
 {
   "url": "https://policestationrepuk.com",
   "path": "/",
-  "title": "Home | PoliceStationRepUK — Find Accredited Police Station Reps",
+  "title": "Home | PoliceStationRepUK \u2014 Find Accredited Police Station Reps",
   "headings": [
     {
       "level": 1,
@@ -40,7 +40,7 @@
       "text": "Regulatory Notice"
     }
   ],
-  "content": "📈Trusted by 258+ ProfessionalsThe UK's Free Directory forPolice Station CoverConnecting criminal defence firms and solicitors with accredited police station representatives across England & Wales. 100% free — no fees to join, search, or use. Ever.✓ Free to Join✓ Free to Search✓ Free Resources🔍 Find a RepJoin the Directory (Free)✓ No subscriptions, no hidden costs — create your free profile in minutes📞Station Numbers📄Forms🌐ResourcesTrusted Nationwide CoverageReal-time access to the UK's largest network300+Reps500+Stations42Forces",
+  "content": "\ud83d\udcc8Trusted by 258+ ProfessionalsThe UK's Free Directory forPolice Station CoverConnecting criminal defence firms and solicitors with accredited police station representatives across England & Wales. 100% free \u2014 no fees to join, search, or use. Ever.\u2713 Free to Join\u2713 Free to Search\u2713 Free Resources\ud83d\udd0d Find a RepJoin the Directory (Free)\u2713 No subscriptions, no hidden costs \u2014 create your free profile in minutes\ud83d\udcdeStation Numbers\ud83d\udcc4Forms\ud83c\udf10ResourcesTrusted Nationwide CoverageReal-time access to the UK's largest network300+Reps500+Stations42Forces",
   "links": [
     {
       "href": "/Home",
@@ -52,11 +52,11 @@
     },
     {
       "href": "/CustodyNote",
-      "text": "🆕 Custody Note"
+      "text": "\ud83c\udd95 Custody Note"
     },
     {
       "href": "/Directory",
-      "text": "🔍 Find a Rep"
+      "text": "\ud83d\udd0d Find a Rep"
     },
     {
       "href": "/Register",
@@ -64,19 +64,19 @@
     },
     {
       "href": "/StationsDirectory",
-      "text": "📞Station Numbers"
+      "text": "\ud83d\udcdeStation Numbers"
     },
     {
       "href": "/FormsLibrary",
-      "text": "📄Forms"
+      "text": "\ud83d\udcc4Forms"
     },
     {
       "href": "/Resources",
-      "text": "🌐Resources"
+      "text": "\ud83c\udf10Resources"
     },
     {
       "href": "/Premium",
-      "text": "Browse Resources →"
+      "text": "Browse Resources \u2192"
     },
     {
       "href": "/Forces",

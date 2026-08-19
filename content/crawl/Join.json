@@ -1,7 +1,7 @@
 {
   "url": "https://www.policestationrepuk.com/join",
   "path": "/join",
-  "title": "Join | PoliceStationRepUK — Find Accredited Police Station Reps",
+  "title": "Join | PoliceStationRepUK \u2014 Find Accredited Police Station Reps",
   "headings": [
     {
       "level": 1,
@@ -48,7 +48,7 @@
     },
     {
       "href": "/CustodyNote",
-      "text": "🆕 Custody Note"
+      "text": "\ud83c\udd95 Custody Note"
     },
     {
       "href": "/whatsapp",
@@ -60,7 +60,7 @@
     },
     {
       "href": "/Premium",
-      "text": "Browse Resources →"
+      "text": "Browse Resources \u2192"
     },
     {
       "href": "/Directory",

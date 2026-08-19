@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import {
-  CUSTODYNOTE_DISCOUNT_CODE,
-  CUSTODYNOTE_DISCOUNT_PCT,
+  CUSTODYNOTE_BETA_REASON,
+  CUSTODYNOTE_DOWNLOAD_HREF,
   CUSTODYNOTE_FREE_LABEL,
-  CUSTODYNOTE_MEMBER_PRICE_GBP,
+  CUSTODYNOTE_NO_CARD_LINE,
+  CUSTODYNOTE_PLANNED_PRO_LINE,
   CUSTODYNOTE_PRICE_GBP,
-  CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
 
 export const dynamic = 'force-dynamic';
@@ -14,12 +14,13 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   return NextResponse.json({
     custodynote: {
-      discountCode: CUSTODYNOTE_DISCOUNT_CODE,
-      discountPct: CUSTODYNOTE_DISCOUNT_PCT,
-      priceGbp: CUSTODYNOTE_PRICE_GBP,
-      memberPriceGbp: CUSTODYNOTE_MEMBER_PRICE_GBP,
       freeLabel: CUSTODYNOTE_FREE_LABEL,
-      trialHref: CUSTODYNOTE_TRIAL_HREF,
+      betaReason: CUSTODYNOTE_BETA_REASON,
+      noCreditCard: CUSTODYNOTE_NO_CARD_LINE,
+      downloadHref: CUSTODYNOTE_DOWNLOAD_HREF,
+      /** Planned after beta only — not a live paid offer or discount code. */
+      plannedProPriceGbp: CUSTODYNOTE_PRICE_GBP,
+      plannedProNote: CUSTODYNOTE_PLANNED_PRO_LINE,
     },
     updatedAt: new Date().toISOString(),
   });

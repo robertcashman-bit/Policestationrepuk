@@ -159,7 +159,7 @@ The existing rebuild was analysed, extended only where needed, and documented. N
 
 1. **Content coverage:** To serve all 358 live URLs with content, re-crawl the target site and merge results into `data/pages.json` (or add a merge step to the crawl script) so that [slug] and [...slug] can serve the full set.
 2. **Forms:** Connect `/api/contact` and `/api/register` to email or a database for production.
-3. **CustodyNote:** Replace placeholder discount code in `app/CustodyNote/page.tsx` when the real code is available.
+3. **Custody Note:** Keep promos aligned with custodynote.com (free during beta, no credit card). Do not invent discount codes or live paid offers while payments are unwired.
 4. **Analytics and monitoring:** Add as needed for production.
 
 ---

@@ -383,11 +383,11 @@ A digital template enforces the structure, prompts for required fields, and prod
 
 Custody Note provides exactly this: structured, offline-first attendance notes with LAA-oriented fields and PDF export.
 
-**Internal links:** `/blog/what-makes-a-good-attendance-note`, `/blog/why-attendance-notes-fail-laa-audit`, `/pricing`, `/trial`
+**Internal links:** `/blog/what-makes-a-good-attendance-note`, `/blog/why-attendance-notes-fail-laa-audit`, `/pricing`, `/download`
 
 **Cross-site links:** [for reps & firms: attendance best practice](https://policestationrepuk.org)
 
-**CTA:** Start a 30-day free trial and use the built-in attendance note template.
+**CTA:** Download free during beta (no credit card) and use the built-in attendance note template — https://custodynote.com/download
 
 **Disclaimer:** This article is general information for criminal defence professionals in England & Wales. It is not legal advice. Custody Note is record-keeping software and does not provide legal advice.
 
@@ -497,11 +497,11 @@ A consistent template, prompts for required fields, instant PDF export, and offl
 
 Custody Note is built for this: encrypted, offline-first attendance notes with LAA-oriented fields.
 
-**Internal links:** `/blog/real-cost-of-handwritten-notes`, `/blog/police-station-wifi-offline-working`, `/trial`
+**Internal links:** `/blog/real-cost-of-handwritten-notes`, `/blog/police-station-wifi-offline-working`, `/download`
 
 **Cross-site links:** —
 
-**CTA:** See the difference — start a 30-day free trial of Custody Note.
+**CTA:** See the difference — download Custody Note free during beta at https://custodynote.com/download
 
 **Disclaimer:** This article is general information for criminal defence professionals in England & Wales. It is not legal advice. Custody Note is record-keeping software and does not provide legal advice.
 

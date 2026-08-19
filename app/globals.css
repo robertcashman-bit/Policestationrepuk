@@ -264,6 +264,14 @@ footer .text-slate-600 {
 @media (prefers-reduced-motion: reduce) {
   .home-recent-marquee-track {
     animation: none;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Marquee duplicates the list for a seamless loop — hide them when motion is off. */
+  .home-recent-marquee-dup {
+    display: none;
   }
 }
 

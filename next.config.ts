@@ -53,7 +53,6 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       { source: "/Directory", destination: "/directory" },
-      { source: "/FindYourRep", destination: "/directory" },
       { source: "/Register", destination: "/register" },
     ];
   },

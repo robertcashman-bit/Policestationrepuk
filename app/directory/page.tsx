@@ -23,6 +23,7 @@ import {
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
+import { DIRECTORY_LISTING_TRUST_SENTENCE } from '@/lib/directory-trust-copy';
 
 const directoryTitle = 'Police Station Rep Directory — County & Station';
 const directoryDescription =
@@ -161,11 +162,11 @@ export default async function DirectoryPage() {
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-xs leading-relaxed text-yellow-700">
-                <strong className="font-bold text-yellow-800">Verified directory.</strong>{' '}
+                <strong className="font-bold text-yellow-800">Accredited listings only.</strong>{' '}
                 Only fully accredited PSRAS police station representatives, duty solicitors and
-                solicitors are listed. Every profile is manually approved by an admin before
-                publication. Probationary representatives, trainees and unaccredited applicants
-                are <strong>not</strong> eligible.{' '}
+                solicitors are listed. Every profile is reviewed by an admin before publication.{' '}
+                {DIRECTORY_LISTING_TRUST_SENTENCE} Probationary representatives, trainees and
+                unaccredited applicants are <strong>not</strong> eligible.{' '}
                 <Link
                   href="/AccreditedRepresentativeGuide"
                   className="font-semibold text-yellow-800 no-underline hover:text-yellow-600"
@@ -222,9 +223,9 @@ export default async function DirectoryPage() {
 
         <p className="mt-8 text-xs text-[var(--muted)]">
           Listings are based on information provided at registration. Availability and station
-          coverage may change. PoliceStationRepUK does not verify every credential; firms must satisfy
-          their own compliance checks before instructing. If you spot an inaccuracy, please report it
-          and we will review it promptly.
+          coverage may change. {DIRECTORY_LISTING_TRUST_SENTENCE} Firms must satisfy their own
+          compliance checks before instructing. If you spot an inaccuracy, please report it and we
+          will review it promptly.
         </p>
       </div>
     </>

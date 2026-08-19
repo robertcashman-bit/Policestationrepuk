@@ -24,7 +24,7 @@ import { FeaturedListingAdvert } from '@/components/FeaturedListingAdvert';
 import { FeaturedListingFaq } from '@/components/FeaturedListingFaq';
 import { DirectoryCredentialVerificationNotice } from '@/components/DirectoryCredentialVerificationNotice';
 import { LegalDirectoryPromo } from '@/components/legal-directory/LegalDirectoryPromo';
-import { getAllReps, getAllCounties, getFeaturedRepsSorted } from '@/lib/data';
+import { getAllReps, getAllCounties, getAllStations, getFeaturedRepsSorted } from '@/lib/data';
 import {
   organizationSchema,
   faqPageSchema,
@@ -67,20 +67,19 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
+/** Territorial + special forces listed on /Forces (England & Wales facing). */
 const UK_FORCES_COUNT = 42;
-const MARKETING_REPS_DISPLAY = 300;
-const MARKETING_STATIONS_DISPLAY = 500;
 
 export default async function HomePage() {
-  const [reps, counties, featuredReps, phoneStats] = await Promise.all([
+  const [reps, counties, stations, featuredReps, phoneStats] = await Promise.all([
     getAllReps(),
     getAllCounties(),
+    getAllStations(),
     getFeaturedRepsSorted(),
     getStationPhonePublicStats(),
   ]);
   const topCountiesForLinks = selectTopCountiesForHomepage(counties, reps, 12);
-  const directLinesDisplay =
-    phoneStats.directLine >= 100 ? `${Math.floor(phoneStats.directLine / 50) * 50}+` : String(phoneStats.directLine);
+  const stationCount = stations.length || phoneStats.total;
 
   return (
     <>
@@ -88,20 +87,20 @@ export default async function HomePage() {
       <JsonLd data={faqPageSchema(HOMEPAGE_FAQS)} />
       <JsonLd data={directoryServiceLocalBusinessSchema() as Record<string, unknown>} />
 
-      <HomeHero />
+      <HomeHero listedRepCount={reps.length} />
 
       <div className="cv-auto">
         <HomeStationSearch stats={phoneStats} />
       </div>
 
-      {/* Trust stats strip */}
+      {/* Trust stats strip — live listed counts, not marketing constants */}
       <section className="border-b border-[var(--border)] bg-white py-8 sm:py-10" aria-label="Site statistics">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-6 text-center sm:grid-cols-4">
             {[
-              { value: `${MARKETING_REPS_DISPLAY}+`, label: 'Registered Reps' },
-              { value: `${MARKETING_STATIONS_DISPLAY}+`, label: 'Stations Listed' },
-              { value: directLinesDisplay, label: 'Direct Lines' },
+              { value: String(reps.length), label: 'Listed Reps' },
+              { value: String(stationCount), label: 'Stations Listed' },
+              { value: String(phoneStats.directLine), label: 'With Direct Line' },
               { value: String(UK_FORCES_COUNT), label: 'Police Forces' },
             ].map((s) => (
               <div key={s.label}>

@@ -17,6 +17,8 @@ import { RepLinkKit } from '@/components/RepLinkKit';
 import { repProfileUrl } from '@/lib/rep-link-kit';
 import { SITE_URL } from '@/lib/seo-layer/config';
 import { withSisterSiteUtm } from '@/lib/partner-website-href';
+import { DIRECTORY_LISTING_TRUST_SENTENCE } from '@/lib/directory-trust-copy';
+import { formatPersonDisplayName } from '@/lib/display-name';
 
 // ISR (on-demand) for rep profiles. We intentionally do NOT use
 // `generateStaticParams()`: the previous setup combined `revalidate = 60`
@@ -164,7 +166,9 @@ export default async function RepPage({ params }: PageProps) {
               </span>
             )}
           </div>
-          <h1 className="mt-4 text-balance text-h1 text-white sm:max-w-3xl">{rep.name}</h1>
+          <h1 className="mt-4 text-balance text-h1 text-white sm:max-w-3xl">
+            {formatPersonDisplayName(rep.name)}
+          </h1>
           <p className="mt-3 max-w-2xl text-lg text-white/90">
             {rep.county?.trim() ? `${rep.county}` : 'Coverage details below'}
             {rep.yearsExperience != null && rep.yearsExperience > 0 ? ` · ${rep.yearsExperience}+ years’ experience` : ''}
@@ -173,8 +177,8 @@ export default async function RepPage({ params }: PageProps) {
             <RepTrustBadges rep={rep} variant="profile" directoryVerified={directoryVerified} />
           </div>
           <p className="mt-3 max-w-2xl text-xs leading-relaxed text-white/70">
-            This page is a directory listing. PoliceStationRepUK does not verify credentials or supervise cases — your firm
-            remains responsible for instruction, checks, and compliance.
+            This page is a directory listing. {DIRECTORY_LISTING_TRUST_SENTENCE} Your firm remains
+            responsible for instruction, checks, and compliance.
           </p>
         </div>
       </section>

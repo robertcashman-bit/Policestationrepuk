@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { DirectoryCard, type MatchHighlight } from '@/components/DirectoryCard';
 import { JoinCTA } from '@/components/directory/JoinCTA';
 import { CustodyNoteInlineCTA } from '@/components/CustodyNoteInlineCTA';
-import { PsrTrainPromo } from '@/components/PsrTrainPromo';
 import type { Representative } from '@/lib/types';
 
 interface ResultsGridProps {
@@ -40,6 +39,7 @@ function CardSkeleton() {
   );
 }
 
+/** @deprecated Prefer DirectorySeededResults so first paint shows real listings. */
 export function ResultsGridSkeleton() {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -49,9 +49,6 @@ export function ResultsGridSkeleton() {
     </div>
   );
 }
-
-const INLINE_CTA_POSITION = 6;
-const INLINE_PSR_TRAIN_POSITION = 12;
 
 export function ResultsGrid({
   featuredReps,
@@ -67,7 +64,6 @@ export function ResultsGrid({
   if (totalCount === 0) {
     return (
       <div className="space-y-6">
-        <CustodyNoteInlineCTA variant="full" />
         <JoinCTA variant="empty-state" />
         {hasActiveFilters && (
           <div className="text-center">
@@ -76,13 +72,14 @@ export function ResultsGrid({
             </button>
           </div>
         )}
+        <CustodyNoteInlineCTA variant="compact" />
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      {/* Featured reps — visually distinct section */}
+      {/* Featured reps — cards first, partner CTAs after */}
       {featuredReps.length > 0 && (
         <section>
           <div className="mb-4 flex items-end justify-between">
@@ -108,28 +105,16 @@ export function ResultsGrid({
             </Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {featuredReps.map((rep, i) => {
-              let matchHighlight: MatchHighlight = null;
-              if (sort === 'smart' && i < 2) {
-                matchHighlight = i === 0 ? 'top' : 'runner';
-              }
-              return <DirectoryCard key={rep.id} rep={rep} matchHighlight={matchHighlight} />;
-            })}
-          </div>
-          <div className="mt-8">
-            <CustodyNoteInlineCTA variant="full" />
+            {featuredReps.map((rep) => (
+              <DirectoryCard key={rep.id} rep={rep} />
+            ))}
           </div>
         </section>
       )}
 
-      {/* All listings with inline CTA */}
+      {/* All listings — no partner ads before the first card */}
       {pagedNonFeatured.length > 0 && (
         <section>
-          {featuredReps.length === 0 && (
-            <div className="mb-8">
-              <CustodyNoteInlineCTA variant="full" />
-            </div>
-          )}
           <div className="mb-4 flex items-end justify-between">
             <h2 className="text-lg font-bold text-[var(--navy)]">
               All listings
@@ -150,18 +135,13 @@ export function ResultsGrid({
                 matchHighlight = i === 0 ? 'top' : 'runner';
               }
               return (
-                <DirectoryCardWithInlineCTA
+                <DirectoryCard
                   key={rep.id}
                   rep={rep}
                   matchHighlight={matchHighlight}
-                  index={i}
-                  totalPaged={pagedNonFeatured.length}
                 />
               );
             })}
-          </div>
-          <div className="mt-10">
-            <CustodyNoteInlineCTA variant="full" />
           </div>
           {hasMore && (
             <div className="mt-8 text-center">
@@ -177,36 +157,5 @@ export function ResultsGrid({
         </section>
       )}
     </div>
-  );
-}
-
-function DirectoryCardWithInlineCTA({
-  rep,
-  matchHighlight,
-  index,
-  totalPaged,
-}: {
-  rep: Representative;
-  matchHighlight: MatchHighlight;
-  index: number;
-  totalPaged: number;
-}) {
-  const showJoinCTA = index === INLINE_CTA_POSITION - 1 && totalPaged > INLINE_CTA_POSITION;
-  const showPsrTrain =
-    index === INLINE_PSR_TRAIN_POSITION - 1 && totalPaged > INLINE_PSR_TRAIN_POSITION;
-  return (
-    <>
-      <DirectoryCard rep={rep} matchHighlight={matchHighlight} />
-      {showJoinCTA && (
-        <div className="sm:col-span-2">
-          <JoinCTA variant="inline" />
-        </div>
-      )}
-      {showPsrTrain && (
-        <div className="sm:col-span-2">
-          <PsrTrainPromo variant="compact" campaign="directory_results" />
-        </div>
-      )}
-    </>
   );
 }

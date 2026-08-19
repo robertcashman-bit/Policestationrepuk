@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { JsonLd } from '@/components/JsonLd';
 import { HomeHero } from '@/components/HomeHero';
+import { SisterToolsSlimBar } from '@/components/SisterToolsSlimBar';
 import { HomeCustodyNote } from '@/components/HomeCustodyNote';
 import { ToolsForRepsSection } from '@/components/ToolsForRepsSection';
 import { HomeRecentlyJoined } from '@/components/HomeRecentlyJoined';
@@ -12,7 +13,6 @@ import { HomeWhyChoose } from '@/components/HomeWhyChoose';
 import { HomeTestimonials } from '@/components/HomeTestimonials';
 import { HomeBlogPreview } from '@/components/HomeBlogPreview';
 import { HomeRegisterCta } from '@/components/HomeRegisterCta';
-import { HomeQuickSearch } from '@/components/HomeQuickSearch';
 import { HomeStationSearch } from '@/components/HomeStationSearch';
 import { HomeTopLocations } from '@/components/HomeTopLocations';
 import { HomeCommunityWhatsAppPromo } from '@/components/HomeCommunityWhatsAppPromo';
@@ -24,7 +24,13 @@ import { FeaturedListingAdvert } from '@/components/FeaturedListingAdvert';
 import { FeaturedListingFaq } from '@/components/FeaturedListingFaq';
 import { DirectoryCredentialVerificationNotice } from '@/components/DirectoryCredentialVerificationNotice';
 import { LegalDirectoryPromo } from '@/components/legal-directory/LegalDirectoryPromo';
-import { getAllReps, getAllCounties, getAllStations, getFeaturedRepsSorted } from '@/lib/data';
+import {
+  getAllReps,
+  getAllCounties,
+  getAllStations,
+  getFeaturedRepsSorted,
+  stripPrivateFieldsAll,
+} from '@/lib/data';
 import {
   organizationSchema,
   faqPageSchema,
@@ -32,9 +38,11 @@ import {
 } from '@/lib/seo';
 import { HOMEPAGE_FAQS } from '@/lib/homepage-faqs';
 import { selectTopCountiesForHomepage } from '@/lib/home-top-locations';
+import { selectHomepagePreviewReps } from '@/lib/home-directory-preview';
 import { getStationPhonePublicStats } from '@/lib/station-phone-stats-server';
 import { SITE_NAME, SITE_URL, socialPreviewImageUrl } from '@/lib/seo-layer/config';
 import { UK_POLICE_FORCES_COUNT } from '@/lib/uk-police-forces';
+import { repMatchesAnyCounty } from '@/lib/county-matching';
 
 export const metadata: Metadata = {
   title: 'Find a Police Station Rep — UK Representative Directory',
@@ -69,14 +77,20 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const [reps, counties, stations, featuredReps, phoneStats] = await Promise.all([
+  const [repsRaw, counties, stations, featuredReps, phoneStats] = await Promise.all([
     getAllReps(),
     getAllCounties(),
     getAllStations(),
     getFeaturedRepsSorted(),
     getStationPhonePublicStats(),
   ]);
-  const topCountiesForLinks = selectTopCountiesForHomepage(counties, reps, 12);
+  const reps = stripPrivateFieldsAll(repsRaw);
+  const topCountiesBase = selectTopCountiesForHomepage(counties, reps, 12);
+  const topCounties = topCountiesBase.map((c) => ({
+    ...c,
+    listedRepCount: reps.filter((r) => repMatchesAnyCounty(r, c.name)).length,
+  }));
+  const previewReps = selectHomepagePreviewReps(reps, featuredReps, 3);
   const stationCount = stations.length || phoneStats.total;
   const hasLiveDirectoryCounts = reps.length > 0 && stationCount > 0;
 
@@ -86,59 +100,53 @@ export default async function HomePage() {
       <JsonLd data={faqPageSchema(HOMEPAGE_FAQS)} />
       <JsonLd data={directoryServiceLocalBusinessSchema() as Record<string, unknown>} />
 
-      <HomeHero listedRepCount={reps.length} />
+      <HomeHero
+        listedRepCount={reps.length}
+        countyNames={counties.map((c) => c.name)}
+        topCounties={topCounties.slice(0, 6)}
+        previewReps={previewReps}
+      />
+
+      <SisterToolsSlimBar />
+
+      {hasLiveDirectoryCounts && (
+        <section
+          className="border-b border-[var(--border)] bg-white py-5 sm:py-6"
+          aria-label="Site statistics"
+        >
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 gap-4 text-center sm:grid-cols-4 sm:gap-6">
+              {[
+                { value: String(reps.length), label: 'Listed Reps' },
+                { value: String(stationCount), label: 'Stations Listed' },
+                { value: String(phoneStats.directLine), label: 'With Direct Line' },
+                { value: String(UK_POLICE_FORCES_COUNT), label: 'Police Forces' },
+              ].map((s) => (
+                <div key={s.label}>
+                  <p className="text-xl font-extrabold leading-none text-[var(--navy)] sm:text-2xl">
+                    {s.value}
+                  </p>
+                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)] sm:text-xs">
+                    {s.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <HomeTopLocations counties={topCounties} />
+
+      <HomeRecentlyJoined reps={reps} />
+
+      <RepSpotlight reps={reps} />
 
       <div className="cv-auto">
         <HomeStationSearch stats={phoneStats} />
       </div>
 
-      {/* Trust stats strip — live listed counts, not marketing constants */}
-      {hasLiveDirectoryCounts && (
-      <section className="border-b border-[var(--border)] bg-white py-8 sm:py-10" aria-label="Site statistics">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 gap-6 text-center sm:grid-cols-4">
-            {[
-              { value: String(reps.length), label: 'Listed Reps' },
-              { value: String(stationCount), label: 'Stations Listed' },
-              { value: String(phoneStats.directLine), label: 'With Direct Line' },
-              { value: String(UK_POLICE_FORCES_COUNT), label: 'Police Forces' },
-            ].map((s) => (
-              <div key={s.label}>
-                <p className="text-2xl font-extrabold leading-none text-[var(--navy)] sm:text-3xl">{s.value}</p>
-                <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-      )}
-
-      {/* Directory job first: search + counties before promos/tools */}
-      <div className="cv-auto">
-        <HomeQuickSearch counties={counties.map((c) => c.name)} />
-      </div>
-
-      <HomeTopLocations counties={topCountiesForLinks} />
-
-      <div className="cv-auto bg-[var(--navy)]">
-        <HomeSeoConversionHub />
-      </div>
-
       <HomeCommunityWhatsAppPromo />
-
-      <HomeRecentlyJoined reps={reps} />
-
-      {/* Free, fairly-rotating spotlight — placement cannot be bought */}
-      <RepSpotlight reps={reps} />
-
-      <div className="cv-auto">
-        <LegalDirectoryPromo variant="section" />
-      </div>
-
-      <div className="page-container py-8">
-        <FeaturedListingAdvert />
-        <FeaturedListingFaq className="mt-6" />
-      </div>
 
       {featuredReps.length > 0 && (
         <div className="page-container pt-6 pb-0">
@@ -148,6 +156,15 @@ export default async function HomePage() {
 
       <HomeFeaturedCarousel featuredReps={featuredReps} />
 
+      <div className="page-container py-8">
+        <FeaturedListingAdvert />
+        <FeaturedListingFaq className="mt-6" />
+      </div>
+
+      <div className="cv-auto">
+        <LegalDirectoryPromo variant="section" />
+      </div>
+
       <div className="cv-auto">
         <HomeWhyChoose />
       </div>
@@ -156,12 +173,15 @@ export default async function HomePage() {
         <HomeTestimonials />
       </div>
 
-      {/* Secondary: CustodyNote, Kent agent cover, tools — after directory job */}
       <HomeCustodyNote />
 
       <HomeKentSpotlight />
 
       <ToolsForRepsSection />
+
+      <div className="cv-auto bg-[var(--navy)]">
+        <HomeSeoConversionHub />
+      </div>
 
       <div className="cv-auto">
         <HomeBlogPreview />
@@ -183,15 +203,20 @@ export default async function HomePage() {
         <HomeAIAssistant />
       </div>
 
-      {/* Platform disclaimer */}
-      <section className="border-t border-[var(--gold)]/20 bg-[var(--gold-pale)] py-4" aria-label="Platform notice">
+      <section
+        className="border-t border-[var(--gold)]/20 bg-[var(--gold-pale)] py-4"
+        aria-label="Platform notice"
+      >
         <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
           <p className="text-xs leading-relaxed text-[var(--navy)]/80">
-            <strong className="font-bold text-[var(--navy)]">PoliceStationRepUK is a directory</strong> — not a law
-            firm, agency, or provider of legal services. It connects criminal defence firms with accredited
-            representatives. Any engagement is a direct contract between the instructing firm and the
-            representative. Firms retain responsibility for instruction, supervision, and regulatory compliance.{' '}
-            <Link href="/about" className="font-semibold text-[var(--navy)] underline">Learn more about the directory</Link>
+            <strong className="font-bold text-[var(--navy)]">PoliceStationRepUK is a directory</strong>{' '}
+            — not a law firm, agency, or provider of legal services. It connects criminal defence
+            firms with accredited representatives. Any engagement is a direct contract between the
+            instructing firm and the representative. Firms retain responsibility for instruction,
+            supervision, and regulatory compliance.{' '}
+            <Link href="/about" className="font-semibold text-[var(--navy)] underline">
+              Learn more about the directory
+            </Link>
           </p>
         </div>
       </section>

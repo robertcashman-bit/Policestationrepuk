@@ -191,7 +191,7 @@ export function FilterSidebar({
               <input
                 id="dir-station"
                 type="text"
-                placeholder="Filter by station\u2026"
+                placeholder={"Filter by station\u2026"}
                 value={filters.station}
                 onChange={(e) => onFilterChange('station', e.target.value)}
                 className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm placeholder:text-slate-400"

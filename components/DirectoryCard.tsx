@@ -6,6 +6,8 @@ import type { Representative } from '@/lib/types';
 import { phoneToTelHref } from '@/lib/phone';
 import { withSisterSiteUtm } from '@/lib/partner-website-href';
 import { RepTrustBadges } from '@/components/RepTrustBadges';
+import { formatPersonDisplayName } from '@/lib/display-name';
+import { initialsFromName } from '@/lib/display-name-initials';
 
 function getAvailabilityBadge(raw: string): { label: string; color: string; live?: boolean } {
   const lower = raw.toLowerCase().trim();
@@ -48,6 +50,8 @@ export interface DirectoryCardProps {
 
 export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardProps) {
   const [quickOpen, setQuickOpen] = useState(false);
+  const displayName = formatPersonDisplayName(rep.name);
+  const initials = initialsFromName(displayName);
   const avail = getAvailabilityBadge(rep.availability || '');
   const phoneHref = rep.phone ? phoneToTelHref(rep.phone) : null;
   const excerpt = (rep.bio || rep.notes || '').trim();
@@ -78,11 +82,11 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
         className="group flex items-start gap-3 rounded-lg border border-slate-100 bg-slate-50/50 p-3 no-underline transition-all hover:border-[var(--gold)]/40 hover:bg-white hover:shadow-sm"
       >
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--navy)] text-xs font-bold text-white">
-          {(rep.name || '?')[0]}
+          {initials}
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-[var(--navy)] group-hover:text-[var(--gold-link)]">
-            {rep.name}
+            {displayName}
           </p>
           <p className="mt-0.5 truncate text-xs text-slate-500">{rep.county || 'England & Wales'}</p>
           <span className={`mt-1 inline-flex rounded-full border px-2 py-0.5 text-[10px] font-bold ${avail.color}`}>
@@ -99,29 +103,57 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[var(--navy)] via-[var(--navy-mid)] to-[var(--gold)] opacity-90" />
 
-      {isFeatured && (
-        <div className="absolute left-3 top-4 z-10 flex items-center gap-1 rounded-full border border-[var(--gold)]/60 bg-[var(--gold)] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-[var(--ink)] shadow-sm">
-          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-          Featured
-        </div>
-      )}
-
+      {/* Match pills stay top-right — never stacked on Featured (in-flow below) */}
       {matchHighlight === 'top' && !isFeatured && (
-        <div className="absolute right-3 top-4 z-10 rounded-full bg-[var(--gold)] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-[var(--ink)] shadow-sm">
+        <div className="absolute right-3 top-3 z-10 rounded-full bg-[var(--gold)] px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-[var(--ink)] shadow-sm">
           Top match
         </div>
       )}
       {matchHighlight === 'runner' && !isFeatured && (
-        <div className="absolute right-3 top-4 z-10 rounded-full border border-[var(--gold)]/50 bg-white/95 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--navy)]">
+        <div className="absolute right-3 top-3 z-10 rounded-full border border-[var(--gold)]/50 bg-white/95 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--navy)]">
           Strong match
         </div>
       )}
 
-      <div className="flex flex-1 flex-col p-5 pt-6 sm:p-6">
-        {/* Badges row */}
+      <div className="flex flex-1 flex-col p-5 pt-5 sm:p-6">
+        {/* Identity row: avatar + name */}
+        <div className="mb-3 flex items-start gap-3">
+          <div
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--navy)] text-sm font-extrabold text-white ring-2 ring-[var(--gold)]/35"
+            aria-hidden
+          >
+            {initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-xl font-bold tracking-tight text-[var(--navy)] sm:text-[1.35rem]">
+              {displayName}
+            </h3>
+            <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-sm text-[var(--muted)]">
+              <span className="font-medium text-slate-700">
+                {rep.county?.trim() || 'Coverage on profile'}
+              </span>
+              {rep.yearsExperience != null && rep.yearsExperience > 0 && (
+                <>
+                  <span className="text-slate-300" aria-hidden>
+                    &middot;
+                  </span>
+                  <span>{rep.yearsExperience}+ yrs experience</span>
+                </>
+              )}
+            </p>
+          </div>
+        </div>
+
+        {/* Badges row — Featured in-flow (never absolute over other badges) */}
         <div className="mb-3 flex flex-wrap items-center gap-2">
+          {isFeatured && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/60 bg-[var(--gold)] px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-[var(--ink)]">
+              <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20" aria-hidden>
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+              Featured
+            </span>
+          )}
           <span
             className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${avail.color}`}
           >
@@ -140,29 +172,9 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
           )}
         </div>
 
-        {/* Name */}
-        <h3 className="text-xl font-bold tracking-tight text-[var(--navy)] sm:text-[1.35rem]">{rep.name}</h3>
-
-        {/* County + experience */}
-        <p className="mt-1.5 flex flex-wrap items-center gap-x-2 text-sm text-[var(--muted)]">
-          <span className="font-medium text-slate-700">{rep.county?.trim() || 'Coverage on profile'}</span>
-          {rep.yearsExperience != null && rep.yearsExperience > 0 && (
-            <>
-              <span className="text-slate-300" aria-hidden>&middot;</span>
-              <span>{rep.yearsExperience}+ yrs experience</span>
-            </>
-          )}
-          {phoneHref && (
-            <>
-              <span className="text-slate-300" aria-hidden>&middot;</span>
-              <span className="text-emerald-700">Fast response</span>
-            </>
-          )}
-        </p>
-
-        {/* Trust badges */}
+        {/* Trust badges — omit Featured here (shown above) to avoid overlap/dup */}
         <div className="mt-3">
-          <RepTrustBadges rep={rep} variant="card" />
+          <RepTrustBadges rep={rep} variant="card" hideFeatured />
         </div>
 
         {/* Bio excerpt */}
@@ -290,7 +302,7 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
               href={`/rep/${rep.slug}`}
               className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white py-2.5 text-sm font-semibold text-[var(--navy)] no-underline transition-colors hover:border-[var(--gold)]/40 hover:bg-slate-50"
             >
-              Profile
+              Instruct
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>

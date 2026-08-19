@@ -435,9 +435,8 @@ export function DirectorySearch({
           </div>
         </aside>
 
-        {/* Center — results */}
+        {/* Center — results first; notices below cards */}
         <main className="lg:col-span-6">
-          <DirectoryCredentialVerificationNotice className="mb-5" />
           <ResultsGrid
             featuredReps={featuredReps}
             nonFeaturedReps={nonFeaturedReps}
@@ -449,6 +448,7 @@ export function DirectorySearch({
             onReset={resetFilters}
             totalCount={filtered.length}
           />
+          <DirectoryCredentialVerificationNotice className="mt-8" />
         </main>
 
         {/* Right sidebar (desktop only) */}

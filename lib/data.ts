@@ -7,7 +7,7 @@ import {
   coerceScrapedRows,
   finalizeRepresentative,
 } from './rep-merge';
-import { repMatchesCountyName } from './county-matching';
+import { repMatchesAnyCounty } from './county-matching';
 import { withDerivedCounty } from './force-county';
 import { forceMatchesCounty } from './police-force-to-counties';
 import { applyStationOverrides } from './station-overrides';
@@ -237,15 +237,6 @@ export async function getStationsByCounty(county: string): Promise<PoliceStation
 export async function getRepsByCounty(county: string): Promise<Representative[]> {
   const reps = await getAllReps();
   return reps.filter((r) => repMatchesAnyCounty(r, county));
-}
-
-/** True if the rep covers the given county via primary `county` or any entry in `counties[]`. */
-function repMatchesAnyCounty(rep: Representative, countyName: string): boolean {
-  if (repMatchesCountyName(rep.county, countyName)) return true;
-  if (Array.isArray(rep.counties)) {
-    return rep.counties.some((c) => repMatchesCountyName(c, countyName));
-  }
-  return false;
 }
 
 export async function getRepBySlug(slug: string): Promise<Representative | undefined> {

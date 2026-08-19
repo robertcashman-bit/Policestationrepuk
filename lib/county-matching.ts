@@ -31,3 +31,15 @@ export function repMatchesCountyName(repCounty: string | undefined, countyName: 
   }
   return false;
 }
+
+/** True if the rep covers the given county via primary `county` or any entry in `counties[]`. */
+export function repMatchesAnyCounty(
+  rep: { county?: string; counties?: string[] },
+  countyName: string,
+): boolean {
+  if (repMatchesCountyName(rep.county, countyName)) return true;
+  if (Array.isArray(rep.counties)) {
+    return rep.counties.some((c) => repMatchesCountyName(c, countyName));
+  }
+  return false;
+}

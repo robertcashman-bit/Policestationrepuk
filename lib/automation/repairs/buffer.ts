@@ -96,7 +96,7 @@ export async function repairBufferSchedule(options?: {
     kind: 'buffer_gap_fill',
     target: today,
     attempted: true,
-    verified: verify.ok,
+    verified: verify.ok && verify.scheduledCount >= verify.requiredCount,
     dryRun: false,
     summary: verify.ok
       ? `Schedule OK ${verify.scheduledCount}/${verify.requiredCount} (gapFilled=${gapFilled})`

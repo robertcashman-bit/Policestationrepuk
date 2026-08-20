@@ -126,9 +126,17 @@ async function runSiteBufferScheduler(adapter, options = {}) {
             rawPosts = rawPosts.filter((p) => set.has(p.slug));
         }
         const schedule = (0, config_1.resolveFeedSchedule)(envConfig);
+        // `limit` is an exact create budget (gap-fill delta). Do not inflate to postsPerFeed —
+        // that over-posts when only 1–2 slots remain.
         const targetCount = options.limit && options.limit > 0
-            ? Math.max(schedule.postsPerFeed, options.limit)
+            ? Math.min(Math.max(1, Math.floor(options.limit)), schedule.postsPerFeed)
             : schedule.postsPerFeed;
+        const dayCount = targetCount < schedule.postsPerFeed
+            ? Math.min(targetCount, schedule.dayPosts)
+            : schedule.dayPosts;
+        const nightCount = targetCount < schedule.postsPerFeed
+            ? Math.max(0, targetCount - dayCount)
+            : schedule.nightPosts;
         if (rawPosts.length === 0) {
             return { ok: false, reason: 'No schedulable posts available', date: localDate };
         }
@@ -204,8 +212,8 @@ async function runSiteBufferScheduler(adapter, options = {}) {
             };
         }
         let dueAts = (0, scheduler_core_1.generateDayNightPostTimes)(localDate, {
-            dayCount: schedule.dayPosts,
-            nightCount: schedule.nightPosts,
+            dayCount,
+            nightCount,
             dayWindow,
             nightWindow,
             earlyMorningWindow: (0, config_1.getSchedulerEarlyMorningWindow)(),

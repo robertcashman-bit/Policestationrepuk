@@ -33,7 +33,7 @@ function makePosts(n: number): SchedulablePost[] {
 }
 
 let jpegBytes: Buffer;
-let createdPosts: Array<{ dueAt: string; channelId: string; text: string }>;
+let createdPosts: Array<{ dueAt: string; channelId: string; text: string; id: string }>;
 
 function installFetchMock() {
   createdPosts = [];
@@ -45,19 +45,39 @@ function installFetchMock() {
       const body = JSON.parse((init?.body as string) ?? '{}');
       if (/createPost/.test(body.query)) {
         const v = body.variables.input;
-        createdPosts.push({ dueAt: v.dueAt, channelId: v.channelId, text: v.text });
+        const id = `id-${createdPosts.length + 1}`;
+        createdPosts.push({ dueAt: v.dueAt, channelId: v.channelId, text: v.text, id });
         return Response.json({
           data: {
             createPost: {
               __typename: 'PostActionSuccess',
               post: {
-                id: `id-${createdPosts.length}`,
+                id,
                 dueAt: v.dueAt,
                 channelId: v.channelId,
                 channelService: 'twitter',
               },
             },
           },
+        });
+      }
+      if (/ListPosts/.test(body.query)) {
+        const statuses: string[] = body.variables?.input?.filter?.status ?? [];
+        const edges = createdPosts
+          .filter(() => statuses.length === 0 || statuses.includes('scheduled') || statuses.includes('sent'))
+          .map((p) => ({
+            node: {
+              id: p.id,
+              text: p.text?.includes('http') ? p.text : `${p.text} https://testsite.com/blog/x`,
+              dueAt: p.dueAt,
+              status: 'scheduled',
+              channelId: p.channelId,
+              channelService: 'twitter',
+            },
+            cursor: p.id,
+          }));
+        return Response.json({
+          data: { posts: { edges, pageInfo: { hasNextPage: false, endCursor: null } } },
         });
       }
       return Response.json({ data: { posts: { edges: [], pageInfo: { hasNextPage: false, endCursor: null } } } });
@@ -221,6 +241,34 @@ describe('verifySiteBufferSchedule', () => {
     });
     expect(result.requiredCount).toBe(5);
     expect(result.scheduledCount).toBeGreaterThanOrEqual(5);
+  });
+});
+
+describe('runSiteBufferScheduler limit budget', () => {
+  it('creates exactly limit posts when gap-filling a shortfall', async () => {
+    const kv = makeKV();
+    const adapter = makeAdapter(kv, makePosts(20));
+    const result = await runSiteBufferScheduler(adapter, {
+      now: new Date('2026-06-28T05:00:00Z'),
+      force: true,
+      respectCurrentTime: true,
+      limit: 1,
+    });
+    expect(result.ok).toBe(true);
+    expect(result.posts).toHaveLength(1);
+    expect(createdPosts).toHaveLength(1);
+  });
+
+  it('does not inflate limit below postsPerFeed up to a full day', async () => {
+    const kv = makeKV();
+    const adapter = makeAdapter(kv, makePosts(20));
+    const result = await runSiteBufferScheduler(adapter, {
+      now: new Date('2026-06-28T05:00:00Z'),
+      force: true,
+      limit: 2,
+    });
+    expect(result.posts).toHaveLength(2);
+    expect(createdPosts).toHaveLength(2);
   });
 });
 

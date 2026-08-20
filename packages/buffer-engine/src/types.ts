@@ -108,6 +108,10 @@ export interface ScheduleOptions {
   dryRun?: boolean;
   respectCurrentTime?: boolean;
   slugs?: string[];
+  /**
+   * Exact number of posts to create this run (gap-fill delta).
+   * When set, must not be inflated to the full daily quota.
+   */
   limit?: number;
 }
 

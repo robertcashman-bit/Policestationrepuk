@@ -27,7 +27,7 @@ describe('buffer blog catalog readiness', () => {
     };
     const entry = vercel.crons.find((c) => c.path === '/api/cron/buffer-blog-posts');
     expect(entry).toBeDefined();
-    expect(entry?.schedule).toBe('5 5 * * *');
+    expect(entry?.schedule).toBe('20 5 * * *');
   });
 
   it('every blog hero has a Google Business JPEG candidate', () => {

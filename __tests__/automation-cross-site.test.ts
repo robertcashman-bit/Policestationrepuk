@@ -160,20 +160,29 @@ describe('cross-site quota repair policy', () => {
     expect(result.issues[0]?.severity).toBe('warning');
   });
 
-  it('uses REPUK fallback when sibling schedule endpoint is missing', async () => {
+  it('gap-fills REPUK today when forceRemoteRepair is set even if AUTO_REPAIR_ENABLED=0', async () => {
     vi.unstubAllEnvs();
     vi.stubEnv('AUTOMATION_DRY_RUN', '0');
-    vi.stubEnv('CROSS_SITE_REMOTE_REPAIR_ENABLED', '1');
-    vi.stubEnv('CRON_SECRET', 'test-cron-secret');
+    vi.stubEnv('AUTO_REPAIR_ENABLED', '0');
     vi.stubEnv('VERCEL_ENV', 'production');
+
+    const { verifyRepukBufferSchedule } = await import('@/lib/buffer/engine-run');
+    vi.mocked(verifyRepukBufferSchedule).mockResolvedValue({
+      ok: true,
+      date: '2026-08-20',
+      scheduledCount: 5,
+      requiredCount: 5,
+      gapFilled: 1,
+      issues: [],
+    });
 
     vi.mocked(verifyCrossSiteBufferPosts).mockResolvedValue({
       ok: false,
-      date: '2026-08-10',
+      date: '2026-08-19',
       sites: [
         {
-          id: 'custodynote',
-          hostname: 'custodynote.com',
+          id: 'policestationrepuk',
+          hostname: 'policestationrepuk.org',
           sentCount: 2,
           requiredCount: 5,
           ok: false,
@@ -183,16 +192,17 @@ describe('cross-site quota repair policy', () => {
       problems: [],
     });
 
-    const fetchMock = vi.fn(async () => new Response('not found', { status: 404 }));
-    vi.stubGlobal('fetch', fetchMock);
-
     const result = await inspectAndRepairCrossSiteQuota({
       dryRun: false,
       forceRemoteRepair: true,
     });
-    expect(scheduleSiblingFallbackFromRepuk).toHaveBeenCalled();
-    expect(result.repairs[0]?.kind).toBe('crosssite_sibling_repuk_fallback');
-    expect(result.repairs[0]?.verified).toBe(true);
-    expect(result.issues[0]?.requiresHumanAction).toBe(false);
+
+    expect(verifyRepukBufferSchedule).toHaveBeenCalledWith(
+      expect.objectContaining({ gapFill: true }),
+    );
+    const repair = result.repairs.find((r) => r.kind === 'crosssite_repuk_gap_fill');
+    expect(repair?.attempted).toBe(true);
+    expect(repair?.verified).toBe(true);
+    expect(repair?.dryRun).toBe(false);
   });
 });

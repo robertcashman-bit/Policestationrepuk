@@ -179,7 +179,12 @@ export default async function HomePage() {
 
       <ToolsForRepsSection />
 
-      <div className="cv-auto bg-[var(--navy)]">
+      {/*
+        Do not use content-visibility (cv-auto) on dark / saturated blocks.
+        It makes axe sample neighbouring section backgrounds and fail color-contrast
+        (navy-on-emerald, gold-on-white false positives). See audit/LIGHTHOUSE_SCORES.md.
+      */}
+      <div className="bg-[var(--navy)]">
         <HomeSeoConversionHub />
       </div>
 
@@ -191,17 +196,13 @@ export default async function HomePage() {
         <HomeTrainingResources />
       </div>
 
-      <div className="cv-auto">
-        <HomeRegisterCta />
-      </div>
+      <HomeRegisterCta />
 
       <div className="cv-auto">
         <HomeHomepageFaq />
       </div>
 
-      <div className="cv-auto">
-        <HomeAIAssistant />
-      </div>
+      <HomeAIAssistant />
 
       <section
         className="border-t border-[var(--gold)]/20 bg-[var(--gold-pale)] py-4"

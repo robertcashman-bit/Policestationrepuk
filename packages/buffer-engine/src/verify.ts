@@ -1,9 +1,8 @@
-import { listPostsInWindow } from './client';
-import { getSiteBufferEnvConfig, MIN_POSTS_PER_DAY } from './config';
-import { localDateInTimezone, addDaysToLocalDate, timezoneOffsetForDate } from './scheduler-core';
+import { getSiteBufferEnvConfig } from './config';
+import { localDateInTimezone } from './scheduler-core';
+import { countSitePostsInBufferForDay } from './reconcile';
 import type { BufferEngineAdapter, VerifyResult } from './types';
 import { runSiteBufferScheduler } from './scheduler';
-import { siteHostnameFromUrl } from './metrics';
 
 export async function verifySiteBufferSchedule(
   adapter: BufferEngineAdapter,
@@ -15,44 +14,62 @@ export async function verifySiteBufferSchedule(
   const issues: string[] = [];
 
   if (!env.apiKey) {
-    return { ok: false, date: localDate, scheduledCount: 0, requiredCount: env.postsPerDay, gapFilled: 0, issues: ['BUFFER_API_KEY missing'] };
+    return {
+      ok: false,
+      date: localDate,
+      scheduledCount: 0,
+      requiredCount: env.postsPerDay,
+      gapFilled: 0,
+      issues: ['BUFFER_API_KEY missing'],
+    };
   }
 
-  const offset = timezoneOffsetForDate(localDate, env.timezone);
-  const dayStart = `${localDate}T00:00:00${offset}`;
-  const dayEnd = `${addDaysToLocalDate(localDate, 1)}T00:00:00${offset}`;
-  const hostname = siteHostnameFromUrl(adapter.siteUrl);
+  const channelIds = env.channels.map((c) => c.id);
+  const before = await countSitePostsInBufferForDay(
+    env.apiKey,
+    env.organizationId,
+    adapter.siteUrl,
+    localDate,
+    env.timezone,
+    channelIds,
+  );
 
-  const scheduled = await listPostsInWindow(env.apiKey, env.organizationId, {
-    status: ['scheduled'],
-    dueAtStart: dayStart,
-    dueAtEnd: dayEnd,
-    channelIds: env.channels.map((c) => c.id),
-  });
-
-  const sitePosts = scheduled.filter((p) => p.text.includes(hostname));
-  let scheduledCount = sitePosts.length;
+  let scheduledCount = before.count;
   let gapFilled = 0;
 
   if (scheduledCount < env.postsPerDay) {
     issues.push(`Only ${scheduledCount}/${env.postsPerDay} posts scheduled for ${localDate}`);
     if (options?.gapFill !== false) {
+      const needed = env.postsPerDay - scheduledCount;
       const result = await runSiteBufferScheduler(adapter, {
         now,
         force: true,
         respectCurrentTime: true,
-        limit: env.postsPerDay - scheduledCount,
+        limit: needed,
       });
-      if (result.posts?.length) {
-        gapFilled = result.posts.length;
-        scheduledCount += gapFilled;
-      }
       if (!result.ok && result.reason) issues.push(`Gap-fill: ${result.reason}`);
+
+      // Authoritative re-count — never trust posts.length (idempotent skips look like creates).
+      const after = await countSitePostsInBufferForDay(
+        env.apiKey,
+        env.organizationId,
+        adapter.siteUrl,
+        localDate,
+        env.timezone,
+        channelIds,
+      );
+      gapFilled = Math.max(0, after.count - scheduledCount);
+      scheduledCount = after.count;
+      if (scheduledCount < env.postsPerDay && gapFilled === 0 && result.posts?.length) {
+        issues.push(
+          `Gap-fill reported ${result.posts.length} post(s) but Buffer still at ${scheduledCount}/${env.postsPerDay} (likely idempotent re-count of existing)`,
+        );
+      }
     }
   }
 
   return {
-    ok: scheduledCount >= MIN_POSTS_PER_DAY,
+    ok: scheduledCount >= env.postsPerDay,
     date: localDate,
     scheduledCount,
     requiredCount: env.postsPerDay,

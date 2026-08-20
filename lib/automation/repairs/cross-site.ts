@@ -82,7 +82,11 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
     if (site.id === 'policestationrepuk') {
       // REPUK: yesterday already published window — we can only ensure today is on track;
       // yesterday deficit is recorded; gap-fill applies to today's schedule.
-      if (dryRun || !config.autoRepairEnabled || !canPerformLiveSideEffects()) {
+      // Honor forceRemoteRepair the same way siblings do (buffer-sibling-repair / healthcheck),
+      // not only AUTO_REPAIR_ENABLED — otherwise sibling-repair no-ops REPUK while healing others.
+      const allowRepukGapFill =
+        Boolean(options?.forceRemoteRepair) || config.autoRepairEnabled;
+      if (dryRun || !allowRepukGapFill || !canPerformLiveSideEffects()) {
         repairs.push({
           id: `crosssite-${site.id}`,
           kind: 'crosssite_repuk_gap_fill',

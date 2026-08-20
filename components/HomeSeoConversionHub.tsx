@@ -174,7 +174,7 @@ export function HomeSeoConversionHub() {
             </h2>
             <p className="mt-2 text-sm text-[var(--muted)]">
               Browse representatives by region — and use our{' '}
-              <Link href="/find-station" className="font-semibold text-[var(--navy)] underline">
+              <Link href="/find-station" className="font-semibold text-[var(--gold-link)] underline">
                 station phone directory
               </Link>{' '}
               for custody desk lines and main numbers.

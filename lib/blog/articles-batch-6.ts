@@ -311,4 +311,85 @@ To standardise attendance notes across everyone on your panel, see [CustodyNote]
 *General professional information for England and Wales — not legal advice. Always follow your firm’s procedures, the SRA Standards and Regulations, and current Legal Aid Agency contract requirements.*
 `.trim(),
   },
+  {
+    slug: 'duty-solicitor-police-station',
+    title: 'Duty Solicitor at the Police Station: How Free Legal Advice Works in England and Wales',
+    metaTitle: 'Duty Solicitor at the Police Station | Free Advice',
+    metaDescription:
+      'Is a solicitor free at the police station? Duty solicitor advice is usually free legal aid. How the scheme works in England and Wales.',
+    primaryKeyword: 'duty solicitor police station',
+    categories: ['best-practice', 'attendance'],
+    published: '2026-08-20T09:00:00.000Z',
+    modified: '2026-08-20T09:00:00.000Z',
+    excerpt:
+      'Duty solicitor advice at the police station is usually free under legal aid. Ask custody for the duty solicitor or name a firm — the adviser is independent of the police.',
+    summary:
+      'Explains how free duty solicitor advice works at police stations in England and Wales: PACE rights, the DSCC and duty rota, why family members cannot send a freelance representative, and a labelled Kent named-solicitor option.',
+    image: IMG(
+      'duty-solicitor-police-station',
+      'Classic British navy front door with cream stone surround — featured image for duty solicitor advice',
+    ),
+    relatedSlugs: [
+      'freelance-police-station-representative-vs-duty-solicitor',
+      'police-station-attendance-checklist',
+      'how-firms-can-instruct-freelance-police-station-reps',
+      'out-of-hours-police-station-cover-for-law-firms',
+    ],
+    faqs: [
+      {
+        q: 'Is a solicitor free at the police station?',
+        a: 'Yes. Free legal advice at the police station is the usual position in England and Wales under legal aid. It is not means-tested for police-station advice under the duty scheme.',
+      },
+      {
+        q: 'How do the DSCC and the duty rota actually work?',
+        a: 'When you ask for the duty solicitor, police contact the Defence Solicitor Call Centre (DSCC). The DSCC calls the rota firm holding the Standard Crime Contract for that scheme.',
+      },
+      {
+        q: 'Can a family member send a freelance representative to the station?',
+        a: 'No. A freelance accredited representative attends only when a criminal defence firm instructs them. Ask custody for the duty solicitor, or name a firm.',
+      },
+    ],
+    bodyMarkdown: `
+If you or someone in your family has just been told there is a **duty solicitor** at the police station, you may be unsure whether you have to pay.
+
+You do not. Free legal advice at the police station is the usual position in England and Wales. The adviser is independent of the police. Ask for the duty solicitor, or name a firm. That is the whole public path.
+
+## Key takeaways
+
+- Police-station legal advice is usually **free under legal aid**, and independent of the police.
+- Ask the custody officer for the **duty solicitor**, or **name a firm**.
+- A freelance accredited representative attends **only when a firm instructs them**.
+- If someone is in custody now, ask for a solicitor **before interview starts**.
+
+## Questions this article answers
+
+- Is a solicitor free at the police station?
+- How do the DSCC and the duty rota actually work?
+- Can a family member send a freelance representative to the station?
+
+## What a duty solicitor is
+
+A duty solicitor is a criminal defence solicitor on the Legal Aid Agency duty scheme. The firm holds a Standard Crime Contract (SCC). When you ask for the duty solicitor, police call the Defence Solicitor Call Centre (DSCC). The DSCC calls the rota firm for that scheme. That is the national duty path — distinct from firm-instructed cover explained in our [freelance rep versus duty solicitor](/Blog/freelance-police-station-representative-vs-duty-solicitor) comparison.
+
+## Is advice free?
+
+Yes. Under **PACE section 58** and **Code C**, you are entitled to consult a solicitor privately. Free legal advice at the police station is the usual position, and police-station advice under the duty scheme is **not means-tested**. You do not need to prove income before advice starts.
+
+## How it is arranged
+
+Tell custody you want free legal advice. Ask for the duty solicitor, or name a firm you want contacted. A family member **cannot** send a freelance representative to the station — reps attend only on a firm’s instruction. If someone is detained now, ask before the interview starts. For a practical custody checklist, see our [police station attendance checklist](/Blog/police-station-attendance-checklist).
+
+## Kent named-solicitor option
+
+**Kent named-solicitor option:** for a named Kent firm (not the national duty scheme), ask custody to contact [policestationagent.com](https://www.policestationagent.com/?utm_source=policestationrepuk&utm_medium=blog&utm_campaign=duty_solicitor_post).
+
+## For firms
+
+PoliceStationRepUK is a **directory**, not a law firm. Firms needing overflow or out-of-hours cover: [Police station cover](/PoliceStationCover) and the [directory](/directory). Accredited representatives cannot sit on the duty rota themselves — [Register](/Register) to list for firm instructions.
+
+---
+
+*General information only — not legal advice. Applies to England and Wales.*
+`.trim(),
+  },
 ];

@@ -15,6 +15,11 @@ vi.mock('@/lib/firm-outreach/outreach/approval-request-email', () => ({
   sendOutreachApprovalRequestEmail: (...args: unknown[]) => mockApprovalEmail(...args),
 }));
 
+const mockDailyDigest = vi.fn();
+vi.mock('@/lib/firm-outreach/outreach/digest-email', () => ({
+  sendDailyOutreachDigest: (...args: unknown[]) => mockDailyDigest(...args),
+}));
+
 vi.mock('@/lib/firm-outreach/outreach/run-worker', () => ({
   runOutreachWorkerTick: (...args: unknown[]) => mockWorker(...args),
 }));
@@ -95,25 +100,29 @@ describe('firm-outreach approval crons', () => {
   });
 });
 
-describe('firm-outreach legacy digest cron', () => {
+describe('firm-outreach RepUK digest cron (approval off)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env = { ...ENV, CRON_SECRET: 'cron-test', FIRM_OUTREACH_REQUIRE_APPROVAL: 'false' };
+    mockDailyDigest.mockResolvedValue({ sent: true, date: '2026-08-20' });
   });
 
   afterEach(() => {
     process.env = { ...ENV };
   });
 
-  it('disables routine digest when approval is off', async () => {
+  it('sends PoliceStationRepUK daily digest when approval is off', async () => {
     const res = await digestGet(
       new Request('http://localhost/api/cron/firm-outreach-digest', {
         headers: { authorization: 'Bearer cron-test' },
       }),
     );
     const json = await res.json();
-    expect(json.mode).toBe('legacy_digest_disabled');
-    expect(json.skipped).toBe(true);
+    expect(json.mode).toBe('repuk_daily_digest');
+    expect(json.campaignId).toBe('whatsapp_invite_v1');
+    expect(json.sent).toBe(true);
+    expect(mockDailyDigest).toHaveBeenCalledOnce();
+    expect(mockApprovalEmail).not.toHaveBeenCalled();
   });
 });
 

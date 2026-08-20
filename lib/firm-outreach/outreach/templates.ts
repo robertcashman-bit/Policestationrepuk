@@ -43,13 +43,13 @@ export function subjectForStep(prospect: FirmProspect, step: number): string {
 
   if (step === 0) {
     return prospect.prospectType === 'solicitor'
-      ? 'Police station cover on WhatsApp — for criminal defence solicitors'
-      : 'Free WhatsApp group for criminal firms — police station cover';
+      ? 'Find freelance police station reps — PoliceStationRepUK directory'
+      : 'Find freelance police station cover — PoliceStationRepUK for firms';
   }
   if (step === 1) {
-    return 'Reminder: join the PoliceStationRepUK firm WhatsApp group';
+    return 'Reminder: PoliceStationRepUK directory + firm WhatsApp for cover';
   }
-  return 'Last note — police station cover group for criminal firms';
+  return 'Last note — PoliceStationRepUK directory for criminal defence firms';
 }
 
 function buildAgentCoverHtml(opts: {
@@ -151,19 +151,19 @@ export function buildOutreachEmailText(opts: {
   const intro =
     step === 0
       ? prospect.prospectType === 'solicitor'
-        ? 'PoliceStationRepUK runs a free, verified WhatsApp group for criminal defence solicitors and firms across England & Wales. Post urgent police station cover when your rota needs a rep — accredited representatives respond in real time.'
-        : 'PoliceStationRepUK runs a free, verified WhatsApp group for criminal defence firms across England & Wales. Post out-of-hours and weekend custody attendance requests — accredited police station reps who cover your areas can respond directly.'
+        ? 'PoliceStationRepUK is the free UK directory of accredited police station representatives, plus a verified WhatsApp group for cover coordinators. Browse reps by county, or post urgent custody cover when your rota needs a freelance rep.'
+        : 'PoliceStationRepUK is the free UK directory of accredited police station representatives for cover coordinators, plus a verified WhatsApp group for criminal defence firms. Find freelance reps by area, or post out-of-hours custody attendance requests.'
       : step === 1
-        ? `A quick reminder — the PoliceStationRepUK WhatsApp group is still open for ${prospect.firmName}. It is free, verified, and used by firms to source police station cover without an agency layer.`
-        : `Final note from us — if ${prospect.firmName} ever needs freelance police station cover, the PoliceStationRepUK WhatsApp group is a free resource used by criminal defence firms across England & Wales.`;
+        ? `A quick reminder — PoliceStationRepUK still offers ${prospect.firmName} a free directory of accredited reps and a firm WhatsApp group for police station cover (no agency layer).`
+        : `Final note — if ${prospect.firmName} ever needs freelance police station cover, the PoliceStationRepUK directory and firm WhatsApp group remain free resources for criminal defence firms across England & Wales.`;
 
   const benefits =
     step === 0
       ? [
+          `- Browse accredited reps on the free directory: ${SITE_URL}/directory`,
           '- Post urgent custody cover when your duty rota or panel needs a rep',
           '- Hear back from accredited reps covering your stations and counties',
           '- Instruct the rep directly — no middleman fees',
-          `- Works alongside the free rep directory: ${SITE_URL}/directory`,
           '',
         ].join('\n')
       : '';
@@ -173,7 +173,8 @@ export function buildOutreachEmailText(opts: {
     '',
     intro,
     benefits ? `\n${benefits}` : '',
-    `Join on WhatsApp: ${joinUrl}`,
+    `Join the firm WhatsApp: ${joinUrl}`,
+    `Directory: ${SITE_URL}/directory`,
     `Or read more: ${SITE_URL}/WhatsApp/firms`,
     '',
     `When you message us, include your firm name and SRA number if applicable. Ref: ${prospect.id}`,
@@ -207,19 +208,19 @@ export function buildOutreachEmailHtml(opts: {
   const intro =
     step === 0
       ? prospect.prospectType === 'solicitor'
-        ? `<p>PoliceStationRepUK runs a <strong>free, verified WhatsApp group</strong> for criminal defence solicitors and firms across England &amp; Wales. Post urgent police station cover when your rota needs a rep — accredited representatives respond in real time.</p>`
-        : `<p>PoliceStationRepUK runs a <strong>free, verified WhatsApp group</strong> for criminal defence firms across England &amp; Wales. Post out-of-hours and weekend custody attendance requests — accredited police station reps who cover your areas can respond directly.</p>`
+        ? `<p><strong>PoliceStationRepUK</strong> is the free UK directory of accredited police station representatives, plus a verified WhatsApp group for cover coordinators. Browse reps by county, or post urgent custody cover when your rota needs a freelance rep.</p>`
+        : `<p><strong>PoliceStationRepUK</strong> is the free UK directory of accredited police station representatives for cover coordinators, plus a verified WhatsApp group for criminal defence firms. Find freelance reps by area, or post out-of-hours custody attendance requests.</p>`
       : step === 1
-        ? `<p>A quick reminder — the PoliceStationRepUK WhatsApp group is still open for <strong>${firmLine}</strong>. It is free, verified, and used by firms to source police station cover without an agency layer.</p>`
-        : `<p>Final note from us — if ${firmLine} ever needs freelance police station cover, the PoliceStationRepUK WhatsApp group is a free resource used by criminal defence firms across England &amp; Wales.</p>`;
+        ? `<p>A quick reminder — PoliceStationRepUK still offers <strong>${firmLine}</strong> a free directory of accredited reps and a firm WhatsApp group for police station cover (no agency layer).</p>`
+        : `<p>Final note — if ${firmLine} ever needs freelance police station cover, the PoliceStationRepUK directory and firm WhatsApp group remain free resources for criminal defence firms across England &amp; Wales.</p>`;
 
   const benefits =
     step === 0
       ? `<ul style="margin:16px 0;padding-left:20px;line-height:1.6">
+          <li>Browse accredited reps on the free <a href="${SITE_URL}/directory">rep directory</a></li>
           <li>Post urgent custody cover when your duty rota or panel needs a rep</li>
           <li>Hear back from accredited reps covering your stations and counties</li>
           <li>Instruct the rep directly — no middleman fees</li>
-          <li>Works alongside the free <a href="${SITE_URL}/directory">rep directory</a></li>
         </ul>`
       : '';
 
@@ -233,7 +234,12 @@ export function buildOutreachEmailHtml(opts: {
       <p style="margin:24px 0">
         <a href="${escapeHtml(joinUrl)}"
            style="display:inline-block;padding:12px 22px;background:#065f46;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:700">
-          Join on WhatsApp
+          Join firm WhatsApp
+        </a>
+        &nbsp;
+        <a href="${SITE_URL}/directory"
+           style="display:inline-block;padding:12px 22px;background:#1e3a5f;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:700">
+          Open directory
         </a>
       </p>
       <p style="font-size:14px;color:#475569">

@@ -6,7 +6,7 @@ const mockListForFirm = vi.fn();
 
 vi.mock('@/lib/firm-outreach/storage', () => ({
   listProspectsByRecordStatus: (...a: unknown[]) => mockListByStatus(...a),
-  emailsWithIndexedSends: (...a: unknown[]) => mockIndexedSends(...a),
+  emailsWithIndexedSendsForCampaign: (...a: unknown[]) => mockIndexedSends(...a),
   emailHasIndexedSend: vi.fn(),
   listProspectsForFirmKey: (...a: unknown[]) => mockListForFirm(...a),
 }));
@@ -118,5 +118,27 @@ describe('selectOutreachCandidates', () => {
     });
     const readyCall = mockListByStatus.mock.calls.find((c) => c[0] === 'ready_to_send');
     expect(readyCall?.[1]).toBe(1200);
+  });
+
+  it('scopes indexed-send skips to the campaign being flushed', async () => {
+    const fresh = prospect({ id: 'fop_fresh', email: 'duty@fresh.co.uk' });
+    mockListByStatus.mockImplementation(async (status: string) => {
+      if (status === 'ready_to_send') return [fresh];
+      return [];
+    });
+    // PSA may have mailed this inbox; campaign-scoped index must not see it.
+    mockIndexedSends.mockResolvedValue(new Set<string>());
+
+    const result = await selectOutreachCandidates({
+      campaignId: 'whatsapp_invite_v1',
+      readyLimit: 50,
+      sentLimit: 50,
+    });
+
+    expect(mockIndexedSends).toHaveBeenCalledWith(
+      ['duty@fresh.co.uk'],
+      'whatsapp_invite_v1',
+    );
+    expect(result.candidates.map((c) => c.prospect.id)).toEqual(['fop_fresh']);
   });
 });

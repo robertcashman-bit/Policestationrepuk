@@ -80,13 +80,17 @@ ${section.recipients.length === 0 ? (section.zeroReason?.message ?? 'None') : `$
 }
 
 export function formatDailyReportSubject(report: ConsolidatedDailyReport): string {
-  return `Daily Outreach Report — PoliceStationAgent + PoliceStationRepUK — ${report.date}`;
+  const repukAccepted = report.repuk.emailsAcceptedByProvider;
+  if (repukAccepted > 0) {
+    return `Daily Outreach Report — PoliceStationRepUK ${repukAccepted} sent — ${report.date}`;
+  }
+  return `Daily Outreach Report — PoliceStationRepUK — ${report.date}`;
 }
 
 export function formatDailyReportText(report: ConsolidatedDailyReport): string {
   const actions =
     report.actionRequired.length === 0
-      ? 'None — both outreach systems are operating normally.'
+      ? 'None — PoliceStationRepUK outreach is operating normally. PSA Kent-cover email remains permanently disabled.'
       : report.actionRequired.map((a) => `• ${a}`).join('\n');
 
   const recipBlock = (section: WorkspaceDailySection) => {
@@ -104,16 +108,9 @@ export function formatDailyReportText(report: ConsolidatedDailyReport): string {
       .join('\n');
   };
 
-  return `DAILY OUTREACH REPORT
+  return `DAILY OUTREACH REPORT (POLICESTATIONREPUK PRIMARY)
 Date: ${report.date}
 Reporting period: ${report.reportingPeriodStart} → ${report.reportingPeriodEnd} (${report.timezone})
-
----
-
-${renderWorkspace(report.psa)}
-
-ACTUAL RECIPIENTS ACCEPTED BY PROVIDER:
-${recipBlock(report.psa)}
 
 ---
 
@@ -124,7 +121,15 @@ ${recipBlock(report.repuk)}
 
 ---
 
-## TOTAL ACROSS BOTH WORKSPACES
+${renderWorkspace(report.psa)}
+(Police Station Agent / agent_cover_kent_v1 email send is permanently disabled.)
+
+ACTUAL RECIPIENTS ACCEPTED BY PROVIDER:
+${recipBlock(report.psa)}
+
+---
+
+## TOTALS (RepUK is the live product; PSA expected 0)
 
 Eligible: ${report.totals.eligible}
 Attempted: ${report.totals.attempted}
@@ -147,7 +152,7 @@ ${actions}
 export function formatDailyReportHtml(report: ConsolidatedDailyReport): string {
   const actions =
     report.actionRequired.length === 0
-      ? '<p>None — both outreach systems are operating normally.</p>'
+      ? '<p>None — PoliceStationRepUK outreach is operating normally. PSA Kent-cover email remains permanently disabled.</p>'
       : `<ul>${report.actionRequired.map((a) => `<li>${escapeHtml(a)}</li>`).join('')}</ul>`;
 
   const sectionHtml = (section: WorkspaceDailySection) => `
@@ -192,16 +197,17 @@ export function formatDailyReportHtml(report: ConsolidatedDailyReport): string {
 
   return `
     <div style="font-family:ui-sans-serif,system-ui,sans-serif;color:#0f172a;max-width:760px;line-height:1.5;">
-      <h1 style="margin:0 0 4px;font-size:20px;">DAILY OUTREACH REPORT</h1>
+      <h1 style="margin:0 0 4px;font-size:20px;">DAILY OUTREACH REPORT — POLICESTATIONREPUK</h1>
       <p style="margin:0 0 4px;"><strong>Date:</strong> ${escapeHtml(report.date)}</p>
       <p style="margin:0 0 20px;color:#475569;font-size:13px;">
         Reporting period: ${escapeHtml(report.reportingPeriodStart)} → ${escapeHtml(report.reportingPeriodEnd)}
-        (${escapeHtml(report.timezone)})
+        (${escapeHtml(report.timezone)}). Primary campaign: <code>whatsapp_invite_v1</code>.
+        PSA Kent-cover email is permanently disabled.
       </p>
-      ${sectionHtml(report.psa)}
       ${sectionHtml(report.repuk)}
+      ${sectionHtml(report.psa)}
       <section style="margin:0 0 20px;">
-        <h2 style="margin:0 0 8px;font-size:18px;">TOTAL ACROSS BOTH WORKSPACES</h2>
+        <h2 style="margin:0 0 8px;font-size:18px;">TOTALS (RepUK live · PSA expected 0)</h2>
         <ul style="margin:0;padding-left:20px;">
           <li>Eligible: ${report.totals.eligible}</li>
           <li>Attempted: ${report.totals.attempted}</li>

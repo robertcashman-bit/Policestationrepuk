@@ -209,7 +209,7 @@ export async function bulkSendProspects(
       const normalizedEmail = normalizeEmail(email);
       if (
         emailsSentThisRun.has(normalizedEmail) ||
-        (await isDuplicateInitialSend(email, prospect.id))
+        (await isDuplicateInitialSend(email, prospect.id, prospect.campaignId))
       ) {
         await excludeProspectDuplicateEmail(prospect);
         result.skipped++;

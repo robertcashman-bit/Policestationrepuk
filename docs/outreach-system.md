@@ -21,6 +21,8 @@ Selection is explicit per prospect `campaignId` — never random dual-send to th
 
 **PSA stop (2026-08-17):** Code hard-blocks `agent_cover_kent_v1` in `sendOutreachEmail`, `runFirmOutreach`, admin manual send, autoheal, PSA sync cron, and pipeline inventory. Only `whatsapp_invite_v1` is in `SENDABLE_OUTREACH_CAMPAIGN_IDS`.
 
+**RepUK volume (2026-08-20):** Duplicate-initial and ready-queue indexing are **campaign-scoped**, so historical PSA Kent sends no longer starve RepUK. The former PSA-sync cron mirrors `agent_cover_kent_v1` email inventory into `whatsapp_invite_v1` (RepUK copy / from-address only). Daily digest at 17:00 UTC and the 07:00 London report lead with PoliceStationRepUK.
+
 ### State machine (jobs)
 
 `pending` → `claimed` → `processing` → `accepted` → (`delivered` via webhook)  
@@ -41,7 +43,7 @@ See `vercel.json`. Self-healing defaults:
 | every 15 min | send worker (job-first drain) |
 | :05/:20/:35/:50 | autoheal / reconciliation |
 | 06:00 + 07:00 | consolidated daily report (sends only in 07:00 Europe/London hour) |
-| 17:00 | approval reminder only (legacy digest disabled) |
+| 17:00 | RepUK daily digest (`whatsapp_invite_v1` ready/sent) — approval reminder only when click-to-send is on |
 
 All require `Authorization: Bearer $CRON_SECRET`.
 
@@ -49,7 +51,7 @@ All require `Authorization: Bearer $CRON_SECRET`.
 
 Exactly **one** routine outreach email per day at **07:00 Europe/London**:
 
-`Daily Outreach Report — PoliceStationAgent + PoliceStationRepUK — {{date}}`
+`Daily Outreach Report — PoliceStationRepUK — {{date}}`
 
 Recipient: `OUTREACH_ADMIN_EMAIL` (fallback `FIRM_OUTREACH_DIGEST_EMAIL`).  
 “Sent” in the report means **provider accepted** (Resend message ID stored).  

@@ -5,7 +5,11 @@ import {
   sequenceStepOf,
 } from '@robertcashman/firm-outreach-core';
 import { computeProspectPriority } from '../enrichment/scorer';
-import { emailsWithIndexedSends, listProspectsByRecordStatus, listProspectsForFirmKey } from '../storage';
+import {
+  emailsWithIndexedSendsForCampaign,
+  listProspectsByRecordStatus,
+  listProspectsForFirmKey,
+} from '../storage';
 import { isCampaignProspect } from '../campaign-scope';
 import { normalizeEmail } from '../normalize';
 import type { FirmProspect } from '../types';
@@ -83,8 +87,9 @@ export async function selectOutreachCandidates(opts: {
   const readyScan = readyProspectScanLimit(readyLimit);
   const ready = await listProspectsByRecordStatus('ready_to_send', readyScan, campaignOpts);
   const sent = await listProspectsByRecordStatus('sent', sentLimit, campaignOpts);
-  const indexedSends = await emailsWithIndexedSends(
+  const indexedSends = await emailsWithIndexedSendsForCampaign(
     ready.map((p) => p.email).filter((email): email is string => Boolean(email)),
+    opts.campaignId,
   );
 
   const readyEligible: Array<{ prospect: FirmProspect; step: number }> = [];

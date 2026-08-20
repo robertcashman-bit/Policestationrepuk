@@ -5,6 +5,7 @@
 import { getOutreachCapacity, type OutreachCapacity } from '../capacity';
 import { getLatestJobRun, listRecentJobRuns } from '../job-runs';
 import { getOutreachSendHealth } from '../outreach/from-address';
+import { isAgentCoverOutreachDisabled } from '../site-config';
 import { listAllSends, listAllSuppressions } from '../storage';
 import { OUTREACH_WORKSPACES, type OutreachWorkspaceId } from '../workspaces';
 import { classifyWorkspaceHealth, type WorkspaceHealthStatus } from './health-status';
@@ -156,20 +157,34 @@ async function buildWorkspaceSection(
     .sort((a, b) => a.sentAt.localeCompare(b.sentAt));
 
   const attempted = periodSends.length;
-  const zeroReason = explainZeroAccepted({
-    capacity,
-    attempted,
-    accepted: accepted.length,
-    suppressed: suppressedInPeriod,
-    schedulerFailed: Boolean(
-      schedulerRun && (schedulerRun.status === 'failed' || !lastSchedulerOk) && accepted.length === 0,
-    ),
-    schedulerRepaired: repairs.some((r) => r.includes('scheduler') || r.includes('trigger_outreach')),
-    providerAuthFailed: !providerAuthOk,
-    queueFailure: repairs.some((r) => r.includes('queue')),
-    queueRepairedJobs: autohealRuns.reduce((n, r) => n + (Number(r.meta?.jobsCreated) || 0), 0),
-    outstandingFaults,
-  });
+  const zeroReason =
+    workspaceId === 'psa' && isAgentCoverOutreachDisabled()
+      ? ({
+          code: 'ZERO_REASON_SENDING_DISABLED',
+          message:
+            '0 emails accepted because Police Station Agent / agent_cover_kent_v1 email outreach is permanently disabled in this repo.',
+        } satisfies ZeroSendExplanation)
+      : explainZeroAccepted({
+          capacity,
+          attempted,
+          accepted: accepted.length,
+          suppressed: suppressedInPeriod,
+          schedulerFailed: Boolean(
+            schedulerRun &&
+              (schedulerRun.status === 'failed' || !lastSchedulerOk) &&
+              accepted.length === 0,
+          ),
+          schedulerRepaired: repairs.some(
+            (r) => r.includes('scheduler') || r.includes('trigger_outreach'),
+          ),
+          providerAuthFailed: !providerAuthOk,
+          queueFailure: repairs.some((r) => r.includes('queue')),
+          queueRepairedJobs: autohealRuns.reduce(
+            (n, r) => n + (Number(r.meta?.jobsCreated) || 0),
+            0,
+          ),
+          outstandingFaults,
+        });
 
   const providerAllowance = capacity.providerBudgetUnlimited
     ? 'unlimited (no soft daily Resend budget)'
@@ -238,7 +253,12 @@ export async function buildConsolidatedDailyReport(
   ]);
 
   const actionRequired: string[] = [];
-  for (const section of [psa, repuk]) {
+  const psaDisabled = isAgentCoverOutreachDisabled();
+  for (const section of [repuk, psa]) {
+    if (section.workspace === 'psa' && psaDisabled) {
+      // Permanent disable is expected — do not treat as an operator fault.
+      continue;
+    }
     if (!sendHealth.resendConfigured) {
       actionRequired.push(`${section.label}: provider API key missing/invalid`);
     }
@@ -286,14 +306,15 @@ export async function buildConsolidatedDailyReport(
     psa,
     repuk,
     totals: {
-      eligible: psa.eligibleRecipientsFound + repuk.eligibleRecipientsFound,
+      // Live product volume is RepUK; PSA eligible queue is not sendable.
+      eligible: repuk.eligibleRecipientsFound + (psaDisabled ? 0 : psa.eligibleRecipientsFound),
       attempted: psa.emailsAttempted + repuk.emailsAttempted,
       accepted: psa.emailsAcceptedByProvider + repuk.emailsAcceptedByProvider,
       delivered: psa.emailsDelivered + repuk.emailsDelivered,
       failed: psa.permanentFailures + repuk.permanentFailures,
       retrying: psa.retriesScheduled + repuk.retriesScheduled,
       suppressed: psa.suppressed + repuk.suppressed,
-      overallStatus: mergeOverallStatus(psa.status, repuk.status),
+      overallStatus: psaDisabled ? repuk.status : mergeOverallStatus(psa.status, repuk.status),
     },
     actionRequired: uniqueActions,
   };

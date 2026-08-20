@@ -71,17 +71,18 @@ export async function sendOutreachApprovalRequestEmail(opts?: {
     .join('');
 
   const subject = opts?.reminder
-    ? `[Firm outreach] Reminder: ${readyCount} ready — send up to ${remaining} today`
-    : `[Firm outreach] ${readyCount} ready to send — click to send up to ${remaining} today`;
+    ? `[Firm outreach] Reminder: RepUK ${readyCount} ready — send up to ${remaining} today`
+    : `[Firm outreach] RepUK ${readyCount} ready to send — ${date}`;
 
   const html = `
     <div style="font-family:system-ui,sans-serif;color:#0f172a;max-width:720px;">
-      <h2 style="margin:0 0 12px;">Firm WhatsApp outreach — ready to send</h2>
+      <h2 style="margin:0 0 12px;">FIRM OUTREACH — READY TO SEND (POLICESTATIONREPUK)</h2>
       <p style="margin:0 0 16px;line-height:1.5;">
         <strong>${escapeHtml(String(readyCount))}</strong> prospects are ready
         (${sendableReady.length} with email, not suppressed).
         You can send up to <strong>${remaining}</strong> more today (cap ${cap}).
         Already sent today: ${Math.max(report.summary.sentToday, sentTodayKv)}.
+        Campaign: <code>whatsapp_invite_v1</code> (PSA Kent-cover email stays off).
       </p>
       <div style="margin:24px 0;padding:18px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc">
         <p style="margin:0 0 14px;font-size:14px;font-weight:600;">Click to review and send:</p>

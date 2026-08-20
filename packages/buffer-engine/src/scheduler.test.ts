@@ -270,6 +270,29 @@ describe('runSiteBufferScheduler limit budget', () => {
     expect(result.posts).toHaveLength(2);
     expect(createdPosts).toHaveLength(2);
   });
+
+  it('merges gap-fill creates into the existing daily run record', async () => {
+    const kv = makeKV();
+    const adapter = makeAdapter(kv, makePosts(20));
+    const now = new Date('2026-06-28T05:00:00Z');
+    const first = await runSiteBufferScheduler(adapter, { now, force: true, limit: 4 });
+    expect(first.posts).toHaveLength(4);
+
+    const second = await runSiteBufferScheduler(adapter, {
+      now,
+      force: true,
+      respectCurrentTime: true,
+      limit: 1,
+    });
+    expect(second.posts).toHaveLength(1);
+
+    const { getSchedulerRunForDate } = await import('./storage');
+    const run = await getSchedulerRunForDate(kv, 'testsite', first.date!);
+    expect(run?.postIds).toHaveLength(5);
+    expect(run?.slugs).toHaveLength(5);
+    expect(run?.postIds.slice(0, 4)).toEqual(first.posts!.map((p) => p.postId));
+    expect(run?.postIds[4]).toBe(second.posts![0]!.postId);
+  });
 });
 
 describe('runSiteBufferSelfTest', () => {

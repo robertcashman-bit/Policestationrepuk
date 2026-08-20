@@ -24,6 +24,36 @@ function shuffleChannelsRepeated(items, count, random) {
     }
     return out;
 }
+/** Append new creates onto an existing day record; dedupe by postId. */
+function mergeSchedulerRunRecord(existing, incoming) {
+    if (!existing)
+        return incoming;
+    const seen = new Set(existing.postIds);
+    const existingFeedIds = existing.feedIds && existing.feedIds.length === existing.postIds.length
+        ? [...existing.feedIds]
+        : existing.postIds.map((_, i) => existing.feedIds?.[i] ?? '');
+    const merged = {
+        date: incoming.date,
+        scheduledAt: incoming.scheduledAt,
+        postIds: [...existing.postIds],
+        slugs: [...existing.slugs],
+        feedIds: existingFeedIds,
+        channels: [...existing.channels],
+        dueAts: [...existing.dueAts],
+    };
+    for (let i = 0; i < incoming.postIds.length; i++) {
+        const postId = incoming.postIds[i];
+        if (seen.has(postId))
+            continue;
+        seen.add(postId);
+        merged.postIds.push(postId);
+        merged.slugs.push(incoming.slugs[i] ?? '');
+        merged.feedIds.push(incoming.feedIds?.[i] ?? '');
+        merged.channels.push(incoming.channels[i] ?? '');
+        merged.dueAts.push(incoming.dueAts[i] ?? '');
+    }
+    return merged;
+}
 async function preparePostImages(adapter, posts) {
     const publicDir = adapter.publicDir ?? (0, node_path_1.join)(process.cwd(), 'public');
     const out = [];
@@ -351,7 +381,10 @@ async function runSiteBufferScheduler(adapter, options = {}) {
             }
             return { ok: false, reason: 'All schedule attempts failed', date: localDate, errors };
         }
-        await (0, storage_1.saveSchedulerRun)(kv, adapter.siteId, {
+        // Gap-fill / force top-ups must append to the day's run record — replacing would
+        // drop earlier post IDs and make publish verify / yesterday health under-report.
+        const existingRun = await (0, storage_1.getSchedulerRunForDate)(kv, adapter.siteId, localDate);
+        const runRecord = mergeSchedulerRunRecord(existingRun, {
             date: localDate,
             scheduledAt: now.toISOString(),
             postIds: created.map((p) => p.postId),
@@ -360,6 +393,7 @@ async function runSiteBufferScheduler(adapter, options = {}) {
             channels: created.map((p) => p.channelId),
             dueAts: created.map((p) => p.dueAt ?? ''),
         });
+        await (0, storage_1.saveSchedulerRun)(kv, adapter.siteId, runRecord);
         runPersisted = true;
         await (0, storage_1.saveRecentSlugEntries)(kv, adapter.siteId, (0, scheduler_core_1.appendRecentSlugs)(recentEntries, newRecent, 500));
         await (0, storage_1.saveSlugEngagementStats)(kv, adapter.siteId, updatedStats);

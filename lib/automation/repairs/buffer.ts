@@ -104,7 +104,9 @@ export async function repairBufferSchedule(options?: {
     error: verify.ok ? undefined : verify.issues.join('; '),
   });
 
-  if (!verify.ok && gapFilled === 0) {
+  // Only unbounded force-schedule when Buffer has nothing for today.
+  // Partial days with gapFilled=0 (idempotent shortfall) must not get a full extra quota.
+  if (!verify.ok && gapFilled === 0 && verify.scheduledCount === 0) {
     // Missed scheduler run — try internal scheduler once (not public HTTP).
     const schedule = await runRepukBufferScheduler({
       now,

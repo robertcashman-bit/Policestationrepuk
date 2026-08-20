@@ -188,9 +188,14 @@ describe('sendConsolidatedDailyReport', () => {
     expect(result.providerMessageId).toBe('re_daily_1');
     expect(mockResendSend).toHaveBeenCalledOnce();
     const arg = mockResendSend.mock.calls[0][0];
-    expect(arg.subject).toContain('Daily Outreach Report');
+    expect(arg.subject).toContain('PoliceStationRepUK');
+    expect(arg.subject).not.toMatch(/PoliceStationAgent \+/);
+    expect(arg.html).toContain('POLICESTATIONREPUK');
     expect(arg.html).toContain('POLICESTATIONAGENT.COM');
-    expect(arg.html).toContain('POLICESTATIONREPUK.ORG');
+    // RepUK section must appear before PSA in the HTML body.
+    expect(arg.html.indexOf('POLICESTATIONREPUK.ORG')).toBeLessThan(
+      arg.html.indexOf('POLICESTATIONAGENT.COM'),
+    );
   });
 
   it('scenario 13: second trigger is idempotent', async () => {

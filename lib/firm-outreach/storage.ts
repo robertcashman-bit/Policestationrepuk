@@ -431,6 +431,27 @@ export async function emailsWithIndexedSends(emails: string[]): Promise<Set<stri
   return hit;
 }
 
+/**
+ * Inboxes that already have a send recorded for this campaign only.
+ * PSA (`agent_cover_kent_v1`) history must not clog RepUK candidate selection.
+ */
+export async function emailsWithIndexedSendsForCampaign(
+  emails: string[],
+  campaignId: string,
+): Promise<Set<string>> {
+  const anyIndexed = await emailsWithIndexedSends(emails);
+  if (anyIndexed.size === 0) return anyIndexed;
+
+  const hit = new Set<string>();
+  for (const email of anyIndexed) {
+    const sends = await listSendsForEmail(email);
+    if (sends.some((s) => s.campaignId === campaignId)) {
+      hit.add(email);
+    }
+  }
+  return hit;
+}
+
 /** Cheap check: this inbox already has at least one indexed send record. */
 export async function emailHasIndexedSend(email: string): Promise<boolean> {
   const hits = await emailsWithIndexedSends([email]);
@@ -442,6 +463,8 @@ export function emailHasInitialOutreachFromOtherProspect(
   sends: FirmOutreachSend[],
   email: string,
   prospectId: string,
+  /** When set, only count initial sends for this campaign (PSA history must not starve RepUK). */
+  campaignId?: string,
 ): boolean {
   const normalized = normalizeEmail(email);
   return sends.some(
@@ -449,20 +472,24 @@ export function emailHasInitialOutreachFromOtherProspect(
       normalizeEmail(s.email) === normalized &&
       s.sequenceStep === 0 &&
       s.prospectId !== prospectId &&
+      (!campaignId || s.campaignId === campaignId) &&
       s.status !== 'bounced' &&
       s.status !== 'queued',
   );
 }
 
-/** True when another prospect already received the initial outreach at this email. */
+/**
+ * True when another prospect already received the initial outreach at this email.
+ * Pass `campaignId` so permanently disabled campaigns (agent_cover_kent_v1) do not
+ * permanently block PoliceStationRepUK (`whatsapp_invite_v1`) inventory.
+ */
 export async function isDuplicateInitialSend(
   email: string,
   prospectId: string,
-  _campaignId?: string,
+  campaignId?: string,
 ): Promise<boolean> {
-  // Cross-campaign: the same inbox must not get a second initial pitch.
   const sends = await listSendsForEmail(email, { allowFullScan: true });
-  return emailHasInitialOutreachFromOtherProspect(sends, email, prospectId);
+  return emailHasInitialOutreachFromOtherProspect(sends, email, prospectId, campaignId);
 }
 
 /** True when this inbox already received a provider-accepted send on the UTC date. */

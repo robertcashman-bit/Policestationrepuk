@@ -292,7 +292,7 @@ export async function importLeadEngineCsv(
       merged.status = resolveStatusWithQualification(merged, 'ready_to_send');
       if (
         merged.status === 'ready_to_send' &&
-        (await isDuplicateInitialSend(merged.email!, merged.id))
+        (await isDuplicateInitialSend(merged.email!, merged.id, merged.campaignId))
       ) {
         merged.status = 'excluded';
         merged.excludedReason = 'duplicate_email';
@@ -308,7 +308,7 @@ export async function importLeadEngineCsv(
     built.status = resolveStatusWithQualification(built, 'ready_to_send');
     if (
       built.status === 'ready_to_send' &&
-      (await isDuplicateInitialSend(built.email!, built.id))
+      (await isDuplicateInitialSend(built.email!, built.id, built.campaignId))
     ) {
       built.status = 'excluded';
       built.excludedReason = 'duplicate_email';

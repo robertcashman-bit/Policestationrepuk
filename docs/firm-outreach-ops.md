@@ -111,7 +111,7 @@ Outreach uses Resend. Only **verified** domains can send.
 
 **Permanent auto-fix:** before each batch, the send path resolves from-address against Resend verified domains. If `policestationagent.com` is not verified, PSA emails send from the verified RepUK domain automatically (content and links remain PSA). On a Resend domain error, the send retries once with the verified fallback.
 
-**Both campaigns historically shared one send worker.** As of 2026-08-17, **Police Station Agent / `agent_cover_kent_v1` is permanently disabled** in code (`AGENT_COVER_OUTREACH_PERMANENTLY_DISABLED`). Cron/pipeline/`send-approved` call `runFirmOutreachAllCampaigns`, which only flushes **`whatsapp_invite_v1`** (RepUK WhatsApp / firm invites). PSA sync cron and agent-cover seed/enrich are no-ops.
+**Both campaigns historically shared one send worker.** As of 2026-08-17, **Police Station Agent / `agent_cover_kent_v1` is permanently disabled** in code (`AGENT_COVER_OUTREACH_PERMANENTLY_DISABLED`). Cron/pipeline/`send-approved` call `runFirmOutreachAllCampaigns`, which only flushes **`whatsapp_invite_v1`** (RepUK directory / WhatsApp firm invites). The `firm-outreach-psa-sync` cron no longer seeds PSA; it **mirrors agent_cover email inventory into `whatsapp_invite_v1`**. Duplicate-initial checks are campaign-scoped so historical PSA sends do not starve RepUK. Digests and the 07:00 London report lead with PoliceStationRepUK.
 
 Do **not** re-enable PSA sends from this repo. See `.cursor/rules/psa-outreach-disabled.mdc`.
 

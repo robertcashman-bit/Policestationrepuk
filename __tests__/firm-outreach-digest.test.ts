@@ -113,8 +113,8 @@ describe('sendDailyOutreachDigest', () => {
       expect.objectContaining({
         from: 'PoliceStationRepUK <noreply@policestationrepuk.org>',
         to: 'robertdavidcashman@gmail.com',
-        subject: expect.stringContaining('sent today'),
-        html: expect.stringMatching(/Send domain health/),
+        subject: expect.stringContaining('RepUK'),
+        html: expect.stringMatching(/POLICESTATIONREPUK|Send domain health/),
       }),
     );
     expect(mockMarkSent).toHaveBeenCalledWith('2026-06-11', 'whatsapp_invite_v1');

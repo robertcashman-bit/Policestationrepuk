@@ -98,6 +98,11 @@ export async function applyAutohealRepairs(
           (f.code === 'queue_empty_with_eligible' || f.code === 'campaign_starved') &&
           (f.workspace === 'psa' || f.workspace === 'both'),
       );
+    const repukStarved = faults.some(
+      (f) =>
+        (f.code === 'queue_empty_with_eligible' || f.code === 'campaign_starved') &&
+        (f.workspace === 'repuk' || f.workspace === 'both'),
+    );
     if (psaStarved) {
       try {
         const sync = await syncKentProspectsToAgentCover({
@@ -112,6 +117,20 @@ export async function applyAutohealRepairs(
       }
     } else if (isAgentCoverOutreachDisabled()) {
       skipped.push('skip_psa_queue_refill_permanently_disabled');
+    }
+    if (repukStarved) {
+      try {
+        const { syncAgentCoverInventoryToRepuk } = await import('../sync-agent-cover-to-repuk');
+        const sync = await syncAgentCoverInventoryToRepuk({
+          limit: 120,
+          maxElapsedMs: 50_000,
+        });
+        repairs.push(
+          `repuk_inventory_sync:created=${sync.created ?? 0},updated=${sync.updated ?? 0}`,
+        );
+      } catch (err) {
+        errors.push(`repuk_inventory_sync:${err instanceof Error ? err.message : String(err)}`);
+      }
     }
   }
 

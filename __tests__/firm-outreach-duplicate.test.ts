@@ -95,6 +95,40 @@ describe('emailHasInitialOutreachFromOtherProspect', () => {
       ),
     ).toBe(false);
   });
+
+  it('ignores initial sends from another campaign when campaignId is scoped', () => {
+    expect(
+      emailHasInitialOutreachFromOtherProspect(
+        [
+          makeSend({
+            prospectId: 'fop_psa',
+            campaignId: 'agent_cover_kent_v1',
+            email: 'info@firm.co.uk',
+          }),
+        ],
+        'info@firm.co.uk',
+        'fop_repuk',
+        'whatsapp_invite_v1',
+      ),
+    ).toBe(false);
+  });
+
+  it('still blocks when another prospect was mailed in the same campaign', () => {
+    expect(
+      emailHasInitialOutreachFromOtherProspect(
+        [
+          makeSend({
+            prospectId: 'fop_other',
+            campaignId: 'whatsapp_invite_v1',
+            email: 'info@firm.co.uk',
+          }),
+        ],
+        'info@firm.co.uk',
+        'fop_repuk',
+        'whatsapp_invite_v1',
+      ),
+    ).toBe(true);
+  });
 });
 
 describe('dailySendCap default', () => {

@@ -196,12 +196,12 @@ export async function sendDailyOutreachDigest(opts?: {
 
   const subject =
     sentToday > 0
-      ? `[Firm outreach] ${sentToday} sent today — ${date}`
+      ? `[Firm outreach] RepUK ${sentToday} sent today — ${date}`
       : sendableReady.length > 0
-        ? `[Firm outreach] ${sendableReady.length} sendable ready — ${date}`
+        ? `[Firm outreach] RepUK ${sendableReady.length} ready to send — ${date}`
         : readyCount > 0
-          ? `[Firm outreach] ${readyCount} ready (0 sendable) — ${date}`
-          : `[Firm outreach] Daily digest — ${date}`;
+          ? `[Firm outreach] RepUK ${readyCount} ready (0 sendable) — ${date}`
+          : `[Firm outreach] RepUK daily digest — ${date}`;
 
   const pipelineSection = opts?.pipeline
     ? `
@@ -210,7 +210,7 @@ export async function sendDailyOutreachDigest(opts?: {
         <li>LAA: ${opts.pipeline.laaRefreshed ? 'refreshed' : 'cache'}</li>
         <li>Enriched: ${opts.pipeline.enrich.processed} · emails found: ${opts.pipeline.enrich.emailsFound}</li>
         <li>Sent this run (RepUK): ${opts.pipeline.send.sent} · skipped: ${opts.pipeline.send.skipped}</li>
-        <li>Sent this run (PSA Kent): ${opts.pipeline.agentCoverSend?.sent ?? 0} · skipped: ${opts.pipeline.agentCoverSend?.skipped ?? 0}</li>
+        <li>PSA Kent send: permanently disabled (0)</li>
       </ul>
     `
     : '';
@@ -231,11 +231,15 @@ export async function sendDailyOutreachDigest(opts?: {
 
   const html = `
     <div style="font-family:system-ui,sans-serif;max-width:720px">
-      <h2>Firm WhatsApp outreach — daily digest</h2>
+      <h2>FIRM OUTREACH — DAILY DIGEST (POLICESTATIONREPUK)</h2>
+      <p style="margin:0 0 12px;color:#475569;font-size:14px;">
+        Campaign: <code>whatsapp_invite_v1</code> · PoliceStationRepUK directory / WhatsApp firm invites.
+        Police Station Agent (Kent cover) email send stays permanently off.
+      </p>
       <p><strong>Date:</strong> ${escapeHtml(date)}</p>
       <ul>
-        <li><strong>Ready to send:</strong> ${readyCount} raw · <strong>${sendableReady.length} sendable</strong>${parkedReady > 0 ? ` · ${parkedReady} parked/cooldown/junk` : ''}</li>
-        <li><strong>Sent today:</strong> ${sentToday} / ${cap} daily cap (${remaining} remaining)</li>
+        <li><strong>Ready to send:</strong> ${readyCount} raw · <strong>${sendableReady.length} sendable</strong>${parkedReady > 0 ? ` · ${parkedReady} parked/cooldown/junk` : ''} (${sendableReady.length} with email, not suppressed)</li>
+        <li><strong>Sent today:</strong> ${sentToday} / ${cap >= Number.MAX_SAFE_INTEGER ? 'unlimited' : cap} daily cap${cap < Number.MAX_SAFE_INTEGER ? ` (${remaining} remaining)` : ''}</li>
         <li><strong>Sent last 7 days:</strong> ${report.summary.sentLast7Days}</li>
       </ul>
       ${pipelineSection}

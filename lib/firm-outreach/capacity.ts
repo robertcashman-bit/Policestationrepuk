@@ -10,6 +10,7 @@ import {
 import {
   dailySendCap,
   isDailySendCapUnlimited,
+  isCronSendBatchUnlimited,
   cronSendBatchSize,
   outreachSendEnabled,
 } from './constants';
@@ -181,6 +182,7 @@ export async function getOutreachCapacity(
     hourlyLimit == null ? null : Math.max(0, hourlyLimit - hourlyUsed);
 
   const batchSize = cronSendBatchSize();
+  const batchUnlimited = isCronSendBatchUnlimited(batchSize);
 
   let limitingFactor: OutreachLimitingFactor = 'none';
   let limitingDetail = 'Capacity available.';
@@ -207,7 +209,9 @@ export async function getOutreachCapacity(
       'FIRM_OUTREACH_REQUIRE_APPROVAL=true — automated worker will not send until Confirm.';
     effective = 0;
   } else {
-    effective = Math.min(effective, batchSize);
+    if (!batchUnlimited) {
+      effective = Math.min(effective, batchSize);
+    }
     if (!providerBudgetUnlimited && providerRemainingToday <= 0) {
       limitingFactor = 'provider_daily_limit';
       limitingDetail = `Brevo/Resend soft daily allowance: ${providerDailyLimit}. Accepted today (shared): ${providerUsedToday}. Remaining: 0. Resets at ${nextUtcMidnightIso(now)}.`;
@@ -243,8 +247,17 @@ export async function getOutreachCapacity(
     ) {
       limitingFactor = 'pending_jobs_only';
       limitingDetail = `No new eligible leads; ${pendingJobs + retryScheduledJobs} durable job(s) still drainable.`;
-      effective = Math.min(effective, pendingJobs + retryScheduledJobs, batchSize);
-    } else if (effective > 0 && limitingFactor === 'none' && effective === batchSize) {
+      effective = Math.min(
+        effective,
+        pendingJobs + retryScheduledJobs,
+        batchUnlimited ? Number.MAX_SAFE_INTEGER : batchSize,
+      );
+    } else if (
+      effective > 0 &&
+      limitingFactor === 'none' &&
+      !batchUnlimited &&
+      effective === batchSize
+    ) {
       limitingFactor = 'batch_size';
       limitingDetail = `Current batch capacity is ${batchSize} (cron/worker batch size).`;
     }
@@ -254,6 +267,7 @@ export async function getOutreachCapacity(
     effective > 0 &&
     limitingFactor === 'none' &&
     !providerBudgetUnlimited &&
+    !batchUnlimited &&
     providerRemainingToday < batchSize
   ) {
     limitingFactor = 'provider_daily_limit';
@@ -287,7 +301,10 @@ export async function getOutreachCapacity(
     hourlyUsed,
     hourlyRemaining,
     currentBatchCapacity: batchSize,
-    effectiveAvailableCapacity: Math.max(0, Math.min(effective, batchSize)),
+    effectiveAvailableCapacity: Math.max(
+      0,
+      batchUnlimited ? effective : Math.min(effective, batchSize),
+    ),
     limitingFactor,
     limitingDetail,
     nextResetAt: nextUtcMidnightIso(now),

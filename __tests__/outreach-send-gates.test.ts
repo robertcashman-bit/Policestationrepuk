@@ -59,4 +59,60 @@ describe('outreachEmailSendBlocker', () => {
       }),
     ).resolves.toBe('duplicate');
   });
+
+  /**
+   * Live 2026-08-21 failure mode: digest showed 482 RepUK sendable / 0 sent.
+   * Candidate selection was campaign-scoped (PR #13) but the live send gate still
+   * treated historical agent_cover_kent_v1 initials as duplicates — every enqueue
+   * skipped, queue never drained.
+   */
+  it('does not treat PSA Kent initial history as a RepUK duplicate (482-ready/0-sent gate)', async () => {
+    mockListSends.mockResolvedValue([
+      {
+        id: 'fos_psa',
+        prospectId: 'fop_psa',
+        email: 'crime@firm.co.uk',
+        campaignId: 'agent_cover_kent_v1',
+        sequenceStep: 0,
+        status: 'sent',
+        sentAt: '2026-08-10T12:00:00.000Z',
+        createdAt: '2026-08-10T12:00:00.000Z',
+      },
+    ]);
+    await expect(
+      outreachEmailSendBlocker({
+        email: 'crime@firm.co.uk',
+        prospectId: 'fop_repuk',
+        campaignId: 'whatsapp_invite_v1',
+        step: 0,
+        emailsSentThisRun: new Set(),
+        today: '2026-08-21',
+      }),
+    ).resolves.toBeNull();
+  });
+
+  it('still blocks same-campaign initial duplicates for RepUK', async () => {
+    mockListSends.mockResolvedValue([
+      {
+        id: 'fos_repuk',
+        prospectId: 'fop_other',
+        email: 'crime@firm.co.uk',
+        campaignId: 'whatsapp_invite_v1',
+        sequenceStep: 0,
+        status: 'sent',
+        sentAt: '2026-08-10T12:00:00.000Z',
+        createdAt: '2026-08-10T12:00:00.000Z',
+      },
+    ]);
+    await expect(
+      outreachEmailSendBlocker({
+        email: 'crime@firm.co.uk',
+        prospectId: 'fop_repuk',
+        campaignId: 'whatsapp_invite_v1',
+        step: 0,
+        emailsSentThisRun: new Set(),
+        today: '2026-08-21',
+      }),
+    ).resolves.toBe('duplicate');
+  });
 });

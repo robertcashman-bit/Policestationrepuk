@@ -26,9 +26,16 @@ export async function outreachEmailSendBlocker(opts: {
   const today = opts.today ?? new Date().toISOString().slice(0, 10);
   const sends = await listSendsForEmail(opts.email);
   if (emailHasAcceptedSendOnDate(sends, opts.email, today)) return 'duplicate';
+  // Campaign-scoped: PSA Kent history must not starve RepUK WhatsApp invites.
+  // Passing campaignId was the gap behind "hundreds ready / 0 sent" after PR #13.
   if (
     opts.step === 0 &&
-    emailHasInitialOutreachFromOtherProspect(sends, opts.email, opts.prospectId)
+    emailHasInitialOutreachFromOtherProspect(
+      sends,
+      opts.email,
+      opts.prospectId,
+      opts.campaignId,
+    )
   ) {
     return 'duplicate';
   }

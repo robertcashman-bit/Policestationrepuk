@@ -30,6 +30,7 @@ export const ARTICLES_BATCH_2: BlogArticle[] = [
       'what-does-a-freelance-police-station-representative-do',
       'what-makes-a-good-police-station-representative',
       'how-firms-can-instruct-freelance-police-station-reps',
+      'duty-solicitor-police-station',
     ],
     faqs: [
       {

@@ -168,6 +168,12 @@ const BLOG_SLUG: Record<string, ContentSource[]> = {
   'how-to-become-police-station-representative-2026': [PSRAS, SRA_PSRAS, PACE],
   'freelance-rep-day-rate-2026': [SI_2025_1251, SABC, SCC_2025],
   'building-firm-panel-freelance-reps': [SCC_2025, SRA_STANDARDS, PSRAS],
+  'duty-solicitor-police-station': [
+    PACE_ACT,
+    { label: 'PACE Code C (2023)', href: 'https://www.gov.uk/government/publications/pace-code-c-2023' },
+    SCC_2025,
+    { label: 'Find legal advice (justice.gov.uk)', href: 'https://find-legal-advice.justice.gov.uk/' },
+  ],
 };
 
 const CRAWL_SLUG: Record<string, ContentSource[]> = {

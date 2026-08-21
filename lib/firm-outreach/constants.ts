@@ -17,7 +17,8 @@ const env = createOutreachEnvHelpers({
   countyAllowlist: null,
   cronEnrichBatch: 60,
   // Soft daily cap is off by default (unset/0); Resend budget still binds.
-  cronSendBatch: 50,
+  // Soft per-tick send batch is also off by default (unset/0); Vercel
+  // maxDuration / worker maxElapsedMs still bind. Do not hardcode 50 here.
   enrichMaxMs: 270_000,
   paidDailyCap: 150,
 });
@@ -27,6 +28,8 @@ export const outreachSendEnabled = env.outreachSendEnabled;
 export const outreachPaused = env.outreachPaused;
 export const outreachRequireApproval = env.outreachRequireApproval;
 export const isDailySendCapUnlimited = (cap = env.dailySendCap()): boolean =>
+  cap >= Number.MAX_SAFE_INTEGER;
+export const isCronSendBatchUnlimited = (cap = env.cronSendBatchSize()): boolean =>
   cap >= Number.MAX_SAFE_INTEGER;
 export const dailySendCap = env.dailySendCap;
 export const enrichBatchSize = env.enrichBatchSize;

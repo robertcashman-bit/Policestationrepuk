@@ -67,7 +67,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const sendLimit = Math.min(dailySendCap(), cronSendBatchSize() * 2);
+    const batch = cronSendBatchSize();
+    const daily = dailySendCap();
+    // Unlimited batch: do not invent a synthetic ceiling; daily/Resend still bind.
+    const sendLimit =
+      batch >= Number.MAX_SAFE_INTEGER ? daily : Math.min(daily, batch * 2);
     const { combined: stats, byCampaign } = await runFirmOutreachAllCampaigns({
       limit: sendLimit,
       maxElapsedMs: 240_000,

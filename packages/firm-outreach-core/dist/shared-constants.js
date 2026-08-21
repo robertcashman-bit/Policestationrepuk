@@ -286,8 +286,24 @@ function createOutreachEnvHelpers(defaults = {}) {
         cronEnrichBatchSize() {
             return (Number(process.env.FIRM_OUTREACH_CRON_ENRICH_BATCH ?? defaults.cronEnrichBatch ?? 10) || 10);
         },
+        /**
+         * Soft per-tick cron send batch. Unset / 0 / off / unlimited = no batch
+         * ceiling (serverless maxDuration / maxElapsedMs still binds). Explicit
+         * positive env wins; invalid env falls back to defaults.cronSendBatch.
+         */
         cronSendBatchSize() {
-            return (Number(process.env.FIRM_OUTREACH_CRON_SEND_BATCH ?? defaults.cronSendBatch ?? 25) || 25);
+            const raw = process.env.FIRM_OUTREACH_CRON_SEND_BATCH?.trim();
+            if (raw === undefined ||
+                raw === '' ||
+                raw === '0' ||
+                ['off', 'none', 'unlimited', 'false', 'no'].includes(raw.toLowerCase())) {
+                return Number.MAX_SAFE_INTEGER;
+            }
+            const n = Number(raw);
+            if (Number.isFinite(n) && n > 0)
+                return Math.floor(n);
+            // Invalid explicit value — fall back to configured default, not unlimited.
+            return Number(defaults.cronSendBatch ?? 25) || 25;
         },
         enrichMaxElapsedMs() {
             return (Number(process.env.FIRM_OUTREACH_ENRICH_MAX_MS ?? defaults.enrichMaxMs ?? 90000) || 90000);

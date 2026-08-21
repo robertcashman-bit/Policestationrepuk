@@ -157,6 +157,49 @@ describe('dailySendCap default', () => {
   });
 });
 
+describe('cronSendBatchSize default', () => {
+  it('is unlimited when env is unset (no hardcoded 50)', async () => {
+    const prev = process.env.FIRM_OUTREACH_CRON_SEND_BATCH;
+    delete process.env.FIRM_OUTREACH_CRON_SEND_BATCH;
+    vi.resetModules();
+    const { cronSendBatchSize, isCronSendBatchUnlimited } = await import(
+      '@/lib/firm-outreach/constants'
+    );
+    expect(isCronSendBatchUnlimited(cronSendBatchSize())).toBe(true);
+    expect(cronSendBatchSize()).not.toBe(50);
+    expect(cronSendBatchSize()).not.toBe(25);
+    if (prev === undefined) delete process.env.FIRM_OUTREACH_CRON_SEND_BATCH;
+    else process.env.FIRM_OUTREACH_CRON_SEND_BATCH = prev;
+  });
+
+  it('is unlimited when env is 0 or off', async () => {
+    const prev = process.env.FIRM_OUTREACH_CRON_SEND_BATCH;
+    process.env.FIRM_OUTREACH_CRON_SEND_BATCH = '0';
+    vi.resetModules();
+    let mod = await import('@/lib/firm-outreach/constants');
+    expect(mod.isCronSendBatchUnlimited(mod.cronSendBatchSize())).toBe(true);
+    process.env.FIRM_OUTREACH_CRON_SEND_BATCH = 'unlimited';
+    vi.resetModules();
+    mod = await import('@/lib/firm-outreach/constants');
+    expect(mod.isCronSendBatchUnlimited(mod.cronSendBatchSize())).toBe(true);
+    if (prev === undefined) delete process.env.FIRM_OUTREACH_CRON_SEND_BATCH;
+    else process.env.FIRM_OUTREACH_CRON_SEND_BATCH = prev;
+  });
+
+  it('honours an explicit positive env cap', async () => {
+    const prev = process.env.FIRM_OUTREACH_CRON_SEND_BATCH;
+    process.env.FIRM_OUTREACH_CRON_SEND_BATCH = '75';
+    vi.resetModules();
+    const { cronSendBatchSize, isCronSendBatchUnlimited } = await import(
+      '@/lib/firm-outreach/constants'
+    );
+    expect(cronSendBatchSize()).toBe(75);
+    expect(isCronSendBatchUnlimited(cronSendBatchSize())).toBe(false);
+    if (prev === undefined) delete process.env.FIRM_OUTREACH_CRON_SEND_BATCH;
+    else process.env.FIRM_OUTREACH_CRON_SEND_BATCH = prev;
+  });
+});
+
 describe('cronEnrichBatchSize default', () => {
   it('defaults to 50 when env is unset', async () => {
     const prev = process.env.FIRM_OUTREACH_CRON_ENRICH_BATCH;

@@ -41,6 +41,11 @@ export declare function createOutreachEnvHelpers(defaults?: OutreachLimitsDefaul
     dailySendCap(): number;
     enrichBatchSize(): number;
     cronEnrichBatchSize(): number;
+    /**
+     * Soft per-tick cron send batch. Unset / 0 / off / unlimited = no batch
+     * ceiling (serverless maxDuration / maxElapsedMs still binds). Explicit
+     * positive env wins; invalid env falls back to defaults.cronSendBatch.
+     */
     cronSendBatchSize(): number;
     enrichMaxElapsedMs(): number;
     paidDailyCap(): number;

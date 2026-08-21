@@ -21,7 +21,7 @@ Selection is explicit per prospect `campaignId` — never random dual-send to th
 
 **PSA stop (2026-08-17):** Code hard-blocks `agent_cover_kent_v1` in `sendOutreachEmail`, `runFirmOutreach`, admin manual send, autoheal, PSA sync cron, and pipeline inventory. Only `whatsapp_invite_v1` is in `SENDABLE_OUTREACH_CAMPAIGN_IDS`.
 
-**RepUK volume (2026-08-20):** Duplicate-initial and ready-queue indexing are **campaign-scoped**, so historical PSA Kent sends no longer starve RepUK. The former PSA-sync cron mirrors `agent_cover_kent_v1` email inventory into `whatsapp_invite_v1` (RepUK copy / from-address only). Daily digest at 17:00 UTC and the 07:00 London report lead with PoliceStationRepUK.
+**RepUK volume (2026-08-20 / 2026-08-21):** Duplicate-initial checks, ready-queue indexing, and the live `outreachEmailSendBlocker` gate are **campaign-scoped**, so historical PSA Kent sends no longer starve RepUK (the 21 Aug “482 ready / 0 sent” bug was the send gate still ignoring `campaignId` after candidate selection was fixed). The former PSA-sync cron mirrors `agent_cover_kent_v1` email inventory into `whatsapp_invite_v1` (RepUK copy / from-address only). Daily digest at 17:00 UTC and the 07:00 London report lead with PoliceStationRepUK. A “KENT AGENT COVER” digest is not emitted by this app — that mail comes from the policestationagent sibling.
 
 ### State machine (jobs)
 

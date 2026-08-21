@@ -120,4 +120,47 @@ describe('sendDailyOutreachDigest', () => {
     expect(mockMarkSent).toHaveBeenCalledWith('2026-06-11', 'whatsapp_invite_v1');
     expect(mockGetDailySendCount).toHaveBeenCalledWith('2026-06-11', 'whatsapp_invite_v1');
   });
+
+  it('never titles or bodies a Kent-agent / PSA digest from this app', async () => {
+    mockGetDailySendCount.mockResolvedValue(0);
+    mockBuildReport.mockResolvedValue({
+      report: {
+        summary: {
+          readyToSend: 43,
+          sentToday: 0,
+          sentLast7Days: 129,
+          discovered: 100,
+          totalSends: 20,
+          noEmail: 5,
+          excluded: 1,
+          unsubscribed: 0,
+          joinedWhatsApp: 0,
+        },
+        readyToSendProspects: [
+          {
+            prospectId: 'fop_1',
+            firmName: 'Alpha LLP',
+            prospectType: 'firm',
+            email: 'crime@alpha.co.uk',
+            county: 'Kent',
+            priorityScore: 80,
+            sources: ['laa'],
+            updatedAt: '2026-06-11T08:00:00.000Z',
+            suppressed: false,
+          },
+        ],
+        sends: [],
+      },
+    });
+    vi.resetModules();
+    const { sendDailyOutreachDigest } = await import('@/lib/firm-outreach/outreach/digest-email');
+    await sendDailyOutreachDigest();
+    const payload = mockResendSend.mock.calls[0]?.[0] as { subject: string; html: string };
+    expect(payload.subject).toMatch(/RepUK/);
+    expect(payload.subject).not.toMatch(/KENT|AGENT COVER|Police Station Agent/i);
+    expect(payload.html).toContain('POLICESTATIONREPUK');
+    expect(payload.html).toContain('policestationrepuk.org/admin/firm-outreach');
+    expect(payload.html).not.toMatch(/KENT AGENT COVER/i);
+    expect(payload.html).not.toContain('policestationagent.com/admin/firm-outreach');
+  });
 });

@@ -130,7 +130,12 @@ export const LEGACY_BLOG_SLUG_TO_PATH: Record<string, string> = {
 };
 
 const TOPIC_RULES: { pattern: RegExp; target: string }[] = [
-  { pattern: /duty[- ]?solicitor|solicitor.*interview|legal-advice-free/, target: '/Blog/freelance-police-station-representative-vs-duty-solicitor' },
+  // Do not match editorial slugs like `duty-solicitor-police-station` (duty-solicitor + later police-station).
+  // Prefer exact LEGACY_BLOG_SLUG_TO_PATH entries; this is only a fuzzy safety net for unknown variants.
+  {
+    pattern: /duty[- ]?solicitor(?!.*police-station)|solicitor.*interview|legal-advice-free/,
+    target: '/Blog/freelance-police-station-representative-vs-duty-solicitor',
+  },
   { pattern: /disclosure|brief|digital-evidence/, target: '/Blog/what-to-include-in-a-police-station-brief' },
   { pattern: /no-further-action|released-under|bail|handover/, target: '/Blog/best-practice-handover-notes-after-police-station-attendance' },
   { pattern: /kent|out-of-hours|24-7|swanley|cover/, target: '/Blog/out-of-hours-police-station-cover-for-law-firms' },
@@ -143,6 +148,8 @@ const TOPIC_RULES: { pattern: RegExp; target: string }[] = [
 /**
  * Resolve a legacy blog slug to a redirect target, or null if it is a current article slug.
  * Unknown legacy slugs redirect to /Blog rather than 404 — reduces GSC "Not found" noise after Wix migration.
+ *
+ * Current editorial slugs (NEW_BLOG_SLUG_SET) always win over TOPIC_RULES fuzzy matches.
  */
 export function resolveLegacyBlogRedirect(slug: string): string | null {
   const normalized = slug.trim();

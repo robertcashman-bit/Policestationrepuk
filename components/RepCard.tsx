@@ -1,9 +1,23 @@
 import Link from 'next/link';
 import type { Representative } from '@/lib/types';
 import { phoneToTelHref } from '@/lib/phone';
+import {
+  publicDirectoryPhone,
+  stationPageRepCallPhone,
+} from '@/lib/operator-public-phones';
 
-export function RepCard({ rep }: { rep: Representative }) {
-  const phoneHref = rep.phone ? phoneToTelHref(rep.phone) : null;
+export function RepCard({
+  rep,
+  /** On police-station pages, omit operator mobile/landline Call (looks like a station line). */
+  stationPage = false,
+}: {
+  rep: Representative;
+  stationPage?: boolean;
+}) {
+  const displayPhone = stationPage
+    ? stationPageRepCallPhone(rep.phone)
+    : publicDirectoryPhone(rep.phone);
+  const phoneHref = displayPhone ? phoneToTelHref(displayPhone) : null;
   const acc = rep.accreditation || '';
   const avail = rep.availability || '';
   const stations = rep.stations || [];

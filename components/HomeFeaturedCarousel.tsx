@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { Representative } from '@/lib/types';
 import { phoneToTelHref } from '@/lib/phone';
+import { publicDirectoryPhone } from '@/lib/operator-public-phones';
 import { withSisterSiteUtm } from '@/lib/partner-website-href';
 import { AdvertisementLabel } from './AdvertisementLabel';
 
@@ -16,6 +17,7 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
   const rep = featuredReps[current];
   const quote = rep.bio || rep.notes || '';
   const website = rep.websiteUrl ? withSisterSiteUtm(rep.websiteUrl, 'featured_carousel') : '';
+  const publicPhone = publicDirectoryPhone(rep.phone);
 
   const toggleContact = (idx: number) => {
     setShowContact((prev) => ({ ...prev, [idx]: !prev[idx] }));
@@ -80,9 +82,9 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
 
             {showContact[current] && (
               <div className="mt-4 rounded-lg border border-white bg-[var(--navy)] p-4 text-sm text-white">
-                {rep.phone ? (
-                  <a href={phoneToTelHref(rep.phone)} className="block font-medium text-white no-underline hover:text-[var(--gold)]">
-                    📞 {rep.phone}
+                {publicPhone ? (
+                  <a href={phoneToTelHref(publicPhone)} className="block font-medium text-white no-underline hover:text-[var(--gold)]">
+                    📞 {publicPhone}
                   </a>
                 ) : null}
                 {rep.email ? (
@@ -100,7 +102,7 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
                     💬 WhatsApp
                   </a>
                 ) : null}
-                {!rep.phone && !rep.email ? (
+                {!publicPhone && !rep.email ? (
                   <p>View the full profile for contact details →</p>
                 ) : null}
                 <Link href={`/rep/${rep.slug}`} className="mt-2 inline-block font-semibold text-[var(--gold)] no-underline hover:text-[var(--gold-hover)]">

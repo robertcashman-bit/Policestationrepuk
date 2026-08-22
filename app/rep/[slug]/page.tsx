@@ -8,6 +8,7 @@ import { RepTrustBadges } from '@/components/RepTrustBadges';
 import { DirectoryCredentialVerificationNotice } from '@/components/DirectoryCredentialVerificationNotice';
 import { ReportProfileButton } from '@/components/ReportProfileButton';
 import { phoneToTelHref } from '@/lib/phone';
+import { publicDirectoryPhone } from '@/lib/operator-public-phones';
 import { availabilityBucket, isUrgentCoverCapable, profileCompleteness } from '@/lib/directory-ranking';
 import { isStrictDirectoryListing } from '@/lib/rep-public-trust';
 import { looksIneligible } from '@/lib/rep-status';
@@ -107,18 +108,19 @@ export default async function RepPage({ params }: PageProps) {
   const avail = availabilitySummary(rep.availability || '');
   const urgentCapable = isUrgentCoverCapable(rep);
   const completeness = profileCompleteness(rep);
+  const publicPhone = publicDirectoryPhone(rep.phone);
 
   const legalService = legalServiceSchema({
     name: rep.name,
     slug: rep.slug,
     counties: [rep.county].filter(Boolean),
     accreditation: rep.accreditation,
-    phone: rep.phone,
+    phone: publicPhone,
   });
   const person = personSchema({
     name: rep.name,
     slug: rep.slug,
-    phone: rep.phone,
+    phone: publicPhone,
     accreditation: rep.accreditation,
     counties: [rep.county].filter(Boolean),
   });
@@ -258,9 +260,9 @@ export default async function RepPage({ params }: PageProps) {
                 <h2 className="text-lg font-bold text-[var(--navy)]">Contact</h2>
                 <p className="mt-1 text-xs text-slate-600">Reach out direct — your contract is with the firm / rep, not the directory.</p>
                 <div className="mt-4 space-y-3">
-                  {rep.phone ? (
-                    <a href={phoneToTelHref(rep.phone)} className="btn-gold w-full text-center font-bold">
-                      Call {rep.phone}
+                  {publicPhone ? (
+                    <a href={phoneToTelHref(publicPhone)} className="btn-gold w-full text-center font-bold">
+                      Call {publicPhone}
                     </a>
                   ) : null}
                   {rep.email ? (
@@ -278,7 +280,7 @@ export default async function RepPage({ params }: PageProps) {
                       WhatsApp
                     </a>
                   ) : null}
-                  {!rep.phone && !rep.email && (
+                  {!publicPhone && !rep.email && (
                     <p className="text-sm text-slate-600">Use the directory search or your firm networks to reach this rep.</p>
                   )}
                 </div>

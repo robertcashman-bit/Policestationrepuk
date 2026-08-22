@@ -1,3 +1,4 @@
+import { publicDirectoryPhone } from '@/lib/operator-public-phones';
 import { SITE_URL, SITE_NAME, DEFAULT_DESCRIPTION, socialPreviewImageUrl } from './config';
 
 export function organizationSchema() {
@@ -71,12 +72,13 @@ export function legalServiceSchema(rep: {
   accreditation: string;
   phone: string;
 }) {
+  const telephone = publicDirectoryPhone(rep.phone);
   return {
     '@context': 'https://schema.org',
     '@type': 'LegalService',
     name: `${rep.name} — Police Station Representative`,
     url: `${SITE_URL}/rep/${rep.slug}`,
-    telephone: rep.phone,
+    ...(telephone ? { telephone } : {}),
     description: `Accredited police station representative covering ${rep.counties.join(', ')}. ${rep.accreditation}.`,
     areaServed: rep.counties.map((c: string) => ({
       '@type': 'AdministrativeArea',
@@ -156,7 +158,7 @@ export function faqPageSchema(items: { q: string; a: string }[]) {
   };
 }
 
-/** Directory operator footprint (UK-wide); not a storefront — telephone is general enquiries only. */
+/** Directory operator footprint (UK-wide); not a storefront — no operator phone (avoids scrapers treating it as a police line). */
 export function directoryServiceLocalBusinessSchema() {
   return {
     '@context': 'https://schema.org',
@@ -165,7 +167,6 @@ export function directoryServiceLocalBusinessSchema() {
     name: SITE_NAME,
     description: DEFAULT_DESCRIPTION,
     url: SITE_URL,
-    telephone: '+44-1732-247427',
     image: socialPreviewImageUrl(),
     priceRange: 'Free directory listing',
     address: {
@@ -177,12 +178,6 @@ export function directoryServiceLocalBusinessSchema() {
       { '@type': 'AdministrativeArea', name: 'England' },
       { '@type': 'AdministrativeArea', name: 'Wales' },
     ],
-    openingHoursSpecification: {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-      opens: '00:00',
-      closes: '23:59',
-    },
   };
 }
 
@@ -285,12 +280,13 @@ export function personSchema(rep: {
   counties: string[];
 }) {
   const areas = rep.counties.filter(Boolean);
+  const telephone = publicDirectoryPhone(rep.phone);
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: rep.name,
     url: `${SITE_URL}/rep/${rep.slug}`,
-    telephone: rep.phone,
+    ...(telephone ? { telephone } : {}),
     jobTitle: 'Police Station Representative',
     description: `${rep.accreditation}. Covers ${areas.join(', ') || 'England and Wales'}.`,
     ...(areas.length > 0

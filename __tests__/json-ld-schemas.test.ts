@@ -34,4 +34,9 @@ describe('JSON-LD structured data — schema definitions', () => {
   it('uses https://schema.org context', () => {
     expect(schemasSrc).toContain('https://schema.org');
   });
+
+  it('directory LocalBusiness schema does not hardcode operator landline', () => {
+    expect(schemasSrc).not.toContain('+44-1732-247427');
+    expect(schemasSrc).not.toContain('01732247427');
+  });
 });

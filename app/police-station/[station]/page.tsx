@@ -192,7 +192,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
                 ) : (
                   <div className="mt-5 grid gap-4 sm:grid-cols-2 sm:gap-5">
                     {reps.map((rep) => (
-                      <RepCard key={rep.id} rep={rep} />
+                      <RepCard key={rep.id} rep={rep} stationPage />
                     ))}
                   </div>
                 )}

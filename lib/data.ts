@@ -13,6 +13,7 @@ import { forceMatchesCounty } from './police-force-to-counties';
 import { applyStationOverrides } from './station-overrides';
 import { applyStationVerificationMeta } from './station-verification';
 import { applyCustodyConsensus } from './custody-tips/overlay';
+import { publicDirectoryPhone } from './operator-public-phones';
 import { applyApprovedDiscoveryNumbers } from './custody-discovery/overlay';
 
 async function finalizeStations(stations: PoliceStation[]): Promise<PoliceStation[]> {
@@ -638,7 +639,7 @@ export function applyOverrides(rep: Representative, overrides: Record<string, un
   return {
     ...rep,
     name: ov(overrides, 'name', rep.name),
-    phone: ov(overrides, 'phone', rep.phone),
+    phone: publicDirectoryPhone(String(ov(overrides, 'phone', rep.phone) ?? '')),
     availability: ov(overrides, 'availability', rep.availability),
     accreditation: ov(overrides, 'accreditation', rep.accreditation),
     postcode: ov(overrides, 'postcode', rep.postcode),

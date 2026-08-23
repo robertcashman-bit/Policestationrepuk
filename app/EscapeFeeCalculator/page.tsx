@@ -395,7 +395,7 @@ export default function EscapeFeeCalculatorPage() {
             className="rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--card-shadow)] no-underline transition-all hover:shadow-[var(--card-shadow-hover)] hover:border-[var(--accent)]/30"
           >
             <h3 className="font-semibold text-[var(--foreground)]">Police Station Rates</h3>
-            <p className="mt-1 text-sm text-[var(--muted)]">Complete rate guide 2025/26</p>
+            <p className="mt-1 text-sm text-[var(--muted)]">Complete rate guide 2026/27</p>
           </Link>
           <Link
             href="/FormsLibrary"

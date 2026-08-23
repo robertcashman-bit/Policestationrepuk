@@ -123,9 +123,12 @@ async function renderSendHealthSection(): Promise<string> {
   const health = await getOutreachSendHealth();
   const campaignRows = health.campaigns
     .map((c) => {
+      if (c.campaignId === 'agent_cover_kent_v1') {
+        return `<li><strong>${escapeHtml(c.campaignId)}</strong>: permanently disabled (not a live send workspace)</li>`;
+      }
       const flags = [
         c.domainVerified ? 'domain verified' : 'domain NOT verified',
-        c.usedFallbackDefault ? 'PSA using RepUK from until policestationagent.com verified' : null,
+        c.canSend ? 'can send' : null,
       ]
         .filter(Boolean)
         .join('; ');

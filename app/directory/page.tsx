@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { getAllReps, getAllCounties, getAllStations, stripPrivateFieldsAll } from '@/lib/data';
+import { getAllReps, getAllCounties, getAllStations, stripContactFieldsForClientAll } from '@/lib/data';
 import { DirectorySearch } from '@/components/DirectorySearch';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { DirectoryComplianceNotice } from '@/components/DirectoryComplianceNotice';
@@ -57,7 +57,7 @@ export default async function DirectoryPage() {
     getAllStations(),
   ]);
 
-  const reps = stripPrivateFieldsAll(repsRaw);
+  const reps = stripContactFieldsForClientAll(repsRaw);
 
   const countyCards = counties
     .map((c) => ({

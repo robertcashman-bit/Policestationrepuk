@@ -33,19 +33,34 @@ export function matchesExperienceTier(rep: Representative, tier: ExperienceTier)
   return true;
 }
 
+/** True when phone is present or was stripped but known to exist (client props). */
+export function listingHasPhone(rep: Representative): boolean {
+  return Boolean(rep.phone?.trim() || rep.hasPhone);
+}
+
+/** True when email is present or was stripped but known to exist (client props). */
+export function listingHasEmail(rep: Representative): boolean {
+  return Boolean(rep.email?.trim() || rep.hasEmail);
+}
+
+/** True when WhatsApp link is present or was stripped but known to exist. */
+export function listingHasWhatsapp(rep: Representative): boolean {
+  return Boolean(rep.whatsappLink?.trim() || rep.hasWhatsappLink);
+}
+
 /** 0–100 from fields present on the listing (not independent verification). */
 export function profileCompleteness(rep: Representative): number {
   let n = 0;
   if (rep.name?.trim()) n += 8;
-  if (rep.phone?.trim()) n += 18;
-  if (rep.email?.trim()) n += 14;
+  if (listingHasPhone(rep)) n += 18;
+  if (listingHasEmail(rep)) n += 14;
   if ((rep.bio || rep.notes)?.trim()) n += 14;
   const st = rep.stations?.length ?? 0;
   if (st >= 1) n += 10;
   if (st >= 3) n += 8;
   if (rep.accreditation?.trim()) n += 10;
   if (rep.websiteUrl?.trim()) n += 6;
-  if (rep.whatsappLink?.trim()) n += 4;
+  if (listingHasWhatsapp(rep)) n += 4;
   if (rep.yearsExperience != null && rep.yearsExperience >= 0) n += 8;
   if ((rep.specialisms?.length ?? 0) > 0) n += 6;
   return Math.min(100, n);
@@ -78,8 +93,8 @@ export function computeSmartRank(rep: Representative, ctx: SmartRankContext): nu
 
   if (isUrgentCoverCapable(rep)) s += 22;
 
-  if (rep.phone?.trim() && rep.email?.trim()) s += 18;
-  else if (rep.phone?.trim() || rep.email?.trim()) s += 8;
+  if (listingHasPhone(rep) && listingHasEmail(rep)) s += 18;
+  else if (listingHasPhone(rep) || listingHasEmail(rep)) s += 8;
 
   if (ctx.countySelected && repMatchesCountyName(rep.county, ctx.countySelected)) {
     s += 95;

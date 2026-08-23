@@ -4,12 +4,25 @@ export interface Representative {
   name: string;
   phone: string;
   email: string;
+  /**
+   * Presence-only flags set by `stripContactFieldsForClient` when the real
+   * values were cleared for RSC/client props. Used by ranking and trust badges
+   * so completeness still reflects contact readiness without leaking PII.
+   */
+  hasPhone?: boolean;
+  hasEmail?: boolean;
+  hasWhatsappLink?: boolean;
   county: string;
   /** Optional list of all counties this rep covers; falls back to single `county` for older records. */
   counties?: string[];
   /** Towns, boroughs, or extra locality detail beyond selected counties (e.g. specific London boroughs). */
   coverageAreas?: string;
   addressCounty?: string;
+  /**
+   * @deprecated Home / postal address is private. Never serialize to public HTML,
+   * RSC payloads, or client props. Retained only for legacy data / admin.
+   */
+  address?: string;
   /**
    * @deprecated Postcode is treated as private (sole-trader home postcodes). The
    * public directory must not render this; it is retained only for legacy data

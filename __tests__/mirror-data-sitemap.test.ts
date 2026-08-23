@@ -21,4 +21,15 @@ describe('shouldIncludeMirrorPathInSitemap', () => {
     expect(shouldIncludeMirrorPathInSitemap('PoliceStationRepsKent')).toBe(false);
     expect(shouldIncludeMirrorPathInSitemap('policestationrepskent')).toBe(false);
   });
+
+  it('excludes test/admin/checkout junk paths', () => {
+    expect(shouldIncludeMirrorPathInSitemap('ComprehensiveTestSuite')).toBe(false);
+    expect(shouldIncludeMirrorPathInSitemap('EmailTest')).toBe(false);
+    expect(shouldIncludeMirrorPathInSitemap('TestStripeFlow')).toBe(false);
+    expect(shouldIncludeMirrorPathInSitemap('DiagnosticReport')).toBe(false);
+    expect(shouldIncludeMirrorPathInSitemap('FinalDiagnosticReport')).toBe(false);
+    expect(shouldIncludeMirrorPathInSitemap('FeaturedCheckout')).toBe(false);
+    expect(shouldIncludeMirrorPathInSitemap('admin')).toBe(false);
+    expect(shouldIncludeMirrorPathInSitemap('admin/firm-outreach')).toBe(false);
+  });
 });

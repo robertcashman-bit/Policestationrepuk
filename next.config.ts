@@ -509,6 +509,17 @@ const nextConfig: NextConfig = {
       { source: "/emergency-police-station-representation", destination: "/PoliceStationCover", permanent: true },
       { source: "/offences-we-deal-with", destination: "/About", permanent: true },
       { source: "/what-is-a-duty-solicitor", destination: "/DutySolicitorVsRep", permanent: true },
+      // Bare topic slugs → live editorial post (308 via permanent: true)
+      {
+        source: "/duty-solicitor",
+        destination: "/Blog/duty-solicitor-police-station",
+        permanent: true,
+      },
+      {
+        source: "/duty-solicitor-police-station",
+        destination: "/Blog/duty-solicitor-police-station",
+        permanent: true,
+      },
       // google03385fbe80cfcd6b verification handled by public/ static file
     ];
   },

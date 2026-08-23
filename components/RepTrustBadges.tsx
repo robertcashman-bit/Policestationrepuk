@@ -1,6 +1,8 @@
 import type { Representative } from '@/lib/types';
 import {
   isFullProfileListing,
+  listingHasEmail,
+  listingHasPhone,
   profileCompleteness,
 } from '@/lib/directory-ranking';
 
@@ -23,7 +25,7 @@ export function RepTrustBadges({
   hideFeatured?: boolean;
 }) {
   const full = isFullProfileListing(rep);
-  const contactReady = Boolean(rep.phone?.trim() && rep.email?.trim());
+  const contactReady = listingHasPhone(rep) && listingHasEmail(rep);
   const pct = profileCompleteness(rep);
 
   const base =

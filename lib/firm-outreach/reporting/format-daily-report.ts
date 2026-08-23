@@ -121,8 +121,9 @@ ${recipBlock(report.repuk)}
 
 ---
 
-${renderWorkspace(report.psa)}
+## Police Station Agent — permanently disabled (not a live send workspace)
 (Police Station Agent / agent_cover_kent_v1 email send is permanently disabled.)
+No PSA send cap or ready-queue is reported while send stays off.
 
 ACTUAL RECIPIENTS ACCEPTED BY PROVIDER:
 ${recipBlock(report.psa)}
@@ -155,7 +156,25 @@ export function formatDailyReportHtml(report: ConsolidatedDailyReport): string {
       ? '<p>None — PoliceStationRepUK outreach is operating normally. PSA Kent-cover email remains permanently disabled.</p>'
       : `<ul>${report.actionRequired.map((a) => `<li>${escapeHtml(a)}</li>`).join('')}</ul>`;
 
-  const sectionHtml = (section: WorkspaceDailySection) => `
+  const sectionHtml = (section: WorkspaceDailySection) => {
+    const psaDisabled =
+      section.workspace === 'psa' &&
+      section.zeroReason?.code === 'ZERO_REASON_SENDING_DISABLED';
+
+    if (psaDisabled) {
+      return `
+    <section style="margin:0 0 28px;padding:0 0 8px;border-bottom:1px solid #e2e8f0;">
+      <h2 style="margin:0 0 8px;font-size:18px;">${escapeHtml(section.label)}</h2>
+      <p style="margin:0 0 8px;"><strong>Status:</strong> permanently disabled (not a live send workspace)</p>
+      <p style="margin:0;color:#475569;font-size:13px;">
+        Police Station Agent / <code>agent_cover_kent_v1</code> email outreach is permanently off in this stack.
+        No send cap, ready-queue, or provider allowance is shown for PSA.
+      </p>
+    </section>
+  `;
+    }
+
+    return `
     <section style="margin:0 0 28px;padding:0 0 8px;border-bottom:1px solid #e2e8f0;">
       <h2 style="margin:0 0 8px;font-size:18px;">${escapeHtml(section.label)}</h2>
       <p style="margin:0 0 12px;"><strong>Status:</strong> ${escapeHtml(section.status)}</p>
@@ -194,6 +213,7 @@ export function formatDailyReportHtml(report: ConsolidatedDailyReport): string {
       ${renderRecipients(section)}
     </section>
   `;
+  };
 
   return `
     <div style="font-family:ui-sans-serif,system-ui,sans-serif;color:#0f172a;max-width:760px;line-height:1.5;">

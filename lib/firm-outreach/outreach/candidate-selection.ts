@@ -67,6 +67,13 @@ export async function selectOutreachCandidates(opts: {
   nowMs?: number;
   /** When true (default), drop solicitors whose firm was emailed inside the cooldown window. */
   excludeFirmCooldown?: boolean;
+  /**
+   * Status/health probes only need eligibility counts. Skipping the per-inbox
+   * send-index fan-out keeps /firm-outreach-status under the ~60s proxy budget.
+   */
+  skipIndexedSendCheck?: boolean;
+  /** Hard cap on ready-index mgets (defaults to readyProspectScanLimit(readyLimit)). */
+  maxReadyScan?: number;
 }): Promise<{
   candidates: Array<{ prospect: FirmProspect; step: number }>;
   readyScanned: number;
@@ -84,13 +91,18 @@ export async function selectOutreachCandidates(opts: {
 
   // Scan well past `readyLimit` so already-mailed inboxes at the front of the
   // ready index cannot hide never-contacted firms and due follow-ups.
-  const readyScan = readyProspectScanLimit(readyLimit);
+  const readyScan = Math.min(
+    MAX_READY_SCAN,
+    Math.max(1, opts.maxReadyScan ?? readyProspectScanLimit(readyLimit)),
+  );
   const ready = await listProspectsByRecordStatus('ready_to_send', readyScan, campaignOpts);
   const sent = await listProspectsByRecordStatus('sent', sentLimit, campaignOpts);
-  const indexedSends = await emailsWithIndexedSendsForCampaign(
-    ready.map((p) => p.email).filter((email): email is string => Boolean(email)),
-    opts.campaignId,
-  );
+  const indexedSends = opts.skipIndexedSendCheck
+    ? new Set<string>()
+    : await emailsWithIndexedSendsForCampaign(
+        ready.map((p) => p.email).filter((email): email is string => Boolean(email)),
+        opts.campaignId,
+      );
 
   const readyEligible: Array<{ prospect: FirmProspect; step: number }> = [];
   let skippedIndexedSend = 0;

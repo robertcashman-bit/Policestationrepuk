@@ -7,7 +7,7 @@ import { cronSendBatchSize, outreachRequireApproval, outreachSendEnabled } from 
 import { recoverAbandonedEmailJobs } from '../email-jobs/storage';
 import { newJobRunId, saveJobRun } from '../job-runs';
 import { isOutreachSendAllowed } from '../pause-state';
-import { claimOutreachRunLock } from '../run-lock';
+import { claimOutreachRunLock, releaseOutreachRunLock } from '../run-lock';
 import { runFirmOutreachAllCampaigns } from './run-outreach';
 
 export async function runOutreachWorkerTick(opts?: {
@@ -88,79 +88,85 @@ export async function runOutreachWorkerTick(opts?: {
     return { ok: true, skipped: true, reason: 'overlap', runId, accepted: 0, claimed: 0, jobsCreated: 0 };
   }
 
-  const capacityOpts = { eligibleScanLimit: 80, sampleJobs: false as const };
-  const before = await getAllWorkspacesCapacity(new Date(), capacityOpts);
-  const recovered = await recoverAbandonedEmailJobs({ limit: 80 });
+  try {
+    // Keep capacity snapshots cheap — a large ready pile must not burn the tick
+    // before enqueue/send. sampleJobs:false uses the campaign pending zset.
+    const capacityOpts = { eligibleScanLimit: 80, sampleJobs: false as const };
+    const before = await getAllWorkspacesCapacity(new Date(), capacityOpts);
+    const recovered = await recoverAbandonedEmailJobs({ limit: 80 });
 
-  const multi = await runFirmOutreachAllCampaigns({
-    limit: opts?.limit ?? cronSendBatchSize(),
-    maxElapsedMs: opts?.maxElapsedMs ?? 240_000,
-  });
+    const multi = await runFirmOutreachAllCampaigns({
+      limit: opts?.limit ?? cronSendBatchSize(),
+      maxElapsedMs: opts?.maxElapsedMs ?? 240_000,
+    });
 
-  const elapsedMs = Date.now() - Date.parse(started);
-  const after =
-    elapsedMs > 240_000
-      ? before
-      : await getAllWorkspacesCapacity(new Date(), capacityOpts);
-  const accepted = multi.combined.accepted ?? multi.combined.sent ?? 0;
-  const claimed = multi.combined.jobsClaimed ?? 0;
-  const jobsCreated = multi.combined.jobsCreated ?? 0;
+    const elapsedMs = Date.now() - Date.parse(started);
+    const after =
+      elapsedMs > 240_000
+        ? before
+        : await getAllWorkspacesCapacity(new Date(), capacityOpts);
+    const accepted = multi.combined.accepted ?? multi.combined.sent ?? 0;
+    const claimed = multi.combined.jobsClaimed ?? 0;
+    const jobsCreated = multi.combined.jobsCreated ?? 0;
 
-  await saveJobRun({
-    workspace: 'both',
-    runId,
-    runType: 'outreach_worker',
-    started,
-    finished: new Date().toISOString(),
-    status: multi.combined.errors > 0 ? 'partial' : 'success',
-    eligibleBefore: before.psa.eligibleUnsent + before.repuk.eligibleUnsent,
-    pendingBefore: before.psa.pendingJobs + before.repuk.pendingJobs,
-    claimed,
-    attempted: accepted + (multi.combined.errors ?? 0) + (multi.combined.permanentlyFailed ?? 0),
-    accepted,
-    failed: multi.combined.errors ?? 0,
-    retried: multi.combined.retryScheduled ?? 0,
-    suppressed: multi.combined.suppressed ?? 0,
-    eligibleAfter: after.psa.eligibleUnsent + after.repuk.eligibleUnsent,
-    pendingAfter: after.psa.pendingJobs + after.repuk.pendingJobs,
-    providerCapacityBefore: before.psa.providerRemainingToday,
-    providerCapacityAfter: after.psa.providerRemainingToday,
-    repairsPerformed: recovered > 0 ? [`recover_abandoned:${recovered}`] : undefined,
-    errorSummary: multi.combined.skippedReason,
-    meta: {
-      byCampaign: Object.fromEntries(
-        Object.entries(multi.byCampaign).map(([k, v]) => [
-          k,
-          { accepted: v.accepted ?? v.sent, claimed: v.jobsClaimed, created: v.jobsCreated },
-        ]),
-      ),
-    },
-  });
-
-  // Also stamp per-workspace latest pointers for dashboard asymmetry checks.
-  for (const ws of ['psa', 'repuk'] as const) {
-    const camp = ws === 'psa' ? 'agent_cover_kent_v1' : 'whatsapp_invite_v1';
-    const stats = multi.byCampaign[camp];
-    if (!stats) continue;
     await saveJobRun({
-      workspace: ws,
-      runId: `${runId}_${ws}`,
+      workspace: 'both',
+      runId,
       runType: 'outreach_worker',
       started,
       finished: new Date().toISOString(),
-      status: (stats.errors ?? 0) > 0 ? 'partial' : 'success',
-      accepted: stats.accepted ?? stats.sent ?? 0,
-      claimed: stats.jobsClaimed ?? 0,
-      meta: { parentRunId: runId },
+      status: multi.combined.errors > 0 ? 'partial' : 'success',
+      eligibleBefore: before.psa.eligibleUnsent + before.repuk.eligibleUnsent,
+      pendingBefore: before.psa.pendingJobs + before.repuk.pendingJobs,
+      claimed,
+      attempted: accepted + (multi.combined.errors ?? 0) + (multi.combined.permanentlyFailed ?? 0),
+      accepted,
+      failed: multi.combined.errors ?? 0,
+      retried: multi.combined.retryScheduled ?? 0,
+      suppressed: multi.combined.suppressed ?? 0,
+      eligibleAfter: after.psa.eligibleUnsent + after.repuk.eligibleUnsent,
+      pendingAfter: after.psa.pendingJobs + after.repuk.pendingJobs,
+      providerCapacityBefore: before.psa.providerRemainingToday,
+      providerCapacityAfter: after.psa.providerRemainingToday,
+      repairsPerformed: recovered > 0 ? [`recover_abandoned:${recovered}`] : undefined,
+      errorSummary: multi.combined.skippedReason,
+      meta: {
+        byCampaign: Object.fromEntries(
+          Object.entries(multi.byCampaign).map(([k, v]) => [
+            k,
+            { accepted: v.accepted ?? v.sent, claimed: v.jobsClaimed, created: v.jobsCreated },
+          ]),
+        ),
+      },
     });
-  }
 
-  return {
-    ok: true,
-    runId,
-    accepted,
-    claimed,
-    jobsCreated,
-    byCampaign: multi.byCampaign,
-  };
+    // Also stamp per-workspace latest pointers for dashboard asymmetry checks.
+    for (const ws of ['psa', 'repuk'] as const) {
+      const camp = ws === 'psa' ? 'agent_cover_kent_v1' : 'whatsapp_invite_v1';
+      const stats = multi.byCampaign[camp];
+      if (!stats) continue;
+      await saveJobRun({
+        workspace: ws,
+        runId: `${runId}_${ws}`,
+        runType: 'outreach_worker',
+        started,
+        finished: new Date().toISOString(),
+        status: (stats.errors ?? 0) > 0 ? 'partial' : 'success',
+        accepted: stats.accepted ?? stats.sent ?? 0,
+        claimed: stats.jobsClaimed ?? 0,
+        meta: { parentRunId: runId },
+      });
+    }
+
+    return {
+      ok: true,
+      runId,
+      accepted,
+      claimed,
+      jobsCreated,
+      byCampaign: multi.byCampaign,
+    };
+  } finally {
+    await releaseOutreachRunLock('send');
+  }
 }

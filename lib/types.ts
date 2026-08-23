@@ -4,6 +4,14 @@ export interface Representative {
   name: string;
   phone: string;
   email: string;
+  /**
+   * Presence-only flags set by `stripContactFieldsForClient` when the real
+   * values were cleared for RSC/client props. Used by ranking and trust badges
+   * so completeness still reflects contact readiness without leaking PII.
+   */
+  hasPhone?: boolean;
+  hasEmail?: boolean;
+  hasWhatsappLink?: boolean;
   county: string;
   /** Optional list of all counties this rep covers; falls back to single `county` for older records. */
   counties?: string[];

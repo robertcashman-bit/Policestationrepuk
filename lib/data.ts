@@ -857,6 +857,10 @@ export function stripContactFieldsForClient(rep: Representative): Representative
     address: '',
     postcode: '',
     dsccPin: '',
+    // Keep presence for ranking / trust badges without shipping contact PII.
+    hasPhone: Boolean(rep.phone?.trim()),
+    hasEmail: Boolean(rep.email?.trim()),
+    hasWhatsappLink: Boolean(rep.whatsappLink?.trim()),
   };
 }
 

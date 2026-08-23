@@ -37,7 +37,8 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
     setLoadingSlug(target.slug);
     const details = await fetchRepContactDetails(target.slug);
     setContactBySlug((prev) => ({ ...prev, [target.slug]: details }));
-    setLoadingSlug(null);
+    // Only clear loading for this slug — an older fetch must not wipe a newer one.
+    setLoadingSlug((current) => (current === target.slug ? null : current));
   };
 
   return (

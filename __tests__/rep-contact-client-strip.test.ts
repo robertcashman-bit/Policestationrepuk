@@ -47,5 +47,18 @@ describe('stripPrivateFields / stripContactFieldsForClient', () => {
     expect(out.slug).toBe('robert-cashman');
     expect(out.county).toBe('Kent');
     expect(out.stations).toEqual(['North Kent Police Station']);
+    // Presence flags preserved for ranking / trust badges.
+    expect(out.hasPhone).toBe(true);
+    expect(out.hasEmail).toBe(true);
+    expect(out.hasWhatsappLink).toBe(true);
+  });
+
+  it('marks missing contact as absent on stripped payloads', () => {
+    const out = stripContactFieldsForClient(
+      sampleRep({ phone: '', email: '  ', whatsappLink: undefined }),
+    );
+    expect(out.hasPhone).toBe(false);
+    expect(out.hasEmail).toBe(false);
+    expect(out.hasWhatsappLink).toBe(false);
   });
 });

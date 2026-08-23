@@ -4,23 +4,40 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { Representative } from '@/lib/types';
 import { phoneToTelHref } from '@/lib/phone';
-import { publicDirectoryPhone } from '@/lib/operator-public-phones';
 import { withSisterSiteUtm } from '@/lib/partner-website-href';
 import { AdvertisementLabel } from './AdvertisementLabel';
+import {
+  fetchRepContactDetails,
+  type RepContactDetails,
+} from '@/lib/rep-contact-reveal';
 
 export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Representative[] }) {
   const [current, setCurrent] = useState(0);
   const [showContact, setShowContact] = useState<Record<number, boolean>>({});
+  const [contactBySlug, setContactBySlug] = useState<Record<string, RepContactDetails | null>>(
+    {},
+  );
+  const [loadingSlug, setLoadingSlug] = useState<string | null>(null);
 
   if (!featuredReps || featuredReps.length === 0) return null;
 
   const rep = featuredReps[current];
   const quote = rep.bio || rep.notes || '';
   const website = rep.websiteUrl ? withSisterSiteUtm(rep.websiteUrl, 'featured_carousel') : '';
-  const publicPhone = publicDirectoryPhone(rep.phone);
+  const contact = contactBySlug[rep.slug];
+  const publicPhone = contact?.phone || '';
 
-  const toggleContact = (idx: number) => {
-    setShowContact((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  const toggleContact = async (idx: number) => {
+    const target = featuredReps[idx];
+    if (!target) return;
+    const opening = !showContact[idx];
+    setShowContact((prev) => ({ ...prev, [idx]: opening }));
+    if (!opening) return;
+    if (contactBySlug[target.slug] !== undefined) return;
+    setLoadingSlug(target.slug);
+    const details = await fetchRepContactDetails(target.slug);
+    setContactBySlug((prev) => ({ ...prev, [target.slug]: details }));
+    setLoadingSlug(null);
   };
 
   return (
@@ -65,7 +82,7 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
 
             <div className="mt-6 flex flex-wrap gap-3">
               <button
-                onClick={() => toggleContact(current)}
+                onClick={() => void toggleContact(current)}
                 className="btn-gold !min-h-[40px] !px-4 !py-2 !text-sm"
               >
                 {showContact[current] ? 'Hide Contact Details' : 'Show Contact Details'}
@@ -82,29 +99,35 @@ export function HomeFeaturedCarousel({ featuredReps }: { featuredReps: Represent
 
             {showContact[current] && (
               <div className="mt-4 rounded-lg border border-white bg-[var(--navy)] p-4 text-sm text-white">
-                {publicPhone ? (
-                  <a href={phoneToTelHref(publicPhone)} className="block font-medium text-white no-underline hover:text-[var(--gold)]">
-                    📞 {publicPhone}
-                  </a>
-                ) : null}
-                {rep.email ? (
-                  <a href={`mailto:${rep.email}`} className="mt-2 block font-medium text-white no-underline hover:text-[var(--gold)]">
-                    ✉️ {rep.email}
-                  </a>
-                ) : null}
-                {rep.whatsappLink ? (
-                  <a
-                    href={rep.whatsappLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 block font-medium text-white no-underline hover:text-[var(--gold)]"
-                  >
-                    💬 WhatsApp
-                  </a>
-                ) : null}
-                {!publicPhone && !rep.email ? (
-                  <p>View the full profile for contact details →</p>
-                ) : null}
+                {loadingSlug === rep.slug ? (
+                  <p>Loading contact details…</p>
+                ) : (
+                  <>
+                    {publicPhone ? (
+                      <a href={phoneToTelHref(publicPhone)} className="block font-medium text-white no-underline hover:text-[var(--gold)]">
+                        📞 {publicPhone}
+                      </a>
+                    ) : null}
+                    {contact?.email ? (
+                      <a href={`mailto:${contact.email}`} className="mt-2 block font-medium text-white no-underline hover:text-[var(--gold)]">
+                        ✉️ {contact.email}
+                      </a>
+                    ) : null}
+                    {contact?.whatsappLink ? (
+                      <a
+                        href={contact.whatsappLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 block font-medium text-white no-underline hover:text-[var(--gold)]"
+                      >
+                        💬 WhatsApp
+                      </a>
+                    ) : null}
+                    {!publicPhone && !contact?.email ? (
+                      <p>View the full profile for contact details →</p>
+                    ) : null}
+                  </>
+                )}
                 <Link href={`/rep/${rep.slug}`} className="mt-2 inline-block font-semibold text-[var(--gold)] no-underline hover:text-[var(--gold-hover)]">
                   Go to profile
                 </Link>

@@ -11,6 +11,11 @@ export interface Representative {
   coverageAreas?: string;
   addressCounty?: string;
   /**
+   * @deprecated Home / postal address is private. Never serialize to public HTML,
+   * RSC payloads, or client props. Retained only for legacy data / admin.
+   */
+  address?: string;
+  /**
    * @deprecated Postcode is treated as private (sole-trader home postcodes). The
    * public directory must not render this; it is retained only for legacy data
    * lookups and admin display.

@@ -4,11 +4,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { Representative } from '@/lib/types';
 import { phoneToTelHref } from '@/lib/phone';
-import { publicDirectoryPhone } from '@/lib/operator-public-phones';
 import { withSisterSiteUtm } from '@/lib/partner-website-href';
 import { RepTrustBadges } from '@/components/RepTrustBadges';
 import { formatPersonDisplayName } from '@/lib/display-name';
 import { initialsFromName } from '@/lib/display-name-initials';
+import {
+  fetchRepContactDetails,
+  type RepContactDetails,
+} from '@/lib/rep-contact-reveal';
 
 function getAvailabilityBadge(raw: string): { label: string; color: string; live?: boolean } {
   const lower = raw.toLowerCase().trim();
@@ -51,13 +54,25 @@ export interface DirectoryCardProps {
 
 export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardProps) {
   const [quickOpen, setQuickOpen] = useState(false);
+  const [contact, setContact] = useState<RepContactDetails | null | undefined>(undefined);
+  const [loadingContact, setLoadingContact] = useState(false);
   const displayName = formatPersonDisplayName(rep.name);
   const initials = initialsFromName(displayName);
   const avail = getAvailabilityBadge(rep.availability || '');
-  const publicPhone = publicDirectoryPhone(rep.phone);
+  const publicPhone = contact?.phone || '';
   const phoneHref = publicPhone ? phoneToTelHref(publicPhone) : null;
   const excerpt = (rep.bio || rep.notes || '').trim();
   const stationCount = (rep.stations || []).length;
+
+  const revealContact = async () => {
+    const opening = !quickOpen;
+    setQuickOpen(opening);
+    if (!opening || contact !== undefined) return;
+    setLoadingContact(true);
+    const details = await fetchRepContactDetails(rep.slug);
+    setContact(details);
+    setLoadingContact(false);
+  };
   const accLabel = (rep.accreditation || '').includes('Duty')
     ? 'Duty solicitor'
     : (rep.accreditation || '').toLowerCase().includes('solicitor')
@@ -206,9 +221,12 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
 
         <div className="flex-1" />
 
-        {/* Quick contact panel */}
+        {/* Quick contact panel — contact loaded only after explicit reveal */}
         {quickOpen && (
           <div className="mt-4 rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-4">
+            {loadingContact ? (
+              <p className="text-center text-sm text-[var(--muted)]">Loading contact details…</p>
+            ) : (
             <div className="grid gap-3 text-sm">
               {phoneHref && (
                 <a
@@ -221,15 +239,15 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
                   {publicPhone}
                 </a>
               )}
-              {rep.email && (
+              {contact?.email && (
                 <a
-                  href={`mailto:${rep.email}`}
+                  href={`mailto:${contact.email}`}
                   className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 font-semibold text-[var(--navy)] no-underline transition-colors hover:border-[var(--gold)]/40 hover:bg-[var(--gold-pale)]"
                 >
                   <svg className="h-4 w-4 shrink-0 text-blue-600" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
                   </svg>
-                  {rep.email}
+                  {contact.email}
                 </a>
               )}
               {rep.websiteUrl && (
@@ -245,9 +263,9 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
                   {websiteLinkLabel(rep.websiteUrl)}
                 </a>
               )}
-              {rep.whatsappLink && (
+              {contact?.whatsappLink && (
                 <a
-                  href={rep.whatsappLink}
+                  href={contact.whatsappLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 font-semibold text-emerald-900 no-underline transition-colors hover:bg-emerald-100"
@@ -259,10 +277,11 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
                   WhatsApp
                 </a>
               )}
-              {!publicPhone && !rep.email && (
+              {!publicPhone && !contact?.email && (
                 <p className="text-center text-sm text-[var(--muted)]">Contact details on full profile</p>
               )}
             </div>
+            )}
             <Link
               href={`/rep/${rep.slug}`}
               className="mt-3 block text-center text-xs font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)]"
@@ -275,20 +294,15 @@ export function DirectoryCard({ rep, matchHighlight, compact }: DirectoryCardPro
         {/* CTA row — always visible */}
         <div className="mt-5 border-t border-slate-100 pt-4">
           <div className="flex gap-2">
-            {phoneHref ? (
-              <a
-                href={phoneHref}
-                className="btn-gold flex flex-1 items-center justify-center gap-2 !min-h-[44px] text-center text-sm font-bold no-underline"
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                </svg>
-                Call
-              </a>
-            ) : null}
+            <Link
+              href={`/rep/${rep.slug}`}
+              className="btn-gold flex flex-1 items-center justify-center gap-2 !min-h-[44px] text-center text-sm font-bold no-underline"
+            >
+              View profile
+            </Link>
             <button
               type="button"
-              onClick={() => setQuickOpen((o) => !o)}
+              onClick={() => void revealContact()}
               className={`flex flex-1 items-center justify-center gap-2 rounded-lg border py-2.5 text-sm font-semibold transition-colors ${
                 quickOpen
                   ? 'border-[var(--gold)] bg-[var(--gold-pale)] text-[var(--navy)]'

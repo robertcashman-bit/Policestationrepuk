@@ -61,6 +61,7 @@ This Cloud Agent token is scoped to Policestationrepuk only.
 ## Patches in this folder
 
 - `policestationagent-security-hardening.patch` + `policestationagent-report.md`
+- `policestationagent-cross-digest-repuk-brand.patch` + `policestationagent-cross-digest-report.md` — morning/evening digest From-name + PSA not a live send workspace
 - `custody-note-app-security-hardening.patch` + `custody-note-app-report.md`
 - `psrtrain-security-hardening.patch` + `psrtrain-report.md`
 - `custody-note-website-security-hardening.patch` + `custody-note-website-report.md`

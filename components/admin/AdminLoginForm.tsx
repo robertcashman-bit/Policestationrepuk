@@ -75,8 +75,8 @@ export function AdminLoginForm() {
 
   return (
     <div className="mx-auto max-w-md rounded-xl border border-[var(--card-border)] bg-white p-8 shadow-sm">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--gold)]">Admin</p>
-      <h2 className="mt-1 text-xl font-bold text-[var(--navy)]">Sign in to admin</h2>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--gold)]">Private</p>
+      <h2 className="mt-1 text-xl font-bold text-[var(--navy)]">Sign in</h2>
       <p className="mt-2 text-sm text-[var(--muted)]">
         We&rsquo;ll email a one-time magic code. Password sign-in is disabled. Admin sessions last
         1 hour.

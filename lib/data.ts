@@ -817,12 +817,17 @@ export { PUBLIC_VERIFIED_STATUSES };
  * Defence-in-depth: strip any field that must never appear in a public API
  * response or be rendered on a public page. Pages and components should still
  * be careful not to render private fields, but this gives us a single chokepoint.
+ *
+ * Home addresses / postcodes / PINs are always scrubbed. Email / phone /
+ * WhatsApp remain on full profile pages (server-rendered) but must not be
+ * passed into client components — use `stripContactFieldsForClient` for those.
  */
 export function stripPrivateFields(rep: Representative): Representative {
   const out: Representative = {
     ...rep,
     postcode: '',
     dsccPin: '',
+    address: '',
   };
   // Strip lingering review/verification metadata from anything that goes out.
   delete out.verificationStatus;
@@ -835,6 +840,28 @@ export function stripPrivateFields(rep: Representative): Representative {
 /** Strip private fields from a list of reps. */
 export function stripPrivateFieldsAll(reps: Representative[]): Representative[] {
   return reps.map(stripPrivateFields);
+}
+
+/**
+ * Strip contact PII before passing reps into client components (homepage
+ * carousel, directory cards, etc.). Contact is loaded only after an explicit
+ * client request to `/api/rep/[slug]/contact`.
+ */
+export function stripContactFieldsForClient(rep: Representative): Representative {
+  const base = stripPrivateFields(rep);
+  return {
+    ...base,
+    email: '',
+    phone: '',
+    whatsappLink: '',
+    address: '',
+    postcode: '',
+    dsccPin: '',
+  };
+}
+
+export function stripContactFieldsForClientAll(reps: Representative[]): Representative[] {
+  return reps.map(stripContactFieldsForClient);
 }
 
 /**

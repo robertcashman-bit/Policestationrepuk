@@ -6,9 +6,9 @@ import { ResolvedContentSources } from '@/components/ContentSourcesFooter';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
-  title: 'Police Station Legal Aid Rates 2025/26',
+  title: 'Police Station Legal Aid Rates 2026/27',
   description:
-    'Current police station legal aid rates for 2025/26 including the new harmonised fee of £320.00, escape threshold of £650.00, and guidance on claiming multiple fees.',
+    'Current police station legal aid rates for 2026/27 including the harmonised fee of £320.00 (from 22 Dec 2025), escape threshold of £650.00, and guidance on claiming multiple fees.',
   path: '/PoliceStationRates',
 });
 
@@ -32,7 +32,7 @@ export default function PoliceStationRatesPage() {
             ]}
           />
           <h1 className="mt-3 text-h1 text-white">
-            Police Station Legal Aid Rates 2025/26
+            Police Station Legal Aid Rates 2026/27
           </h1>
           <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
             The definitive guide to current police station legal aid rates, the harmonised fee

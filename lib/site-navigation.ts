@@ -162,7 +162,7 @@ export const HEADER_NAV_GUIDES: HeaderNavLink[] = withPublicHrefs([
 
 /** Fees, billing & forms — header “Fees & Forms” menu. */
 export const HEADER_NAV_FEES_FORMS: HeaderNavLink[] = withPublicHrefs([
-  { href: "/PoliceStationRates", text: "Station Rates (2025/26)" },
+  { href: "/PoliceStationRates", text: "Station Rates (2026/27)" },
   { href: "/PoliceStationRepPay", text: "Rep Pay Explained" },
   { href: "/EscapeFeeCalculator", text: "Escape Fee Calculator" },
   { href: "/MagistratesCourtFees", text: "Magistrates' Court Fees" },

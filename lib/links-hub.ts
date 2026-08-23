@@ -103,7 +103,7 @@ export const LINKS_HUB_SECTIONS: LinksHubSection[] = [
     items: [
       {
         href: '/PoliceStationRates',
-        label: 'Station rates (2025/26)',
+        label: 'Station rates (2026/27)',
         description: 'Harmonised £320 fee, £650 escape threshold, and claiming guidance.',
       },
       {

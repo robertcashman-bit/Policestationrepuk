@@ -29,6 +29,8 @@ import {
   getAllCounties,
   getAllStations,
   getFeaturedRepsSorted,
+  stripContactFieldsForClient,
+  stripContactFieldsForClientAll,
   stripPrivateFieldsAll,
 } from '@/lib/data';
 import {
@@ -85,12 +87,17 @@ export default async function HomePage() {
     getStationPhonePublicStats(),
   ]);
   const reps = stripPrivateFieldsAll(repsRaw);
+  // Never put emails/phones/home addresses into homepage RSC client props.
+  const publicCards = stripContactFieldsForClientAll(reps);
+  const featuredForClient = featuredReps.map(stripContactFieldsForClient);
   const topCountiesBase = selectTopCountiesForHomepage(counties, reps, 12);
   const topCounties = topCountiesBase.map((c) => ({
     ...c,
     listedRepCount: reps.filter((r) => repMatchesAnyCounty(r, c.name)).length,
   }));
-  const previewReps = selectHomepagePreviewReps(reps, featuredReps, 3);
+  const previewReps = stripContactFieldsForClientAll(
+    selectHomepagePreviewReps(reps, featuredReps, 3),
+  );
   const stationCount = stations.length || phoneStats.total;
   const hasLiveDirectoryCounts = reps.length > 0 && stationCount > 0;
 
@@ -138,9 +145,9 @@ export default async function HomePage() {
 
       <HomeTopLocations counties={topCounties} />
 
-      <HomeRecentlyJoined reps={reps} />
+      <HomeRecentlyJoined reps={publicCards} />
 
-      <RepSpotlight reps={reps} />
+      <RepSpotlight reps={publicCards} />
 
       <div className="cv-auto">
         <HomeStationSearch stats={phoneStats} />
@@ -148,13 +155,13 @@ export default async function HomePage() {
 
       <HomeCommunityWhatsAppPromo />
 
-      {featuredReps.length > 0 && (
+      {featuredForClient.length > 0 && (
         <div className="page-container pt-6 pb-0">
           <DirectoryCredentialVerificationNotice />
         </div>
       )}
 
-      <HomeFeaturedCarousel featuredReps={featuredReps} />
+      <HomeFeaturedCarousel featuredReps={featuredForClient} />
 
       <div className="page-container py-8">
         <FeaturedListingAdvert />

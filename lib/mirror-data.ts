@@ -109,5 +109,31 @@ export function shouldIncludeMirrorPathInSitemap(path: string): boolean {
   if (lower === 'custodynote') return false;
   // Legacy /blog/{slug} mirror paths 301 to /Blog/{slug}; canonical blog URLs come from getAllBlogArticles().
   if (decoded === 'blog' || decoded.startsWith('blog/')) return false;
+
+  // Dev / test / checkout / admin junk from the Wix crawl — never sitemap these.
+  // Many also redirect in next.config; listing them still wastes crawl budget.
+  const SITEMAP_JUNK_EXACT = new Set([
+    'admin',
+    'comprehensivetestsuite',
+    'emailtest',
+    'teststripeflow',
+    'diagnosticreport',
+    'finaldiagnosticreport',
+    'featuredcheckout',
+    'featuredsuccess',
+    'paymentsuccess',
+    'paymentcancel',
+    'healthcheck',
+    'testpaywallguard',
+    'stripepaymentsimulator',
+    'subscriptiontest',
+    'dataenrichment',
+    'seostrategy',
+    'sendablepost',
+    'forumpost',
+  ]);
+  if (SITEMAP_JUNK_EXACT.has(lower)) return false;
+  if (lower.startsWith('admin/')) return false;
+
   return true;
 }

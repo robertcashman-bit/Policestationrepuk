@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { GET } from '@/app/api/cron/firm-outreach-status/route';
 import {
-  GET,
   STATUS_ELIGIBILITY_MAX_READY_SCAN,
   STATUS_ELIGIBILITY_READY_LIMIT,
   STATUS_ELIGIBILITY_SENT_LIMIT,
-} from '@/app/api/cron/firm-outreach-status/route';
+} from '@/lib/firm-outreach/status-eligibility-bounds';
 
 const mockSelect = vi.fn().mockResolvedValue({
   candidates: [{}, {}, {}],

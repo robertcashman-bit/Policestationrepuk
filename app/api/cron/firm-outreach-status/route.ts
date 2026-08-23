@@ -6,6 +6,11 @@ import { getOutreachConfigStatus } from '@/lib/firm-outreach/config-status';
 import { countEmailJobsByStatus } from '@/lib/firm-outreach/email-jobs/storage';
 import { selectOutreachCandidates } from '@/lib/firm-outreach/outreach/candidate-selection';
 import {
+  STATUS_ELIGIBILITY_MAX_READY_SCAN,
+  STATUS_ELIGIBILITY_READY_LIMIT,
+  STATUS_ELIGIBILITY_SENT_LIMIT,
+} from '@/lib/firm-outreach/status-eligibility-bounds';
+import {
   getDailySendCount,
   getLatestOutreachRunLog,
   listProspectIdsByStatus,
@@ -20,11 +25,6 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 /** Status must stay under platform proxy timeouts (~60s). Keep this route light. */
 export const maxDuration = 60;
-
-/** Status eligibility scans stay tiny — dual 1200-row candidate selects 504'd live verify. */
-export const STATUS_ELIGIBILITY_READY_LIMIT = 40;
-export const STATUS_ELIGIBILITY_SENT_LIMIT = 20;
-export const STATUS_ELIGIBILITY_MAX_READY_SCAN = 120;
 
 function utcDateOffset(daysAgo: number): string {
   const d = new Date();

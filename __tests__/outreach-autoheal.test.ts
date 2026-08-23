@@ -61,6 +61,7 @@ vi.mock('@/lib/firm-outreach/storage', () => ({
 
 vi.mock('@/lib/firm-outreach/run-lock', () => ({
   claimOutreachRunLock: (...a: unknown[]) => mockClaimLock(...a),
+  releaseOutreachRunLock: vi.fn(async () => undefined),
 }));
 
 vi.mock('@/lib/firm-outreach/reporting/critical-alert', () => ({

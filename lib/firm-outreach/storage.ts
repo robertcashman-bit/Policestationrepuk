@@ -227,7 +227,7 @@ export async function listProspectsByStatus(status: FirmProspectStatus, limit = 
 export async function listProspectsByRecordStatus(
   status: FirmProspectStatus,
   limit = 500,
-  opts?: { campaignId?: string },
+  opts?: { campaignId?: string; maxIndexWalk?: number },
 ): Promise<FirmProspect[]> {
   const campaignId = opts?.campaignId ?? activeOutreachCampaignId();
   if (limit <= 0) return [];
@@ -237,9 +237,16 @@ export async function listProspectsByRecordStatus(
   const ids = await listProspectIdsByStatus(status);
   if (ids.length === 0) return [];
 
+  // Sparse campaigns (e.g. disabled PSA in a RepUK-heavy ready index) must not
+  // walk thousands of wrong-campaign rows looking for matches that do not exist.
+  const maxWalk = Math.max(
+    limit,
+    Math.min(ids.length, opts?.maxIndexWalk ?? Math.max(limit * 8, 800)),
+  );
+
   const out: FirmProspect[] = [];
-  for (let i = 0; i < ids.length && out.length < limit; i += MGET_CHUNK) {
-    const chunk = ids.slice(i, i + MGET_CHUNK);
+  for (let i = 0; i < maxWalk && out.length < limit; i += MGET_CHUNK) {
+    const chunk = ids.slice(i, Math.min(i + MGET_CHUNK, maxWalk));
     const map = await getProspectsByIds(chunk);
     for (const id of chunk) {
       const p = map.get(id);
@@ -434,6 +441,9 @@ export async function emailsWithIndexedSends(emails: string[]): Promise<Set<stri
 /**
  * Inboxes that already have a send recorded for this campaign only.
  * PSA (`agent_cover_kent_v1`) history must not clog RepUK candidate selection.
+ *
+ * Batches index + send reads — a sequential per-email listSendsForEmail used to
+ * blow the status 60s budget (and starve send ticks) once the ready pile grew.
  */
 export async function emailsWithIndexedSendsForCampaign(
   emails: string[],
@@ -442,12 +452,44 @@ export async function emailsWithIndexedSendsForCampaign(
   const anyIndexed = await emailsWithIndexedSends(emails);
   if (anyIndexed.size === 0) return anyIndexed;
 
+  const kv = getKV();
   const hit = new Set<string>();
-  for (const email of anyIndexed) {
-    const sends = await listSendsForEmail(email);
-    if (sends.some((s) => s.campaignId === campaignId)) {
-      hit.add(email);
-    }
+  if (!kv) return hit;
+
+  const indexedList = [...anyIndexed];
+  const emailToSendIds = new Map<string, string[]>();
+  const allSendIds: string[] = [];
+
+  for (let i = 0; i < indexedList.length; i += MGET_CHUNK) {
+    const chunk = indexedList.slice(i, i + MGET_CHUNK);
+    const idLists = await Promise.all(
+      chunk.map((email) => readIndexMembers(SEND_EMAIL_INDEX + emailHash(email))),
+    );
+    chunk.forEach((email, idx) => {
+      const ids = (idLists[idx] ?? []).map(String);
+      if (ids.length === 0) return;
+      emailToSendIds.set(email, ids);
+      allSendIds.push(...ids);
+    });
+  }
+
+  if (allSendIds.length === 0) return hit;
+
+  const sendById = new Map<string, FirmOutreachSend>();
+  const uniqueSendIds = [...new Set(allSendIds)];
+  for (let i = 0; i < uniqueSendIds.length; i += MGET_CHUNK) {
+    const chunk = uniqueSendIds.slice(i, i + MGET_CHUNK);
+    const keys = chunk.map((id) => sendKey(id));
+    const values = await kv.mget<(FirmOutreachSend | null)[]>(...keys);
+    chunk.forEach((id, idx) => {
+      const row = values[idx];
+      if (row) sendById.set(id, row);
+    });
+  }
+
+  for (const [email, ids] of emailToSendIds) {
+    const hasCampaignSend = ids.some((id) => sendById.get(id)?.campaignId === campaignId);
+    if (hasCampaignSend) hit.add(email);
   }
   return hit;
 }

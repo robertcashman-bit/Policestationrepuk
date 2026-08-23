@@ -12,7 +12,7 @@ import {
   runFirmOutreachAllCampaigns,
 } from './outreach/run-outreach';
 import { isOutreachSendAllowed } from './pause-state';
-import { claimOutreachRunLock } from './run-lock';
+import { claimOutreachRunLock, releaseOutreachRunLock } from './run-lock';
 import { requalifyAllProspects } from './requalify-prospects';
 import { isAgentCoverOutreachDisabled } from './site-config';
 import { countProspectsByStatus } from './storage';
@@ -139,19 +139,23 @@ export async function runFirmOutreachPipeline(opts?: {
     if (!enrichLocked) {
       enrich = { ...emptyEnrich(), skippedReason: 'overlap' };
     } else {
-    const enrichLimit = opts?.enrichLimit ?? (opts?.skipSend ? 120 : 60);
-    enrich = await runFirmEnrichment({
-      limit: enrichLimit,
-      maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
-    });
-    if (!isAgentCoverOutreachDisabled()) {
-      const psaEnrichLimit = Math.max(40, Math.floor(enrichLimit / 2));
-      agentCoverEnrich = await runFirmEnrichment({
-        campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
-        limit: psaEnrichLimit,
-        maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
-      });
-    }
+      try {
+        const enrichLimit = opts?.enrichLimit ?? (opts?.skipSend ? 120 : 60);
+        enrich = await runFirmEnrichment({
+          limit: enrichLimit,
+          maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
+        });
+        if (!isAgentCoverOutreachDisabled()) {
+          const psaEnrichLimit = Math.max(40, Math.floor(enrichLimit / 2));
+          agentCoverEnrich = await runFirmEnrichment({
+            campaignId: AGENT_COVER_KENT_CAMPAIGN_ID,
+            limit: psaEnrichLimit,
+            maxElapsedMs: opts?.enrichMaxElapsedMs ?? 240_000,
+          });
+        }
+      } finally {
+        await releaseOutreachRunLock('enrich');
+      }
     }
   }
 
@@ -168,14 +172,18 @@ export async function runFirmOutreachPipeline(opts?: {
             skipped.skippedReason = 'overlap';
             return skipped;
           }
-          // RepUK WhatsApp only — PSA agent-cover filtered inside runFirmOutreachAllCampaigns.
-          const multi = await runFirmOutreachAllCampaigns({
-            limit: opts?.sendLimit,
-            maxElapsedMs: 280_000,
-          });
-          sendByCampaign = multi.byCampaign;
-          agentCoverSend = multi.byCampaign[AGENT_COVER_KENT_CAMPAIGN_ID];
-          return multi.combined;
+          try {
+            // RepUK WhatsApp only — PSA agent-cover filtered inside runFirmOutreachAllCampaigns.
+            const multi = await runFirmOutreachAllCampaigns({
+              limit: opts?.sendLimit,
+              maxElapsedMs: 280_000,
+            });
+            sendByCampaign = multi.byCampaign;
+            agentCoverSend = multi.byCampaign[AGENT_COVER_KENT_CAMPAIGN_ID];
+            return multi.combined;
+          } finally {
+            await releaseOutreachRunLock('send');
+          }
         })();
 
   const counts = opts?.skipCounts ? {} : await countProspectsByStatus();

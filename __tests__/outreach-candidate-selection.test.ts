@@ -120,6 +120,26 @@ describe('selectOutreachCandidates', () => {
     expect(readyCall?.[1]).toBe(1200);
   });
 
+  it('honours maxReadyScan and skipIndexedSendCheck for status probes', async () => {
+    mockListByStatus.mockResolvedValue([
+      prospect({ id: 'fop_a', email: 'a@firm.co.uk' }),
+      prospect({ id: 'fop_b', email: 'b@firm.co.uk' }),
+    ]);
+    const result = await selectOutreachCandidates({
+      campaignId: 'whatsapp_invite_v1',
+      readyLimit: 40,
+      sentLimit: 20,
+      maxReadyScan: 120,
+      skipIndexedSendCheck: true,
+      excludeFirmCooldown: false,
+    });
+    const readyCall = mockListByStatus.mock.calls.find((c) => c[0] === 'ready_to_send');
+    expect(readyCall?.[1]).toBe(120);
+    expect(mockIndexedSends).not.toHaveBeenCalled();
+    expect(result.readyEligible).toBe(2);
+    expect(result.skippedIndexedSend).toBe(0);
+  });
+
   it('scopes indexed-send skips to the campaign being flushed', async () => {
     const fresh = prospect({ id: 'fop_fresh', email: 'duty@fresh.co.uk' });
     mockListByStatus.mockImplementation(async (status: string) => {

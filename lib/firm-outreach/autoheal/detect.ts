@@ -103,7 +103,12 @@ export async function detectAutohealFaults(now = new Date()): Promise<{
   capacities: { psa: OutreachCapacity; repuk: OutreachCapacity };
 }> {
   const faults: AutohealFault[] = [];
-  const capacities = await getAllWorkspacesCapacity(now);
+  // Bound capacity work — default 400×2 eligible scans + per-job sampling was
+  // competing with the send lock budget and slowing autoheal under a large ready pile.
+  const capacities = await getAllWorkspacesCapacity(now, {
+    eligibleScanLimit: 80,
+    sampleJobs: false,
+  });
   const sendHealth = await getOutreachSendHealth();
   const nowMs = now.getTime();
   const jobCounts = await countEmailJobsByStatus();

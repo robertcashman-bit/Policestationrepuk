@@ -1,5 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GET } from '@/app/api/cron/firm-outreach-status/route';
+import {
+  STATUS_ELIGIBILITY_MAX_READY_SCAN,
+  STATUS_ELIGIBILITY_READY_LIMIT,
+  STATUS_ELIGIBILITY_SENT_LIMIT,
+} from '@/lib/firm-outreach/status-eligibility-bounds';
+
+const mockSelect = vi.fn().mockResolvedValue({
+  candidates: [{}, {}, {}],
+  readyScanned: 10,
+  sentScanned: 5,
+  readyEligible: 8,
+  followUpEligible: 1,
+  skippedIndexedSend: 0,
+  firmCooldownSkipped: 0,
+});
 
 vi.mock('@/lib/firm-outreach/config-status', () => ({
   getOutreachConfigStatus: vi.fn().mockResolvedValue({
@@ -31,22 +46,14 @@ vi.mock('@/lib/firm-outreach/email-jobs/storage', () => ({
 }));
 
 vi.mock('@/lib/firm-outreach/outreach/candidate-selection', () => ({
-  selectOutreachCandidates: vi.fn().mockResolvedValue({
-    candidates: [{}, {}, {}],
-    readyScanned: 10,
-    sentScanned: 5,
-    readyEligible: 8,
-    followUpEligible: 1,
-    skippedIndexedSend: 0,
-    firmCooldownSkipped: 0,
-  }),
+  selectOutreachCandidates: (...args: unknown[]) => mockSelect(...args),
 }));
 
 vi.mock('@/lib/firm-outreach/storage', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/firm-outreach/storage')>();
   return {
     ...actual,
-    listProspectIdsByStatus: vi.fn().mockResolvedValue(Array.from({ length: 109 }, (_, i) => `p${i}`)),
+    listProspectIdsByStatus: vi.fn().mockResolvedValue(Array.from({ length: 3076 }, (_, i) => `p${i}`)),
     getDailySendCount: vi.fn().mockResolvedValue(3),
     getLatestOutreachRunLog: vi.fn().mockResolvedValue(null),
   };
@@ -70,6 +77,16 @@ const ENV = process.env;
 
 describe('firm-outreach-status cron route', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
+    mockSelect.mockResolvedValue({
+      candidates: [{}, {}, {}],
+      readyScanned: 10,
+      sentScanned: 5,
+      readyEligible: 8,
+      followUpEligible: 1,
+      skippedIndexedSend: 0,
+      firmCooldownSkipped: 0,
+    });
     process.env = {
       ...ENV,
       CRON_SECRET: 'cron-test-secret',
@@ -98,9 +115,38 @@ describe('firm-outreach-status cron route', () => {
     const json = await res.json();
     expect(json.ok).toBe(true);
     expect(json.config.requireApproval).toBe(true);
-    expect(json.queue.readyToSend).toBe(109);
+    expect(json.queue.readyToSend).toBe(3076);
     expect(json.queue.sentToday).toBe(3);
     expect(json.queue.sendableReady).toBeGreaterThan(0);
+  });
+
+  it('keeps eligibility scans bounded so a large ready pile cannot 504', async () => {
+    const res = await GET(
+      new Request('http://localhost/api/cron/firm-outreach-status', {
+        headers: { authorization: 'Bearer cron-test-secret' },
+      }),
+    );
+    expect(res.status).toBe(200);
+
+    // Only RepUK is scanned — PSA permanently disabled must not walk the ready index.
+    expect(mockSelect).toHaveBeenCalledTimes(1);
+    expect(mockSelect).toHaveBeenCalledWith(
+      expect.objectContaining({
+        campaignId: 'whatsapp_invite_v1',
+        readyLimit: STATUS_ELIGIBILITY_READY_LIMIT,
+        sentLimit: STATUS_ELIGIBILITY_SENT_LIMIT,
+        maxReadyScan: STATUS_ELIGIBILITY_MAX_READY_SCAN,
+        excludeFirmCooldown: false,
+        skipIndexedSendCheck: true,
+      }),
+    );
+    expect(STATUS_ELIGIBILITY_MAX_READY_SCAN).toBeLessThanOrEqual(200);
+    expect(STATUS_ELIGIBILITY_READY_LIMIT).toBeLessThanOrEqual(50);
+
+    const json = await res.json();
+    expect(json.queue.eligibility.agent_cover_kent_v1.readyScanned).toBe(0);
+    expect(json.queue.eligibility.agent_cover_kent_v1.readyEligible).toBe(0);
+    expect(json.queue.eligibility.whatsapp_invite_v1.readyEligible).toBe(8);
   });
 
   it('accepts outreach bootstrap secret header', async () => {

@@ -101,7 +101,14 @@ function nextUtcHourIso(now = new Date()): string {
 }
 
 export async function countEligibleUnsent(campaignId: string, scanLimit = 400): Promise<number> {
-  const ready = await listProspectsByRecordStatus('ready_to_send', scanLimit, { campaignId });
+  // Permanently-disabled PSA: skip walking the shared ready index entirely.
+  if (campaignId === 'agent_cover_kent_v1' && isAgentCoverOutreachDisabled()) {
+    return 0;
+  }
+  const ready = await listProspectsByRecordStatus('ready_to_send', scanLimit, {
+    campaignId,
+    maxIndexWalk: Math.max(scanLimit * 8, 800),
+  });
   let n = 0;
   for (const p of ready) {
     if (p.campaignId !== campaignId) continue;

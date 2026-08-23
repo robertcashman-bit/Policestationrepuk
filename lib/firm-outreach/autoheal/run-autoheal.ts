@@ -1,5 +1,5 @@
 import { newJobRunId, saveJobRun } from '../job-runs';
-import { claimOutreachRunLock } from '../run-lock';
+import { claimOutreachRunLock, releaseOutreachRunLock } from '../run-lock';
 import { detectAutohealFaults } from './detect';
 import { applyAutohealRepairs } from './repair';
 import { maybeSendCriticalOutreachAlert } from '../reporting/critical-alert';
@@ -53,59 +53,63 @@ export async function runOutreachAutoheal(opts?: {
     };
   }
 
-  const { faults, capacities } = await detectAutohealFaults();
-  const repair = await applyAutohealRepairs(faults, {
-    triggerOutreach: opts?.triggerOutreach,
-    maxElapsedMs: opts?.maxElapsedMs,
-  });
+  try {
+    const { faults, capacities } = await detectAutohealFaults();
+    const repair = await applyAutohealRepairs(faults, {
+      triggerOutreach: opts?.triggerOutreach,
+      maxElapsedMs: opts?.maxElapsedMs,
+    });
 
-  const status =
-    repair.errors.length > 0
-      ? 'partial'
-      : faults.some((f) => f.severity === 'critical')
+    const status =
+      repair.errors.length > 0
         ? 'partial'
-        : 'success';
+        : faults.some((f) => f.severity === 'critical')
+          ? 'partial'
+          : 'success';
 
-  await saveJobRun({
-    workspace: 'both',
-    runId,
-    runType: 'autoheal',
-    started,
-    finished: new Date().toISOString(),
-    status,
-    eligibleBefore: capacities.psa.eligibleUnsent + capacities.repuk.eligibleUnsent,
-    pendingBefore: capacities.psa.pendingJobs + capacities.repuk.pendingJobs,
-    accepted: repair.accepted,
-    failed: repair.errors.length,
-    repairsPerformed: repair.repairs,
-    errorSummary: repair.errors.slice(0, 5).join('; ') || undefined,
-    providerCapacityBefore: Math.min(
-      capacities.psa.providerRemainingToday,
-      capacities.repuk.providerRemainingToday,
-    ),
-    meta: {
-      faultCodes: faults.map((f) => f.code),
-      skipped: repair.skipped,
+    await saveJobRun({
+      workspace: 'both',
+      runId,
+      runType: 'autoheal',
+      started,
+      finished: new Date().toISOString(),
+      status,
+      eligibleBefore: capacities.psa.eligibleUnsent + capacities.repuk.eligibleUnsent,
+      pendingBefore: capacities.psa.pendingJobs + capacities.repuk.pendingJobs,
+      accepted: repair.accepted,
+      failed: repair.errors.length,
+      repairsPerformed: repair.repairs,
+      errorSummary: repair.errors.slice(0, 5).join('; ') || undefined,
+      providerCapacityBefore: Math.min(
+        capacities.psa.providerRemainingToday,
+        capacities.repuk.providerRemainingToday,
+      ),
+      meta: {
+        faultCodes: faults.map((f) => f.code),
+        skipped: repair.skipped,
+        jobsRecovered: repair.jobsRecovered,
+        jobsCreated: repair.jobsCreated,
+        outreachTriggered: repair.outreachTriggered,
+      },
+    });
+
+    await maybeSendCriticalOutreachAlert({ faults, capacities, runId }).catch((err) => {
+      console.warn('[firm-outreach autoheal] critical alert failed', err);
+    });
+
+    return {
+      ok: repair.errors.length === 0,
+      runId,
+      faults,
+      repairs: repair.repairs,
+      skippedRepairs: repair.skipped,
       jobsRecovered: repair.jobsRecovered,
       jobsCreated: repair.jobsCreated,
-      outreachTriggered: repair.outreachTriggered,
-    },
-  });
-
-  await maybeSendCriticalOutreachAlert({ faults, capacities, runId }).catch((err) => {
-    console.warn('[firm-outreach autoheal] critical alert failed', err);
-  });
-
-  return {
-    ok: repair.errors.length === 0,
-    runId,
-    faults,
-    repairs: repair.repairs,
-    skippedRepairs: repair.skipped,
-    jobsRecovered: repair.jobsRecovered,
-    jobsCreated: repair.jobsCreated,
-    accepted: repair.accepted,
-    errors: repair.errors,
-    capacities,
-  };
+      accepted: repair.accepted,
+      errors: repair.errors,
+      capacities,
+    };
+  } finally {
+    await releaseOutreachRunLock('autoheal');
+  }
 }

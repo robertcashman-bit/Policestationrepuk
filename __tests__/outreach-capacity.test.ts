@@ -146,4 +146,12 @@ describe('getOutreachCapacity', () => {
     expect(cap.pendingJobs).toBe(4);
     expect(cap.retryScheduledJobs).toBe(0);
   });
+
+  it('does not scan the ready index for permanently-disabled PSA capacity', async () => {
+    mockListReady.mockClear();
+    const psa = await getOutreachCapacity('psa', { eligibleScanLimit: 400 });
+    expect(mockListReady).not.toHaveBeenCalled();
+    expect(psa.eligibleUnsent).toBe(0);
+    expect(psa.limitingFactor).toBe('sending_disabled');
+  });
 });

@@ -292,6 +292,42 @@ describe('selectOutreachCandidates', () => {
     expect(result.skippedIdempotentJob).toBe(0);
   });
 
+  it('honours deadlineMs so a clogged ready walk cannot eat the send window', async () => {
+    const clog = Array.from({ length: 500 }, (_, i) =>
+      prospect({
+        id: `fop_slow_${i}`,
+        email: `slow${i}@clog.co.uk`,
+        priorityScore: 80,
+      }),
+    );
+    const fresh = prospect({
+      id: 'fop_after_deadline',
+      email: 'crime@after.co.uk',
+      priorityScore: 1,
+    });
+    mockReadyPile([...clog, fresh]);
+    mockIdempotentJobs.mockImplementation(async (emails: string[]) => {
+      await new Promise((r) => setTimeout(r, 30));
+      const map = new Map<string, { status: 'accepted' }>();
+      for (const email of emails) {
+        if (email !== 'crime@after.co.uk') map.set(email, { status: 'accepted' });
+      }
+      return map;
+    });
+
+    const deadlineMs = Date.now() + 80;
+    const result = await selectOutreachCandidates({
+      campaignId: 'whatsapp_invite_v1',
+      readyLimit: 40,
+      sentLimit: 10,
+      deadlineMs,
+    });
+
+    expect(result.selectionTimedOut).toBe(true);
+    // Stopped early — must not have walked the entire 500+ clog for readyLimit 40.
+    expect(result.readyScanned).toBeLessThan(500);
+  });
+
   it('readyProspectScanLimit is a status hint, not a send-path hard ceiling of 1200', () => {
     // Locking readyProspectScanLimit(1200)===1200 was the bug: unlimited
     // batch set readyLimit=1200 and overscan collapsed to zero.

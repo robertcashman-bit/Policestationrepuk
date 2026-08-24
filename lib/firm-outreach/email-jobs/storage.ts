@@ -501,6 +501,36 @@ export async function requeueClaimedJob(
   return job;
 }
 
+/**
+ * Preview/selection only treat terminal jobs as blockers, but enqueue is
+ * idempotent on ANY job for campaign|email|step. Non-terminal orphans
+ * (pending missing from zset, failed/deferred, stuck claimed) then yield
+ * silent duplicate + jobsCreated=0 + accepted=0.
+ *
+ * Heal those onto the claimable pending path so Phase A/C can drain them.
+ * Returns null when the job must not be re-sent (terminal / has provider id).
+ */
+export async function ensureEmailJobClaimable(job: EmailJob): Promise<EmailJob | null> {
+  if (EMAIL_JOB_TERMINAL_STATUSES.has(job.status) || job.providerMessageId) {
+    return null;
+  }
+
+  if (EMAIL_JOB_CLAIMABLE_STATUSES.has(job.status)) {
+    // Orphan pending: idempotency key exists but zset membership was lost.
+    const dueAt = Date.parse(job.nextRetryAt ?? job.createdAt) || Date.now();
+    job.nextRetryAt = new Date(Math.min(dueAt, Date.now())).toISOString();
+    await saveEmailJob(job);
+    return job;
+  }
+
+  return requeueClaimedJob(job, {
+    status: 'pending',
+    nextRetryAt: new Date().toISOString(),
+    previousStatus: job.status,
+    lastError: job.lastError ?? `ensure_claimable_from_${job.status}`,
+  });
+}
+
 export async function markJobAccepted(
   job: EmailJob,
   opts: { providerMessageId: string; sendId?: string; subject?: string },

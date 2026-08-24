@@ -27,11 +27,11 @@ const DEFAULT_SENT_SCAN = 400;
 /** Chunk size when walking the shared ready status index. */
 const READY_WALK_CHUNK = 100;
 /**
- * Cap how many already-mailed ready rows we reconcile per tick.
- * Live (4da0858) only cleared ~40/tick while Phase B still burned on
- * idempotent_exists — raise so the clogged prefix drains in fewer ticks.
+ * Max stale-ready rows to *collect* for post-send reconcile.
+ * Keep modest — live c64fc35 reconciled hundreds *before* send and burned
+ * the whole tick (attempted=0, elapsed≈200s).
  */
-const STALE_READY_RECONCILE_CAP = 300;
+export const STALE_READY_RECONCILE_CAP = 80;
 
 /**
  * Hint for status probes / logging. NOT a ceiling on how far the SEND path
@@ -105,9 +105,15 @@ export async function selectOutreachCandidates(opts: {
   /**
    * Hard cap on campaign-matching ready rows examined (status probes).
    * Ignored on the send path when skipIndexedSendCheck is false — send must
-   * walk until readyLimit sendable or the index ends.
+   * walk until readyLimit sendable or the index ends (or deadlineMs).
    */
   maxReadyScan?: number;
+  /**
+   * Wall-clock deadline for the ready walk (send path). Stop once past this
+   * even if readyLimit is not filled — leave time for enqueue/send in the
+   * same tick. Live c64fc35 walked+reconciled for ~200s with attempted=0.
+   */
+  deadlineMs?: number;
 }): Promise<{
   candidates: Array<{ prospect: FirmProspect; step: number }>;
   readyScanned: number;
@@ -122,6 +128,8 @@ export async function selectOutreachCandidates(opts: {
   staleReadyToReconcile: StaleReadyReconcile[];
   /** Total ready-index ids walked (including other campaigns). */
   readyIndexWalked: number;
+  /** True when the ready walk stopped early due to deadlineMs. */
+  selectionTimedOut: boolean;
 }> {
   const readyLimit = opts.readyLimit ?? DEFAULT_READY_SCAN;
   const sentLimit = opts.sentLimit ?? DEFAULT_SENT_SCAN;
@@ -132,6 +140,7 @@ export async function selectOutreachCandidates(opts: {
   const statusCampaignCap = skipDeepChecks
     ? Math.max(1, opts.maxReadyScan ?? readyProspectScanLimit(readyLimit))
     : Number.POSITIVE_INFINITY;
+  const deadlineMs = opts.deadlineMs ?? Number.POSITIVE_INFINITY;
 
   const readyEligible: Array<{ prospect: FirmProspect; step: number }> = [];
   const staleReadyToReconcile: StaleReadyReconcile[] = [];
@@ -139,11 +148,15 @@ export async function selectOutreachCandidates(opts: {
   let skippedIdempotentJob = 0;
   let readyScanned = 0;
   let readyIndexWalked = 0;
+  let selectionTimedOut = false;
 
-  const readyIds = await listProspectIdsByStatus('ready_to_send');
-  const ids = readyIds;
+  const ids = await listProspectIdsByStatus('ready_to_send');
 
   for (let i = 0; i < ids.length && readyEligible.length < readyLimit; i += READY_WALK_CHUNK) {
+    if (Date.now() >= deadlineMs) {
+      selectionTimedOut = true;
+      break;
+    }
     if (readyScanned >= statusCampaignCap) break;
 
     const slice = ids.slice(i, i + READY_WALK_CHUNK);
@@ -251,5 +264,6 @@ export async function selectOutreachCandidates(opts: {
     firmCooldownSkipped,
     staleReadyToReconcile,
     readyIndexWalked,
+    selectionTimedOut,
   };
 }

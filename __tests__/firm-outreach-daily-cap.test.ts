@@ -63,6 +63,7 @@ vi.mock('../lib/firm-outreach/outreach/candidate-selection', () => ({
       skippedIdempotentJob: 0,
       staleReadyToReconcile: [],
       readyIndexWalked: ready.length,
+      selectionTimedOut: false,
       candidates: ready.map((prospect: { id: string }) => ({ prospect, step: 0 })),
     };
   }),
@@ -72,6 +73,7 @@ vi.mock('../lib/firm-outreach/email-jobs/storage', () => ({
   claimNextEmailJob: vi.fn(async () => null),
   enqueueEmailJob: vi.fn(),
   emailsWithIdempotentJobsForCampaign: vi.fn(async () => new Map()),
+  ensureEmailJobClaimable: vi.fn(async () => null),
   getEmailJobByIdempotencyKey: vi.fn(async () => null),
   markJobAccepted: vi.fn(),
   markJobProcessing: vi.fn(),

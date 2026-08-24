@@ -50,6 +50,7 @@ vi.mock('@/lib/firm-outreach/email-jobs/storage', () => ({
   claimNextEmailJob: vi.fn(async () => null),
   enqueueEmailJob: vi.fn(),
   emailsWithIdempotentJobsForCampaign: (...a: unknown[]) => mockIdempotentJobs(...a),
+  ensureEmailJobClaimable: vi.fn(async () => null),
   getEmailJobByIdempotencyKey: vi.fn(async () => null),
   markJobAccepted: vi.fn(),
   markJobProcessing: vi.fn(),

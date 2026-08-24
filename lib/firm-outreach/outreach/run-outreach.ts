@@ -1,4 +1,5 @@
 import {
+  EMAIL_JOB_TERMINAL_STATUSES,
   isRetryableProviderError,
   normalizeEmail,
   retryDelayMs,
@@ -12,6 +13,7 @@ import {
   claimNextEmailJob,
   emailsWithIdempotentJobsForCampaign,
   enqueueEmailJob,
+  ensureEmailJobClaimable,
   getEmailJobByIdempotencyKey,
   markJobAccepted,
   markJobProcessing,
@@ -56,6 +58,7 @@ import {
 import {
   firmRecentlyContacted,
   selectOutreachCandidates,
+  type StaleReadyReconcile,
 } from './candidate-selection';
 import {
   buildOutreachRunLog,
@@ -66,8 +69,15 @@ import {
 import { sendOutreachEmail } from './send';
 import { claimProspectSend } from '../run-lock';
 import crypto from 'crypto';
+import type { EmailJobStatus } from '@robertcashman/firm-outreach-core';
 
 const DEFAULT_MAX_ELAPSED_MS = 240_000;
+
+/** Map any terminal job status onto the narrow stale-ready reconcile reason. */
+function staleReconcileReason(status: EmailJobStatus): StaleReadyReconcile['reason'] {
+  if (status === 'accepted' || status === 'delivered') return status;
+  return 'permanently_failed';
+}
 
 /** Prospects in ready/sent were MX-checked at enrich/requalify; skip DNS on send ticks. */
 function emailPrevalidatedForSend(prospect: FirmProspect): boolean {
@@ -273,11 +283,16 @@ export async function runFirmOutreach(opts?: {
   let resendQuota = globalQuota;
   const correlationId = runId;
 
-  async function loadCandidates(readyLimit: number, sentLimit: number) {
+  async function loadCandidates(
+    readyLimit: number,
+    sentLimit: number,
+    selectionDeadlineMs: number,
+  ) {
     const selection = await selectOutreachCandidates({
       campaignId,
       readyLimit,
       sentLimit,
+      deadlineMs: selectionDeadlineMs,
     });
     structuredRunLog('info', 'outreach.run.selection', {
       runId,
@@ -292,6 +307,7 @@ export async function runFirmOutreach(opts?: {
       staleReadyToReconcile: selection.staleReadyToReconcile.length,
       firmCooldownSkipped: selection.firmCooldownSkipped,
       candidates: selection.candidates.length,
+      selectionTimedOut: selection.selectionTimedOut,
       remaining,
       dryRun,
     });
@@ -300,32 +316,44 @@ export async function runFirmOutreach(opts?: {
         recordSkip(stats, 'firm_cooldown');
       }
     }
-    // Unclog ready-index prefix: rows already mailed (send record or terminal
-    // job) must leave ready_to_send or every tick re-walks the same clog.
-    // Never mutate prospects during dry-run.
-    if (!dryRun) {
-      for (const stale of selection.staleReadyToReconcile) {
-        if (stale.prospect.status !== 'ready_to_send') continue;
-        const prevStatus = stale.prospect.status;
-        if (stale.reason === 'permanently_failed') {
-          stale.prospect.status = 'excluded';
-          stale.prospect.excludedReason = 'send_permanently_failed';
-        } else {
-          stale.prospect.status = 'sent';
-          stale.prospect.lastEmailAt =
-            stale.lastEmailAt ?? stale.prospect.lastEmailAt ?? new Date().toISOString();
-          stale.prospect.excludedReason = undefined;
-        }
-        stale.prospect.updatedAt = new Date().toISOString();
-        await saveProspect(stale.prospect, prevStatus);
-      }
-    }
+    // Do NOT reconcile stale ready here — live c64fc35 spent the whole tick
+    // writing ~300 prospects and exited with attempted=0. Reconcile after send.
     return selection;
+  }
+
+  async function reconcileStaleReady(
+    rows: Array<{
+      prospect: FirmProspect;
+      reason: string;
+      lastEmailAt?: string;
+    }>,
+    reconcileDeadlineMs: number,
+  ): Promise<number> {
+    if (dryRun || rows.length === 0) return 0;
+    let n = 0;
+    for (const stale of rows) {
+      if (Date.now() >= reconcileDeadlineMs) break;
+      if (stale.prospect.status !== 'ready_to_send') continue;
+      const prevStatus = stale.prospect.status;
+      if (stale.reason === 'permanently_failed') {
+        stale.prospect.status = 'excluded';
+        stale.prospect.excludedReason = 'send_permanently_failed';
+      } else {
+        stale.prospect.status = 'sent';
+        stale.prospect.lastEmailAt =
+          stale.lastEmailAt ?? stale.prospect.lastEmailAt ?? new Date().toISOString();
+        stale.prospect.excludedReason = undefined;
+      }
+      stale.prospect.updatedAt = new Date().toISOString();
+      await saveProspect(stale.prospect, prevStatus);
+      n += 1;
+    }
+    return n;
   }
 
   // Dry-run: evaluate gates and simulate sends without writing jobs or calling provider for real.
   if (dryRun) {
-    const selection = await loadCandidates(500, 500);
+    const selection = await loadCandidates(500, 500, started + maxElapsedMs);
     for (const { prospect, step } of selection.candidates) {
       if (stats.sent >= remaining) break;
       if (Date.now() - started >= maxElapsedMs) {
@@ -641,11 +669,19 @@ export async function runFirmOutreach(opts?: {
     }
   }
 
-  // Drain existing queue, but always leave time to enqueue this campaign's ready leads.
-  // A sibling-dominated pending zset used to consume the whole tick here, so RepUK
-  // queued 1 job/day while hundreds of WhatsApp invites sat ready.
-  const enqueueReserveMs = Math.min(75_000, Math.max(45_000, Math.floor(maxElapsedMs * 0.35)));
-  const drainDeadline = started + Math.max(20_000, maxElapsedMs - enqueueReserveMs);
+  // Reserve wall-clock for enqueue+send so selection/reconcile cannot eat the
+  // whole tick (live c64fc35: elapsed≈200s, attempted=0, only reconcile).
+  const sendReserveMs = Math.min(
+    120_000,
+    Math.max(75_000, Math.floor(maxElapsedMs * 0.4)),
+  );
+  const selectionDeadlineMs = started + Math.max(20_000, maxElapsedMs - sendReserveMs);
+
+  // Drain existing queue, but always leave time to select + enqueue + send.
+  const drainDeadline = Math.min(
+    selectionDeadlineMs,
+    started + Math.max(15_000, Math.floor((selectionDeadlineMs - started) * 0.45)),
+  );
   await processDurableJobs(drainDeadline);
   if (stats.sent >= remaining) {
     const finalQuotaEarly = await getGlobalResendQuotaRemaining(date);
@@ -653,16 +689,13 @@ export async function runFirmOutreach(opts?: {
   }
 
   const selection = await loadCandidates(
-    // Pool size for this tick — NOT a scan ceiling. Walk still advances past
-    // clogged rows until this many *sendable* firms are found (or index ends).
-    // Unlimited remaining used to force 1200 here, delaying enqueue while
-    // selection hunted for a huge pool; 200 is enough for a tick.
-    Math.min(200, Math.max(40, Number.isFinite(remaining) ? remaining : 200)),
-    Math.min(100, Math.max(20, Number.isFinite(remaining) ? Math.min(remaining, 100) : 100)),
+    // Small pool — walk past clog until this many *sendable* (or deadline).
+    Math.min(50, Math.max(20, Number.isFinite(remaining) ? Math.min(remaining, 50) : 50)),
+    Math.min(40, Math.max(10, Number.isFinite(remaining) ? Math.min(remaining, 40) : 40)),
+    selectionDeadlineMs,
   );
 
-  // Belt-and-suspenders: drop any step-0 candidate that still has a terminal
-  // job (selection must already do this; live 4da0858 proved false negatives).
+  // Filter-only (no KV writes): drop any residual terminal-job candidates.
   const step0Emails = selection.candidates
     .filter((c) => c.step === 0 && c.prospect.email)
     .map((c) => normalizeEmail(c.prospect.email!));
@@ -674,6 +707,7 @@ export async function runFirmOutreach(opts?: {
     if (c.step !== 0 || !c.prospect.email) return true;
     return !terminalJobs.has(normalizeEmail(c.prospect.email));
   });
+  const deferredReconcile = [...selection.staleReadyToReconcile];
   if (terminalJobs.size > 0) {
     structuredRunLog('info', 'outreach.run.pre_enqueue_terminal_filter', {
       runId,
@@ -682,32 +716,23 @@ export async function runFirmOutreach(opts?: {
       after: sendableCandidates.length,
       terminalJobs: terminalJobs.size,
     });
-    if (!dryRun) {
-      for (const c of selection.candidates) {
-        if (c.step !== 0 || !c.prospect.email) continue;
-        const hit = terminalJobs.get(normalizeEmail(c.prospect.email));
-        if (!hit || c.prospect.status !== 'ready_to_send') continue;
-        const prevStatus = c.prospect.status;
-        if (hit.status === 'permanently_failed') {
-          c.prospect.status = 'excluded';
-          c.prospect.excludedReason = 'send_permanently_failed';
-        } else {
-          c.prospect.status = 'sent';
-          c.prospect.lastEmailAt =
-            hit.acceptedAt ?? hit.updatedAt ?? new Date().toISOString();
-          c.prospect.excludedReason = undefined;
-        }
-        c.prospect.updatedAt = new Date().toISOString();
-        await saveProspect(c.prospect, prevStatus);
-      }
+    for (const c of selection.candidates) {
+      if (c.step !== 0 || !c.prospect.email) continue;
+      const hit = terminalJobs.get(normalizeEmail(c.prospect.email));
+      if (!hit || c.prospect.status !== 'ready_to_send') continue;
+      deferredReconcile.push({
+        prospect: c.prospect,
+        reason: hit.status,
+        lastEmailAt: hit.acceptedAt ?? hit.updatedAt,
+      });
     }
   }
 
-  // Always keep a short enqueue burst even if the ready scan ran long —
-  // a 0-job tick with 179 eligible is worse than leaving send for next drain.
-  const remainingMs = started + maxElapsedMs - Date.now();
-  const enqueueDeadline = Date.now() + Math.min(40_000, Math.max(15_000, remainingMs - 30_000));
-  // Phase B: enqueue durable jobs for eligible prospects (idempotent).
+  // Phase B: enqueue — hard deadline uses the reserved send window.
+  const enqueueDeadline = Math.min(
+    started + maxElapsedMs - 45_000,
+    Date.now() + Math.min(50_000, Math.max(20_000, started + maxElapsedMs - Date.now() - 45_000)),
+  );
   for (const { prospect, step } of sendableCandidates) {
     if (Date.now() >= enqueueDeadline) {
       stats.partial = true;
@@ -723,38 +748,46 @@ export async function runFirmOutreach(opts?: {
       }
       const normalizedEmail = normalizeEmail(email);
 
-      // Cheap idempotency pre-check BEFORE qualification / MX / cooldown so a
-      // residual clog cannot burn the enqueue deadline on false sendables.
+      // Idempotency pre-check BEFORE qualification / MX / cooldown.
+      // Enqueue is unique on ANY job for the key — terminal → skip+reconcile;
+      // non-terminal → heal onto pending zset so Phase C drains (do not create).
       if (step === 0) {
         const existingJob = await getEmailJobByIdempotencyKey(
-          buildOutreachIdempotencyKey(campaignId, normalizedEmail, step),
+          buildOutreachIdempotencyKey(
+            prospect.campaignId || campaignId,
+            normalizedEmail,
+            step,
+          ),
         );
-        if (
-          existingJob &&
-          (existingJob.status === 'accepted' ||
-            existingJob.status === 'delivered' ||
-            existingJob.status === 'permanently_failed')
-        ) {
-          recordSkip(stats, 'idempotent_exists');
-          if (prospect.status === 'ready_to_send') {
-            const prevStatus = prospect.status;
-            if (
-              existingJob.status === 'accepted' ||
-              existingJob.status === 'delivered'
-            ) {
-              prospect.status = 'sent';
-              prospect.lastEmailAt =
-                existingJob.acceptedAt ??
-                existingJob.updatedAt ??
-                new Date().toISOString();
-              prospect.excludedReason = undefined;
-            } else {
-              prospect.status = 'excluded';
-              prospect.excludedReason = 'send_permanently_failed';
-            }
-            prospect.updatedAt = new Date().toISOString();
-            await saveProspect(prospect, prevStatus);
+        if (existingJob) {
+          if (
+            EMAIL_JOB_TERMINAL_STATUSES.has(existingJob.status) ||
+            existingJob.providerMessageId
+          ) {
+            recordSkip(stats, 'idempotent_exists');
+            deferredReconcile.push({
+              prospect,
+              reason: staleReconcileReason(existingJob.status),
+              lastEmailAt:
+                existingJob.acceptedAt ?? existingJob.updatedAt ?? new Date().toISOString(),
+            });
+            continue;
           }
+          const healed = await ensureEmailJobClaimable(existingJob);
+          if (healed) {
+            stats.queued++;
+            emailsQueuedThisRun.add(normalizedEmail);
+            structuredRunLog('info', 'outreach.run.heal_existing_job', {
+              runId,
+              campaignId,
+              jobId: healed.id,
+              fromStatus: existingJob.status,
+              toStatus: healed.status,
+              email: normalizedEmail,
+            });
+            continue;
+          }
+          recordSkip(stats, 'idempotent_exists');
           continue;
         }
       }
@@ -838,7 +871,7 @@ export async function runFirmOutreach(opts?: {
       }
 
       const enqueued = await enqueueEmailJob({
-        campaignId: prospect.campaignId,
+        campaignId: prospect.campaignId || campaignId,
         prospectId: prospect.id,
         firmName: prospect.firmName,
         prospectType: prospect.prospectType,
@@ -853,33 +886,35 @@ export async function runFirmOutreach(opts?: {
         stats.jobsCreated = (stats.jobsCreated ?? 0) + 1;
         emailsQueuedThisRun.add(normalizedEmail);
       } else if (enqueued.duplicate) {
+        // Never silent: terminal → skip; else heal so Phase C can claim/send.
         if (
-          enqueued.job.status === 'accepted' ||
-          enqueued.job.status === 'delivered' ||
-          enqueued.job.status === 'permanently_failed'
+          EMAIL_JOB_TERMINAL_STATUSES.has(enqueued.job.status) ||
+          enqueued.job.providerMessageId
         ) {
           recordSkip(stats, 'idempotent_exists');
-          // Reconcile ready rows out of the sendable pool. Marking them
-          // duplicate_email was wrong: revive treated that as soft and put
-          // them straight back to ready_to_send (PSA starvation loop).
-          if (step === 0 && prospect.status === 'ready_to_send') {
-            const prevStatus = prospect.status;
-            if (
-              enqueued.job.status === 'accepted' ||
-              enqueued.job.status === 'delivered'
-            ) {
-              prospect.status = 'sent';
-              prospect.lastEmailAt =
-                enqueued.job.acceptedAt ?? enqueued.job.updatedAt ?? new Date().toISOString();
-              prospect.excludedReason = undefined;
-              prospect.updatedAt = new Date().toISOString();
-              await saveProspect(prospect, prevStatus);
-            } else {
-              prospect.status = 'excluded';
-              prospect.excludedReason = 'send_permanently_failed';
-              prospect.updatedAt = new Date().toISOString();
-              await saveProspect(prospect, prevStatus);
-            }
+          deferredReconcile.push({
+            prospect,
+            reason: staleReconcileReason(enqueued.job.status),
+            lastEmailAt:
+              enqueued.job.acceptedAt ??
+              enqueued.job.updatedAt ??
+              new Date().toISOString(),
+          });
+        } else {
+          const healed = await ensureEmailJobClaimable(enqueued.job);
+          if (healed) {
+            stats.queued++;
+            emailsQueuedThisRun.add(normalizedEmail);
+            structuredRunLog('info', 'outreach.run.heal_duplicate_enqueue', {
+              runId,
+              campaignId,
+              jobId: healed.id,
+              fromStatus: enqueued.job.status,
+              toStatus: healed.status,
+              email: normalizedEmail,
+            });
+          } else {
+            recordSkip(stats, 'idempotent_exists');
           }
         }
       }
@@ -895,9 +930,23 @@ export async function runFirmOutreach(opts?: {
     }
   }
 
+  // Phase C: send any jobs enqueued in this run (keep a few seconds for reconcile).
+  const sendDeadline = started + maxElapsedMs - 12_000;
+  await processDurableJobs(Math.max(Date.now() + 5_000, sendDeadline));
 
-  // Phase C: send any jobs enqueued in this run.
-  await processDurableJobs(started + maxElapsedMs);
+  // Post-send reconcile — time-boxed so it cannot block the next tick's lock.
+  const reconciled = await reconcileStaleReady(
+    deferredReconcile,
+    started + maxElapsedMs,
+  );
+  if (reconciled > 0) {
+    structuredRunLog('info', 'outreach.run.stale_ready_reconciled', {
+      runId,
+      campaignId,
+      reconciled,
+      deferred: deferredReconcile.length,
+    });
+  }
 
   const finalQuota = await getGlobalResendQuotaRemaining(date);
   return finish(finalQuota, alreadySent, dailyCap);

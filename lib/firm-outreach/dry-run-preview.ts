@@ -2,6 +2,7 @@ import {
   buildOutreachIdempotencyKey,
   bumpSkipReason,
   createEmptySkipReasons,
+  EMAIL_JOB_TERMINAL_STATUSES,
   nextOutreachStep,
 } from '@robertcashman/firm-outreach-core';
 import {
@@ -210,15 +211,15 @@ export async function previewFirmOutreachDryRun(opts?: {
       continue;
     }
 
-    // Align preview with worker: durable terminal jobs cannot be re-sent.
+    // Align preview with worker enqueue: any terminal / provider-accepted job
+    // blocks wouldSend. Non-terminal jobs still wouldSend — worker heals them
+    // onto the pending zset and drains (jobsCreated may stay 0).
     if (step !== null) {
       const idemKey = buildOutreachIdempotencyKey(campaignId, normalizedEmail, step);
       const existingJob = await getEmailJobByIdempotencyKey(idemKey);
       if (
         existingJob &&
-        (existingJob.status === 'accepted' ||
-          existingJob.status === 'delivered' ||
-          existingJob.status === 'permanently_failed')
+        (EMAIL_JOB_TERMINAL_STATUSES.has(existingJob.status) || existingJob.providerMessageId)
       ) {
         row.skipReason = 'idempotent_exists';
         bumpSkipReason(skipReasons, 'idempotent_exists');

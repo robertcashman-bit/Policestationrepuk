@@ -192,6 +192,7 @@ import {
   countClaimableJobsForCampaign,
   emailsWithIdempotentJobsForCampaign,
   enqueueEmailJob,
+  ensureEmailJobClaimable,
   getEmailJobByIdempotencyKey,
   markJobAccepted,
   markJobProcessing,
@@ -523,5 +524,37 @@ describe('email job queue (KV)', () => {
     });
     expect(claimed?.id).toBe(job.id);
     expect(claimed?.campaignId).toBe('whatsapp_invite_v1');
+  });
+
+  it('ensureEmailJobClaimable requeues failed jobs and restores orphan pending to zset', async () => {
+    const { job } = await enqueueEmailJob({
+      campaignId: 'whatsapp_invite_v1',
+      prospectId: 'p_heal',
+      firmName: 'Heal Me',
+      prospectType: 'firm',
+      email: 'heal@firm.co.uk',
+      sequenceStep: 0,
+      correlationId: 'c_heal',
+    });
+
+    // Simulate non-claimable failed status (not on pending zset).
+    job.status = 'failed';
+    const { saveEmailJob } = await import('@/lib/firm-outreach/email-jobs/storage');
+    await saveEmailJob(job, 'pending');
+    expect(await countClaimableJobsForCampaign('whatsapp_invite_v1')).toBe(0);
+
+    const healed = await ensureEmailJobClaimable(job);
+    expect(healed?.status).toBe('pending');
+    expect(await countClaimableJobsForCampaign('whatsapp_invite_v1')).toBe(1);
+
+    const claimed = await claimNextEmailJob({
+      owner: 'heal-worker',
+      campaignId: 'whatsapp_invite_v1',
+    });
+    expect(claimed?.id).toBe(job.id);
+
+    // Terminal / provider-accepted must not be re-queued.
+    await markJobAccepted(claimed!, { providerMessageId: 'msg_heal' });
+    expect(await ensureEmailJobClaimable(claimed!)).toBeNull();
   });
 });

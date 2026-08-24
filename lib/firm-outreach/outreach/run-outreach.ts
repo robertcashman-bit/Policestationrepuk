@@ -1,4 +1,5 @@
 import {
+  EMAIL_JOB_TERMINAL_STATUSES,
   isRetryableProviderError,
   normalizeEmail,
   retryDelayMs,
@@ -12,6 +13,7 @@ import {
   claimNextEmailJob,
   emailsWithIdempotentJobsForCampaign,
   enqueueEmailJob,
+  ensureEmailJobClaimable,
   getEmailJobByIdempotencyKey,
   markJobAccepted,
   markJobProcessing,
@@ -738,24 +740,46 @@ export async function runFirmOutreach(opts?: {
       }
       const normalizedEmail = normalizeEmail(email);
 
-      // Cheap idempotency pre-check BEFORE qualification / MX / cooldown.
+      // Idempotency pre-check BEFORE qualification / MX / cooldown.
+      // Enqueue is unique on ANY job for the key — terminal → skip+reconcile;
+      // non-terminal → heal onto pending zset so Phase C drains (do not create).
       if (step === 0) {
         const existingJob = await getEmailJobByIdempotencyKey(
-          buildOutreachIdempotencyKey(campaignId, normalizedEmail, step),
+          buildOutreachIdempotencyKey(
+            prospect.campaignId || campaignId,
+            normalizedEmail,
+            step,
+          ),
         );
-        if (
-          existingJob &&
-          (existingJob.status === 'accepted' ||
-            existingJob.status === 'delivered' ||
-            existingJob.status === 'permanently_failed')
-        ) {
+        if (existingJob) {
+          if (
+            EMAIL_JOB_TERMINAL_STATUSES.has(existingJob.status) ||
+            existingJob.providerMessageId
+          ) {
+            recordSkip(stats, 'idempotent_exists');
+            deferredReconcile.push({
+              prospect,
+              reason: existingJob.status,
+              lastEmailAt:
+                existingJob.acceptedAt ?? existingJob.updatedAt ?? new Date().toISOString(),
+            });
+            continue;
+          }
+          const healed = await ensureEmailJobClaimable(existingJob);
+          if (healed) {
+            stats.queued++;
+            emailsQueuedThisRun.add(normalizedEmail);
+            structuredRunLog('info', 'outreach.run.heal_existing_job', {
+              runId,
+              campaignId,
+              jobId: healed.id,
+              fromStatus: existingJob.status,
+              toStatus: healed.status,
+              email: normalizedEmail,
+            });
+            continue;
+          }
           recordSkip(stats, 'idempotent_exists');
-          deferredReconcile.push({
-            prospect,
-            reason: existingJob.status,
-            lastEmailAt:
-              existingJob.acceptedAt ?? existingJob.updatedAt ?? new Date().toISOString(),
-          });
           continue;
         }
       }
@@ -839,7 +863,7 @@ export async function runFirmOutreach(opts?: {
       }
 
       const enqueued = await enqueueEmailJob({
-        campaignId: prospect.campaignId,
+        campaignId: prospect.campaignId || campaignId,
         prospectId: prospect.id,
         firmName: prospect.firmName,
         prospectType: prospect.prospectType,
@@ -854,10 +878,10 @@ export async function runFirmOutreach(opts?: {
         stats.jobsCreated = (stats.jobsCreated ?? 0) + 1;
         emailsQueuedThisRun.add(normalizedEmail);
       } else if (enqueued.duplicate) {
+        // Never silent: terminal → skip; else heal so Phase C can claim/send.
         if (
-          enqueued.job.status === 'accepted' ||
-          enqueued.job.status === 'delivered' ||
-          enqueued.job.status === 'permanently_failed'
+          EMAIL_JOB_TERMINAL_STATUSES.has(enqueued.job.status) ||
+          enqueued.job.providerMessageId
         ) {
           recordSkip(stats, 'idempotent_exists');
           deferredReconcile.push({
@@ -868,6 +892,22 @@ export async function runFirmOutreach(opts?: {
               enqueued.job.updatedAt ??
               new Date().toISOString(),
           });
+        } else {
+          const healed = await ensureEmailJobClaimable(enqueued.job);
+          if (healed) {
+            stats.queued++;
+            emailsQueuedThisRun.add(normalizedEmail);
+            structuredRunLog('info', 'outreach.run.heal_duplicate_enqueue', {
+              runId,
+              campaignId,
+              jobId: healed.id,
+              fromStatus: enqueued.job.status,
+              toStatus: healed.status,
+              email: normalizedEmail,
+            });
+          } else {
+            recordSkip(stats, 'idempotent_exists');
+          }
         }
       }
     } catch (err) {

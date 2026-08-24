@@ -3,13 +3,16 @@ import {
   normalizeEmail,
   retryDelayMs,
   validateOutreachEnv,
+  buildOutreachIdempotencyKey,
 } from '@robertcashman/firm-outreach-core';
 import { activeOutreachCampaignId } from '../campaign-scope';
 import { dailySendCap, outreachSendEnabled } from '../constants';
 import { isPlausibleOutreachEmail, validateEmailForSend } from '../enrichment/validator';
 import {
   claimNextEmailJob,
+  emailsWithIdempotentJobsForCampaign,
   enqueueEmailJob,
+  getEmailJobByIdempotencyKey,
   markJobAccepted,
   markJobProcessing,
   markJobRetryOrPermanent,
@@ -650,16 +653,62 @@ export async function runFirmOutreach(opts?: {
   }
 
   const selection = await loadCandidates(
-    Math.min(1200, Math.max(200, remaining * 20)),
-    Math.min(400, Math.max(40, remaining * 6)),
+    // Pool size for this tick — NOT a scan ceiling. Walk still advances past
+    // clogged rows until this many *sendable* firms are found (or index ends).
+    // Unlimited remaining used to force 1200 here, delaying enqueue while
+    // selection hunted for a huge pool; 200 is enough for a tick.
+    Math.min(200, Math.max(40, Number.isFinite(remaining) ? remaining : 200)),
+    Math.min(100, Math.max(20, Number.isFinite(remaining) ? Math.min(remaining, 100) : 100)),
   );
+
+  // Belt-and-suspenders: drop any step-0 candidate that still has a terminal
+  // job (selection must already do this; live 4da0858 proved false negatives).
+  const step0Emails = selection.candidates
+    .filter((c) => c.step === 0 && c.prospect.email)
+    .map((c) => normalizeEmail(c.prospect.email!));
+  const terminalJobs =
+    step0Emails.length > 0
+      ? await emailsWithIdempotentJobsForCampaign(step0Emails, campaignId, 0)
+      : new Map();
+  const sendableCandidates = selection.candidates.filter((c) => {
+    if (c.step !== 0 || !c.prospect.email) return true;
+    return !terminalJobs.has(normalizeEmail(c.prospect.email));
+  });
+  if (terminalJobs.size > 0) {
+    structuredRunLog('info', 'outreach.run.pre_enqueue_terminal_filter', {
+      runId,
+      campaignId,
+      before: selection.candidates.length,
+      after: sendableCandidates.length,
+      terminalJobs: terminalJobs.size,
+    });
+    if (!dryRun) {
+      for (const c of selection.candidates) {
+        if (c.step !== 0 || !c.prospect.email) continue;
+        const hit = terminalJobs.get(normalizeEmail(c.prospect.email));
+        if (!hit || c.prospect.status !== 'ready_to_send') continue;
+        const prevStatus = c.prospect.status;
+        if (hit.status === 'permanently_failed') {
+          c.prospect.status = 'excluded';
+          c.prospect.excludedReason = 'send_permanently_failed';
+        } else {
+          c.prospect.status = 'sent';
+          c.prospect.lastEmailAt =
+            hit.acceptedAt ?? hit.updatedAt ?? new Date().toISOString();
+          c.prospect.excludedReason = undefined;
+        }
+        c.prospect.updatedAt = new Date().toISOString();
+        await saveProspect(c.prospect, prevStatus);
+      }
+    }
+  }
 
   // Always keep a short enqueue burst even if the ready scan ran long —
   // a 0-job tick with 179 eligible is worse than leaving send for next drain.
   const remainingMs = started + maxElapsedMs - Date.now();
   const enqueueDeadline = Date.now() + Math.min(40_000, Math.max(15_000, remainingMs - 30_000));
   // Phase B: enqueue durable jobs for eligible prospects (idempotent).
-  for (const { prospect, step } of selection.candidates) {
+  for (const { prospect, step } of sendableCandidates) {
     if (Date.now() >= enqueueDeadline) {
       stats.partial = true;
       break;
@@ -673,6 +722,42 @@ export async function runFirmOutreach(opts?: {
         continue;
       }
       const normalizedEmail = normalizeEmail(email);
+
+      // Cheap idempotency pre-check BEFORE qualification / MX / cooldown so a
+      // residual clog cannot burn the enqueue deadline on false sendables.
+      if (step === 0) {
+        const existingJob = await getEmailJobByIdempotencyKey(
+          buildOutreachIdempotencyKey(campaignId, normalizedEmail, step),
+        );
+        if (
+          existingJob &&
+          (existingJob.status === 'accepted' ||
+            existingJob.status === 'delivered' ||
+            existingJob.status === 'permanently_failed')
+        ) {
+          recordSkip(stats, 'idempotent_exists');
+          if (prospect.status === 'ready_to_send') {
+            const prevStatus = prospect.status;
+            if (
+              existingJob.status === 'accepted' ||
+              existingJob.status === 'delivered'
+            ) {
+              prospect.status = 'sent';
+              prospect.lastEmailAt =
+                existingJob.acceptedAt ??
+                existingJob.updatedAt ??
+                new Date().toISOString();
+              prospect.excludedReason = undefined;
+            } else {
+              prospect.status = 'excluded';
+              prospect.excludedReason = 'send_permanently_failed';
+            }
+            prospect.updatedAt = new Date().toISOString();
+            await saveProspect(prospect, prevStatus);
+          }
+          continue;
+        }
+      }
 
       const qualification = qualifyProspectForOutreach(prospect);
       if (!qualification.qualified) {
@@ -752,7 +837,6 @@ export async function runFirmOutreach(opts?: {
         }
       }
 
-      stats.queued++;
       const enqueued = await enqueueEmailJob({
         campaignId: prospect.campaignId,
         prospectId: prospect.id,
@@ -765,6 +849,7 @@ export async function runFirmOutreach(opts?: {
         dryRun: false,
       });
       if (enqueued.created) {
+        stats.queued++;
         stats.jobsCreated = (stats.jobsCreated ?? 0) + 1;
         emailsQueuedThisRun.add(normalizedEmail);
       } else if (enqueued.duplicate) {

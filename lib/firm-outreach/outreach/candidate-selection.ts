@@ -27,10 +27,11 @@ const DEFAULT_SENT_SCAN = 400;
 /** Chunk size when walking the shared ready status index. */
 const READY_WALK_CHUNK = 100;
 /**
- * Cap how many already-mailed ready rows we return for reconcile per tick.
- * Unclogs the ready-index prefix without turning selection into a full rewrite.
+ * Cap how many already-mailed ready rows we reconcile per tick.
+ * Live (4da0858) only cleared ~40/tick while Phase B still burned on
+ * idempotent_exists — raise so the clogged prefix drains in fewer ticks.
  */
-const STALE_READY_RECONCILE_CAP = 40;
+const STALE_READY_RECONCILE_CAP = 300;
 
 /**
  * Hint for status probes / logging. NOT a ceiling on how far the SEND path

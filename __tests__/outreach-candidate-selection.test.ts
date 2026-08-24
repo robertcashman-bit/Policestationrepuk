@@ -211,6 +211,61 @@ describe('selectOutreachCandidates', () => {
     expect(result.readyEligible).toBe(1);
   });
 
+  it('live shape: ~2900 ready with hundreds of terminal jobs still yields a later unsent firm', async () => {
+    // Mon 24 Aug production: ready≈2924, ticks attempted≈26 all idempotent_exists.
+    // Selection must cheaply filter the clogged prefix (not enqueue-skip one-by-one)
+    // and still surface a never-mailed firm without exhausting the tick budget.
+    const clog = Array.from({ length: 800 }, (_, i) =>
+      prospect({
+        id: `fop_live_${i}`,
+        email: `live${i}@clog.co.uk`,
+        firmName: `Live Clog ${i}`,
+        priorityScore: 90,
+      }),
+    );
+    const filler = Array.from({ length: 2100 }, (_, i) =>
+      prospect({
+        id: `fop_fill_${i}`,
+        email: `fill${i}@ready.co.uk`,
+        firmName: `Filler ${i}`,
+        priorityScore: 10,
+      }),
+    );
+    const unsent = prospect({
+      id: 'fop_live_unsent',
+      email: 'crime@live-unsent.co.uk',
+      firmName: 'Live Unsent',
+      priorityScore: 1,
+    });
+    // Clog prefix, then filler that is also jobbed, unsent near the end.
+    mockReadyPile([...clog, ...filler, unsent]);
+    mockIdempotentJobs.mockImplementation(async (emails: string[]) => {
+      const map = new Map<string, { status: 'accepted' }>();
+      for (const email of emails) {
+        if (email !== 'crime@live-unsent.co.uk') map.set(email, { status: 'accepted' });
+      }
+      return map;
+    });
+
+    const started = Date.now();
+    const result = await selectOutreachCandidates({
+      campaignId: 'whatsapp_invite_v1',
+      readyLimit: 40,
+      sentLimit: 20,
+    });
+    const elapsedMs = Date.now() - started;
+
+    expect(result.candidates.map((c) => c.prospect.id)).toEqual(['fop_live_unsent']);
+    expect(result.skippedIdempotentJob).toBe(2900);
+    expect(result.readyEligible).toBe(1);
+    expect(result.staleReadyToReconcile.length).toBeGreaterThan(0);
+    // Must not resemble the live 100s enqueue-skip burn; selection is in-memory mocks.
+    expect(elapsedMs).toBeLessThan(5_000);
+    // Job lookup is batched per walk chunk — not one enqueue round-trip per clog row.
+    expect(mockIdempotentJobs.mock.calls.length).toBeGreaterThan(1);
+    expect(mockIdempotentJobs.mock.calls.length).toBeLessThan(50);
+  });
+
   it('does not treat PSA terminal-job history as RepUK idempotent (campaign-scoped)', async () => {
     const sharedInbox = prospect({
       id: 'fop_repuk',

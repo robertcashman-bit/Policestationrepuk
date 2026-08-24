@@ -255,6 +255,30 @@ describe('email job queue (KV)', () => {
     expect(hit.get('accepted@firm.co.uk')?.status).toBe('accepted');
   });
 
+  it('emailsWithIdempotentJobsForCampaign treats missing sequenceStep as 0', async () => {
+    const { job } = await enqueueEmailJob({
+      campaignId: 'whatsapp_invite_v1',
+      prospectId: 'p_legacy',
+      firmName: 'Legacy',
+      prospectType: 'firm',
+      email: 'legacy@firm.co.uk',
+      sequenceStep: 0,
+      correlationId: 'c_legacy',
+    });
+    await markJobAccepted(job, { providerMessageId: 'msg_legacy' });
+    // Simulate older KV rows that omitted sequenceStep.
+    (job as { sequenceStep?: number }).sequenceStep = undefined as unknown as number;
+    const { saveEmailJob } = await import('@/lib/firm-outreach/email-jobs/storage');
+    await saveEmailJob(job, 'accepted');
+
+    const hit = await emailsWithIdempotentJobsForCampaign(
+      ['legacy@firm.co.uk'],
+      'whatsapp_invite_v1',
+      0,
+    );
+    expect(hit.has('legacy@firm.co.uk')).toBe(true);
+  });
+
   it('enforces idempotency — second enqueue is duplicate', async () => {
     const a = await enqueueEmailJob({
       campaignId: 'whatsapp_invite_v1',

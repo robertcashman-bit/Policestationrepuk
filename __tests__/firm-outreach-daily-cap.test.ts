@@ -61,6 +61,8 @@ vi.mock('../lib/firm-outreach/outreach/candidate-selection', () => ({
       firmCooldownSkipped: 0,
       skippedIndexedSend: 0,
       skippedIdempotentJob: 0,
+      staleReadyToReconcile: [],
+      readyIndexWalked: ready.length,
       candidates: ready.map((prospect: { id: string }) => ({ prospect, step: 0 })),
     };
   }),

@@ -670,6 +670,12 @@ export const IDEMPOTENT_EXISTS_JOB_STATUSES: ReadonlySet<EmailJobStatus> = new S
   'permanently_failed',
 ]);
 
+export type IdempotentJobHit = {
+  status: 'accepted' | 'delivered' | 'permanently_failed';
+  acceptedAt?: string;
+  updatedAt?: string;
+};
+
 const JOB_LOOKUP_CHUNK = 100;
 
 /**
@@ -682,8 +688,8 @@ export async function emailsWithIdempotentJobsForCampaign(
   emails: string[],
   campaignId: string,
   sequenceStep = 0,
-): Promise<Set<string>> {
-  const hit = new Set<string>();
+): Promise<Map<string, IdempotentJobHit>> {
+  const hit = new Map<string, IdempotentJobHit>();
   const kv = getKV();
   if (!kv || emails.length === 0 || !campaignId) return hit;
 
@@ -734,7 +740,12 @@ export async function emailsWithIdempotentJobsForCampaign(
       if (job.sequenceStep !== sequenceStep) return;
       if (!IDEMPOTENT_EXISTS_JOB_STATUSES.has(job.status)) return;
       const email = emailByJobId.get(id);
-      if (email) hit.add(email);
+      if (!email) return;
+      hit.set(email, {
+        status: job.status as IdempotentJobHit['status'],
+        acceptedAt: job.acceptedAt,
+        updatedAt: job.updatedAt,
+      });
     });
   }
 

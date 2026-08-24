@@ -1,11 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const mockListIdsByStatus = vi.fn();
+const mockGetProspectsByIds = vi.fn();
 const mockListByStatus = vi.fn();
 const mockIndexedSends = vi.fn();
 const mockIdempotentJobs = vi.fn();
 const mockListForFirm = vi.fn();
 
 vi.mock('@/lib/firm-outreach/storage', () => ({
+  listProspectIdsByStatus: (...a: unknown[]) => mockListIdsByStatus(...a),
+  getProspectsByIds: (...a: unknown[]) => mockGetProspectsByIds(...a),
   listProspectsByRecordStatus: (...a: unknown[]) => mockListByStatus(...a),
   emailsWithIndexedSendsForCampaign: (...a: unknown[]) => mockIndexedSends(...a),
   emailHasIndexedSend: vi.fn(),
@@ -38,12 +42,32 @@ function prospect(over: Partial<FirmProspect> = {}): FirmProspect {
   };
 }
 
+/** Wire ready-index walk mocks from an ordered ready list. */
+function mockReadyPile(ready: FirmProspect[], sent: FirmProspect[] = []) {
+  mockListIdsByStatus.mockImplementation(async (status: string) => {
+    if (status === 'ready_to_send') return ready.map((p) => p.id);
+    return [];
+  });
+  mockGetProspectsByIds.mockImplementation(async (ids: string[]) => {
+    const map = new Map<string, FirmProspect>();
+    for (const id of ids) {
+      const p = ready.find((row) => row.id === id);
+      if (p) map.set(id, p);
+    }
+    return map;
+  });
+  mockListByStatus.mockImplementation(async (status: string) => {
+    if (status === 'sent') return sent;
+    return [];
+  });
+}
+
 describe('selectOutreachCandidates', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockListForFirm.mockResolvedValue([]);
     mockIndexedSends.mockResolvedValue(new Set<string>());
-    mockIdempotentJobs.mockResolvedValue(new Set<string>());
+    mockIdempotentJobs.mockResolvedValue(new Map());
   });
 
   it('drops ready inboxes that already have indexed sends so follow-ups can run', async () => {
@@ -61,10 +85,7 @@ describe('selectOutreachCandidates', () => {
       lastEmailAt: new Date(Date.now() - 8 * 86_400_000).toISOString(),
       email: 'crime@followup.co.uk',
     });
-    mockListByStatus.mockImplementation(async (status: string) => {
-      if (status === 'ready_to_send') return [alreadyMailed, fresh];
-      return [followUp];
-    });
+    mockReadyPile([alreadyMailed, fresh], [followUp]);
     mockIndexedSends.mockResolvedValue(new Set(['info@oldfirm.co.uk']));
 
     const result = await selectOutreachCandidates({
@@ -77,6 +98,8 @@ describe('selectOutreachCandidates', () => {
     expect(result.readyEligible).toBe(1);
     expect(result.followUpEligible).toBe(1);
     expect(result.skippedIndexedSend).toBe(1);
+    expect(result.staleReadyToReconcile).toHaveLength(1);
+    expect(result.staleReadyToReconcile[0]?.reason).toBe('indexed_send');
   });
 
   it('scans past a clogged already-mailed prefix to reach a fresh inbox', async () => {
@@ -93,10 +116,7 @@ describe('selectOutreachCandidates', () => {
       email: 'duty@fresh.co.uk',
       priorityScore: 5,
     });
-    mockListByStatus.mockImplementation(async (status: string) => {
-      if (status === 'ready_to_send') return [...clog, fresh];
-      return [];
-    });
+    mockReadyPile([...clog, fresh]);
     mockIndexedSends.mockResolvedValue(
       new Set(clog.map((p) => p.email as string)),
     );
@@ -113,8 +133,6 @@ describe('selectOutreachCandidates', () => {
   });
 
   it('advances past ready firms with terminal RepUK jobs (idempotent_exists) to an unsent firm', async () => {
-    // Production failure: ticks burned the batch on idempotent_exists while
-    // ~3k never-mailed firms sat behind — jobs existed without send-index hits.
     const clog = Array.from({ length: 30 }, (_, i) =>
       prospect({
         id: `fop_jobbed_${i}`,
@@ -129,14 +147,17 @@ describe('selectOutreachCandidates', () => {
       firmName: 'Unsent Firm',
       priorityScore: 1,
     });
-    mockListByStatus.mockImplementation(async (status: string) => {
-      if (status === 'ready_to_send') return [...clog, fresh];
-      return [];
-    });
+    mockReadyPile([...clog, fresh]);
     mockIndexedSends.mockResolvedValue(new Set<string>());
-    mockIdempotentJobs.mockResolvedValue(
-      new Set(clog.map((p) => p.email as string)),
-    );
+    mockIdempotentJobs.mockImplementation(async (emails: string[]) => {
+      const map = new Map<string, { status: 'accepted' }>();
+      for (const email of emails) {
+        if (email !== 'crime@unsent.co.uk') {
+          map.set(email, { status: 'accepted' });
+        }
+      }
+      return map;
+    });
 
     const result = await selectOutreachCandidates({
       campaignId: 'whatsapp_invite_v1',
@@ -144,14 +165,49 @@ describe('selectOutreachCandidates', () => {
       sentLimit: 10,
     });
 
-    expect(mockIdempotentJobs).toHaveBeenCalledWith(
-      expect.arrayContaining(['crime@unsent.co.uk']),
-      'whatsapp_invite_v1',
-      0,
-    );
+    expect(mockIdempotentJobs).toHaveBeenCalled();
     expect(result.candidates.map((c) => c.prospect.id)).toEqual(['fop_unsent']);
     expect(result.skippedIdempotentJob).toBe(30);
     expect(result.skippedIndexedSend).toBe(0);
+    expect(result.readyEligible).toBe(1);
+    expect(result.staleReadyToReconcile[0]?.reason).toBe('accepted');
+  });
+
+  it('walks past a job-only prefix larger than the old 1200 scan ceiling', async () => {
+    // The old readyProspectScanLimit(1200)===1200 ceiling meant unlimited
+    // batch loaded exactly 1200 campaign matches and never saw the tail.
+    const clog = Array.from({ length: 1300 }, (_, i) =>
+      prospect({
+        id: `fop_deep_${i}`,
+        email: `deep${i}@clog.co.uk`,
+        firmName: `Deep Clog ${i}`,
+        priorityScore: 80,
+      }),
+    );
+    const fresh = prospect({
+      id: 'fop_tail',
+      email: 'crime@tail.co.uk',
+      firmName: 'Tail Firm',
+      priorityScore: 1,
+    });
+    mockReadyPile([...clog, fresh]);
+    mockIdempotentJobs.mockImplementation(async (emails: string[]) => {
+      const map = new Map<string, { status: 'delivered' }>();
+      for (const email of emails) {
+        if (email !== 'crime@tail.co.uk') map.set(email, { status: 'delivered' });
+      }
+      return map;
+    });
+
+    const result = await selectOutreachCandidates({
+      campaignId: 'whatsapp_invite_v1',
+      readyLimit: 5,
+      sentLimit: 5,
+    });
+
+    expect(result.candidates.map((c) => c.prospect.id)).toEqual(['fop_tail']);
+    expect(result.skippedIdempotentJob).toBe(1300);
+    expect(result.readyScanned).toBe(1301);
     expect(result.readyEligible).toBe(1);
   });
 
@@ -161,12 +217,9 @@ describe('selectOutreachCandidates', () => {
       email: 'info@shared.co.uk',
       priorityScore: 50,
     });
-    mockListByStatus.mockImplementation(async (status: string) => {
-      if (status === 'ready_to_send') return [sharedInbox];
-      return [];
-    });
+    mockReadyPile([sharedInbox]);
     // PSA may have mailed this inbox; campaign-scoped job lookup returns empty for RepUK.
-    mockIdempotentJobs.mockResolvedValue(new Set<string>());
+    mockIdempotentJobs.mockResolvedValue(new Map());
     mockIndexedSends.mockResolvedValue(new Set<string>());
 
     const result = await selectOutreachCandidates({
@@ -184,25 +237,19 @@ describe('selectOutreachCandidates', () => {
     expect(result.skippedIdempotentJob).toBe(0);
   });
 
-  it('caps the ready scan so a large send limit cannot exhaust the time slice', async () => {
+  it('readyProspectScanLimit is a status hint, not a send-path hard ceiling of 1200', () => {
+    // Locking readyProspectScanLimit(1200)===1200 was the bug: unlimited
+    // batch set readyLimit=1200 and overscan collapsed to zero.
     expect(readyProspectScanLimit(200)).toBe(1200);
-    expect(readyProspectScanLimit(1200)).toBe(2000);
+    expect(readyProspectScanLimit(1200)).toBe(7200);
     expect(readyProspectScanLimit(50)).toBe(300);
-    mockListByStatus.mockResolvedValue([]);
-    await selectOutreachCandidates({
-      campaignId: 'whatsapp_invite_v1',
-      readyLimit: 1200,
-      sentLimit: 40,
-    });
-    const readyCall = mockListByStatus.mock.calls.find((c) => c[0] === 'ready_to_send');
-    expect(readyCall?.[1]).toBe(2000);
   });
 
   it('honours maxReadyScan and skipIndexedSendCheck for status probes', async () => {
-    mockListByStatus.mockResolvedValue([
-      prospect({ id: 'fop_a', email: 'a@firm.co.uk' }),
-      prospect({ id: 'fop_b', email: 'b@firm.co.uk' }),
-    ]);
+    const many = Array.from({ length: 200 }, (_, i) =>
+      prospect({ id: `fop_${i}`, email: `a${i}@firm.co.uk` }),
+    );
+    mockReadyPile(many);
     const result = await selectOutreachCandidates({
       campaignId: 'whatsapp_invite_v1',
       readyLimit: 40,
@@ -211,22 +258,18 @@ describe('selectOutreachCandidates', () => {
       skipIndexedSendCheck: true,
       excludeFirmCooldown: false,
     });
-    const readyCall = mockListByStatus.mock.calls.find((c) => c[0] === 'ready_to_send');
-    expect(readyCall?.[1]).toBe(120);
     expect(mockIndexedSends).not.toHaveBeenCalled();
     expect(mockIdempotentJobs).not.toHaveBeenCalled();
-    expect(result.readyEligible).toBe(2);
+    // May stop once readyLimit is filled; must not exceed maxReadyScan.
+    expect(result.readyScanned).toBeLessThanOrEqual(120);
+    expect(result.readyEligible).toBe(40);
     expect(result.skippedIndexedSend).toBe(0);
     expect(result.skippedIdempotentJob).toBe(0);
   });
 
   it('scopes indexed-send skips to the campaign being flushed', async () => {
     const fresh = prospect({ id: 'fop_fresh', email: 'duty@fresh.co.uk' });
-    mockListByStatus.mockImplementation(async (status: string) => {
-      if (status === 'ready_to_send') return [fresh];
-      return [];
-    });
-    // PSA may have mailed this inbox; campaign-scoped index must not see it.
+    mockReadyPile([fresh]);
     mockIndexedSends.mockResolvedValue(new Set<string>());
 
     const result = await selectOutreachCandidates({

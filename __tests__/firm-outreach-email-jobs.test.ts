@@ -251,7 +251,8 @@ describe('email job queue (KV)', () => {
       0,
     );
 
-    expect([...hit].sort()).toEqual(['accepted@firm.co.uk']);
+    expect([...hit.keys()].sort()).toEqual(['accepted@firm.co.uk']);
+    expect(hit.get('accepted@firm.co.uk')?.status).toBe('accepted');
   });
 
   it('enforces idempotency — second enqueue is duplicate', async () => {

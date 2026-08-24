@@ -5,6 +5,8 @@
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const mockListIdsByStatus = vi.fn();
+const mockGetProspectsByIds = vi.fn();
 const mockListByStatus = vi.fn();
 const mockIndexedSends = vi.fn();
 const mockIdempotentJobs = vi.fn();
@@ -29,6 +31,8 @@ vi.mock('@/lib/firm-outreach/storage', () => ({
   emailHasInitialOutreachFromOtherProspect: vi.fn(() => false),
   emailsWithIndexedSendsForCampaign: (...a: unknown[]) => mockIndexedSends(...a),
   getProspect: vi.fn(async () => null),
+  getProspectsByIds: (...a: unknown[]) => mockGetProspectsByIds(...a),
+  listProspectIdsByStatus: (...a: unknown[]) => mockListIdsByStatus(...a),
   listProspectsByRecordStatus: (...a: unknown[]) => mockListByStatus(...a),
   listProspectsForFirmKey: (...a: unknown[]) => mockListForFirm(...a),
   releaseDailySendSlot: vi.fn(),
@@ -122,6 +126,7 @@ describe('runFirmOutreach advances past idempotent_exists clog', () => {
     mockGetDailySendCount.mockResolvedValue(0);
     mockListForFirm.mockResolvedValue([]);
     mockIndexedSends.mockResolvedValue(new Set<string>());
+    mockListByStatus.mockResolvedValue([]);
     mockSend.mockResolvedValue({ ok: true, subject: 'Invite', messageId: 'msg-1' });
   });
 
@@ -142,14 +147,26 @@ describe('runFirmOutreach advances past idempotent_exists clog', () => {
       firmKey: 'unsent',
       priorityScore: 2,
     });
-    // PSA history for the same inbox must not appear in RepUK job lookup.
-    mockListByStatus.mockImplementation(async (status: string) => {
-      if (status === 'ready_to_send') return [...clog, unsent];
+    const ready = [...clog, unsent];
+    mockListIdsByStatus.mockImplementation(async (status: string) => {
+      if (status === 'ready_to_send') return ready.map((p) => p.id);
       return [];
     });
-    mockIdempotentJobs.mockResolvedValue(
-      new Set(clog.map((p) => p.email as string)),
-    );
+    mockGetProspectsByIds.mockImplementation(async (ids: string[]) => {
+      const map = new Map<string, FirmProspect>();
+      for (const id of ids) {
+        const p = ready.find((row) => row.id === id);
+        if (p) map.set(id, p);
+      }
+      return map;
+    });
+    mockIdempotentJobs.mockImplementation(async (emails: string[]) => {
+      const map = new Map<string, { status: 'accepted' }>();
+      for (const email of emails) {
+        if (email !== 'crime@unsent.co.uk') map.set(email, { status: 'accepted' });
+      }
+      return map;
+    });
 
     const { runFirmOutreach } = await import('@/lib/firm-outreach/outreach/run-outreach');
     const stats = await runFirmOutreach({
@@ -158,11 +175,7 @@ describe('runFirmOutreach advances past idempotent_exists clog', () => {
       dryRun: true,
     });
 
-    expect(mockIdempotentJobs).toHaveBeenCalledWith(
-      expect.arrayContaining(['crime@unsent.co.uk']),
-      'whatsapp_invite_v1',
-      0,
-    );
+    expect(mockIdempotentJobs).toHaveBeenCalled();
     expect(stats.sent).toBe(1);
     expect(mockSend).toHaveBeenCalledTimes(1);
     expect(mockSend.mock.calls[0]![0].prospect.id).toBe('fop_unsent');

@@ -676,13 +676,22 @@ export type IdempotentJobHit = {
   updatedAt?: string;
 };
 
-const JOB_LOOKUP_CHUNK = 100;
+/** Parallelism for idempotency lookups — matches enqueue's get-by-key path. */
+const IDEM_LOOKUP_CONCURRENCY = 40;
+
+function jobSequenceStep(job: Pick<EmailJob, 'sequenceStep'>): number {
+  const n = job.sequenceStep;
+  return typeof n === 'number' && Number.isFinite(n) ? n : 0;
+}
 
 /**
  * Inboxes that already have a durable job for this campaign + step in an
  * idempotent_exists status. Campaign-scoped (PSA jobs never appear here for
- * RepUK). Batched mget — sequential getEmailJobByIdempotencyKey would blow
- * the send tick once the ready pile is thousands deep.
+ * RepUK).
+ *
+ * Uses the same getEmailJobByIdempotencyKey path as enqueueEmailJob — a prior
+ * mget-based lookup missed live terminal jobs (false negatives), so selection
+ * kept returning clogged rows and Phase B burned the tick on idempotent_exists.
  */
 export async function emailsWithIdempotentJobsForCampaign(
   emails: string[],
@@ -690,8 +699,7 @@ export async function emailsWithIdempotentJobsForCampaign(
   sequenceStep = 0,
 ): Promise<Map<string, IdempotentJobHit>> {
   const hit = new Map<string, IdempotentJobHit>();
-  const kv = getKV();
-  if (!kv || emails.length === 0 || !campaignId) return hit;
+  if (emails.length === 0 || !campaignId) return hit;
 
   const normalized = [
     ...new Set(
@@ -702,51 +710,27 @@ export async function emailsWithIdempotentJobsForCampaign(
   ];
   if (normalized.length === 0) return hit;
 
-  const emailByIdemKey = new Map<string, string>();
-  const idemRedisKeys: string[] = [];
-  for (const email of normalized) {
-    const idem = buildOutreachIdempotencyKey(campaignId, email, sequenceStep);
-    emailByIdemKey.set(idem, email);
-    idemRedisKeys.push(idemKey(idem));
-  }
-
-  const jobIds: string[] = [];
-  const emailByJobId = new Map<string, string>();
-  for (let i = 0; i < idemRedisKeys.length; i += JOB_LOOKUP_CHUNK) {
-    const chunk = idemRedisKeys.slice(i, i + JOB_LOOKUP_CHUNK);
-    const values = await kv.mget<(string | null)[]>(...chunk);
-    chunk.forEach((redisKey, idx) => {
-      const jobId = values[idx];
-      if (!jobId) return;
-      const idem = redisKey.slice(JOB_IDEM_PREFIX.length);
-      const email = emailByIdemKey.get(idem);
-      if (!email) return;
-      jobIds.push(String(jobId));
-      emailByJobId.set(String(jobId), email);
-    });
-  }
-
-  if (jobIds.length === 0) return hit;
-
-  const uniqueJobIds = [...new Set(jobIds)];
-  for (let i = 0; i < uniqueJobIds.length; i += JOB_LOOKUP_CHUNK) {
-    const chunk = uniqueJobIds.slice(i, i + JOB_LOOKUP_CHUNK);
-    const keys = chunk.map((id) => jobKey(id));
-    const values = await kv.mget<(EmailJob | null)[]>(...keys);
-    chunk.forEach((id, idx) => {
-      const job = values[idx];
-      if (!job) return;
-      if (job.campaignId && job.campaignId !== campaignId) return;
-      if (job.sequenceStep !== sequenceStep) return;
-      if (!IDEMPOTENT_EXISTS_JOB_STATUSES.has(job.status)) return;
-      const email = emailByJobId.get(id);
-      if (!email) return;
+  for (let i = 0; i < normalized.length; i += IDEM_LOOKUP_CONCURRENCY) {
+    const chunk = normalized.slice(i, i + IDEM_LOOKUP_CONCURRENCY);
+    const rows = await Promise.all(
+      chunk.map(async (email) => {
+        const idem = buildOutreachIdempotencyKey(campaignId, email, sequenceStep);
+        const job = await getEmailJobByIdempotencyKey(idem);
+        return { email, job };
+      }),
+    );
+    for (const { email, job } of rows) {
+      if (!job) continue;
+      // Fail closed on campaign mismatch only when set; missing campaignId still counts.
+      if (job.campaignId && job.campaignId !== campaignId) continue;
+      if (jobSequenceStep(job) !== sequenceStep) continue;
+      if (!IDEMPOTENT_EXISTS_JOB_STATUSES.has(job.status)) continue;
       hit.set(email, {
         status: job.status as IdempotentJobHit['status'],
         acceptedAt: job.acceptedAt,
         updatedAt: job.updatedAt,
       });
-    });
+    }
   }
 
   return hit;

@@ -284,6 +284,7 @@ export async function runFirmOutreach(opts?: {
       readyEligible: selection.readyEligible,
       followUpEligible: selection.followUpEligible,
       skippedIndexedSend: selection.skippedIndexedSend,
+      skippedIdempotentJob: selection.skippedIdempotentJob,
       firmCooldownSkipped: selection.firmCooldownSkipped,
       candidates: selection.candidates.length,
       remaining,

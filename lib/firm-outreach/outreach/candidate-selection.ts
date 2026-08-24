@@ -5,6 +5,7 @@ import {
   sequenceStepOf,
 } from '@robertcashman/firm-outreach-core';
 import { computeProspectPriority } from '../enrichment/scorer';
+import { emailsWithIdempotentJobsForCampaign } from '../email-jobs/storage';
 import {
   emailsWithIndexedSendsForCampaign,
   listProspectsByRecordStatus,
@@ -18,8 +19,12 @@ export { nextOutreachStep, sequenceStepOf };
 
 const DEFAULT_READY_SCAN = 800;
 const DEFAULT_SENT_SCAN = 400;
-/** Hard cap: a 4k ready scan consumed the whole RepUK time slice (0 sends). */
-const MAX_READY_SCAN = 1200;
+/**
+ * Hard cap on ready-index campaign matches before eligibility filters.
+ * Must be deep enough to walk past a clog of idempotent_exists / indexed-send
+ * rows; 4k historically ate the whole tick, so stay well under that.
+ */
+const MAX_READY_SCAN = 2000;
 
 export function readyProspectScanLimit(readyLimit: number): number {
   return Math.min(MAX_READY_SCAN, Math.max(readyLimit * 6, readyLimit));
@@ -81,6 +86,8 @@ export async function selectOutreachCandidates(opts: {
   readyEligible: number;
   followUpEligible: number;
   skippedIndexedSend: number;
+  /** Ready rows skipped because a durable job already terminal for this campaign. */
+  skippedIdempotentJob: number;
   firmCooldownSkipped: number;
 }> {
   const readyLimit = opts.readyLimit ?? DEFAULT_READY_SCAN;
@@ -97,23 +104,34 @@ export async function selectOutreachCandidates(opts: {
   );
   const ready = await listProspectsByRecordStatus('ready_to_send', readyScan, campaignOpts);
   const sent = await listProspectsByRecordStatus('sent', sentLimit, campaignOpts);
-  const indexedSends = opts.skipIndexedSendCheck
-    ? new Set<string>()
-    : await emailsWithIndexedSendsForCampaign(
-        ready.map((p) => p.email).filter((email): email is string => Boolean(email)),
-        opts.campaignId,
-      );
+  const readyEmails = ready
+    .map((p) => p.email)
+    .filter((email): email is string => Boolean(email));
+  const [indexedSends, idempotentJobs] = opts.skipIndexedSendCheck
+    ? [new Set<string>(), new Set<string>()]
+    : await Promise.all([
+        emailsWithIndexedSendsForCampaign(readyEmails, opts.campaignId),
+        // Step-0 initials only — follow-ups use different idempotency keys and
+        // are selected from the sent index, not ready_to_send.
+        emailsWithIdempotentJobsForCampaign(readyEmails, opts.campaignId, 0),
+      ]);
 
   const readyEligible: Array<{ prospect: FirmProspect; step: number }> = [];
   let skippedIndexedSend = 0;
+  let skippedIdempotentJob = 0;
   for (const prospect of ready) {
     const step = nextOutreachStep(prospect, nowMs);
     if (step === null) continue;
-    // Ready rows whose inbox already has a send record must not occupy the
-    // candidate pool ahead of new inboxes and due follow-ups.
+    // Ready rows whose inbox already has a send record or a terminal durable
+    // job must not occupy the candidate pool ahead of new inboxes — that was
+    // burning every tick on idempotent_exists while ~3k unsent sat behind.
     const email = prospect.email ? normalizeEmail(prospect.email) : '';
     if (step === 0 && email && indexedSends.has(email)) {
       skippedIndexedSend += 1;
+      continue;
+    }
+    if (step === 0 && email && idempotentJobs.has(email)) {
+      skippedIdempotentJob += 1;
       continue;
     }
     readyEligible.push({ prospect, step });
@@ -160,6 +178,7 @@ export async function selectOutreachCandidates(opts: {
     readyEligible: readyEligible.length,
     followUpEligible: followUpEligible.length,
     skippedIndexedSend,
+    skippedIdempotentJob,
     firmCooldownSkipped,
   };
 }

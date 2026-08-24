@@ -52,6 +52,8 @@ export interface DryRunPreviewResult {
     readyEligible: number;
     followUpEligible: number;
     firmCooldownSkipped: number;
+    skippedIndexedSend?: number;
+    skippedIdempotentJob?: number;
     sendableCandidates: number;
   };
 }
@@ -280,6 +282,8 @@ export async function previewFirmOutreachDryRun(opts?: {
       readyEligible: selection.readyEligible,
       followUpEligible: selection.followUpEligible,
       firmCooldownSkipped: selection.firmCooldownSkipped,
+      skippedIndexedSend: selection.skippedIndexedSend,
+      skippedIdempotentJob: selection.skippedIdempotentJob,
       sendableCandidates: selection.candidates.length,
     },
   };

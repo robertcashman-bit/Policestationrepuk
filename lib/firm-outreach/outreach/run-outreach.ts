@@ -58,6 +58,7 @@ import {
 import {
   firmRecentlyContacted,
   selectOutreachCandidates,
+  type StaleReadyReconcile,
 } from './candidate-selection';
 import {
   buildOutreachRunLog,
@@ -68,8 +69,15 @@ import {
 import { sendOutreachEmail } from './send';
 import { claimProspectSend } from '../run-lock';
 import crypto from 'crypto';
+import type { EmailJobStatus } from '@robertcashman/firm-outreach-core';
 
 const DEFAULT_MAX_ELAPSED_MS = 240_000;
+
+/** Map any terminal job status onto the narrow stale-ready reconcile reason. */
+function staleReconcileReason(status: EmailJobStatus): StaleReadyReconcile['reason'] {
+  if (status === 'accepted' || status === 'delivered') return status;
+  return 'permanently_failed';
+}
 
 /** Prospects in ready/sent were MX-checked at enrich/requalify; skip DNS on send ticks. */
 function emailPrevalidatedForSend(prospect: FirmProspect): boolean {
@@ -759,7 +767,7 @@ export async function runFirmOutreach(opts?: {
             recordSkip(stats, 'idempotent_exists');
             deferredReconcile.push({
               prospect,
-              reason: existingJob.status,
+              reason: staleReconcileReason(existingJob.status),
               lastEmailAt:
                 existingJob.acceptedAt ?? existingJob.updatedAt ?? new Date().toISOString(),
             });
@@ -886,7 +894,7 @@ export async function runFirmOutreach(opts?: {
           recordSkip(stats, 'idempotent_exists');
           deferredReconcile.push({
             prospect,
-            reason: enqueued.job.status,
+            reason: staleReconcileReason(enqueued.job.status),
             lastEmailAt:
               enqueued.job.acceptedAt ??
               enqueued.job.updatedAt ??

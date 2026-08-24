@@ -280,10 +280,13 @@ export async function runFirmOutreach(opts?: {
       runId,
       campaignId,
       readyScanned: selection.readyScanned,
+      readyIndexWalked: selection.readyIndexWalked,
       sentScanned: selection.sentScanned,
       readyEligible: selection.readyEligible,
       followUpEligible: selection.followUpEligible,
       skippedIndexedSend: selection.skippedIndexedSend,
+      skippedIdempotentJob: selection.skippedIdempotentJob,
+      staleReadyToReconcile: selection.staleReadyToReconcile.length,
       firmCooldownSkipped: selection.firmCooldownSkipped,
       candidates: selection.candidates.length,
       remaining,
@@ -292,6 +295,26 @@ export async function runFirmOutreach(opts?: {
     if (selection.firmCooldownSkipped > 0) {
       for (let i = 0; i < selection.firmCooldownSkipped; i++) {
         recordSkip(stats, 'firm_cooldown');
+      }
+    }
+    // Unclog ready-index prefix: rows already mailed (send record or terminal
+    // job) must leave ready_to_send or every tick re-walks the same clog.
+    // Never mutate prospects during dry-run.
+    if (!dryRun) {
+      for (const stale of selection.staleReadyToReconcile) {
+        if (stale.prospect.status !== 'ready_to_send') continue;
+        const prevStatus = stale.prospect.status;
+        if (stale.reason === 'permanently_failed') {
+          stale.prospect.status = 'excluded';
+          stale.prospect.excludedReason = 'send_permanently_failed';
+        } else {
+          stale.prospect.status = 'sent';
+          stale.prospect.lastEmailAt =
+            stale.lastEmailAt ?? stale.prospect.lastEmailAt ?? new Date().toISOString();
+          stale.prospect.excludedReason = undefined;
+        }
+        stale.prospect.updatedAt = new Date().toISOString();
+        await saveProspect(stale.prospect, prevStatus);
       }
     }
     return selection;

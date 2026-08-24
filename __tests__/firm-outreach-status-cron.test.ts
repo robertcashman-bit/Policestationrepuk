@@ -13,7 +13,10 @@ const mockSelect = vi.fn().mockResolvedValue({
   readyEligible: 8,
   followUpEligible: 1,
   skippedIndexedSend: 0,
+  skippedIdempotentJob: 0,
   firmCooldownSkipped: 0,
+  staleReadyToReconcile: [],
+  readyIndexWalked: 10,
 });
 
 vi.mock('@/lib/firm-outreach/config-status', () => ({
@@ -85,7 +88,10 @@ describe('firm-outreach-status cron route', () => {
       readyEligible: 8,
       followUpEligible: 1,
       skippedIndexedSend: 0,
+      skippedIdempotentJob: 0,
       firmCooldownSkipped: 0,
+      staleReadyToReconcile: [],
+      readyIndexWalked: 10,
     });
     process.env = {
       ...ENV,

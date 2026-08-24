@@ -7,6 +7,7 @@ import {
   type EmailJob,
   type EmailJobStatus,
   buildOutreachIdempotencyKey,
+  normalizeEmail,
 } from '@robertcashman/firm-outreach-core';
 import { claimKey } from '@/lib/kv-atomic';
 import { getKV, skipKVInPrerender } from '@/lib/kv';
@@ -656,6 +657,99 @@ export async function findEmailJobForWebhook(opts: {
 
 export function isTerminalEmailJob(job: EmailJob): boolean {
   return EMAIL_JOB_TERMINAL_STATUSES.has(job.status);
+}
+
+/**
+ * Job statuses that make enqueue return duplicate → worker skip
+ * `idempotent_exists` (see run-outreach Phase B). Ready rows with these jobs
+ * must not occupy the candidate pool ahead of never-mailed firms.
+ */
+export const IDEMPOTENT_EXISTS_JOB_STATUSES: ReadonlySet<EmailJobStatus> = new Set([
+  'accepted',
+  'delivered',
+  'permanently_failed',
+]);
+
+export type IdempotentJobHit = {
+  status: 'accepted' | 'delivered' | 'permanently_failed';
+  acceptedAt?: string;
+  updatedAt?: string;
+};
+
+const JOB_LOOKUP_CHUNK = 100;
+
+/**
+ * Inboxes that already have a durable job for this campaign + step in an
+ * idempotent_exists status. Campaign-scoped (PSA jobs never appear here for
+ * RepUK). Batched mget — sequential getEmailJobByIdempotencyKey would blow
+ * the send tick once the ready pile is thousands deep.
+ */
+export async function emailsWithIdempotentJobsForCampaign(
+  emails: string[],
+  campaignId: string,
+  sequenceStep = 0,
+): Promise<Map<string, IdempotentJobHit>> {
+  const hit = new Map<string, IdempotentJobHit>();
+  const kv = getKV();
+  if (!kv || emails.length === 0 || !campaignId) return hit;
+
+  const normalized = [
+    ...new Set(
+      emails
+        .map((e) => normalizeEmail(e))
+        .filter((e) => e.length > 0),
+    ),
+  ];
+  if (normalized.length === 0) return hit;
+
+  const emailByIdemKey = new Map<string, string>();
+  const idemRedisKeys: string[] = [];
+  for (const email of normalized) {
+    const idem = buildOutreachIdempotencyKey(campaignId, email, sequenceStep);
+    emailByIdemKey.set(idem, email);
+    idemRedisKeys.push(idemKey(idem));
+  }
+
+  const jobIds: string[] = [];
+  const emailByJobId = new Map<string, string>();
+  for (let i = 0; i < idemRedisKeys.length; i += JOB_LOOKUP_CHUNK) {
+    const chunk = idemRedisKeys.slice(i, i + JOB_LOOKUP_CHUNK);
+    const values = await kv.mget<(string | null)[]>(...chunk);
+    chunk.forEach((redisKey, idx) => {
+      const jobId = values[idx];
+      if (!jobId) return;
+      const idem = redisKey.slice(JOB_IDEM_PREFIX.length);
+      const email = emailByIdemKey.get(idem);
+      if (!email) return;
+      jobIds.push(String(jobId));
+      emailByJobId.set(String(jobId), email);
+    });
+  }
+
+  if (jobIds.length === 0) return hit;
+
+  const uniqueJobIds = [...new Set(jobIds)];
+  for (let i = 0; i < uniqueJobIds.length; i += JOB_LOOKUP_CHUNK) {
+    const chunk = uniqueJobIds.slice(i, i + JOB_LOOKUP_CHUNK);
+    const keys = chunk.map((id) => jobKey(id));
+    const values = await kv.mget<(EmailJob | null)[]>(...keys);
+    chunk.forEach((id, idx) => {
+      const job = values[idx];
+      if (!job) return;
+      if (job.campaignId && job.campaignId !== campaignId) return;
+      if (job.sequenceStep !== sequenceStep) return;
+      if (!IDEMPOTENT_EXISTS_JOB_STATUSES.has(job.status)) return;
+      const email = emailByJobId.get(id);
+      if (!email) return;
+      hit.set(email, {
+        status: job.status as IdempotentJobHit['status'],
+        acceptedAt: job.acceptedAt,
+        updatedAt: job.updatedAt,
+      });
+    });
+  }
+
+  return hit;
 }
 
 export { buildOutreachIdempotencyKey };

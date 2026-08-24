@@ -127,6 +127,8 @@ vi.mock('@/lib/kv', () => ({
       return 'OK';
     },
     get: async (key: string) => store.data.get(key) ?? null,
+    mget: async <T = unknown>(...keys: string[]) =>
+      keys.map((key) => (store.data.get(key) as T | undefined) ?? null),
     del: async (key: string) => {
       store.data.delete(key);
       store.sets.delete(key);
@@ -188,6 +190,7 @@ vi.mock('@/lib/kv', () => ({
 import {
   claimNextEmailJob,
   countClaimableJobsForCampaign,
+  emailsWithIdempotentJobsForCampaign,
   enqueueEmailJob,
   getEmailJobByIdempotencyKey,
   markJobAccepted,
@@ -201,6 +204,55 @@ describe('email job queue (KV)', () => {
     store.data.clear();
     store.sets.clear();
     store.zsets.clear();
+  });
+
+  it('emailsWithIdempotentJobsForCampaign finds accepted RepUK jobs only', async () => {
+    const { job: accepted } = await enqueueEmailJob({
+      campaignId: 'whatsapp_invite_v1',
+      prospectId: 'p1',
+      firmName: 'Accepted',
+      prospectType: 'firm',
+      email: 'accepted@firm.co.uk',
+      sequenceStep: 0,
+      correlationId: 'c1',
+    });
+    await markJobAccepted(accepted, { providerMessageId: 'msg_1' });
+
+    const { job: pending } = await enqueueEmailJob({
+      campaignId: 'whatsapp_invite_v1',
+      prospectId: 'p2',
+      firmName: 'Pending',
+      prospectType: 'firm',
+      email: 'pending@firm.co.uk',
+      sequenceStep: 0,
+      correlationId: 'c2',
+    });
+    expect(pending.status).toBe('pending');
+
+    const { job: psa } = await enqueueEmailJob({
+      campaignId: 'agent_cover_kent_v1',
+      prospectId: 'p3',
+      firmName: 'PSA',
+      prospectType: 'firm',
+      email: 'shared@firm.co.uk',
+      sequenceStep: 0,
+      correlationId: 'c3',
+    });
+    await markJobAccepted(psa, { providerMessageId: 'msg_psa' });
+
+    const hit = await emailsWithIdempotentJobsForCampaign(
+      [
+        'accepted@firm.co.uk',
+        'pending@firm.co.uk',
+        'shared@firm.co.uk',
+        'never@firm.co.uk',
+      ],
+      'whatsapp_invite_v1',
+      0,
+    );
+
+    expect([...hit.keys()].sort()).toEqual(['accepted@firm.co.uk']);
+    expect(hit.get('accepted@firm.co.uk')?.status).toBe('accepted');
   });
 
   it('enforces idempotency — second enqueue is duplicate', async () => {

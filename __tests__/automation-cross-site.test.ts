@@ -25,16 +25,29 @@ vi.mock('@/lib/automation/repairs/sibling-fallback', () => ({
     dryRun: false,
   })),
   siblingFallbackPromos: vi.fn(() => [{ slug: 'home' }]),
+  countSiblingPostsToday: vi.fn(async () => ({
+    ok: false,
+    count: 0,
+    required: 5,
+  })),
 }));
 
 import { verifyCrossSiteBufferPosts } from '@/lib/buffer/verify-cross-site';
 import { inspectAndRepairCrossSiteQuota } from '@/lib/automation/repairs/cross-site';
-import { scheduleSiblingFallbackFromRepuk } from '@/lib/automation/repairs/sibling-fallback';
+import {
+  countSiblingPostsToday,
+  scheduleSiblingFallbackFromRepuk,
+} from '@/lib/automation/repairs/sibling-fallback';
 
 describe('cross-site quota repair policy', () => {
   beforeEach(() => {
     vi.stubEnv('AUTOMATION_DRY_RUN', '1');
     vi.stubEnv('AUTO_REPAIR_ENABLED', '0');
+    vi.mocked(countSiblingPostsToday).mockResolvedValue({
+      ok: false,
+      count: 0,
+      required: 5,
+    });
   });
   afterEach(() => {
     vi.unstubAllEnvs();
@@ -148,6 +161,11 @@ describe('cross-site quota repair policy', () => {
       return new Response(JSON.stringify({ ok: true }), { status: 200 });
     });
     vi.stubGlobal('fetch', fetchMock);
+
+    // Pre-remote: today under quota. Post-remote: today filled (count-based verify).
+    vi.mocked(countSiblingPostsToday)
+      .mockResolvedValueOnce({ ok: false, count: 3, required: 5 })
+      .mockResolvedValueOnce({ ok: true, count: 5, required: 5 });
 
     const result = await inspectAndRepairCrossSiteQuota({
       dryRun: false,

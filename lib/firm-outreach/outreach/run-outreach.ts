@@ -360,11 +360,11 @@ export async function runFirmOutreach(opts?: {
       }
       // Follow-up zombies: terminal job for step N exists but sequenceStep stuck.
       // Advance so nextOutreachStep stops returning that step (do not re-send).
+      // permanently_failed included — same heal as accepted/delivered for sent rows.
       if (
         stale.prospect.status === 'sent' &&
         typeof stale.advanceToStep === 'number' &&
-        Number.isFinite(stale.advanceToStep) &&
-        stale.reason !== 'permanently_failed'
+        Number.isFinite(stale.advanceToStep)
       ) {
         const prevStatus = stale.prospect.status;
         const nextStep = Math.max(

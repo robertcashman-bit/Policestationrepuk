@@ -158,6 +158,8 @@ function sentFollowUp(over: Partial<FirmProspect> = {}): FirmProspect {
 describe('follow-up wouldSend / worker send path', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // CI sets FIRM_OUTREACH_DRY_RUN=1 — worker path must be live for enqueue asserts.
+    delete process.env.FIRM_OUTREACH_DRY_RUN;
     mockGetDailySendCount.mockResolvedValue(0);
     mockGetByIdem.mockResolvedValue(null);
     mockIdempotentJobs.mockResolvedValue(new Map());

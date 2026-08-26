@@ -174,7 +174,7 @@ export async function runFirmOutreach(opts?: {
       runId,
       campaignId,
       environment: process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? 'unknown',
-      dryRun: Boolean(opts?.dryRun),
+      dryRun,
       candidatesEligible: stats.queued,
       jobsCreated: stats.jobsCreated,
       jobsClaimed: stats.jobsClaimed,

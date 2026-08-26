@@ -11,6 +11,7 @@ import { dailySendCap, outreachSendEnabled } from '../constants';
 import { isPlausibleOutreachEmail, validateEmailForSend } from '../enrichment/validator';
 import {
   claimNextEmailJob,
+  claimEmailJobById,
   emailsWithIdempotentJobsForCampaign,
   enqueueEmailJob,
   ensureEmailJobClaimable,
@@ -32,6 +33,7 @@ import {
   SENDABLE_OUTREACH_CAMPAIGN_IDS,
 } from '../site-config';
 import { outreachSelectionPoolLimits } from './selection-pool';
+import { claimProspectSend, releaseProspectSend } from '../run-lock';
 import {
   addSuppression,
   createSendRecord,
@@ -68,7 +70,6 @@ import {
   recordSkip,
 } from './run-log';
 import { sendOutreachEmail } from './send';
-import { claimProspectSend } from '../run-lock';
 import crypto from 'crypto';
 import type { EmailJobStatus } from '@robertcashman/firm-outreach-core';
 
@@ -273,6 +274,8 @@ export async function runFirmOutreach(opts?: {
 
   const emailsSentThisRun = new Set<string>();
   const emailsQueuedThisRun = new Set<string>();
+  /** Jobs healed/created this tick — Phase C drains these before FIFO zset. */
+  const jobIdsQueuedThisRun: string[] = [];
   let duplicateExcludes = 0;
   const MAX_DUPLICATE_EXCLUDES = 8;
   async function maybeExcludeDuplicate(prospect: FirmProspect): Promise<void> {
@@ -459,6 +462,21 @@ export async function runFirmOutreach(opts?: {
   // candidate scan was blowing the Vercel 300s ceiling before any job sent.
   const owner = `${runId}:${campaignId}`;
 
+  async function claimNextForDrain(): Promise<
+    Awaited<ReturnType<typeof claimNextEmailJob>>
+  > {
+    while (jobIdsQueuedThisRun.length > 0) {
+      const id = jobIdsQueuedThisRun.shift()!;
+      const preferred = await claimEmailJobById({
+        jobId: id,
+        owner,
+        campaignId,
+      });
+      if (preferred) return preferred;
+    }
+    return claimNextEmailJob({ owner, campaignId });
+  }
+
   async function processDurableJobs(deadlineMs: number): Promise<void> {
     while (stats.sent < remaining) {
       if (Date.now() >= deadlineMs) {
@@ -470,7 +488,7 @@ export async function runFirmOutreach(opts?: {
         break;
       }
 
-      const job = await claimNextEmailJob({ owner, campaignId });
+      const job = await claimNextForDrain();
       if (!job) break;
 
       stats.jobsClaimed = (stats.jobsClaimed ?? 0) + 1;
@@ -572,16 +590,20 @@ export async function runFirmOutreach(opts?: {
         }
 
         if (!(await claimProspectSend(prospect.id))) {
-          if (dailyReserved) await releaseDailySendSlot(date, campaignId);
-          if (hourlyReserved) await releaseHourlySendSlot(campaignId, hourBucket);
-          recordSkip(stats, 'job_claim_failed');
-          await requeueClaimedJob(job, {
-            status: 'pending',
-            nextRetryAt: new Date().toISOString(),
-            previousStatus: 'claimed',
-            lastError: 'prospect_claim_failed',
-          });
-          continue;
+          // Stale NX from a prior 504 / abandoned tick — clear once and retry.
+          await releaseProspectSend(prospect.id);
+          if (!(await claimProspectSend(prospect.id))) {
+            if (dailyReserved) await releaseDailySendSlot(date, campaignId);
+            if (hourlyReserved) await releaseHourlySendSlot(campaignId, hourBucket);
+            recordSkip(stats, 'job_claim_failed');
+            await requeueClaimedJob(job, {
+              status: 'pending',
+              nextRetryAt: new Date().toISOString(),
+              previousStatus: 'claimed',
+              lastError: 'prospect_claim_failed',
+            });
+            continue;
+          }
         }
 
         await markJobProcessing(job);
@@ -835,6 +857,9 @@ export async function runFirmOutreach(opts?: {
           if (healed) {
             stats.queued++;
             emailsQueuedThisRun.add(normalizedEmail);
+            jobIdsQueuedThisRun.push(healed.id);
+            // Clear stuck prospect claim so Phase C can accept same tick.
+            await releaseProspectSend(prospect.id);
             structuredRunLog('info', 'outreach.run.heal_existing_job', {
               runId,
               campaignId,
@@ -944,6 +969,8 @@ export async function runFirmOutreach(opts?: {
         stats.queued++;
         stats.jobsCreated = (stats.jobsCreated ?? 0) + 1;
         emailsQueuedThisRun.add(normalizedEmail);
+        jobIdsQueuedThisRun.push(enqueued.job.id);
+        await releaseProspectSend(prospect.id);
       } else if (enqueued.duplicate) {
         // Never silent: terminal → skip; else heal so Phase C can claim/send.
         if (
@@ -965,6 +992,8 @@ export async function runFirmOutreach(opts?: {
           if (healed) {
             stats.queued++;
             emailsQueuedThisRun.add(normalizedEmail);
+            jobIdsQueuedThisRun.push(healed.id);
+            await releaseProspectSend(prospect.id);
             structuredRunLog('info', 'outreach.run.heal_duplicate_enqueue', {
               runId,
               campaignId,

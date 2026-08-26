@@ -56,6 +56,7 @@ vi.mock('@/lib/firm-outreach/storage', () => ({
 
 vi.mock('@/lib/firm-outreach/email-jobs/storage', () => ({
   claimNextEmailJob: (...a: unknown[]) => mockClaim(...a),
+  claimEmailJobById: vi.fn(async () => null),
   enqueueEmailJob: (...a: unknown[]) => mockEnqueue(...a),
   emailsWithIdempotentJobsForCampaign: vi.fn(async () => new Map()),
   ensureEmailJobClaimable: vi.fn(async () => null),
@@ -91,6 +92,7 @@ vi.mock('@/lib/firm-outreach/outreach/send', () => ({
 
 vi.mock('@/lib/firm-outreach/run-lock', () => ({
   claimProspectSend: vi.fn(async () => true),
+  releaseProspectSend: vi.fn(async () => undefined),
 }));
 
 vi.mock('@/lib/firm-outreach/pause-state', () => ({

@@ -5,8 +5,10 @@ import { getKV } from '@/lib/kv';
  * Recover stale locks before the 300s Vercel cron ceiling.
  * Callers MUST release in a finally block — a hung/timed-out tick that
  * never releases used to overlap-skip every later tick until TTL expired.
+ * TTL must be >= firm-outreach-send maxDuration (300s) so the lock cannot
+ * expire mid-tick and let a concurrent sender steal the drain.
  */
-export const OUTREACH_RUN_LOCK_TTL_SECONDS = 270;
+export const OUTREACH_RUN_LOCK_TTL_SECONDS = 320;
 
 export type OutreachRunMode = 'send' | 'enrich' | 'maintain' | 'discovery' | 'autoheal';
 
@@ -32,4 +34,18 @@ export async function releaseOutreachRunLock(mode: OutreachRunMode): Promise<voi
 /** Prevent duplicate concurrent sends for the same prospect. */
 export async function claimProspectSend(prospectId: string): Promise<boolean> {
   return claimKey(`firmoutreach:send:claim:${prospectId}`, 3600);
+}
+
+/**
+ * Clear a stuck prospect send claim so a healed orphan job can accept in the
+ * same tick (live: wouldSend>0 / accepted=0 after 504 left the NX claim).
+ */
+export async function releaseProspectSend(prospectId: string): Promise<void> {
+  const kv = getKV();
+  if (!kv || typeof kv.del !== 'function') return;
+  try {
+    await kv.del(`firmoutreach:send:claim:${prospectId}`);
+  } catch {
+    /* best-effort */
+  }
 }

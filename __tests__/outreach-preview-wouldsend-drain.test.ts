@@ -61,6 +61,7 @@ vi.mock('@/lib/firm-outreach/storage', () => ({
 
 vi.mock('@/lib/firm-outreach/email-jobs/storage', () => ({
   claimNextEmailJob: (...a: unknown[]) => mockClaim(...a),
+  claimEmailJobById: vi.fn(async () => null),
   enqueueEmailJob: (...a: unknown[]) => mockEnqueue(...a),
   emailsWithIdempotentJobsForCampaign: vi.fn(async () => new Map()),
   ensureEmailJobClaimable: (...a: unknown[]) => mockEnsureClaimable(...a),
@@ -96,6 +97,7 @@ vi.mock('@/lib/firm-outreach/outreach/send', () => ({
 
 vi.mock('@/lib/firm-outreach/run-lock', () => ({
   claimProspectSend: vi.fn(async () => true),
+  releaseProspectSend: vi.fn(async () => undefined),
 }));
 
 vi.mock('@/lib/firm-outreach/pause-state', () => ({
@@ -278,5 +280,65 @@ describe('preview wouldSend>0 but jobsCreated=0 → heal + drain', () => {
     expect(stats.jobsCreated ?? 0).toBe(0);
     expect(stats.accepted ?? 0).toBe(0);
     expect(stats.skipReasons?.idempotent_exists ?? 0).toBeGreaterThan(0);
+  });
+
+  it('same tick: priority-drains healed job and clears stale prospect claim', async () => {
+    const prospect = readyProspect();
+    const existing = orphanJob('pending');
+    const healed = { ...existing, status: 'pending' as const };
+
+    mockSelect.mockResolvedValue({
+      candidates: [{ prospect, step: 0 }],
+      readyScanned: 1,
+      sentScanned: 0,
+      readyEligible: 1,
+      followUpEligible: 0,
+      skippedIndexedSend: 0,
+      skippedIdempotentJob: 0,
+      firmCooldownSkipped: 0,
+      staleReadyToReconcile: [],
+      staleFollowUpsToReconcile: [],
+      readyIndexWalked: 1,
+      selectionTimedOut: false,
+    });
+
+    mockClaim.mockResolvedValue(null); // Phase A empty; Phase C uses claimEmailJobById
+    mockGetByIdem.mockResolvedValue(existing);
+    mockEnsureClaimable.mockResolvedValue(healed);
+    mockGetProspect.mockResolvedValue(prospect);
+    mockEnqueue.mockResolvedValue({ job: existing, created: false, duplicate: true });
+
+    const { claimEmailJobById } = await import('@/lib/firm-outreach/email-jobs/storage');
+    const { claimProspectSend, releaseProspectSend } = await import(
+      '@/lib/firm-outreach/run-lock'
+    );
+    vi.mocked(claimEmailJobById).mockImplementation(async ({ jobId }) => {
+      if (jobId !== healed.id) return null;
+      return {
+        ...healed,
+        status: 'claimed',
+        claimedAt: new Date().toISOString(),
+        claimOwner: 'test',
+      };
+    });
+    // First claim fails (stale NX), release + retry succeeds.
+    vi.mocked(claimProspectSend)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValue(true);
+
+    const { runFirmOutreach } = await import('@/lib/firm-outreach/outreach/run-outreach');
+    const stats = await runFirmOutreach({
+      campaignId: 'whatsapp_invite_v1',
+      limit: 45,
+      maxElapsedMs: 60_000,
+    });
+
+    expect(mockEnsureClaimable).toHaveBeenCalled();
+    expect(releaseProspectSend).toHaveBeenCalledWith(prospect.id);
+    expect(claimEmailJobById).toHaveBeenCalledWith(
+      expect.objectContaining({ jobId: healed.id }),
+    );
+    expect(stats.accepted ?? 0).toBeGreaterThan(0);
+    expect(stats.jobsCreated ?? 0).toBe(0);
   });
 });

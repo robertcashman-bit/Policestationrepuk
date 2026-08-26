@@ -424,6 +424,49 @@ export async function claimNextEmailJob(opts: {
   return null;
 }
 
+/**
+ * Prefer a specific job id (healed/enqueued this tick) before FIFO zset drain.
+ * Same lease semantics as claimNextEmailJob.
+ */
+export async function claimEmailJobById(opts: {
+  jobId: string;
+  owner: string;
+  campaignId?: string;
+  leaseSeconds?: number;
+  now?: Date;
+}): Promise<EmailJob | null> {
+  const kv = getKV();
+  if (!kv) return null;
+  const now = opts.now ?? new Date();
+  const leaseSeconds = opts.leaseSeconds ?? DEFAULT_EMAIL_JOB_LEASE_SECONDS;
+  const nowMs = now.getTime();
+  const job = await getEmailJob(opts.jobId);
+  if (!job) return null;
+  if (opts.campaignId && job.campaignId && job.campaignId !== opts.campaignId) {
+    return null;
+  }
+  if (!EMAIL_JOB_CLAIMABLE_STATUSES.has(job.status)) return null;
+  if (job.status === 'retry_scheduled' && job.nextRetryAt) {
+    if (Date.parse(job.nextRetryAt) > nowMs) return null;
+  }
+
+  const leased = await claimKey(
+    `firmoutreach:job:lease:${job.id}`,
+    leaseSeconds,
+    opts.owner,
+  );
+  if (!leased) return null;
+
+  const prev = job.status;
+  job.status = 'claimed';
+  job.claimedAt = now.toISOString();
+  job.claimOwner = opts.owner;
+  job.claimExpiresAt = new Date(nowMs + leaseSeconds * 1000).toISOString();
+  job.updatedAt = now.toISOString();
+  await saveEmailJob(job, prev);
+  return job;
+}
+
 /** Requeue claimed/processing jobs whose lease expired. */
 export async function recoverAbandonedEmailJobs(opts?: {
   limit?: number;

@@ -54,6 +54,7 @@ vi.mock('@/lib/firm-outreach/run-lock', () => ({
   claimOutreachRunLock: (...args: unknown[]) => mockClaimLock(...args),
   releaseOutreachRunLock: vi.fn(async () => undefined),
   claimProspectSend: vi.fn(async () => true),
+  releaseProspectSend: vi.fn(async () => undefined),
 }));
 vi.mock('@/lib/firm-outreach/storage', () => ({
   countProspectsByStatus: (...args: unknown[]) => mockCountByStatus(...args),

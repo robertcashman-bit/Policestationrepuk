@@ -125,8 +125,8 @@ export async function repairBufferSchedule(options?: {
         : `Scheduler recovery failed: ${schedule.reason ?? 'unknown'}`,
       error: schedule.ok ? undefined : schedule.reason,
     });
-    const recheck = await verifyRepukBufferSchedule({ now, gapFill: false });
-    if (schedule.ok) {
+    const recheck = await verifyRepukBufferSchedule({ now, gapFill: true });
+    if (schedule.ok || recheck.ok) {
       logAutomationEvent('buffer.update.retry_verified', {
         date: today,
         scheduledCount: recheck.scheduledCount,

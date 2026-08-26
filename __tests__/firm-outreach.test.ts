@@ -150,6 +150,10 @@ describe('firm-outreach email extract', () => {
     expect(isPlausibleOutreachEmail('press@threebestrated.com')).toBe(false);
     expect(isPlausibleOutreachEmail('info@lawstreet.co.uk')).toBe(false);
     expect(isPlausibleOutreachEmail('crime@amazonaws.com')).toBe(false);
+    expect(isPlausibleOutreachEmail('police@zoominfo.com')).toBe(false);
+    expect(isPlausibleOutreachEmail('website@novamagazine.co.uk')).toBe(false);
+    expect(isPlausibleOutreachEmail('hello@gradsponsor.co.uk')).toBe(false);
+    expect(isPlausibleOutreachEmail('contact@scribd.com')).toBe(false);
   });
 });
 

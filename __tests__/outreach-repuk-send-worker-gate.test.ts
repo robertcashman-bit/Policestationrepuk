@@ -44,6 +44,7 @@ vi.mock('@/lib/firm-outreach/run-lock', () => ({
   claimOutreachRunLock: (...a: unknown[]) => mockClaimLock(...a),
   releaseOutreachRunLock: vi.fn(async () => undefined),
   claimProspectSend: vi.fn(async () => true),
+  releaseProspectSend: vi.fn(async () => undefined),
 }));
 vi.mock('@/lib/firm-outreach/pause-state', () => ({
   isOutreachSendAllowed: (...a: unknown[]) => mockIsSendAllowed(...a),

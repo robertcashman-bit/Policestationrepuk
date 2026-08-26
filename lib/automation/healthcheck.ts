@@ -37,6 +37,7 @@ import type {
   HealthIssue,
   RepairAction,
 } from './types';
+import { markSiblingRepairDoneForDay, siblingRepairGateDate } from './sibling-repair-gate';
 
 export interface HealthcheckOptions {
   dryRun?: boolean;
@@ -89,32 +90,41 @@ async function inspectSchedulerHealth(
     const day = utcDay(now);
     const execCount = await countExecutionsForDay(job.name, day);
     if (execCount > def.expectedExecutionsPerDay) {
-      duplicatesPrevented += execCount - def.expectedExecutionsPerDay;
-      issues.push({
-        id: `${job.name}-dup`,
-        fingerprint: buildIncidentFingerprint({
+      // Ops kick endpoint — source-guard / deploy may call it many times.
+      // Once-per-day gate stops real Buffer work; do not page on execution count.
+      if (job.name !== 'buffer-sibling-repair') {
+        duplicatesPrevented += execCount - def.expectedExecutionsPerDay;
+        issues.push({
+          id: `${job.name}-dup`,
+          fingerprint: buildIncidentFingerprint({
+            jobName: job.name,
+            category: 'duplicate',
+            scheduledDate: day,
+          }),
           jobName: job.name,
           category: 'duplicate',
-          scheduledDate: day,
-        }),
-        jobName: job.name,
-        category: 'duplicate',
-        severity: 'warning',
-        summary: `${job.name} ran ${execCount} times today (expected ${def.expectedExecutionsPerDay})`,
-        recoverable: false,
-        requiresHumanAction: false,
-      });
-      logAutomationEvent('automation.job.duplicate_prevented', {
-        jobName: job.name,
-        execCount,
-      });
+          severity: 'warning',
+          summary: `${job.name} ran ${execCount} times today (expected ${def.expectedExecutionsPerDay})`,
+          recoverable: false,
+          requiresHumanAction: false,
+        });
+        logAutomationEvent('automation.job.duplicate_prevented', {
+          jobName: job.name,
+          execCount,
+        });
+      }
     }
 
     // Overdue: after allowed window end and no success in today's window.
     // Skip "missed" alerts when we have no history at all (first deploy / empty registry).
+    // buffer-daily-report is subsumed by automation-daily-healthcheck (yesterday verify).
     const hourUtc = now.getUTCHours();
     const hasAnyHistory = Boolean(job.lastAttemptedAt || job.lastSuccessfulAt || cronLog);
-    if (hasAnyHistory && hourUtc >= def.allowedWindowEndHourUtc) {
+    if (
+      hasAnyHistory &&
+      hourUtc >= def.allowedWindowEndHourUtc &&
+      job.name !== 'buffer-daily-report'
+    ) {
       const lastOk = job.lastSuccessfulAt ? Date.parse(job.lastSuccessfulAt) : 0;
       const windowStart = Date.UTC(
         now.getUTCFullYear(),
@@ -303,6 +313,25 @@ export async function runDailyHealthcheck(
       repairs.push(...bufferRepair.repairs);
       bufferExpected = bufferRepair.todayRequired || bufferExpected;
       bufferActual = bufferRepair.yesterdaySent;
+
+      // After a successful today gap-fill, drop false "missed window" alerts for
+      // buffer-blog-posts / buffer-daily-report — the work is present in Buffer.
+      if (bufferRepair.todayScheduled >= bufferRepair.todayRequired) {
+        for (let i = issues.length - 1; i >= 0; i--) {
+          const issue = issues[i]!;
+          if (
+            (issue.jobName === 'buffer-blog-posts' ||
+              issue.jobName === 'buffer-daily-report' ||
+              issue.jobName === 'buffer-verify') &&
+            /missed expected run window/i.test(issue.summary)
+          ) {
+            issues.splice(i, 1);
+            const fj = failedJobs.indexOf(issue.jobName);
+            if (fj >= 0) failedJobs.splice(fj, 1);
+          }
+        }
+      }
+
       // Prefer yesterday published count for the report date; also note today schedule.
       if (!bufferRepair.yesterdayOk && bufferRepair.yesterdayProblems > 0) {
         issues.push({
@@ -336,6 +365,15 @@ export async function runDailyHealthcheck(
       issues.push(...cross.issues);
       crossSiteExpected = cross.expected;
       crossSiteActual = cross.actual;
+
+      // Healthcheck already ran cross-site heal — mark sibling-repair day done so
+      // source-guard does not fan out another 17 executions.
+      if (
+        !dryRun &&
+        (cross.ok || cross.repairs.some((r) => r.verified))
+      ) {
+        await markSiblingRepairDoneForDay(siblingRepairGateDate(now), 'healthcheck');
+      }
 
       // Resolve prior sibling incidents when today's remote schedule / fallback succeeded.
       for (const repair of cross.repairs) {

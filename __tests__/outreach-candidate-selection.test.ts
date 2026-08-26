@@ -375,4 +375,61 @@ describe('selectOutreachCandidates', () => {
     );
     expect(result.candidates.map((c) => c.prospect.id)).toEqual(['fop_fresh']);
   });
+
+  it('excludes follow-ups whose due step already has a terminal job (zombie sequenceStep)', async () => {
+    // Live Aug 26: followUpEligible=16 / wouldSend=0 — step-1 jobs existed while
+    // prospect.sequenceStep stayed 0. Selection must not count them as sendable.
+    const zombie = prospect({
+      id: 'fop_zombie_fu',
+      status: 'sent',
+      sequenceStep: 0,
+      lastEmailAt: new Date(Date.now() - 10 * 86_400_000).toISOString(),
+      email: 'crime@zombie.co.uk',
+      firmName: 'Zombie Firm',
+    });
+    const realFu = prospect({
+      id: 'fop_real_fu',
+      status: 'sent',
+      sequenceStep: 0,
+      lastEmailAt: new Date(Date.now() - 9 * 86_400_000).toISOString(),
+      email: 'crime@realfu.co.uk',
+      firmName: 'Real Followup',
+    });
+    mockReadyPile([], [zombie, realFu]);
+    mockIdempotentJobs.mockImplementation(
+      async (emails: string[], _campaign: string, step = 0) => {
+        const map = new Map<string, { status: 'accepted'; acceptedAt: string }>();
+        if (step === 1) {
+          for (const email of emails) {
+            if (email === 'crime@zombie.co.uk') {
+              map.set(email, {
+                status: 'accepted',
+                acceptedAt: new Date(Date.now() - 2 * 86_400_000).toISOString(),
+              });
+            }
+          }
+        }
+        return map;
+      },
+    );
+
+    const result = await selectOutreachCandidates({
+      campaignId: 'whatsapp_invite_v1',
+      readyLimit: 10,
+      sentLimit: 50,
+    });
+
+    expect(result.followUpEligible).toBe(1);
+    expect(result.candidates.map((c) => c.prospect.id)).toEqual(['fop_real_fu']);
+    expect(result.candidates[0]?.step).toBe(1);
+    expect(result.skippedIdempotentJob).toBe(1);
+    expect(result.staleFollowUpsToReconcile).toHaveLength(1);
+    expect(result.staleFollowUpsToReconcile[0]?.advanceToStep).toBe(1);
+    expect(result.staleFollowUpsToReconcile[0]?.prospect.id).toBe('fop_zombie_fu');
+    expect(mockIdempotentJobs).toHaveBeenCalledWith(
+      expect.arrayContaining(['crime@zombie.co.uk', 'crime@realfu.co.uk']),
+      'whatsapp_invite_v1',
+      1,
+    );
+  });
 });

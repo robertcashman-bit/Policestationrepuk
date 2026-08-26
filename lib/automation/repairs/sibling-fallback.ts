@@ -113,6 +113,52 @@ const PSRTRAIN_PROMOS: PromoCandidate[] = [
   },
 ];
 
+/** Live marketing URLs on policestationagent.com when sibling scheduler under-fills. */
+const POLICESTATIONAGENT_PROMOS: PromoCandidate[] = [
+  {
+    slug: 'home',
+    title: 'Police Station Agent — Kent solicitor cover after arrest',
+    excerpt:
+      'Urgent Kent police station representation for families and firms. Live cover sourcing on policestationagent.com.',
+    path: '/',
+  },
+  {
+    slug: 'services',
+    title: 'Police Station Agent services',
+    excerpt:
+      'Out-of-hours and daytime Kent police station cover for criminal defence firms and families.',
+    path: '/services',
+  },
+  {
+    slug: 'about',
+    title: 'About Police Station Agent',
+    excerpt:
+      'Who we are and how Kent police station cover works — on policestationagent.com.',
+    path: '/about',
+  },
+  {
+    slug: 'contact',
+    title: 'Contact Police Station Agent',
+    excerpt:
+      'Request Kent police station cover or speak to the team on policestationagent.com/contact.',
+    path: '/contact',
+  },
+  {
+    slug: 'faq',
+    title: 'Police Station Agent FAQ',
+    excerpt:
+      'Common questions about Kent police station representation and instructing cover.',
+    path: '/faq',
+  },
+  {
+    slug: 'blog',
+    title: 'Police Station Agent blog',
+    excerpt:
+      'Practical guidance on arrest, police station rights, and Kent cover — on policestationagent.com/blog.',
+    path: '/blog',
+  },
+];
+
 const CHANNEL_SERVICE_BY_ID: Record<string, BufferChannelService> = {
   '69d26c06031bfa423cd0c50d': 'linkedin',
   '69d26c3d031bfa423cd0c6b3': 'twitter',
@@ -146,7 +192,42 @@ function buildPromoText(
 export function siblingFallbackPromos(siteId: string): PromoCandidate[] {
   if (siteId === 'custodynote') return CUSTODYNOTE_PROMOS;
   if (siteId === 'psrtrain') return PSRTRAIN_PROMOS;
+  if (siteId === 'policestationagent') return POLICESTATIONAGENT_PROMOS;
   return [];
+}
+
+/**
+ * Count today's scheduled+sent Buffer posts whose text URL matches the site.
+ * Used to short-circuit remote sibling repair when today is already full.
+ */
+export async function countSiblingPostsToday(
+  site: CrossSiteBufferTarget,
+  options?: { now?: Date },
+): Promise<{ date: string; count: number; required: number; ok: boolean } | null> {
+  const apiKey = getBufferApiKey();
+  const orgId = getBufferOrganizationId();
+  if (!apiKey) return null;
+
+  const timezone = getSchedulerTimezone();
+  const now = options?.now ?? new Date();
+  const today = localDateInTimezone(now, timezone);
+  const tomorrow = (() => {
+    const d = new Date(`${today}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + 1);
+    return d.toISOString().slice(0, 10);
+  })();
+  const dayStart = `${today}T00:00:00${timezoneOffsetForDate(today, timezone)}`;
+  const dayEnd = `${tomorrow}T00:00:00${timezoneOffsetForDate(tomorrow, timezone)}`;
+
+  const existing = await listPostsInWindow(apiKey, orgId, {
+    status: ['scheduled', 'sent'],
+    dueAtStart: dayStart,
+    dueAtEnd: dayEnd,
+    channelIds: site.channelIds,
+  });
+  const count = countSiteSentPosts(existing, site.hostname);
+  const required = site.requiredPostsPerDay ?? 5;
+  return { date: today, count, required, ok: count >= required };
 }
 
 /**

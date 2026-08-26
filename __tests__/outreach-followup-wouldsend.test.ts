@@ -1,6 +1,7 @@
 /**
- * Live c64fc35: ticks spent ~200s reconciling stale ready and exited with
- * attempted=0 / sent=0. Same tick must enqueue+send BEFORE post-send reconcile.
+ * Live Aug 26 2026 on 672bec6: followUpEligible=16, sendableCandidates=16,
+ * wouldSendCount=0, worker accepted=0. Follow-ups with no terminal job for
+ * their due step must enter wouldSend / Phase B.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -11,17 +12,19 @@ const mockGetProspect = vi.fn();
 const mockSelect = vi.fn();
 const mockSend = vi.fn();
 const mockGetDailySendCount = vi.fn();
-const callOrder: string[] = [];
+const mockGetByIdem = vi.fn();
+const mockEnsureClaimable = vi.fn();
+const mockIdempotentJobs = vi.fn();
 
 vi.mock('@/lib/firm-outreach/storage', () => ({
   addSuppression: vi.fn(),
   createSendRecord: vi.fn(() => ({
     id: 'send-1',
     status: 'queued',
-    prospectId: 'fop_unsent',
-    email: 'crime@unsent.co.uk',
+    prospectId: 'fop_fu',
+    email: 'crime@followup.co.uk',
     campaignId: 'whatsapp_invite_v1',
-    sequenceStep: 0,
+    sequenceStep: 1,
     subject: '',
     createdAt: new Date().toISOString(),
   })),
@@ -50,7 +53,7 @@ vi.mock('@/lib/firm-outreach/storage', () => ({
   saveOutreachRunLog: vi.fn(),
   saveProspect: (...a: unknown[]) => mockSaveProspect(...a),
   saveSend: vi.fn(),
-  utcHourBucket: () => '2026-08-24T11',
+  utcHourBucket: () => '2026-08-26T07',
   refreshProspectStatusSnapshotCache: vi.fn(),
 }));
 
@@ -58,9 +61,9 @@ vi.mock('@/lib/firm-outreach/email-jobs/storage', () => ({
   claimNextEmailJob: (...a: unknown[]) => mockClaim(...a),
   claimEmailJobById: vi.fn(async () => null),
   enqueueEmailJob: (...a: unknown[]) => mockEnqueue(...a),
-  emailsWithIdempotentJobsForCampaign: vi.fn(async () => new Map()),
-  ensureEmailJobClaimable: vi.fn(async () => null),
-  getEmailJobByIdempotencyKey: vi.fn(async () => null),
+  emailsWithIdempotentJobsForCampaign: (...a: unknown[]) => mockIdempotentJobs(...a),
+  ensureEmailJobClaimable: (...a: unknown[]) => mockEnsureClaimable(...a),
+  getEmailJobByIdempotencyKey: (...a: unknown[]) => mockGetByIdem(...a),
   markJobAccepted: vi.fn(async (job: { status: string }) => {
     job.status = 'accepted';
     return job;
@@ -128,19 +131,23 @@ vi.mock('@robertcashman/firm-outreach-core', async (importOriginal) => {
 });
 
 import type { FirmProspect } from '@/lib/firm-outreach/types';
+import type { EmailJob } from '@robertcashman/firm-outreach-core';
+import { previewFirmOutreachDryRun } from '@/lib/firm-outreach/dry-run-preview';
+import { runFirmOutreach } from '@/lib/firm-outreach/outreach/run-outreach';
 
-function readyProspect(over: Partial<FirmProspect>): FirmProspect {
+function sentFollowUp(over: Partial<FirmProspect> = {}): FirmProspect {
   return {
-    id: 'fop_x',
-    firmKey: 'firm-x',
-    firmName: 'Firm X',
-    email: 'x@example.com',
-    status: 'ready_to_send',
+    id: 'fop_fu',
+    firmKey: 'followup',
+    firmName: 'Followup LLP',
+    email: 'crime@followup.co.uk',
+    status: 'sent',
     sequenceStep: 0,
+    lastEmailAt: new Date(Date.now() - 10 * 86_400_000).toISOString(),
     campaignId: 'whatsapp_invite_v1',
     prospectType: 'firm',
     sources: ['laa'],
-    priorityScore: 0,
+    priorityScore: 10,
     enrichAttempts: 1,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
@@ -148,133 +155,118 @@ function readyProspect(over: Partial<FirmProspect>): FirmProspect {
   };
 }
 
-describe('runFirmOutreach send-before-reconcile (c64fc35 live failure)', () => {
+describe('follow-up wouldSend / worker send path', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    callOrder.length = 0;
+    // CI sets FIRM_OUTREACH_DRY_RUN=1 — worker path must be live for enqueue asserts.
     delete process.env.FIRM_OUTREACH_DRY_RUN;
     mockGetDailySendCount.mockResolvedValue(0);
-    mockSend.mockImplementation(async () => {
-      callOrder.push('send');
-      return { ok: true, subject: 'Invite', messageId: 'msg-1' };
-    });
-    mockSaveProspect.mockImplementation(async () => {
-      callOrder.push('saveProspect');
-      // Simulate slow KV writes that previously ate the tick before enqueue.
-      await new Promise((r) => setTimeout(r, 5));
-    });
+    mockGetByIdem.mockResolvedValue(null);
+    mockIdempotentJobs.mockResolvedValue(new Map());
+    mockEnsureClaimable.mockResolvedValue(null);
+    mockClaim.mockResolvedValue(null);
   });
 
-  it('accepts/sends a later unsent firm in the same tick before reconciling thousands of stale-ready rows', async () => {
-    const stale = Array.from({ length: 200 }, (_, i) =>
-      readyProspect({
-        id: `fop_stale_${i}`,
-        email: `stale${i}@clog.co.uk`,
-        firmName: `Stale ${i}`,
-        firmKey: `stale-${i}`,
-        priorityScore: 90,
-      }),
-    );
-    const unsent = readyProspect({
-      id: 'fop_unsent',
-      email: 'crime@unsent.co.uk',
-      firmName: 'Unsent LLP',
-      firmKey: 'unsent',
-      priorityScore: 2,
+  it('preview: due follow-up with no step-1 job yields wouldSendCount > 0', async () => {
+    const fu = sentFollowUp();
+    mockSelect.mockResolvedValue({
+      candidates: [{ prospect: fu, step: 1 }],
+      readyScanned: 0,
+      sentScanned: 20,
+      readyEligible: 0,
+      followUpEligible: 1,
+      skippedIndexedSend: 0,
+      skippedIdempotentJob: 0,
+      firmCooldownSkipped: 0,
+      staleReadyToReconcile: [],
+      staleFollowUpsToReconcile: [],
+      readyIndexWalked: 0,
+      selectionTimedOut: false,
     });
 
-    mockSelect.mockImplementation(async () => {
-      callOrder.push('select');
-      return {
-        candidates: [{ prospect: unsent, step: 0 }],
-        readyScanned: 2500,
-        sentScanned: 0,
-        readyEligible: 1,
-        followUpEligible: 0,
-        skippedIndexedSend: 0,
-        skippedIdempotentJob: 2000,
-        firmCooldownSkipped: 0,
-        staleReadyToReconcile: stale.map((prospect) => ({
-          prospect,
-          reason: 'accepted' as const,
-          lastEmailAt: '2026-08-22T15:00:00.000Z',
-        })),
-        readyIndexWalked: 2500,
-        selectionTimedOut: false,
-      };
+    const preview = await previewFirmOutreachDryRun({
+      campaignId: 'whatsapp_invite_v1',
+      limit: 40,
     });
 
-    mockEnqueue.mockImplementation(async (input: { email: string; prospectId: string }) => {
-      callOrder.push('enqueue');
-      return {
-        created: true,
-        duplicate: false,
-        job: {
-          id: 'foj_1',
-          idempotencyKey: 'idem',
-          campaignId: 'whatsapp_invite_v1',
-          prospectId: input.prospectId,
-          firmName: 'Unsent LLP',
-          prospectType: 'firm',
-          email: input.email,
-          sequenceStep: 0,
-          status: 'pending',
-          attemptCount: 0,
-          maxAttempts: 5,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          correlationId: 'corr',
-        },
-      };
+    expect(preview.selection?.followUpEligible).toBe(1);
+    expect(preview.selection?.sendableCandidates).toBe(1);
+    expect(preview.wouldSendCount).toBeGreaterThan(0);
+    expect(preview.preview.some((r) => r.wouldSend && r.step === 1)).toBe(true);
+  });
+
+  it('worker: enqueues and accepts a due follow-up (step 1) under unlimited batch', async () => {
+    const fu = sentFollowUp();
+    mockSelect.mockResolvedValue({
+      candidates: [{ prospect: fu, step: 1 }],
+      readyScanned: 0,
+      sentScanned: 20,
+      readyEligible: 0,
+      followUpEligible: 1,
+      skippedIndexedSend: 0,
+      skippedIdempotentJob: 0,
+      firmCooldownSkipped: 0,
+      staleReadyToReconcile: [],
+      staleFollowUpsToReconcile: [],
+      readyIndexWalked: 0,
+      selectionTimedOut: false,
     });
 
+    const pendingJob: EmailJob = {
+      id: 'job_fu_1',
+      status: 'pending',
+      campaignId: 'whatsapp_invite_v1',
+      prospectId: fu.id,
+      firmName: fu.firmName,
+      prospectType: 'firm',
+      email: 'crime@followup.co.uk',
+      sequenceStep: 1,
+      idempotencyKey: 'idem-fu-1',
+      attemptCount: 0,
+      maxAttempts: 5,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    mockEnqueue.mockResolvedValue({ job: pendingJob, created: true, duplicate: false });
+    // Phase A: empty queue. Phase C: claim the job we just enqueued.
     let claims = 0;
     mockClaim.mockImplementation(async () => {
-      // Phase A drain must not steal the job before Phase B enqueue.
-      if (!callOrder.includes('enqueue')) return null;
       claims += 1;
-      if (claims > 1) return null;
-      callOrder.push('claim');
-      return {
-        id: 'foj_1',
-        idempotencyKey: 'idem',
-        campaignId: 'whatsapp_invite_v1',
-        prospectId: 'fop_unsent',
-        firmName: 'Unsent LLP',
-        prospectType: 'firm',
-        email: 'crime@unsent.co.uk',
-        sequenceStep: 0,
-        status: 'claimed',
-        attemptCount: 1,
-        maxAttempts: 5,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        correlationId: 'corr',
-      };
+      if (claims === 1) return null;
+      if (claims === 2) {
+        return {
+          ...pendingJob,
+          status: 'claimed' as const,
+          claimedAt: new Date().toISOString(),
+          claimOwner: 'test',
+        };
+      }
+      return null;
     });
-    mockGetProspect.mockResolvedValue(unsent);
+    mockGetProspect.mockResolvedValue(fu);
+    mockSend.mockResolvedValue({
+      ok: true,
+      messageId: 're_fu_1',
+      subject: 'Follow-up',
+    });
 
-    const { runFirmOutreach } = await import('@/lib/firm-outreach/outreach/run-outreach');
     const stats = await runFirmOutreach({
       campaignId: 'whatsapp_invite_v1',
-      limit: 5,
       maxElapsedMs: 60_000,
-      dryRun: false,
     });
 
-    expect(stats.sent).toBeGreaterThan(0);
-    expect(stats.accepted ?? stats.sent).toBeGreaterThan(0);
+    expect(mockSelect).toHaveBeenCalled();
+    const selectOpts = mockSelect.mock.calls[0]?.[0] as {
+      readyLimit: number;
+      sentLimit: number;
+    };
+    // Unlimited remaining must not collapse sent scan to 40.
+    expect(selectOpts.sentLimit).toBeGreaterThanOrEqual(200);
+    expect(mockEnqueue).toHaveBeenCalledWith(
+      expect.objectContaining({ sequenceStep: 1, email: 'crime@followup.co.uk' }),
+    );
     expect(stats.jobsCreated ?? 0).toBeGreaterThan(0);
-
-    const enqueueIdx = callOrder.indexOf('enqueue');
-    const sendIdx = callOrder.indexOf('send');
-    const firstReconcileIdx = callOrder.indexOf('saveProspect');
-    expect(enqueueIdx).toBeGreaterThanOrEqual(0);
-    expect(sendIdx).toBeGreaterThanOrEqual(0);
-    // Reconcile (saveProspect for stale ready) must not precede enqueue/send.
-    if (firstReconcileIdx >= 0) {
-      expect(firstReconcileIdx).toBeGreaterThan(enqueueIdx);
-      expect(firstReconcileIdx).toBeGreaterThan(sendIdx);
-    }
+    expect(stats.accepted ?? stats.sent).toBeGreaterThan(0);
   });
 });

@@ -3,6 +3,12 @@ import { withAutomationJob } from '@/lib/automation/with-job';
 import { inspectAndRepairCrossSiteQuota } from '@/lib/automation/repairs/cross-site';
 import { buildIncidentFingerprint, resolveIncident } from '@/lib/automation/notifications';
 import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
+import {
+  clearSiblingRepairDoneForDay,
+  isSiblingRepairDoneForDay,
+  markSiblingRepairDoneForDay,
+  siblingRepairGateDate,
+} from '@/lib/automation/sibling-repair-gate';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -13,7 +19,11 @@ export const maxDuration = 300;
  * (or REPUK fallback when the sibling endpoint is missing) when yesterday's
  * cross-site quota was short.
  *
+ * Once a successful heal (or all-ok) lands for the London day, further callers
+ * skip without writing another execution — stops source-guard fan-out (17×/day).
+ *
  * Auth: Bearer CRON_SECRET or x-firm-outreach-bootstrap-secret.
+ * Ops: `?force=1` clears the once-per-day gate and re-runs.
  */
 export async function GET(request: Request) {
   if (!isOutreachBootstrapAuthorized(request)) {
@@ -22,9 +32,25 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const dryRun = url.searchParams.get('dryRun') === '1';
+  const force = url.searchParams.get('force') === '1';
   const date = url.searchParams.get('date')?.trim() || undefined;
+  const gateDate = siblingRepairGateDate();
 
   try {
+    if (!dryRun && !force && (await isSiblingRepairDoneForDay(gateDate))) {
+      // Skip BEFORE withAutomationJob so we do not inflate expectedExecutionsPerDay.
+      return NextResponse.json({
+        ok: true,
+        skipped: true,
+        reason: 'already_healed_today',
+        date: gateDate,
+      });
+    }
+
+    if (force && !dryRun) {
+      await clearSiblingRepairDoneForDay(gateDate);
+    }
+
     const wrapped = await withAutomationJob({
       jobName: 'buffer-sibling-repair',
       triggerSource: 'cron',
@@ -65,6 +91,11 @@ export async function GET(request: Request) {
         }
 
         const healed = result.ok || result.repairs.some((r) => r.verified);
+        // All-ok OR at least one verified heal → mark day done so fan-out stops.
+        if (!dryRun && healed) {
+          await markSiblingRepairDoneForDay(gateDate, healed ? 'healed' : '1');
+        }
+
         return {
           status: healed
             ? result.ok
@@ -79,6 +110,7 @@ export async function GET(request: Request) {
             repairs: result.repairs,
             issues: result.issues,
             resolvedIncidents: resolved,
+            gateDate,
           },
           counts: {
             quotaExpected: result.expected,

@@ -126,6 +126,13 @@ export async function selectOutreachCandidates(opts: {
   firmCooldownSkipped: number;
   /** Ready rows already mailed (job or send) — caller may reconcile off the ready index. */
   staleReadyToReconcile: StaleReadyReconcile[];
+  /**
+   * Sent rows whose next follow-up step already has a terminal job, but
+   * prospect.sequenceStep was never advanced — caller should advance after send.
+   */
+  staleFollowUpsToReconcile: Array<
+    StaleReadyReconcile & { advanceToStep: number }
+  >;
   /** Total ready-index ids walked (including other campaigns). */
   readyIndexWalked: number;
   /** True when the ready walk stopped early due to deadlineMs. */
@@ -224,10 +231,54 @@ export async function selectOutreachCandidates(opts: {
     campaignId: opts.campaignId,
   });
   const followUpEligible: Array<{ prospect: FirmProspect; step: number }> = [];
-  for (const prospect of sent) {
-    const step = nextOutreachStep(prospect, nowMs);
-    if (step === null) continue;
-    followUpEligible.push({ prospect, step });
+  const staleFollowUpsToReconcile: Array<
+    StaleReadyReconcile & { advanceToStep: number }
+  > = [];
+
+  // Group due follow-ups by step so we can batch idempotency lookups.
+  // Without this, terminal step-N jobs still look "eligible" (live Aug 26:
+  // followUpEligible=16 / wouldSend=0) while sequenceStep was never advanced.
+  const dueByStep = new Map<number, FirmProspect[]>();
+  if (!skipDeepChecks) {
+    for (const prospect of sent) {
+      const step = nextOutreachStep(prospect, nowMs);
+      if (step === null) continue;
+      const list = dueByStep.get(step) ?? [];
+      list.push(prospect);
+      dueByStep.set(step, list);
+    }
+    for (const [step, prospects] of dueByStep) {
+      const emails = prospects
+        .map((p) => p.email)
+        .filter((email): email is string => Boolean(email));
+      const jobs =
+        emails.length > 0
+          ? await emailsWithIdempotentJobsForCampaign(emails, opts.campaignId, step)
+          : new Map();
+      for (const prospect of prospects) {
+        const email = prospect.email ? normalizeEmail(prospect.email) : '';
+        const jobHit = email ? jobs.get(email) : undefined;
+        if (jobHit) {
+          skippedIdempotentJob += 1;
+          if (staleFollowUpsToReconcile.length < STALE_READY_RECONCILE_CAP) {
+            staleFollowUpsToReconcile.push({
+              prospect,
+              reason: jobHit.status,
+              lastEmailAt: jobHit.acceptedAt ?? jobHit.updatedAt,
+              advanceToStep: step,
+            });
+          }
+          continue;
+        }
+        followUpEligible.push({ prospect, step });
+      }
+    }
+  } else {
+    for (const prospect of sent) {
+      const step = nextOutreachStep(prospect, nowMs);
+      if (step === null) continue;
+      followUpEligible.push({ prospect, step });
+    }
   }
 
   const ranked = [...readyEligible, ...followUpEligible].sort(compareCandidates);
@@ -263,6 +314,7 @@ export async function selectOutreachCandidates(opts: {
     skippedIdempotentJob,
     firmCooldownSkipped,
     staleReadyToReconcile,
+    staleFollowUpsToReconcile,
     readyIndexWalked,
     selectionTimedOut,
   };

@@ -162,6 +162,11 @@ exports.NON_FIRM_EMAIL_DOMAINS = new Set([
     'findsolicitor.co.uk',
     'criminaljusticehub.org.uk',
     'docsity.com',
+    // Live bad recipients (Aug 2026): scrapers / media / lead-gen, never firms
+    'zoominfo.com',
+    'novamagazine.co.uk',
+    'gradsponsor.co.uk',
+    'scribd.com',
     // UK / major press & media (crawlers pick crime@ / feedback@ from news pages)
     'thetimes.com',
     'thetimes.co.uk',

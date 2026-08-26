@@ -9,6 +9,7 @@ import type { HealthIssue, RepairAction } from '../types';
 import {
   scheduleSiblingFallbackFromRepuk,
   siblingFallbackPromos,
+  countSiblingPostsToday,
 } from './sibling-fallback';
 import { triggerSiblingBufferSchedule } from './sibling-remote';
 
@@ -152,7 +153,22 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
           dryRun,
           summary: `Sibling deficit recorded — unknown production URL for ${site.id}`,
         });
-      } else if (dryRun || !allowRemote || !canPerformLiveSideEffects()) {
+      } else {
+        // Yesterday deficit is historical. If *today* is already at quota, do not
+        // remote-trigger again (source-guard was fan-out re-calling force=1).
+        const todayCount = await countSiblingPostsToday(target, { now: options?.now });
+        if (todayCount?.ok) {
+          healedToday = true;
+          repairs.push({
+            id: `crosssite-${site.id}`,
+            kind: 'crosssite_sibling_remote_schedule',
+            target: site.id,
+            attempted: false,
+            verified: true,
+            dryRun,
+            summary: `${site.hostname}: today already at quota (${todayCount.count}/${todayCount.required}) — skip remote`,
+          });
+        } else if (dryRun || !allowRemote || !canPerformLiveSideEffects()) {
         const preview = await triggerSiblingBufferSchedule(target, {
           dryRun: true,
           fetchFn: fetch,
@@ -183,7 +199,11 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
           force: true,
         });
 
-        if (remote.verified) {
+        // Prefer Buffer post counts over HTTP ok — remote "ok" could leave a 1-gap.
+        const afterRemote = await countSiblingPostsToday(target, { now: options?.now });
+        const remoteFilled = Boolean(afterRemote?.ok);
+
+        if (remote.verified && remoteFilled) {
           healedToday = true;
           repairs.push({
             id: `crosssite-${site.id}`,
@@ -192,31 +212,40 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
             attempted: remote.attempted,
             verified: true,
             dryRun: false,
-            summary: remote.summary,
+            summary: `${remote.summary}; today ${afterRemote!.count}/${afterRemote!.required}`,
           });
           logAutomationEvent('crosssite.quota.repaired', {
             siteId: site.id,
             via: 'remote_schedule',
+            scheduledCount: afterRemote?.count,
           });
         } else if (
           remote.endpointMissing ||
-          siblingFallbackPromos(site.id).length > 0
+          siblingFallbackPromos(site.id).length > 0 ||
+          !remoteFilled
         ) {
-          // Endpoint missing, or sibling scheduler returned 0 posts — use REPUK catalog.
+          // Endpoint missing, remote under-filled, or HTTP-ok without count — use catalog.
           const fallback = await scheduleSiblingFallbackFromRepuk(target, {
             dryRun: false,
             now: options?.now,
           });
           healedToday = fallback.attempted && fallback.verified;
+          if (!healedToday && fallback.verified && !fallback.attempted) {
+            // today already at quota via fallback short-circuit
+            healedToday = true;
+          }
           repairs.push({
             id: `crosssite-${site.id}`,
             kind: 'crosssite_sibling_repuk_fallback',
             target: site.id,
             attempted: fallback.attempted || remote.attempted,
-            verified: fallback.verified,
+            verified: fallback.verified || remoteFilled,
             dryRun: false,
             summary: `${remote.summary}; ${fallback.summary}`,
           });
+          if (fallback.verified || remoteFilled) {
+            healedToday = true;
+          }
         } else {
           repairs.push({
             id: `crosssite-${site.id}`,
@@ -228,6 +257,7 @@ export async function inspectAndRepairCrossSiteQuota(options?: {
             summary: remote.summary,
           });
         }
+      }
       }
 
       // Yesterday's sent window cannot be rewritten. If we successfully kicked today's

@@ -184,19 +184,8 @@ jobs:
           echo "Holding ${DEPLOY_URL} as production for ${HOLD_SECS}s (want ${TIP_SHORT})"
           promote "$DEPLOY_URL"
 
-          # Immediate Buffer sibling heal — do not wait for 90s soak / outreach.
-          if [ -n "${CRON_SECRET:-}" ]; then
-            echo "== early /api/cron/buffer-sibling-repair =="
-            code=$(curl -sS -m 290 -o /tmp/early-sibling.json -w '%{http_code}' \
-              -H "Authorization: Bearer ${CRON_SECRET}" \
-              -H "x-cron-secret: ${CRON_SECRET}" \
-              "$BASE_URL/api/cron/buffer-sibling-repair" || echo 000)
-            echo "HTTP $code"
-            python3 -c 'import json;d=json.load(open("/tmp/early-sibling.json")); print({k:d.get(k) for k in ("ok","date","expected","actual","error")}); print("repairs", [{k:r.get(k) for k in ("kind","target","attempted","verified","summary")} for r in (d.get("repairs") or [])])' || head -c 800 /tmp/early-sibling.json
-            echo
-          else
-            echo "CRON_SECRET missing — skip early sibling repair"
-          fi
+          # Sibling repair runs once in the inventory step below (once-per-day gate
+          # on the route). Do not early-call here — that was the 17× fan-out.
 
           start=$(date +%s)
           stable_since=0

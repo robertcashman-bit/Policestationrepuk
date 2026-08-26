@@ -31,6 +31,7 @@ import {
   isOutreachCampaignSendable,
   SENDABLE_OUTREACH_CAMPAIGN_IDS,
 } from '../site-config';
+import { outreachSelectionPoolLimits } from './selection-pool';
 import {
   addSuppression,
   createSendRecord,
@@ -326,6 +327,8 @@ export async function runFirmOutreach(opts?: {
       prospect: FirmProspect;
       reason: string;
       lastEmailAt?: string;
+      /** When set, advance a sent prospect past an already-jobbed follow-up step. */
+      advanceToStep?: number;
     }>,
     reconcileDeadlineMs: number,
   ): Promise<number> {
@@ -333,20 +336,49 @@ export async function runFirmOutreach(opts?: {
     let n = 0;
     for (const stale of rows) {
       if (Date.now() >= reconcileDeadlineMs) break;
-      if (stale.prospect.status !== 'ready_to_send') continue;
-      const prevStatus = stale.prospect.status;
-      if (stale.reason === 'permanently_failed') {
-        stale.prospect.status = 'excluded';
-        stale.prospect.excludedReason = 'send_permanently_failed';
-      } else {
-        stale.prospect.status = 'sent';
+      if (stale.prospect.status === 'ready_to_send') {
+        const prevStatus = stale.prospect.status;
+        if (stale.reason === 'permanently_failed') {
+          stale.prospect.status = 'excluded';
+          stale.prospect.excludedReason = 'send_permanently_failed';
+        } else {
+          stale.prospect.status = 'sent';
+          stale.prospect.lastEmailAt =
+            stale.lastEmailAt ?? stale.prospect.lastEmailAt ?? new Date().toISOString();
+          stale.prospect.excludedReason = undefined;
+          if (
+            typeof stale.advanceToStep === 'number' &&
+            Number.isFinite(stale.advanceToStep)
+          ) {
+            stale.prospect.sequenceStep = stale.advanceToStep;
+          }
+        }
+        stale.prospect.updatedAt = new Date().toISOString();
+        await saveProspect(stale.prospect, prevStatus);
+        n += 1;
+        continue;
+      }
+      // Follow-up zombies: terminal job for step N exists but sequenceStep stuck.
+      // Advance so nextOutreachStep stops returning that step (do not re-send).
+      if (
+        stale.prospect.status === 'sent' &&
+        typeof stale.advanceToStep === 'number' &&
+        Number.isFinite(stale.advanceToStep) &&
+        stale.reason !== 'permanently_failed'
+      ) {
+        const prevStatus = stale.prospect.status;
+        const nextStep = Math.max(
+          stale.prospect.sequenceStep ?? 0,
+          stale.advanceToStep,
+        );
+        if (nextStep === (stale.prospect.sequenceStep ?? 0)) continue;
+        stale.prospect.sequenceStep = nextStep;
         stale.prospect.lastEmailAt =
           stale.lastEmailAt ?? stale.prospect.lastEmailAt ?? new Date().toISOString();
-        stale.prospect.excludedReason = undefined;
+        stale.prospect.updatedAt = new Date().toISOString();
+        await saveProspect(stale.prospect, prevStatus);
+        n += 1;
       }
-      stale.prospect.updatedAt = new Date().toISOString();
-      await saveProspect(stale.prospect, prevStatus);
-      n += 1;
     }
     return n;
   }
@@ -688,44 +720,69 @@ export async function runFirmOutreach(opts?: {
     return finish(finalQuotaEarly, alreadySent, dailyCap);
   }
 
+  const pool = outreachSelectionPoolLimits(remaining);
   const selection = await loadCandidates(
-    // Small pool — walk past clog until this many *sendable* (or deadline).
-    Math.min(50, Math.max(20, Number.isFinite(remaining) ? Math.min(remaining, 50) : 50)),
-    Math.min(40, Math.max(10, Number.isFinite(remaining) ? Math.min(remaining, 40) : 40)),
+    pool.readyLimit,
+    pool.sentLimit,
     selectionDeadlineMs,
   );
 
-  // Filter-only (no KV writes): drop any residual terminal-job candidates.
-  const step0Emails = selection.candidates
-    .filter((c) => c.step === 0 && c.prospect.email)
-    .map((c) => normalizeEmail(c.prospect.email!));
-  const terminalJobs =
-    step0Emails.length > 0
-      ? await emailsWithIdempotentJobsForCampaign(step0Emails, campaignId, 0)
-      : new Map();
+  // Filter-only (no KV writes): drop residual terminal-job candidates for ANY step.
+  // Group by step so follow-ups are checked at their due step (not only step 0).
+  const emailsByStep = new Map<number, string[]>();
+  for (const c of selection.candidates) {
+    if (!c.prospect.email) continue;
+    const list = emailsByStep.get(c.step) ?? [];
+    list.push(normalizeEmail(c.prospect.email));
+    emailsByStep.set(c.step, list);
+  }
+  const terminalByStep = new Map<
+    number,
+    Awaited<ReturnType<typeof emailsWithIdempotentJobsForCampaign>>
+  >();
+  await Promise.all(
+    [...emailsByStep.entries()].map(async ([step, emails]) => {
+      terminalByStep.set(
+        step,
+        await emailsWithIdempotentJobsForCampaign(emails, campaignId, step),
+      );
+    }),
+  );
   const sendableCandidates = selection.candidates.filter((c) => {
-    if (c.step !== 0 || !c.prospect.email) return true;
-    return !terminalJobs.has(normalizeEmail(c.prospect.email));
+    if (!c.prospect.email) return true;
+    const hit = terminalByStep.get(c.step)?.get(normalizeEmail(c.prospect.email));
+    return !hit;
   });
-  const deferredReconcile = [...selection.staleReadyToReconcile];
-  if (terminalJobs.size > 0) {
+  const deferredReconcile: Array<{
+    prospect: FirmProspect;
+    reason: string;
+    lastEmailAt?: string;
+    advanceToStep?: number;
+  }> = [
+    ...selection.staleReadyToReconcile,
+    ...(selection.staleFollowUpsToReconcile ?? []),
+  ];
+  let terminalHits = 0;
+  for (const c of selection.candidates) {
+    if (!c.prospect.email) continue;
+    const hit = terminalByStep.get(c.step)?.get(normalizeEmail(c.prospect.email));
+    if (!hit) continue;
+    terminalHits += 1;
+    deferredReconcile.push({
+      prospect: c.prospect,
+      reason: hit.status,
+      lastEmailAt: hit.acceptedAt ?? hit.updatedAt,
+      advanceToStep: c.step,
+    });
+  }
+  if (terminalHits > 0) {
     structuredRunLog('info', 'outreach.run.pre_enqueue_terminal_filter', {
       runId,
       campaignId,
       before: selection.candidates.length,
       after: sendableCandidates.length,
-      terminalJobs: terminalJobs.size,
+      terminalJobs: terminalHits,
     });
-    for (const c of selection.candidates) {
-      if (c.step !== 0 || !c.prospect.email) continue;
-      const hit = terminalJobs.get(normalizeEmail(c.prospect.email));
-      if (!hit || c.prospect.status !== 'ready_to_send') continue;
-      deferredReconcile.push({
-        prospect: c.prospect,
-        reason: hit.status,
-        lastEmailAt: hit.acceptedAt ?? hit.updatedAt,
-      });
-    }
   }
 
   // Phase B: enqueue — hard deadline uses the reserved send window.
@@ -748,10 +805,10 @@ export async function runFirmOutreach(opts?: {
       }
       const normalizedEmail = normalizeEmail(email);
 
-      // Idempotency pre-check BEFORE qualification / MX / cooldown.
+      // Idempotency pre-check BEFORE qualification / MX / cooldown — all steps.
       // Enqueue is unique on ANY job for the key — terminal → skip+reconcile;
       // non-terminal → heal onto pending zset so Phase C drains (do not create).
-      if (step === 0) {
+      {
         const existingJob = await getEmailJobByIdempotencyKey(
           buildOutreachIdempotencyKey(
             prospect.campaignId || campaignId,
@@ -770,6 +827,7 @@ export async function runFirmOutreach(opts?: {
               reason: staleReconcileReason(existingJob.status),
               lastEmailAt:
                 existingJob.acceptedAt ?? existingJob.updatedAt ?? new Date().toISOString(),
+              advanceToStep: step,
             });
             continue;
           }
@@ -784,6 +842,7 @@ export async function runFirmOutreach(opts?: {
               fromStatus: existingJob.status,
               toStatus: healed.status,
               email: normalizedEmail,
+              sequenceStep: step,
             });
             continue;
           }
@@ -899,6 +958,7 @@ export async function runFirmOutreach(opts?: {
               enqueued.job.acceptedAt ??
               enqueued.job.updatedAt ??
               new Date().toISOString(),
+            advanceToStep: step,
           });
         } else {
           const healed = await ensureEmailJobClaimable(enqueued.job);

@@ -19,7 +19,13 @@ describe('siblingFallbackPromos', () => {
     expect(promos.some((p) => p.path === '/guides')).toBe(true);
   });
 
-  it('has no catalog for PSA (self-scheduler with working feed)', () => {
-    expect(siblingFallbackPromos('policestationagent')).toEqual([]);
+  it('provides PSA marketing URLs when sibling scheduler under-fills (Buffer only — not firm-email)', () => {
+    const promos = siblingFallbackPromos('policestationagent');
+    expect(promos.length).toBeGreaterThanOrEqual(5);
+    expect(promos.some((p) => p.path === '/')).toBe(true);
+    expect(promos.some((p) => p.path === '/services')).toBe(true);
+    expect(promos.some((p) => p.path === '/contact')).toBe(true);
+    // Never firm-email / agent_cover — Buffer promo paths only.
+    expect(promos.every((p) => !/agent_cover|whatsapp/i.test(p.path + p.excerpt))).toBe(true);
   });
 });

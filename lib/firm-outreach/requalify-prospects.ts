@@ -270,13 +270,12 @@ export async function requalifyAllProspects(opts?: {
     if (
       p.status === 'ready_to_send' &&
       q.qualified &&
-      p.prospectType === 'solicitor' &&
       p.firmKey
     ) {
       const email = normalizeEmail(p.email ?? '');
       const siblings = email ? await listProspectsForFirmKey(p.firmKey) : [];
       let latestSameInbox: string | undefined;
-      if (email && FIRM_SEND_COOLDOWN_DAYS > 0) {
+      if (email && FIRM_SEND_COOLDOWN_DAYS > 0 && p.prospectType === 'solicitor') {
         for (const s of siblings) {
           if (s.id === p.id || !isCampaignProspect(s, p.campaignId)) continue;
           if (!s.lastEmailAt) continue;
@@ -308,7 +307,7 @@ export async function requalifyAllProspects(opts?: {
           }
         }
       } else if (p.excludedReason === 'firm_cooldown' || p.nextEligibleAt) {
-        // Clear legacy firm-wide parks and expired same-inbox holds.
+        // Clear legacy firm-wide parks (including firm-type rows) and expired holds.
         p.nextEligibleAt = undefined;
         if (p.excludedReason === 'firm_cooldown') p.excludedReason = undefined;
         p.updatedAt = new Date().toISOString();

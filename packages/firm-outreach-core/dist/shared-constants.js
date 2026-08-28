@@ -167,6 +167,10 @@ exports.NON_FIRM_EMAIL_DOMAINS = new Set([
     'novamagazine.co.uk',
     'gradsponsor.co.uk',
     'scribd.com',
+    'eastleighnews.co.uk',
+    'reachplc.com',
+    'sunday-times.co.uk',
+    'thesundaytimes.co.uk',
     // UK / major press & media (crawlers pick crime@ / feedback@ from news pages)
     'thetimes.com',
     'thetimes.co.uk',

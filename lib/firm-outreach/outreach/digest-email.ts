@@ -194,6 +194,9 @@ export async function sendDailyOutreachDigest(opts?: {
   const sentToday = Math.max(report.summary.sentToday, sentTodayKv, todaysReceipts.length);
   const remaining = Math.max(0, cap - sentToday);
   const readyCount = report.summary.readyToSend;
+  // readyToSendProspects is already filtered to isSendableReadyProspect in
+  // buildReadyProspectsView — digests must not re-count parked/junk leftovers
+  // as "ready to send" (live Aug 27 contradiction).
   const sendableReady = report.readyToSendProspects.filter((r) => !r.suppressed && r.email);
   const parkedReady = Math.max(0, readyCount - sendableReady.length);
 

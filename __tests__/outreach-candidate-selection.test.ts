@@ -46,12 +46,14 @@ function prospect(over: Partial<FirmProspect> = {}): FirmProspect {
 function mockReadyPile(ready: FirmProspect[], sent: FirmProspect[] = []) {
   mockListIdsByStatus.mockImplementation(async (status: string) => {
     if (status === 'ready_to_send') return ready.map((p) => p.id);
+    if (status === 'sent') return sent.map((p) => p.id);
     return [];
   });
   mockGetProspectsByIds.mockImplementation(async (ids: string[]) => {
     const map = new Map<string, FirmProspect>();
+    const all = [...ready, ...sent];
     for (const id of ids) {
-      const p = ready.find((row) => row.id === id);
+      const p = all.find((row) => row.id === id);
       if (p) map.set(id, p);
     }
     return map;
@@ -431,5 +433,69 @@ describe('selectOutreachCandidates', () => {
       'whatsapp_invite_v1',
       1,
     );
+  });
+
+  it('skips parked ready leftovers (nextEligibleAt) so digests cannot invent sendable', async () => {
+    // Live Aug 27 digest: "18 ready to send" while capacity eligibleUnsent=0.
+    // Parked / cooldown rows must not enter readyEligible.
+    const parked = prospect({
+      id: 'fop_parked',
+      email: 'info@parkedfirm.co.uk',
+      nextEligibleAt: new Date(Date.now() + 14 * 86_400_000).toISOString(),
+      excludedReason: 'firm_cooldown',
+      priorityScore: 99,
+    });
+    const fresh = prospect({
+      id: 'fop_fresh_ok',
+      email: 'crime@freshok.co.uk',
+      priorityScore: 1,
+    });
+    mockReadyPile([parked, fresh]);
+
+    const result = await selectOutreachCandidates({
+      campaignId: 'whatsapp_invite_v1',
+      readyLimit: 20,
+      sentLimit: 20,
+    });
+
+    expect(result.candidates.map((c) => c.prospect.id)).toEqual(['fop_fresh_ok']);
+    expect(result.readyEligible).toBe(1);
+  });
+
+  it('walks past a not-due sent prefix to reach a due follow-up (ready>0/eligible=0 era)', async () => {
+    // Live post-Aug-22: ~997 sent. First hundreds are recent (<7d) so not due;
+    // Aug 21–22 cohort beyond a fixed sentLimit prefix must still be found.
+    const recentNotDue = Array.from({ length: 250 }, (_, i) =>
+      prospect({
+        id: `fop_recent_${i}`,
+        status: 'sent',
+        sequenceStep: 0,
+        lastEmailAt: new Date(Date.now() - 2 * 86_400_000).toISOString(),
+        email: `recent${i}@firm.co.uk`,
+        firmName: `Recent ${i}`,
+        priorityScore: 50,
+      }),
+    );
+    const dueFollowUp = prospect({
+      id: 'fop_due_fu',
+      status: 'sent',
+      sequenceStep: 0,
+      lastEmailAt: new Date(Date.now() - 10 * 86_400_000).toISOString(),
+      email: 'crime@duefu.co.uk',
+      firmName: 'Due Followup LLP',
+      priorityScore: 10,
+    });
+    mockReadyPile([], [...recentNotDue, dueFollowUp]);
+
+    const result = await selectOutreachCandidates({
+      campaignId: 'whatsapp_invite_v1',
+      readyLimit: 20,
+      sentLimit: 20,
+    });
+
+    expect(result.followUpEligible).toBe(1);
+    expect(result.candidates.map((c) => c.prospect.id)).toEqual(['fop_due_fu']);
+    expect(result.candidates[0]?.step).toBe(1);
+    expect(result.sentScanned).toBeGreaterThan(250);
   });
 });

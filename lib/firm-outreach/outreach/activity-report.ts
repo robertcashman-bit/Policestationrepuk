@@ -11,6 +11,7 @@ import {
 import { activeOutreachCampaignId, isActiveCampaignProspect, isActiveCampaignSend } from '../campaign-scope';
 import { excludedRowsForProspects, queueRowsForProspects } from './admin-actions';
 import { sortProspectsForSend } from '../enrichment/scorer';
+import { isSendableReadyProspect } from '../sendable-ready';
 import type {
   OutreachActivityReport,
   OutreachActivityRow,
@@ -307,12 +308,16 @@ export async function buildReadyProspectsView(
   limit = READY_TO_SEND_LIMIT,
 ): Promise<OutreachQueueRow[]> {
   const readyIds = await listProspectIdsByStatus('ready_to_send').then((ids) =>
-    ids.slice(0, limit),
+    ids.slice(0, Math.max(limit * 4, 500)),
   );
   const readyProspectsMap = await getProspectsByIds(readyIds);
+  // Only surface prospects the worker can actually send. Digests that listed
+  // parked/junk/stale ready rows as "sendable" contradicted eligible=0 reports.
   const readyProspects = sortProspectsForSend(
-    [...readyProspectsMap.values()].filter(isActiveCampaignProspect),
-  );
+    [...readyProspectsMap.values()].filter(
+      (p) => isActiveCampaignProspect(p) && isSendableReadyProspect(p),
+    ),
+  ).slice(0, limit);
   return queueRowsForProspects(readyProspects);
 }
 

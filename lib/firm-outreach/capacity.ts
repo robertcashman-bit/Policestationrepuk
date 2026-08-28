@@ -26,10 +26,8 @@ import {
   getGlobalResendQuotaRemaining,
   getHourlySendCount,
   getResendSendCount,
-  listProspectsByRecordStatus,
   utcHourBucket,
 } from './storage';
-import { isSendableReadyProspect } from './sendable-ready';
 import { isAgentCoverOutreachDisabled } from './site-config';
 import {
   type OutreachWorkspace,
@@ -105,16 +103,20 @@ export async function countEligibleUnsent(campaignId: string, scanLimit = 400): 
   if (campaignId === 'agent_cover_kent_v1' && isAgentCoverOutreachDisabled()) {
     return 0;
   }
-  const ready = await listProspectsByRecordStatus('ready_to_send', scanLimit, {
+  // Align with the worker: ready must be sendable *and* have a due next step,
+  // plus due follow-ups on sent rows. Counting raw ready (or parked leftovers)
+  // while ignoring follow-ups produced live Aug 26–27: digests "18 ready" /
+  // daily report eligible=0 / accepted=0.
+  const { selectOutreachCandidates } = await import('./outreach/candidate-selection');
+  const selection = await selectOutreachCandidates({
     campaignId,
-    maxIndexWalk: Math.max(scanLimit * 8, 800),
+    readyLimit: scanLimit,
+    sentLimit: scanLimit,
+    maxReadyScan: Math.max(scanLimit * 4, 400),
+    skipIndexedSendCheck: true,
+    excludeFirmCooldown: false,
   });
-  let n = 0;
-  for (const p of ready) {
-    if (p.campaignId !== campaignId) continue;
-    if (isSendableReadyProspect(p)) n += 1;
-  }
-  return n;
+  return selection.readyEligible + selection.followUpEligible;
 }
 
 export async function getOutreachCapacity(

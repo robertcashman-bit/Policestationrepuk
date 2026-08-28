@@ -282,6 +282,11 @@ export async function buildConsolidatedDailyReport(
         `${section.label}: eligible recipients exist but system cannot send (${section.zeroReason?.code ?? section.status})`,
       );
     }
+    // Never claim "no action required" when status is NO_ELIGIBLE_LEADS but the
+    // period accepted nothing while capacity still reports inventory, or when
+    // autoheal trigger_outreach_batch created/accepted 0 despite a prior ready
+    // digest — leftover ready ≠ truly empty (live Aug 26–27).
+    actionRequired.push(...repukReadyEligibleContradictionActions(section));
     if (
       section.status === 'DEGRADED' &&
       section.capacity.eligibleUnsent >= 20 &&
@@ -318,4 +323,27 @@ export async function buildConsolidatedDailyReport(
     },
     actionRequired: uniqueActions,
   };
+}
+
+/**
+ * Detect the live Aug 26–27 failure mode: digests showed ready>0 while the
+ * daily report claimed NO_ELIGIBLE_LEADS / "operating normally" with accepted=0.
+ */
+export function repukReadyEligibleContradictionActions(section: {
+  workspace: string;
+  status: string;
+  emailsAcceptedByProvider: number;
+  autohealRepairs: string[];
+  label?: string;
+}): string[] {
+  if (section.workspace !== 'repuk') return [];
+  if (section.status !== 'NO_ELIGIBLE_LEADS') return [];
+  if (section.emailsAcceptedByProvider !== 0) return [];
+  if (!section.autohealRepairs.some((r) => /trigger_outreach_batch:accepted=0/.test(r))) {
+    return [];
+  }
+  const label = section.label ?? 'POLICESTATIONREPUK.ORG';
+  return [
+    `${label}: ready/follow-up inventory and worker disagree (accepted=0 with NO_ELIGIBLE_LEADS) — investigate selection vs digest ready count`,
+  ];
 }

@@ -174,7 +174,25 @@ async function runSiteBufferScheduler(adapter, options = {}) {
         const statsMap = await (0, storage_1.getSlugEngagementStats)(kv, adapter.siteId);
         const feedCooldown = (0, scheduler_core_1.effectiveCooldownDays)(rawPosts.length, targetCount, envConfig.cooldownDays);
         const excludeKeys = (0, scheduler_core_1.slugsInCooldownForFeed)(recentEntries, adapter.siteId, feedCooldown, now);
-        const rng = (0, scheduler_core_1.mulberry32)((0, scheduler_core_1.hashSeed)(`buffer-engine:${adapter.siteId}:${localDate}`));
+        // Gap-fill / force top-ups: exclude slugs already on today's run. Same-day
+        // RNG was re-picking the first bandit winners → idempotent skips → Buffer
+        // count stuck (live: RepUK 4/5, gapFilled=0).
+        const todayRun = await (0, storage_1.getSchedulerRunForDate)(kv, adapter.siteId, localDate);
+        if (todayRun?.slugs?.length) {
+            for (const slug of todayRun.slugs) {
+                excludeKeys.add((0, scheduler_core_1.postCooldownKey)(adapter.siteId, slug));
+                // Also exclude under any feedId the slug may carry.
+                for (const feedId of todayRun.feedIds ?? []) {
+                    if (feedId)
+                        excludeKeys.add((0, scheduler_core_1.postCooldownKey)(feedId, slug));
+                }
+            }
+        }
+        // Vary seed on gap-fill so we do not deterministically re-pick the same head.
+        const seedSuffix = options.limit && options.limit > 0 && todayRun
+            ? `:gap:${todayRun.postIds.length}`
+            : '';
+        const rng = (0, scheduler_core_1.mulberry32)((0, scheduler_core_1.hashSeed)(`buffer-engine:${adapter.siteId}:${localDate}${seedSuffix}`));
         const poolCoverage = (0, bandit_1.computePoolCoverage)(rawPosts, statsMap);
         let picked = (0, bandit_1.pickBanditSchedulablePosts)(rawPosts, {
             count: Math.min(targetCount, rawPosts.length),

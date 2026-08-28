@@ -105,13 +105,15 @@ export async function repairBufferSchedule(options?: {
   });
 
   // Only unbounded force-schedule when Buffer has nothing for today.
-  // Partial days with gapFilled=0 (idempotent shortfall) must not get a full extra quota.
-  if (!verify.ok && gapFilled === 0 && verify.scheduledCount === 0) {
-    // Missed scheduler run — try internal scheduler once (not public HTTP).
+  // Partial shortfalls: retry gap-fill once more with force after a failed
+  // idempotent pass (live: 4/5 stuck because gapFilled=0 and this branch
+  // previously required scheduledCount===0).
+  if (!verify.ok && gapFilled === 0) {
     const schedule = await runRepukBufferScheduler({
       now,
       force: true,
       respectCurrentTime: true,
+      limit: Math.max(1, verify.requiredCount - verify.scheduledCount),
     });
     repairs.push({
       id: 'force-schedule-today',
@@ -121,7 +123,7 @@ export async function repairBufferSchedule(options?: {
       verified: Boolean(schedule.ok),
       dryRun: false,
       summary: schedule.ok
-        ? `Scheduler recovered (${schedule.posts?.length ?? 0} posts)`
+        ? `Scheduler recovered (${schedule.posts?.length ?? 0} posts; was ${verify.scheduledCount}/${verify.requiredCount})`
         : `Scheduler recovery failed: ${schedule.reason ?? 'unknown'}`,
       error: schedule.ok ? undefined : schedule.reason,
     });

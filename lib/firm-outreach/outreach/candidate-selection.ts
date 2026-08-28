@@ -11,11 +11,11 @@ import {
 } from '../email-jobs/storage';
 import { isCampaignProspect } from '../campaign-scope';
 import { normalizeEmail } from '../normalize';
+import { isSendableReadyProspect } from '../sendable-ready';
 import {
   emailsWithIndexedSendsForCampaign,
   getProspectsByIds,
   listProspectIdsByStatus,
-  listProspectsByRecordStatus,
   listProspectsForFirmKey,
 } from '../storage';
 import type { FirmProspect } from '../types';
@@ -24,7 +24,7 @@ export { nextOutreachStep, sequenceStepOf };
 
 const DEFAULT_READY_SCAN = 800;
 const DEFAULT_SENT_SCAN = 400;
-/** Chunk size when walking the shared ready status index. */
+/** Chunk size when walking the shared ready/sent status indexes. */
 const READY_WALK_CHUNK = 100;
 /**
  * Max stale-ready rows to *collect* for post-send reconcile.
@@ -176,6 +176,12 @@ export async function selectOutreachCandidates(opts: {
       if (!p || !isCampaignProspect(p, opts.campaignId) || p.status !== 'ready_to_send') {
         continue;
       }
+      // Parked / junk leftovers stay on the ready index and inflate digests —
+      // never treat them as enqueueable (live Aug 26–27: ready>0 / eligible=0).
+      if (!isSendableReadyProspect(p)) {
+        readyScanned += 1;
+        continue;
+      }
       batch.push(p);
       readyScanned += 1;
     }
@@ -202,7 +208,17 @@ export async function selectOutreachCandidates(opts: {
     for (const prospect of batch) {
       if (readyEligible.length >= readyLimit) break;
       const step = nextOutreachStep(prospect, nowMs);
-      if (step === null) continue;
+      if (step === null) {
+        // Stale ready+lastEmailAt not yet due — reconcile off ready index later.
+        if (prospect.lastEmailAt && staleReadyToReconcile.length < STALE_READY_RECONCILE_CAP) {
+          staleReadyToReconcile.push({
+            prospect,
+            reason: 'indexed_send',
+            lastEmailAt: prospect.lastEmailAt,
+          });
+        }
+        continue;
+      }
       const email = prospect.email ? normalizeEmail(prospect.email) : '';
       if (step === 0 && email && indexedSends.has(email)) {
         skippedIndexedSend += 1;
@@ -227,20 +243,56 @@ export async function selectOutreachCandidates(opts: {
     }
   }
 
-  const sent = await listProspectsByRecordStatus('sent', sentLimit, {
-    campaignId: opts.campaignId,
-  });
+  // Walk the sent index until we have `sentLimit` *due* follow-ups (or exhaust /
+  // deadline). A fixed first-N prefix left the Aug 21–22 cohort unreachable once
+  // ~1k sent rows accumulated (recent not-due rows clogged the head).
   const followUpEligible: Array<{ prospect: FirmProspect; step: number }> = [];
   const staleFollowUpsToReconcile: Array<
     StaleReadyReconcile & { advanceToStep: number }
   > = [];
+  let sentScanned = 0;
 
-  // Group due follow-ups by step so we can batch idempotency lookups.
-  // Without this, terminal step-N jobs still look "eligible" (live Aug 26:
-  // followUpEligible=16 / wouldSend=0) while sequenceStep was never advanced.
-  const dueByStep = new Map<number, FirmProspect[]>();
-  if (!skipDeepChecks) {
-    for (const prospect of sent) {
+  const sentIds = await listProspectIdsByStatus('sent');
+  const statusSentCap = skipDeepChecks
+    ? Math.max(1, opts.maxReadyScan ?? sentLimit * 4)
+    : Number.POSITIVE_INFINITY;
+
+  for (
+    let i = 0;
+    i < sentIds.length && followUpEligible.length < sentLimit;
+    i += READY_WALK_CHUNK
+  ) {
+    if (Date.now() >= deadlineMs) {
+      selectionTimedOut = true;
+      break;
+    }
+    if (sentScanned >= statusSentCap) break;
+
+    const slice = sentIds.slice(i, i + READY_WALK_CHUNK);
+    const map = await getProspectsByIds(slice);
+    const batch: FirmProspect[] = [];
+    for (const id of slice) {
+      if (sentScanned >= statusSentCap) break;
+      const p = map.get(id);
+      if (!p || !isCampaignProspect(p, opts.campaignId) || p.status !== 'sent') continue;
+      batch.push(p);
+      sentScanned += 1;
+    }
+    if (batch.length === 0) continue;
+
+    if (skipDeepChecks) {
+      for (const prospect of batch) {
+        if (followUpEligible.length >= sentLimit) break;
+        const step = nextOutreachStep(prospect, nowMs);
+        if (step === null) continue;
+        followUpEligible.push({ prospect, step });
+      }
+      continue;
+    }
+
+    // Group this chunk's due follow-ups by step for batched idempotency lookups.
+    const dueByStep = new Map<number, FirmProspect[]>();
+    for (const prospect of batch) {
       const step = nextOutreachStep(prospect, nowMs);
       if (step === null) continue;
       const list = dueByStep.get(step) ?? [];
@@ -248,6 +300,7 @@ export async function selectOutreachCandidates(opts: {
       dueByStep.set(step, list);
     }
     for (const [step, prospects] of dueByStep) {
+      if (followUpEligible.length >= sentLimit) break;
       const emails = prospects
         .map((p) => p.email)
         .filter((email): email is string => Boolean(email));
@@ -256,6 +309,7 @@ export async function selectOutreachCandidates(opts: {
           ? await emailsWithIdempotentJobsForCampaign(emails, opts.campaignId, step)
           : new Map();
       for (const prospect of prospects) {
+        if (followUpEligible.length >= sentLimit) break;
         const email = prospect.email ? normalizeEmail(prospect.email) : '';
         const jobHit = email ? jobs.get(email) : undefined;
         if (jobHit) {
@@ -272,12 +326,6 @@ export async function selectOutreachCandidates(opts: {
         }
         followUpEligible.push({ prospect, step });
       }
-    }
-  } else {
-    for (const prospect of sent) {
-      const step = nextOutreachStep(prospect, nowMs);
-      if (step === null) continue;
-      followUpEligible.push({ prospect, step });
     }
   }
 
@@ -307,7 +355,7 @@ export async function selectOutreachCandidates(opts: {
   return {
     candidates,
     readyScanned,
-    sentScanned: sent.length,
+    sentScanned,
     readyEligible: readyEligible.length,
     followUpEligible: followUpEligible.length,
     skippedIndexedSend,

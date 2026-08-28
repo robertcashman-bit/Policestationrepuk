@@ -293,6 +293,32 @@ describe('runSiteBufferScheduler limit budget', () => {
     expect(run?.postIds.slice(0, 4)).toEqual(first.posts!.map((p) => p.postId));
     expect(run?.postIds[4]).toBe(second.posts![0]!.postId);
   });
+
+  it('gap-fill picks a slug not already on today (avoids 4/5 idempotent stall)', async () => {
+    // Live Aug 27: same-day bandit seed re-picked scheduled slugs → Buffer stuck at 4/5.
+    const kv = makeKV();
+    const adapter = makeAdapter(kv, makePosts(20));
+    const now = new Date('2026-08-27T10:00:00Z');
+
+    const first = await runSiteBufferScheduler(adapter, { now, force: true, limit: 4 });
+    expect(first.posts).toHaveLength(4);
+    const firstSlugs = new Set(first.posts!.map((p) => p.slug));
+
+    const second = await runSiteBufferScheduler(adapter, {
+      now,
+      force: true,
+      respectCurrentTime: true,
+      limit: 1,
+    });
+    expect(second.ok).toBe(true);
+    expect(second.posts).toHaveLength(1);
+    expect(firstSlugs.has(second.posts![0]!.slug)).toBe(false);
+
+    const { getSchedulerRunForDate } = await import('./storage');
+    const run = await getSchedulerRunForDate(kv, 'testsite', first.date!);
+    expect(run?.postIds).toHaveLength(5);
+    expect(new Set(run?.slugs).size).toBe(5);
+  });
 });
 
 describe('runSiteBufferSelfTest', () => {

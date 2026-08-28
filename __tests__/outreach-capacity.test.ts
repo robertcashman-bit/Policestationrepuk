@@ -8,7 +8,7 @@ const mockDailyCount = vi.fn();
 const mockResendCount = vi.fn();
 const mockQuotaRemaining = vi.fn();
 const mockHourly = vi.fn();
-const mockListReady = vi.fn();
+const mockSelect = vi.fn();
 const mockSendAllowed = vi.fn();
 
 vi.mock('@/lib/firm-outreach/email-jobs/storage', () => ({
@@ -23,8 +23,11 @@ vi.mock('@/lib/firm-outreach/storage', () => ({
   getResendSendCount: (...a: unknown[]) => mockResendCount(...a),
   getGlobalResendQuotaRemaining: (...a: unknown[]) => mockQuotaRemaining(...a),
   getHourlySendCount: (...a: unknown[]) => mockHourly(...a),
-  listProspectsByRecordStatus: (...a: unknown[]) => mockListReady(...a),
   utcHourBucket: () => '2026-08-08T12',
+}));
+
+vi.mock('@/lib/firm-outreach/outreach/candidate-selection', () => ({
+  selectOutreachCandidates: (...a: unknown[]) => mockSelect(...a),
 }));
 
 vi.mock('@/lib/firm-outreach/pause-state', () => ({
@@ -32,6 +35,23 @@ vi.mock('@/lib/firm-outreach/pause-state', () => ({
 }));
 
 import { getOutreachCapacity } from '@/lib/firm-outreach/capacity';
+
+function emptySelection(over: { readyEligible?: number; followUpEligible?: number } = {}) {
+  return {
+    candidates: [],
+    readyScanned: 0,
+    sentScanned: 0,
+    readyEligible: over.readyEligible ?? 0,
+    followUpEligible: over.followUpEligible ?? 0,
+    skippedIndexedSend: 0,
+    skippedIdempotentJob: 0,
+    firmCooldownSkipped: 0,
+    staleReadyToReconcile: [],
+    staleFollowUpsToReconcile: [],
+    readyIndexWalked: 0,
+    selectionTimedOut: false,
+  };
+}
 
 describe('getOutreachCapacity', () => {
   beforeEach(() => {
@@ -53,21 +73,7 @@ describe('getOutreachCapacity', () => {
     mockResendCount.mockResolvedValue(10);
     mockQuotaRemaining.mockResolvedValue(80);
     mockHourly.mockResolvedValue(0);
-    mockListReady.mockResolvedValue([
-      {
-        id: '1',
-        campaignId: 'whatsapp_invite_v1',
-        status: 'ready_to_send',
-        email: 'crime@alpha.co.uk',
-        nextEligibleAt: undefined,
-      },
-      {
-        id: '2',
-        campaignId: 'whatsapp_invite_v1',
-        status: 'ready_to_send',
-        email: 'duty@beta.co.uk',
-      },
-    ]);
+    mockSelect.mockResolvedValue(emptySelection({ readyEligible: 2 }));
   });
 
   it('reports effective capacity from provider remaining and eligible', async () => {
@@ -96,14 +102,14 @@ describe('getOutreachCapacity', () => {
   });
 
   it('detects no eligible leads', async () => {
-    mockListReady.mockResolvedValue([]);
+    mockSelect.mockResolvedValue(emptySelection());
     mockCountJobs.mockResolvedValue({ pending: 0, retry_scheduled: 0 });
     const cap = await getOutreachCapacity('repuk');
     expect(cap.limitingFactor).toBe('no_eligible_leads');
   });
 
   it('marks PSA agent-cover capacity as permanently sending_disabled', async () => {
-    mockListReady.mockResolvedValue([]);
+    mockSelect.mockResolvedValue(emptySelection());
     mockCountJobs.mockResolvedValue({ pending: 0, retry_scheduled: 0 });
     const psa = await getOutreachCapacity('psa');
     expect(psa.sendingEnabled).toBe(false);
@@ -113,7 +119,7 @@ describe('getOutreachCapacity', () => {
   });
 
   it('counts pending jobs only for the requested workspace campaign', async () => {
-    mockListReady.mockResolvedValue([]);
+    mockSelect.mockResolvedValue(emptySelection());
     mockListJobIds.mockImplementation(async (status: string) => {
       if (status === 'pending') return ['job_repuk', 'job_psa'];
       return [];
@@ -147,11 +153,17 @@ describe('getOutreachCapacity', () => {
     expect(cap.retryScheduledJobs).toBe(0);
   });
 
-  it('does not scan the ready index for permanently-disabled PSA capacity', async () => {
-    mockListReady.mockClear();
+  it('does not scan eligibility for permanently-disabled PSA capacity', async () => {
+    mockSelect.mockClear();
     const psa = await getOutreachCapacity('psa', { eligibleScanLimit: 400 });
-    expect(mockListReady).not.toHaveBeenCalled();
+    expect(mockSelect).not.toHaveBeenCalled();
     expect(psa.eligibleUnsent).toBe(0);
     expect(psa.limitingFactor).toBe('sending_disabled');
+  });
+
+  it('sums ready + due follow-ups into eligibleUnsent', async () => {
+    mockSelect.mockResolvedValue(emptySelection({ readyEligible: 3, followUpEligible: 9 }));
+    const cap = await getOutreachCapacity('repuk');
+    expect(cap.eligibleUnsent).toBe(12);
   });
 });

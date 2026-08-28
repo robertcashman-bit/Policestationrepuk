@@ -5,6 +5,8 @@ import { sendOutreachEmail } from '@/lib/firm-outreach/outreach/send';
 import {
   AGENT_COVER_OUTREACH_PERMANENTLY_DISABLED,
   FIRM_OUTREACH_CAMPAIGN_ID,
+  FIRM_OUTREACH_EMAIL_DISABLED_REASON,
+  FIRM_OUTREACH_EMAIL_PERMANENTLY_DISABLED,
   isAgentCoverOutreachDisabled,
   isOutreachCampaignSendable,
   SENDABLE_OUTREACH_CAMPAIGN_IDS,
@@ -29,13 +31,14 @@ function sampleProspect(campaignId: string): FirmProspect {
   };
 }
 
-describe('PSA agent-cover permanently disabled', () => {
-  it('keeps the permanent disable flag and RepUK-only sendable list', () => {
+describe('PSA agent-cover permanently disabled (and RepUK email off)', () => {
+  it('keeps PSA disable flag; no campaign is sendable while email product is off', () => {
     expect(AGENT_COVER_OUTREACH_PERMANENTLY_DISABLED).toBe(true);
+    expect(FIRM_OUTREACH_EMAIL_PERMANENTLY_DISABLED).toBe(true);
     expect(isAgentCoverOutreachDisabled()).toBe(true);
     expect(isOutreachCampaignSendable(AGENT_COVER_KENT_CAMPAIGN_ID)).toBe(false);
-    expect(isOutreachCampaignSendable(FIRM_OUTREACH_CAMPAIGN_ID)).toBe(true);
-    expect([...SENDABLE_OUTREACH_CAMPAIGN_IDS]).toEqual([FIRM_OUTREACH_CAMPAIGN_ID]);
+    expect(isOutreachCampaignSendable(FIRM_OUTREACH_CAMPAIGN_ID)).toBe(false);
+    expect([...SENDABLE_OUTREACH_CAMPAIGN_IDS]).toEqual([]);
   });
 
   it('blocks provider send for agent_cover prospects', async () => {
@@ -44,7 +47,7 @@ describe('PSA agent-cover permanently disabled', () => {
       step: 1,
     });
     expect(result.ok).toBe(false);
-    expect(result.error).toBe('agent_cover_outreach_permanently_disabled');
+    expect(result.error).toBe(FIRM_OUTREACH_EMAIL_DISABLED_REASON);
     expect(result.subject).toContain('Police Station Agent');
   });
 
@@ -55,15 +58,16 @@ describe('PSA agent-cover permanently disabled', () => {
       false,
     );
     expect(eligibility.ok).toBe(false);
-    expect(eligibility.reason).toBe('agent_cover_outreach_permanently_disabled');
+    expect(eligibility.reason).toBe(FIRM_OUTREACH_EMAIL_DISABLED_REASON);
   });
 
-  it('still allows admin eligibility checks for RepUK WhatsApp prospects', () => {
+  it('also blocks RepUK WhatsApp prospects while email product is off', () => {
     const eligibility = canManualSendProspect(
       sampleProspect(FIRM_OUTREACH_CAMPAIGN_ID),
       false,
       false,
     );
-    expect(eligibility.ok).toBe(true);
+    expect(eligibility.ok).toBe(false);
+    expect(eligibility.reason).toBe(FIRM_OUTREACH_EMAIL_DISABLED_REASON);
   });
 });

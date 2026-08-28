@@ -1,30 +1,23 @@
 import { NextResponse } from 'next/server';
 import { isOutreachBootstrapAuthorized } from '@/lib/cron-auth';
-import { cronSendBatchSize } from '@/lib/firm-outreach/constants';
-import { runOutreachWorkerTick } from '@/lib/firm-outreach/outreach/run-worker';
+import { FIRM_OUTREACH_EMAIL_DISABLED_REASON } from '@/lib/firm-outreach/site-config';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-export const maxDuration = 300;
+export const maxDuration = 30;
 
-/**
- * Frequent outreach worker tick (job-first drain).
- * No routine digest/status emails — reporting is the 07:00 London consolidated report.
- */
+/** Send worker cron retained for manual hits but never sends. */
 export async function GET(request: Request) {
   if (!isOutreachBootstrapAuthorized(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  const url = new URL(request.url);
-  const paramLimit = Number(url.searchParams.get('limit') || 0);
-  const sendLimit = paramLimit > 0 ? paramLimit : cronSendBatchSize();
-  const result = await runOutreachWorkerTick({
-    limit: sendLimit,
-    maxElapsedMs: 280_000,
-  });
   return NextResponse.json({
-    mode: 'outreach-worker',
-    ...result,
+    ok: true,
+    skipped: true,
+    reason: FIRM_OUTREACH_EMAIL_DISABLED_REASON,
+    mode: 'permanently_disabled',
+    accepted: 0,
+    claimed: 0,
+    jobsCreated: 0,
   });
 }

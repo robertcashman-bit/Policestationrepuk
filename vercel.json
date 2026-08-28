@@ -148,22 +148,6 @@
     {
       "path": "/api/cron/firm-outreach-psa-sync",
       "schedule": "45 15 * * *"
-    },
-    {
-      "path": "/api/cron/firm-outreach-send",
-      "schedule": "*/15 * * * *"
-    },
-    {
-      "path": "/api/cron/firm-outreach-autoheal",
-      "schedule": "5,20,35,50 * * * *"
-    },
-    {
-      "path": "/api/cron/firm-outreach-daily-report",
-      "schedule": "0 6,7 * * *"
-    },
-    {
-      "path": "/api/cron/firm-outreach-digest",
-      "schedule": "0 17 * * *"
     }
   ]
 }

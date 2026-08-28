@@ -227,15 +227,10 @@ describe('runFirmOutreachPipeline dual-campaign send', () => {
       sendLimit: 25,
     });
 
-    expect(mockRunFirmOutreach).toHaveBeenCalled();
-    const campaignIds = mockRunFirmOutreach.mock.calls.map(
-      (c) => (c[0] as { campaignId?: string }).campaignId,
-    );
-    expect(campaignIds).toContain(FIRM_OUTREACH_CAMPAIGN_ID);
-    expect(campaignIds).not.toContain(AGENT_COVER_KENT_CAMPAIGN_ID);
-    expect([...SENDABLE_OUTREACH_CAMPAIGN_IDS]).toEqual([FIRM_OUTREACH_CAMPAIGN_ID]);
+    expect(mockRunFirmOutreach).not.toHaveBeenCalled();
+    expect([...SENDABLE_OUTREACH_CAMPAIGN_IDS]).toEqual([]);
 
     expect(result.agentCoverSend).toBeUndefined();
-    expect(result.send.sent).toBe(20);
+    expect(result.send.sent ?? 0).toBe(0);
   });
 });

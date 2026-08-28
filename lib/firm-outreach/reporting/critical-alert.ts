@@ -1,12 +1,13 @@
 /**
  * Immediate alerts ONLY for genuinely critical failures.
- * Routine zero-send / single timeouts / cap exhaustion go to the 07:00 report.
+ * Permanently disabled while firm outreach email product is off.
  */
 import { Resend } from 'resend';
 import { claimKey } from '@/lib/kv-atomic';
 import type { AutohealFault } from '../autoheal/detect';
 import type { OutreachCapacity } from '../capacity';
 import { operatorNotifyFromAddress } from '../outreach/from-address';
+import { isFirmOutreachOperatorMailDisabled } from '../site-config';
 import { outreachAdminEmail } from './send-daily-report';
 
 const CRITICAL_CODES = new Set<AutohealFault['code']>([
@@ -42,6 +43,8 @@ export async function maybeSendCriticalOutreachAlert(opts: {
   capacities: { psa: OutreachCapacity; repuk: OutreachCapacity };
   runId: string;
 }): Promise<boolean> {
+  if (isFirmOutreachOperatorMailDisabled()) return false;
+
   const critical = opts.faults.filter(isCriticalFault);
   if (critical.length === 0) return false;
 

@@ -58,31 +58,24 @@ function excludedProspect(overrides: Partial<FirmProspect> = {}): FirmProspect {
 }
 
 describe('canManualSendProspect', () => {
-  it('allows send when email present and not suppressed', async () => {
+  it('blocks all campaigns while firm outreach email is permanently disabled', async () => {
     const { canManualSendProspect } = await import('@/lib/firm-outreach/outreach/admin-actions');
     const result = canManualSendProspect(excludedProspect(), false);
-    expect(result.ok).toBe(true);
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe('firm_outreach_email_permanently_disabled');
   });
 
-  it('blocks suppressed emails', async () => {
+  it('blocks even when not suppressed / has email', async () => {
     const { canManualSendProspect } = await import('@/lib/firm-outreach/outreach/admin-actions');
-    const result = canManualSendProspect(excludedProspect(), true);
-    expect(result.ok).toBe(false);
-    expect(result.reason).toBe('suppressed');
-  });
-
-  it('blocks prospects without email', async () => {
-    const { canManualSendProspect } = await import('@/lib/firm-outreach/outreach/admin-actions');
-    const result = canManualSendProspect(excludedProspect({ email: undefined }), false);
-    expect(result.ok).toBe(false);
-    expect(result.reason).toBe('no_email');
-  });
-
-  it('blocks duplicate initial sends to the same email', async () => {
-    const { canManualSendProspect } = await import('@/lib/firm-outreach/outreach/admin-actions');
-    const result = canManualSendProspect(excludedProspect(), false, true);
-    expect(result.ok).toBe(false);
-    expect(result.reason).toBe('duplicate_email');
+    expect(canManualSendProspect(excludedProspect(), true).reason).toBe(
+      'firm_outreach_email_permanently_disabled',
+    );
+    expect(canManualSendProspect(excludedProspect({ email: undefined }), false).reason).toBe(
+      'firm_outreach_email_permanently_disabled',
+    );
+    expect(canManualSendProspect(excludedProspect(), false, true).reason).toBe(
+      'firm_outreach_email_permanently_disabled',
+    );
   });
 });
 
@@ -144,55 +137,27 @@ describe('manualSendProspect', () => {
     });
   });
 
-  it('dry run does not persist send or update prospect', async () => {
+  it('blocks all manual sends while email product is permanently disabled', async () => {
     mockGetProspect.mockResolvedValue(excludedProspect());
 
     const { manualSendProspect } = await import('@/lib/firm-outreach/outreach/admin-actions');
     const result = await manualSendProspect('fop_ex1', { dryRun: true });
 
-    expect(result.ok).toBe(true);
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe('firm_outreach_email_permanently_disabled');
+    expect(mockSendOutreachEmail).not.toHaveBeenCalled();
     expect(mockSaveProspect).not.toHaveBeenCalled();
     expect(mockSaveSend).not.toHaveBeenCalled();
   });
 
-  it('sends and marks prospect as sent', async () => {
+  it('blocks live manual send without calling provider', async () => {
     mockGetProspect.mockResolvedValue(excludedProspect());
-
-    const { manualSendProspect } = await import('@/lib/firm-outreach/outreach/admin-actions');
-    const result = await manualSendProspect('fop_ex1');
-
-    expect(result.ok).toBe(true);
-    expect(mockSendOutreachEmail).toHaveBeenCalledWith(
-      expect.objectContaining({ step: 0, dryRun: false }),
-    );
-    expect(mockSaveProspect).toHaveBeenCalledWith(
-      expect.objectContaining({ status: 'sent', sequenceStep: 0 }),
-      'excluded',
-    );
-    expect(mockSaveSend).toHaveBeenCalled();
-  });
-
-  it('blocks suppressed recipients', async () => {
-    mockGetProspect.mockResolvedValue(excludedProspect());
-    mockIsSuppressed.mockResolvedValue(true);
 
     const { manualSendProspect } = await import('@/lib/firm-outreach/outreach/admin-actions');
     const result = await manualSendProspect('fop_ex1');
 
     expect(result.ok).toBe(false);
-    expect(result.error).toBe('suppressed');
-    expect(mockSendOutreachEmail).not.toHaveBeenCalled();
-  });
-
-  it('blocks duplicate initial sends to the same email address', async () => {
-    mockGetProspect.mockResolvedValue(excludedProspect());
-    mockIsDuplicateInitialSend.mockResolvedValue(true);
-
-    const { manualSendProspect } = await import('@/lib/firm-outreach/outreach/admin-actions');
-    const result = await manualSendProspect('fop_ex1');
-
-    expect(result.ok).toBe(false);
-    expect(result.error).toBe('duplicate_email');
+    expect(result.error).toBe('firm_outreach_email_permanently_disabled');
     expect(mockSendOutreachEmail).not.toHaveBeenCalled();
   });
 });
@@ -261,9 +226,12 @@ describe('bulkSendProspects', () => {
     const { bulkSendProspects } = await import('@/lib/firm-outreach/outreach/admin-actions');
     const result = await bulkSendProspects(['fop_ex1'], { dryRun: true });
 
-    expect(result.sent).toBe(1);
+    expect(result.sent).toBe(0);
+    expect(result.errors).toBe(1);
+    expect(result.results[0].error).toBe('firm_outreach_email_permanently_disabled');
     expect(mockIncrementDailySendCount).not.toHaveBeenCalled();
     expect(mockSaveSend).not.toHaveBeenCalled();
+    expect(mockSendOutreachEmail).not.toHaveBeenCalled();
   });
 });
 
@@ -298,17 +266,9 @@ describe('POST /api/admin/firm-outreach restore and send', () => {
     vi.clearAllMocks();
   });
 
-  it('restore_excluded returns prospect when authorised', async () => {
-    const prospect = excludedProspect({ status: 'ready_to_send', excludedReason: undefined });
+  it('returns 410 permanently disabled when authorised', async () => {
     vi.doMock('@/lib/admin-auth', () => ({
       requireAdmin: vi.fn().mockResolvedValue({ ok: true, email: 'admin@test.co.uk' }),
-    }));
-    vi.doMock('@/lib/firm-outreach/outreach/admin-actions', () => ({
-      restoreExcludedProspect: vi.fn().mockResolvedValue({ ok: true, prospect }),
-      manualSendProspect: vi.fn(),
-      excludeProspect: vi.fn(),
-      bulkSendProspects: vi.fn(),
-      bulkExcludeProspects: vi.fn(),
     }));
 
     const { POST } = await import('@/app/api/admin/firm-outreach/route');
@@ -321,21 +281,14 @@ describe('POST /api/admin/firm-outreach restore and send', () => {
     );
     const json = await res.json();
 
-    expect(res.status).toBe(200);
-    expect(json.ok).toBe(true);
-    expect(json.prospect.status).toBe('ready_to_send');
+    expect(res.status).toBe(410);
+    expect(json.disabled).toBe(true);
+    expect(json.reason).toBe('firm_outreach_email_permanently_disabled');
   });
 
-  it('manual_send returns 409 when suppressed', async () => {
+  it('manual_send also returns 410', async () => {
     vi.doMock('@/lib/admin-auth', () => ({
       requireAdmin: vi.fn().mockResolvedValue({ ok: true, email: 'admin@test.co.uk' }),
-    }));
-    vi.doMock('@/lib/firm-outreach/outreach/admin-actions', () => ({
-      restoreExcludedProspect: vi.fn(),
-      manualSendProspect: vi.fn().mockResolvedValue({ ok: false, error: 'suppressed' }),
-      excludeProspect: vi.fn(),
-      bulkSendProspects: vi.fn(),
-      bulkExcludeProspects: vi.fn(),
     }));
 
     const { POST } = await import('@/app/api/admin/firm-outreach/route');
@@ -347,6 +300,6 @@ describe('POST /api/admin/firm-outreach restore and send', () => {
       }),
     );
 
-    expect(res.status).toBe(409);
+    expect(res.status).toBe(410);
   });
 });

@@ -156,97 +156,23 @@ describe('sendConsolidatedDailyReport', () => {
     mockResendSend.mockResolvedValue({ data: { id: 're_daily_1' } });
   });
 
-  it('skips outside 07:00 London unless forced', async () => {
-    const result = await sendConsolidatedDailyReport({
-      now: new Date('2026-01-15T12:00:00.000Z'),
-    });
-    expect(result.skipped).toBe(true);
-    expect(result.reason).toBe('not_0700_london');
-    expect(mockResendSend).not.toHaveBeenCalled();
-  });
-
-  it('scenario 1: 10 successful sends reflected in subject + send', async () => {
-    mockBuild.mockResolvedValue(
-      sampleReport({
-        totals: {
-          eligible: 10,
-          attempted: 10,
-          accepted: 10,
-          delivered: 10,
-          failed: 0,
-          retrying: 0,
-          suppressed: 0,
-          overallStatus: 'HEALTHY',
-        },
-      }),
+  it('permanently skips without Resend (email product off)', async () => {
+    const { FIRM_OUTREACH_EMAIL_DISABLED_REASON } = await import(
+      '@/lib/firm-outreach/site-config'
     );
     const result = await sendConsolidatedDailyReport({
       now: new Date('2026-01-15T07:05:00.000Z'),
       force: true,
     });
     expect(result.ok).toBe(true);
-    expect(result.providerMessageId).toBe('re_daily_1');
-    expect(mockResendSend).toHaveBeenCalledOnce();
-    const arg = mockResendSend.mock.calls[0][0];
-    expect(arg.subject).toContain('PoliceStationRepUK');
-    expect(arg.subject).not.toMatch(/PoliceStationAgent \+/);
-    expect(arg.html).toContain('POLICESTATIONREPUK');
-    expect(arg.html).toContain('POLICESTATIONAGENT.COM');
-    // RepUK section must appear before PSA in the HTML body.
-    expect(arg.html.indexOf('POLICESTATIONREPUK.ORG')).toBeLessThan(
-      arg.html.indexOf('POLICESTATIONAGENT.COM'),
-    );
-  });
-
-  it('scenario 13: second trigger is idempotent', async () => {
-    mockGetRun.mockResolvedValue({
-      emailStatus: 'sent',
-      providerMessageId: 're_daily_1',
-      totalAcceptedCount: 10,
-    });
-    const result = await sendConsolidatedDailyReport({
-      now: new Date('2026-01-15T07:10:00.000Z'),
-      force: true,
-    });
-    expect(result.alreadySent).toBe(true);
+    expect(result.skipped).toBe(true);
+    expect(result.reason).toBe(FIRM_OUTREACH_EMAIL_DISABLED_REASON);
     expect(mockResendSend).not.toHaveBeenCalled();
+    expect(mockBuild).not.toHaveBeenCalled();
   });
 
-  it('scenario 12: failed send marks retrying and can retry same report', async () => {
-    mockResendSend.mockRejectedValueOnce(new Error('temporary'));
-    const fail = await sendConsolidatedDailyReport({
-      now: new Date('2026-01-15T07:05:00.000Z'),
-      force: true,
-    });
-    expect(fail.ok).toBe(false);
-    expect(mockMarkFailed).toHaveBeenCalled();
-
-    mockGetRun.mockResolvedValue({
-      id: 'drr_x',
-      emailStatus: 'retrying',
-      createdAt: '2026-01-15T07:05:00.000Z',
-      totalAcceptedCount: 10,
-    });
-    mockResendSend.mockResolvedValueOnce({ data: { id: 're_daily_retry' } });
-    const retry = await sendConsolidatedDailyReport({
-      now: new Date('2026-01-15T07:20:00.000Z'),
-      force: true,
-      retryFailed: true,
-    });
-    expect(retry.ok).toBe(true);
-    expect(retry.providerMessageId).toBe('re_daily_retry');
-  });
-
-  it('includes precise zero-send explanation for PSA', async () => {
+  it('formatDailyReportSubject still formats for historical reports', () => {
     const report = sampleReport();
     expect(formatDailyReportSubject(report)).toContain('2026-08-07');
-    const result = await sendConsolidatedDailyReport({
-      now: new Date('2026-01-15T07:05:00.000Z'),
-      force: true,
-    });
-    expect(result.ok).toBe(true);
-    const html = mockResendSend.mock.calls[0][0].html as string;
-    expect(html).toMatch(/0 emails accepted because there were no new eligible/);
-    expect(html).not.toMatch(/>0 emails sent</);
   });
 });

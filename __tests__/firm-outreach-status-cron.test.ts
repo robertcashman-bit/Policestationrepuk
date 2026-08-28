@@ -125,7 +125,8 @@ describe('firm-outreach-status cron route', () => {
     expect(json.config.requireApproval).toBe(true);
     expect(json.queue.readyToSend).toBe(3076);
     expect(json.queue.sentToday).toBe(3);
-    expect(json.queue.sendableReady).toBeGreaterThan(0);
+    // Email product permanently off — no campaign is sendable.
+    expect(json.queue.sendableReady).toBe(0);
   });
 
   it('keeps eligibility scans bounded so a large ready pile cannot 504', async () => {
@@ -136,25 +137,16 @@ describe('firm-outreach-status cron route', () => {
     );
     expect(res.status).toBe(200);
 
-    // Only RepUK is scanned — PSA permanently disabled must not walk the ready index.
-    expect(mockSelect).toHaveBeenCalledTimes(1);
-    expect(mockSelect).toHaveBeenCalledWith(
-      expect.objectContaining({
-        campaignId: 'whatsapp_invite_v1',
-        readyLimit: STATUS_ELIGIBILITY_READY_LIMIT,
-        sentLimit: STATUS_ELIGIBILITY_SENT_LIMIT,
-        maxReadyScan: STATUS_ELIGIBILITY_MAX_READY_SCAN,
-        excludeFirmCooldown: false,
-        skipIndexedSendCheck: true,
-      }),
-    );
+    // No campaign is sendable — skip eligibility walks entirely.
+    expect(mockSelect).not.toHaveBeenCalled();
     expect(STATUS_ELIGIBILITY_MAX_READY_SCAN).toBeLessThanOrEqual(200);
     expect(STATUS_ELIGIBILITY_READY_LIMIT).toBeLessThanOrEqual(50);
 
     const json = await res.json();
     expect(json.queue.eligibility.agent_cover_kent_v1.readyScanned).toBe(0);
     expect(json.queue.eligibility.agent_cover_kent_v1.readyEligible).toBe(0);
-    expect(json.queue.eligibility.whatsapp_invite_v1.readyEligible).toBe(8);
+    expect(json.queue.eligibility.whatsapp_invite_v1.readyScanned).toBe(0);
+    expect(json.queue.eligibility.whatsapp_invite_v1.readyEligible).toBe(0);
   });
 
   it('accepts outreach bootstrap secret header', async () => {

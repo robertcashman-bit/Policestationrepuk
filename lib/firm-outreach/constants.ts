@@ -1,4 +1,5 @@
 import { createOutreachEnvHelpers } from '@robertcashman/firm-outreach-core';
+import { isFirmOutreachEmailPermanentlyDisabled } from './site-config';
 
 export { FIRM_OUTREACH_UA, FIRM_OUTREACH_CAMPAIGN_ID } from './site-config';
 
@@ -24,7 +25,11 @@ const env = createOutreachEnvHelpers({
 });
 
 export const outreachEnabled = env.outreachEnabled;
-export const outreachSendEnabled = env.outreachSendEnabled;
+/** Hard-off while firm outreach email is permanently disabled (env cannot re-enable). */
+export const outreachSendEnabled = (): boolean => {
+  if (isFirmOutreachEmailPermanentlyDisabled()) return false;
+  return env.outreachSendEnabled();
+};
 export const outreachPaused = env.outreachPaused;
 export const outreachRequireApproval = env.outreachRequireApproval;
 export const isDailySendCapUnlimited = (cap = env.dailySendCap()): boolean =>

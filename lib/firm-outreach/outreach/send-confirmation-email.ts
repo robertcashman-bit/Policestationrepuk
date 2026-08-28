@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { isFirmOutreachOperatorMailDisabled } from '../site-config';
 import type { OutreachActivityRow, OutreachRunStats } from '../types';
 import { operatorNotifyFromAddress } from './from-address';
 import { outreachNotifyEmail } from './notify-recipient';
@@ -61,6 +62,7 @@ export async function sendOutreachSendConfirmationEmail(opts: {
   readyRemaining: number;
   date?: string;
 }): Promise<boolean> {
+  if (isFirmOutreachOperatorMailDisabled()) return false;
   const to = outreachNotifyEmail();
   const date = opts.date ?? outreachApprovalDate();
   const subject = `[Firm outreach] ${opts.stats.sent} sent — ${date}`;

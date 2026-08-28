@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { FIRM_OUTREACH_EMAIL_DISABLED_REASON } from '@/lib/firm-outreach/site-config';
 
 const mockIssueToken = vi.fn();
 const mockWasSent = vi.fn();
@@ -28,83 +29,40 @@ vi.mock('resend', () => ({
   }),
 }));
 
-describe('sendOutreachApprovalRequestEmail', () => {
+describe('sendOutreachApprovalRequestEmail (permanently disabled)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.RESEND_API_KEY = 're_test';
     process.env.FIRM_OUTREACH_DIGEST_EMAIL = 'robertdavidcashman@gmail.com';
-    delete process.env.FIRM_OUTREACH_FROM_EMAIL;
-    delete process.env.FIRM_OUTREACH_PSA_FROM_EMAIL;
-    mockWasSent.mockResolvedValue(false);
-    mockGetDailySendCount.mockResolvedValue(0);
-    mockIssueToken.mockResolvedValue({
-      token: 'tok_test',
-      jti: '11111111-1111-4111-8111-111111111111',
-      exp: 9999999999,
-      date: '2026-06-13',
-    });
-    mockBuildReport.mockResolvedValue({
-      report: {
-        summary: { readyToSend: 120, sentToday: 0 },
-        readyToSendProspects: [
-          {
-            prospectId: 'fop_1',
-            firmName: 'Alpha LLP',
-            email: 'crime@alpha.co.uk',
-            county: 'Kent',
-            suppressed: false,
-          },
-        ],
-      },
-    });
-    mockResendSend.mockResolvedValue({ data: { id: 'msg_1' } });
   });
 
-  it('sends approval email with Ready to send button', async () => {
-    vi.resetModules();
+  it('never sends approval email', async () => {
     const { sendOutreachApprovalRequestEmail } = await import(
       '@/lib/firm-outreach/outreach/approval-request-email'
     );
-    const result = await sendOutreachApprovalRequestEmail();
-    expect(result.sent).toBe(true);
-    expect(mockResendSend).toHaveBeenCalledWith(
-      expect.objectContaining({
-        from: 'PoliceStationRepUK <noreply@policestationrepuk.org>',
-        to: 'robertdavidcashman@gmail.com',
-        subject: expect.stringContaining('ready to send'),
-        html: expect.stringMatching(/send-approve\/11111111-1111-4111-8111-111111111111/),
-      }),
-    );
-    expect(mockMarkSent).toHaveBeenCalledWith('2026-06-13');
-  });
-
-  it('skips when approval email already sent', async () => {
-    mockWasSent.mockResolvedValue(true);
-    vi.resetModules();
-    const { sendOutreachApprovalRequestEmail } = await import(
-      '@/lib/firm-outreach/outreach/approval-request-email'
-    );
-    const result = await sendOutreachApprovalRequestEmail();
+    const result = await sendOutreachApprovalRequestEmail({ force: true });
     expect(result.sent).toBe(false);
-    expect(result.reason).toBe('already_sent_today');
+    expect(result.reason).toBe(FIRM_OUTREACH_EMAIL_DISABLED_REASON);
+    expect(mockResendSend).not.toHaveBeenCalled();
   });
 });
 
-describe('sendOutreachSendConfirmationEmail', () => {
+describe('sendOutreachSendConfirmationEmail (permanently disabled)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    delete process.env.RESEND_API_KEY;
+    process.env.RESEND_API_KEY = 're_test';
   });
 
-  it('does not throw when RESEND_API_KEY is absent', async () => {
+  it('returns false without Resend', async () => {
     const { sendOutreachSendConfirmationEmail } = await import(
       '@/lib/firm-outreach/outreach/send-confirmation-email'
     );
     const ok = await sendOutreachSendConfirmationEmail({
-      stats: { queued: 5, sent: 5, skipped: 0, suppressed: 0, errors: 0, elapsedMs: 1 },
+      stats: { queued: 0, sent: 1, skipped: 0, suppressed: 0, errors: 0, elapsedMs: 1 },
       receipts: [],
-      readyRemaining: 115,
+      readyRemaining: 0,
     });
-    expect(typeof ok).toBe('boolean');
+    expect(ok).toBe(false);
+    expect(mockResendSend).not.toHaveBeenCalled();
   });
 });

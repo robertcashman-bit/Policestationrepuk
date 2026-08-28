@@ -207,12 +207,12 @@ describe('unsubscribe token', () => {
 });
 
 describe('automation defaults', () => {
-  it('enables sends by default when outreach is on', () => {
+  it('keeps sends permanently off even when outreach env flags are on', () => {
     const prev = { ...process.env };
     process.env.FIRM_OUTREACH_ENABLED = 'true';
-    delete process.env.FIRM_OUTREACH_SEND_ENABLED;
+    process.env.FIRM_OUTREACH_SEND_ENABLED = 'true';
     delete process.env.FIRM_OUTREACH_PAUSED;
-    expect(outreachSendEnabled()).toBe(true);
+    expect(outreachSendEnabled()).toBe(false);
     process.env.FIRM_OUTREACH_SEND_ENABLED = 'false';
     expect(outreachSendEnabled()).toBe(false);
     process.env = prev;

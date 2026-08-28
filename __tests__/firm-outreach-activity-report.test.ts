@@ -354,139 +354,30 @@ describe('GET /api/admin/firm-outreach', () => {
     vi.clearAllMocks();
   });
 
-  it('returns summary view by default when admin authorised', async () => {
+  it('returns 410 permanently disabled when admin authorised', async () => {
     vi.doMock('@/lib/admin-auth', () => ({
       requireAdmin: vi.fn().mockResolvedValue({ ok: true, email: 'admin@test.co.uk' }),
-    }));
-    vi.doMock('@/lib/kv', () => ({
-      getKV: vi.fn().mockReturnValue({}),
-    }));
-    vi.doMock('@/lib/firm-outreach/outreach/activity-report', () => ({
-      getCachedOutreachSummaryView: vi.fn().mockResolvedValue({
-        generatedAt: '2026-06-11T12:00:00Z',
-        prospectCounts: { discovered: 10, ready_to_send: 2 },
-        summary: {
-          totalSends: 1,
-          sentToday: 0,
-          sentLast7Days: 0,
-          uniqueRecipients: 1,
-          bySendStatus: { sent: 1 },
-          delivered: 0,
-          opened: 0,
-          waClicks: 0,
-          joinedWhatsApp: 0,
-          bounced: 0,
-          complained: 0,
-          unsubscribed: 0,
-          pendingFollowUp1: 0,
-          pendingFollowUp2: 0,
-          readyToSend: 2,
-          discovered: 10,
-          noEmail: 0,
-          excluded: 0,
-        },
-        recentSends: [],
-      }),
-      buildOutreachActivityReport: vi.fn(),
-      buildReadyProspectsView: vi.fn(),
-      buildExcludedProspectsView: vi.fn(),
-      buildSendsView: vi.fn(),
-      buildSuppressionsView: vi.fn(),
-      emptyOutreachActivityReport: vi.fn(),
-      activityReportToCsv: vi.fn(),
-    }));
-    vi.doMock('@/lib/firm-outreach/constants', () => ({
-      dailySendCap: () => 30,
-      outreachPaused: () => false,
-      outreachSendEnabled: () => true,
-    }));
-    vi.doMock('@/lib/firm-outreach/config-status', () => ({
-      getOutreachConfigStatus: vi.fn().mockResolvedValue({
-        kvConfigured: true,
-        resendConfigured: true,
-        outreachEnabled: true,
-        sendAllowed: true,
-        sendHealthy: true,
-        sendBlockers: [],
-        campaignSendHealth: [],
-        effectivePaused: false,
-      }),
-    }));
-    vi.doMock('@/lib/firm-outreach/ops-status', () => ({
-      getOutreachOpsStatus: vi.fn().mockResolvedValue({
-        runLog: null,
-        resendSendCount: 0,
-        resendQuotaRemaining: 100,
-        perSiteDigestSent: false,
-        latestFailures: [],
-        config: {},
-      }),
     }));
 
     const { GET } = await import('@/app/api/admin/firm-outreach/route');
     const res = await GET(new Request('http://localhost/api/admin/firm-outreach'));
     const json = await res.json();
 
-    expect(res.status).toBe(200);
-    expect(json.ok).toBe(true);
-    expect(json.view).toBe('summary');
-    expect(json.counts.discovered).toBe(10);
-    expect(json.summary.totalSends).toBe(1);
+    expect(res.status).toBe(410);
+    expect(json.disabled).toBe(true);
+    expect(json.reason).toBe('firm_outreach_email_permanently_disabled');
   });
 
-  it('returns ready view when requested', async () => {
+  it('ready view also returns 410', async () => {
     vi.doMock('@/lib/admin-auth', () => ({
       requireAdmin: vi.fn().mockResolvedValue({ ok: true, email: 'admin@test.co.uk' }),
-    }));
-    vi.doMock('@/lib/kv', () => ({
-      getKV: vi.fn().mockReturnValue({}),
-    }));
-    vi.doMock('@/lib/firm-outreach/outreach/activity-report', () => ({
-      buildReadyProspectsView: vi.fn().mockResolvedValue([
-        { prospectId: 'fop_1', firmName: 'Test LLP', prospectType: 'firm', sources: [], priorityScore: 1, updatedAt: '2026-01-01', suppressed: false },
-      ]),
-      getCachedOutreachSummaryView: vi.fn(),
-      buildOutreachActivityReport: vi.fn(),
-      buildExcludedProspectsView: vi.fn(),
-      buildSendsView: vi.fn(),
-      buildSuppressionsView: vi.fn(),
-      emptyOutreachActivityReport: vi.fn(),
-      activityReportToCsv: vi.fn(),
-    }));
-    vi.doMock('@/lib/firm-outreach/constants', () => ({
-      dailySendCap: () => 30,
-      outreachPaused: () => false,
-      outreachSendEnabled: () => true,
-    }));
-    vi.doMock('@/lib/firm-outreach/config-status', () => ({
-      getOutreachConfigStatus: vi.fn().mockResolvedValue({
-        kvConfigured: true,
-        resendConfigured: true,
-        outreachEnabled: true,
-        sendAllowed: true,
-        sendHealthy: true,
-        sendBlockers: [],
-        campaignSendHealth: [],
-        effectivePaused: false,
-      }),
-    }));
-    vi.doMock('@/lib/firm-outreach/ops-status', () => ({
-      getOutreachOpsStatus: vi.fn().mockResolvedValue({
-        runLog: null,
-        resendSendCount: 0,
-        resendQuotaRemaining: 100,
-        perSiteDigestSent: false,
-        latestFailures: [],
-        config: {},
-      }),
     }));
 
     const { GET } = await import('@/app/api/admin/firm-outreach/route');
     const res = await GET(new Request('http://localhost/api/admin/firm-outreach?view=ready'));
     const json = await res.json();
 
-    expect(res.status).toBe(200);
-    expect(json.view).toBe('ready');
-    expect(json.readyToSendProspects).toHaveLength(1);
+    expect(res.status).toBe(410);
+    expect(json.disabled).toBe(true);
   });
 });

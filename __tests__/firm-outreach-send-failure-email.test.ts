@@ -48,7 +48,8 @@ describe('maybeNotifyOutreachSendFailure', () => {
       readyToSend: 10,
       reason: 'Outreach send config unhealthy: domain not verified',
     });
-    expect(sendMock).toHaveBeenCalled();
+    // Operator outreach mail permanently disabled — never Resend.
+    expect(sendMock).not.toHaveBeenCalled();
   });
 
   it('does not notify on successful send', async () => {

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { FIRM_OUTREACH_EMAIL_DISABLED_REASON } from '@/lib/firm-outreach/site-config';
 
 const mockBuildReport = vi.fn();
 const mockGetDailySendCount = vi.fn();
@@ -37,130 +38,19 @@ vi.mock('resend', () => ({
   }),
 }));
 
-describe('sendDailyOutreachDigest', () => {
+describe('sendDailyOutreachDigest (permanently disabled)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.RESEND_API_KEY = 're_test';
     process.env.FIRM_OUTREACH_DIGEST_EMAIL = 'robertdavidcashman@gmail.com';
-    delete process.env.FIRM_OUTREACH_FROM_EMAIL;
-    delete process.env.FIRM_OUTREACH_PSA_FROM_EMAIL;
-    mockWasSent.mockResolvedValue(false);
-    mockClaimDigest.mockResolvedValue(true);
-    mockGetDailySendCount.mockResolvedValue(2);
-    mockBuildReport.mockResolvedValue({
-      report: {
-        summary: {
-          readyToSend: 3,
-          sentToday: 2,
-          sentLast7Days: 10,
-          discovered: 100,
-          totalSends: 20,
-          noEmail: 5,
-          excluded: 1,
-          unsubscribed: 0,
-          joinedWhatsApp: 0,
-        },
-        readyToSendProspects: [
-          {
-            prospectId: 'fop_1',
-            firmName: 'Alpha LLP',
-            prospectType: 'firm',
-            email: 'crime@alpha.co.uk',
-            county: 'Kent',
-            priorityScore: 80,
-            sources: ['laa'],
-            updatedAt: '2026-06-11T08:00:00.000Z',
-            suppressed: false,
-          },
-        ],
-        sends: [
-          {
-            sendId: 'fos_1',
-            prospectId: 'fop_9',
-            firmName: 'Beta LLP',
-            prospectType: 'firm',
-            email: 'info@beta.co.uk',
-            sequenceStep: 0,
-            touchLabel: 'Initial invite',
-            subject: 'Police station cover',
-            sendStatus: 'sent',
-            prospectStatus: 'sent',
-            sentAt: `${new Date().toISOString().slice(0, 10)}T09:15:00.000Z`,
-            suppressed: false,
-          },
-        ],
-      },
-    });
-    mockResendSend.mockResolvedValue({ data: { id: 'msg_1' } });
   });
 
-  it('skips when digest already sent today', async () => {
-    mockWasSent.mockResolvedValue(true);
-    vi.resetModules();
+  it('returns early without Resend even when force=true', async () => {
     const { sendDailyOutreachDigest } = await import('@/lib/firm-outreach/outreach/digest-email');
-    const result = await sendDailyOutreachDigest();
+    const result = await sendDailyOutreachDigest({ force: true });
     expect(result.sent).toBe(false);
-    expect(result.reason).toBe('already_sent_today');
+    expect(result.reason).toBe(FIRM_OUTREACH_EMAIL_DISABLED_REASON);
     expect(mockResendSend).not.toHaveBeenCalled();
-  });
-
-  it('emails ready queue and receipts to owner address', async () => {
-    vi.resetModules();
-    const { sendDailyOutreachDigest } = await import('@/lib/firm-outreach/outreach/digest-email');
-    const result = await sendDailyOutreachDigest();
-    expect(result.sent).toBe(true);
-    expect(mockResendSend).toHaveBeenCalledWith(
-      expect.objectContaining({
-        from: 'PoliceStationRepUK <noreply@policestationrepuk.org>',
-        to: 'robertdavidcashman@gmail.com',
-        subject: expect.stringContaining('RepUK'),
-        html: expect.stringMatching(/POLICESTATIONREPUK|Send domain health/),
-      }),
-    );
-    expect(mockMarkSent).toHaveBeenCalledWith('2026-06-11', 'whatsapp_invite_v1');
-    expect(mockGetDailySendCount).toHaveBeenCalledWith('2026-06-11', 'whatsapp_invite_v1');
-  });
-
-  it('never titles or bodies a Kent-agent / PSA digest from this app', async () => {
-    mockGetDailySendCount.mockResolvedValue(0);
-    mockBuildReport.mockResolvedValue({
-      report: {
-        summary: {
-          readyToSend: 43,
-          sentToday: 0,
-          sentLast7Days: 129,
-          discovered: 100,
-          totalSends: 20,
-          noEmail: 5,
-          excluded: 1,
-          unsubscribed: 0,
-          joinedWhatsApp: 0,
-        },
-        readyToSendProspects: [
-          {
-            prospectId: 'fop_1',
-            firmName: 'Alpha LLP',
-            prospectType: 'firm',
-            email: 'crime@alpha.co.uk',
-            county: 'Kent',
-            priorityScore: 80,
-            sources: ['laa'],
-            updatedAt: '2026-06-11T08:00:00.000Z',
-            suppressed: false,
-          },
-        ],
-        sends: [],
-      },
-    });
-    vi.resetModules();
-    const { sendDailyOutreachDigest } = await import('@/lib/firm-outreach/outreach/digest-email');
-    await sendDailyOutreachDigest();
-    const payload = mockResendSend.mock.calls[0]?.[0] as { subject: string; html: string };
-    expect(payload.subject).toMatch(/RepUK/);
-    expect(payload.subject).not.toMatch(/KENT|AGENT COVER|Police Station Agent/i);
-    expect(payload.html).toContain('POLICESTATIONREPUK');
-    expect(payload.html).toContain('policestationrepuk.org/admin/firm-outreach');
-    expect(payload.html).not.toMatch(/KENT AGENT COVER/i);
-    expect(payload.html).not.toContain('policestationagent.com/admin/firm-outreach');
+    expect(mockBuildReport).not.toHaveBeenCalled();
   });
 });

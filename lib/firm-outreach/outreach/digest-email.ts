@@ -1,6 +1,10 @@
 import { Resend } from 'resend';
 import { dailySendCap } from '../constants';
 import { activeOutreachCampaignId } from '../campaign-scope';
+import {
+  FIRM_OUTREACH_EMAIL_DISABLED_REASON,
+  isFirmOutreachOperatorMailDisabled,
+} from '../site-config';
 import { getDailySendCount } from '../storage';
 import type {
   DiscoveryRunStats,
@@ -171,6 +175,9 @@ export async function sendDailyOutreachDigest(opts?: {
   };
 }): Promise<DailyOutreachDigestResult> {
   const date = outreachDigestDate();
+  if (isFirmOutreachOperatorMailDisabled()) {
+    return { sent: false, reason: FIRM_OUTREACH_EMAIL_DISABLED_REASON, date };
+  }
   const campaignId = activeOutreachCampaignId();
   if (!opts?.force) {
     if (await wasOutreachDigestSent(date, campaignId)) {

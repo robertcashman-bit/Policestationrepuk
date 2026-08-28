@@ -10,7 +10,7 @@ import {
   resolveFromAddressForCampaign,
   VERIFIED_FALLBACK_DOMAIN,
 } from './outreach/from-address';
-import { FIRM_OUTREACH_CAMPAIGN_ID } from './site-config';
+import { FIRM_OUTREACH_CAMPAIGN_ID, isFirmOutreachEmailPermanentlyDisabled } from './site-config';
 import { buildOutreachEmailHtml, subjectForStep } from './outreach/templates';
 import type { FirmProspect } from './types';
 
@@ -18,13 +18,17 @@ export const EXPECTED_CRON_ROUTES = [
   '/api/cron/firm-outreach-pipeline/maintain',
   '/api/cron/firm-outreach-enrich',
   '/api/cron/firm-outreach-pipeline/full',
-  '/api/cron/firm-outreach-digest',
+  '/api/cron/firm-outreach-bootstrap',
 ] as const;
 
 export const VERIFY_CRON_ROUTES = ['/api/cron/firm-outreach-status'] as const;
 
+/** Send/digest/report/autoheal crons removed from vercel.json (email product off). */
 export const LEGACY_CRON_ROUTES = [
   '/api/cron/firm-outreach-send',
+  '/api/cron/firm-outreach-digest',
+  '/api/cron/firm-outreach-daily-report',
+  '/api/cron/firm-outreach-autoheal',
   '/api/cron/firm-outreach-discovery',
 ] as const;
 
@@ -146,19 +150,21 @@ export async function runSendHealthChecks(): Promise<RepoCheckResult[]> {
       detail: `count=${health.campaigns.length}`,
     },
     {
-      // PSA agent-cover is permanently disabled; only RepUK must be able to send.
+      // Firm outreach email permanently off — no campaign may send.
       name: 'send_health_both_campaigns_can_send',
-      ok: health.campaigns
-        .filter((c) => c.campaignId === FIRM_OUTREACH_CAMPAIGN_ID)
-        .every((c) => c.canSend),
+      ok: health.campaigns.every((c) => !c.canSend),
       detail: health.campaigns
         .map((c) => `${c.campaignId}:${c.canSend ? 'ok' : c.blockers.join(',')}`)
         .join('; '),
     },
     {
       name: 'send_health_overall',
-      ok: health.sendHealthy,
-      detail: health.sendBlockers.join('; ') || 'healthy',
+      ok: isFirmOutreachEmailPermanentlyDisabled()
+        ? health.campaigns.every((c) => !c.canSend)
+        : health.sendHealthy,
+      detail: isFirmOutreachEmailPermanentlyDisabled()
+        ? 'firm_outreach_email_permanently_disabled'
+        : health.sendBlockers.join('; ') || 'healthy',
     },
   ];
 
@@ -174,6 +180,11 @@ export async function runSendHealthChecks(): Promise<RepoCheckResult[]> {
     name: 'send_health_psa_permanently_disabled',
     ok: Boolean(psa && !psa.canSend),
     detail: psa?.blockers.join('; ') || 'psa missing',
+  });
+  results.push({
+    name: 'send_health_firm_outreach_email_permanently_disabled',
+    ok: isFirmOutreachEmailPermanentlyDisabled() && health.campaigns.every((c) => !c.canSend),
+    detail: 'all campaigns canSend=false',
   });
 
   return results;

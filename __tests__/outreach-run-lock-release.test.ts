@@ -1,9 +1,10 @@
 /**
  * Autotest for 2026-08-23 outage: status 504 + send ticks accepted=0.
- * A hung/timed-out worker that never released the send lock left later ticks
- * on overlap for hours. Status dual-scanned ~1200 rows/campaign under maxDuration=60.
+ * Updated 2026-08-28: firm outreach email permanently off — worker skips
+ * before claiming the send lock.
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { FIRM_OUTREACH_EMAIL_DISABLED_REASON } from '@/lib/firm-outreach/site-config';
 
 const mockClaimLock = vi.fn(async () => true);
 const mockReleaseLock = vi.fn(async () => undefined);
@@ -53,19 +54,8 @@ vi.mock('@/lib/firm-outreach/outreach/run-outreach', async (importOriginal) => {
   return {
     ...actual,
     runFirmOutreach: (...args: unknown[]) => mockRunFirmOutreach(...args),
-    runFirmOutreachAllCampaigns: async (opts?: {
-      dryRun?: boolean;
-      limit?: number;
-      maxElapsedMs?: number;
-    }) => {
-      const stats = await mockRunFirmOutreach({
-        campaignId: 'whatsapp_invite_v1',
-        ...opts,
-      });
-      return {
-        byCampaign: { whatsapp_invite_v1: stats },
-        combined: actual.mergeOutreachRunStats(stats),
-      };
+    runFirmOutreachAllCampaigns: async () => {
+      throw new Error('should not reach campaign send while email permanently disabled');
     },
   };
 });
@@ -74,20 +64,9 @@ import { runOutreachWorkerTick } from '@/lib/firm-outreach/outreach/run-worker';
 import { outreachRunLockKey } from '@/lib/firm-outreach/run-lock';
 
 describe('outreach run lock release', () => {
-  const ENV = process.env;
-
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env = {
-      ...ENV,
-      FIRM_OUTREACH_REQUIRE_APPROVAL: 'false',
-      FIRM_OUTREACH_SEND_ENABLED: 'true',
-      FIRM_OUTREACH_ENABLED: 'true',
-    };
-    delete process.env.FIRM_OUTREACH_PAUSED;
-    delete process.env.FIRM_OUTREACH_DRY_RUN;
     mockClaimLock.mockResolvedValue(true);
-    mockReleaseLock.mockResolvedValue(undefined);
     mockIsSendAllowed.mockResolvedValue(true);
     mockRunFirmOutreach.mockResolvedValue({
       sent: 5,
@@ -96,29 +75,18 @@ describe('outreach run lock release', () => {
       errors: 0,
       jobsClaimed: 5,
       jobsCreated: 0,
+      campaignId: 'whatsapp_invite_v1',
     });
   });
 
-  it('releases the send lock after a successful worker tick', async () => {
+  it('skips before claiming lock while firm outreach email is permanently disabled', async () => {
     const result = await runOutreachWorkerTick({ limit: 5 });
-    expect(result.accepted).toBe(5);
-    expect(mockClaimLock).toHaveBeenCalledWith('send');
-    expect(mockReleaseLock).toHaveBeenCalledWith('send');
-  });
-
-  it('releases the send lock when the campaign run throws', async () => {
-    mockRunFirmOutreach.mockRejectedValueOnce(new Error('provider timeout'));
-    await expect(runOutreachWorkerTick({ limit: 5 })).rejects.toThrow(/provider timeout/);
-    expect(mockClaimLock).toHaveBeenCalledWith('send');
-    expect(mockReleaseLock).toHaveBeenCalledWith('send');
-  });
-
-  it('does not release when the lock was never claimed (overlap skip)', async () => {
-    mockClaimLock.mockResolvedValueOnce(false);
-    const result = await runOutreachWorkerTick({ limit: 5 });
-    expect(result.reason).toBe('overlap');
+    expect(result.skipped).toBe(true);
+    expect(result.reason).toBe(FIRM_OUTREACH_EMAIL_DISABLED_REASON);
     expect(result.accepted).toBe(0);
+    expect(mockClaimLock).not.toHaveBeenCalled();
     expect(mockReleaseLock).not.toHaveBeenCalled();
+    expect(mockRunFirmOutreach).not.toHaveBeenCalled();
   });
 
   it('uses a distinct lock key per mode', () => {

@@ -1,5 +1,9 @@
 import { Resend } from 'resend';
 import { dailySendCap } from '../constants';
+import {
+  FIRM_OUTREACH_EMAIL_DISABLED_REASON,
+  isFirmOutreachOperatorMailDisabled,
+} from '../site-config';
 import { getDailySendCount } from '../storage';
 import { SITE_URL } from '@/lib/seo-layer/config';
 import { buildOutreachActivityReport } from './activity-report';
@@ -41,6 +45,9 @@ export async function sendOutreachApprovalRequestEmail(opts?: {
   reminder?: boolean;
 }): Promise<OutreachApprovalRequestResult> {
   const date = outreachApprovalDate();
+  if (isFirmOutreachOperatorMailDisabled()) {
+    return { sent: false, reason: FIRM_OUTREACH_EMAIL_DISABLED_REASON, date };
+  }
   const to = outreachNotifyEmail();
 
   if (!opts?.force && !opts?.reminder && (await wasOutreachApprovalEmailSent(date))) {

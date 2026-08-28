@@ -151,7 +151,7 @@ describe('sendOutreachEmail domain retry', () => {
     });
 
     expect(result.ok).toBe(false);
-    expect(result.error).toBe('agent_cover_outreach_permanently_disabled');
+    expect(result.error).toBe('firm_outreach_email_permanently_disabled');
     expect(sendMock).not.toHaveBeenCalled();
   });
 });

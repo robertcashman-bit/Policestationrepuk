@@ -29,6 +29,8 @@ import {
   resolveStatusWithQualification,
 } from '../qualification';
 import {
+  FIRM_OUTREACH_EMAIL_DISABLED_REASON,
+  isFirmOutreachEmailPermanentlyDisabled,
   isOutreachCampaignSendable,
   SENDABLE_OUTREACH_CAMPAIGN_IDS,
 } from '../site-config';
@@ -170,6 +172,7 @@ export async function runFirmOutreach(opts?: {
   const finish = async (resendQuotaRemaining: number, sentTodayBefore: number, cap: number) => {
     stats.elapsedMs = Date.now() - started;
     stats.resendQuotaRemaining = resendQuotaRemaining;
+    const dryRun = Boolean(opts?.dryRun);
     structuredRunLog('info', 'outreach.run.finished', {
       runId,
       campaignId,
@@ -227,11 +230,13 @@ export async function runFirmOutreach(opts?: {
 
   if (!isOutreachCampaignSendable(campaignId)) {
     recordSkip(stats, 'send_disabled');
-    stats.skippedReason = 'agent_cover_outreach_permanently_disabled';
+    stats.skippedReason = isFirmOutreachEmailPermanentlyDisabled()
+      ? FIRM_OUTREACH_EMAIL_DISABLED_REASON
+      : 'agent_cover_outreach_permanently_disabled';
     structuredRunLog('info', 'outreach.run.campaign_disabled', {
       runId,
       campaignId,
-      reason: 'agent_cover_outreach_permanently_disabled',
+      reason: stats.skippedReason,
     });
     return finish(0, 0, dailySendCap());
   }

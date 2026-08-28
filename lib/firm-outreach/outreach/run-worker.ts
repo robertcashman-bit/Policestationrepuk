@@ -8,6 +8,10 @@ import { recoverAbandonedEmailJobs } from '../email-jobs/storage';
 import { newJobRunId, saveJobRun } from '../job-runs';
 import { isOutreachSendAllowed } from '../pause-state';
 import { claimOutreachRunLock, releaseOutreachRunLock } from '../run-lock';
+import {
+  FIRM_OUTREACH_EMAIL_DISABLED_REASON,
+  isFirmOutreachEmailPermanentlyDisabled,
+} from '../site-config';
 import { runFirmOutreachAllCampaigns } from './run-outreach';
 
 export async function runOutreachWorkerTick(opts?: {
@@ -25,6 +29,27 @@ export async function runOutreachWorkerTick(opts?: {
 }> {
   const runId = newJobRunId('worker');
   const started = new Date().toISOString();
+
+  if (isFirmOutreachEmailPermanentlyDisabled()) {
+    await saveJobRun({
+      workspace: 'both',
+      runId,
+      runType: 'outreach_worker',
+      started,
+      finished: new Date().toISOString(),
+      status: 'skipped',
+      errorSummary: FIRM_OUTREACH_EMAIL_DISABLED_REASON,
+    });
+    return {
+      ok: true,
+      skipped: true,
+      reason: FIRM_OUTREACH_EMAIL_DISABLED_REASON,
+      runId,
+      accepted: 0,
+      claimed: 0,
+      jobsCreated: 0,
+    };
+  }
 
   if (outreachRequireApproval()) {
     await saveJobRun({

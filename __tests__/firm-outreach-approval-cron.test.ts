@@ -2,54 +2,21 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GET as fullGet } from '@/app/api/cron/firm-outreach-pipeline/full/route';
 import { GET as digestGet } from '@/app/api/cron/firm-outreach-digest/route';
 import { GET as sendGet } from '@/app/api/cron/firm-outreach-send/route';
+import { FIRM_OUTREACH_EMAIL_DISABLED_REASON } from '@/lib/firm-outreach/site-config';
 
 const mockPipeline = vi.fn();
-const mockApprovalEmail = vi.fn();
-const mockWorker = vi.fn();
 
 vi.mock('@/lib/firm-outreach/run-pipeline', () => ({
   runFirmOutreachPipeline: (...args: unknown[]) => mockPipeline(...args),
 }));
 
-vi.mock('@/lib/firm-outreach/outreach/approval-request-email', () => ({
-  sendOutreachApprovalRequestEmail: (...args: unknown[]) => mockApprovalEmail(...args),
-}));
-
-const mockDailyDigest = vi.fn();
-vi.mock('@/lib/firm-outreach/outreach/digest-email', () => ({
-  sendDailyOutreachDigest: (...args: unknown[]) => mockDailyDigest(...args),
-}));
-
-vi.mock('@/lib/firm-outreach/outreach/run-worker', () => ({
-  runOutreachWorkerTick: (...args: unknown[]) => mockWorker(...args),
-}));
-
-vi.mock('@robertcashman/firm-outreach-core', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@robertcashman/firm-outreach-core')>();
-  return {
-    ...actual,
-    validateOutreachEnv: () => ({ ok: true, errors: [], warnings: [] }),
-  };
-});
-
 const ENV = process.env;
 
-describe('firm-outreach approval crons', () => {
+describe('firm-outreach crons permanently disabled', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Explicit true — default is now auto-send (false).
     process.env = { ...ENV, CRON_SECRET: 'cron-test', FIRM_OUTREACH_REQUIRE_APPROVAL: 'true' };
     mockPipeline.mockResolvedValue({ skipped: false, send: { sent: 0 } });
-    mockApprovalEmail.mockResolvedValue({ sent: true, date: '2026-06-13' });
-    mockWorker.mockResolvedValue({
-      ok: true,
-      skipped: true,
-      reason: 'approval_required',
-      runId: 'w1',
-      accepted: 0,
-      claimed: 0,
-      jobsCreated: 0,
-    });
   });
 
   afterEach(() => {
@@ -62,7 +29,7 @@ describe('firm-outreach approval crons', () => {
       expect(res.status).toBe(401);
     });
 
-    it('sends approval email without running the heavy pipeline', async () => {
+    it('runs inventory-only pipeline and never approval/send', async () => {
       const res = await fullGet(
         new Request('http://localhost/api/cron/firm-outreach-pipeline/full', {
           headers: { authorization: 'Bearer cron-test' },
@@ -70,23 +37,19 @@ describe('firm-outreach approval crons', () => {
       );
       expect(res.status).toBe(200);
       const json = await res.json();
-      expect(json.mode).toBe('approval-only');
-      expect(mockPipeline).not.toHaveBeenCalled();
-      expect(mockApprovalEmail).toHaveBeenCalledOnce();
-    });
-
-    it('passes force=1 to approval email', async () => {
-      await fullGet(
-        new Request('http://localhost/api/cron/firm-outreach-pipeline/full?force=1', {
-          headers: { authorization: 'Bearer cron-test' },
+      expect(json.mode).toBe('inventory_only_send_disabled');
+      expect(json.reason).toBe(FIRM_OUTREACH_EMAIL_DISABLED_REASON);
+      expect(mockPipeline).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skipSend: true,
+          skipDigest: true,
         }),
       );
-      expect(mockApprovalEmail).toHaveBeenCalledWith({ force: true });
     });
   });
 
   describe('firm-outreach-digest', () => {
-    it('sends approval reminder when approval required', async () => {
+    it('skips permanently without approval reminder', async () => {
       const res = await digestGet(
         new Request('http://localhost/api/cron/firm-outreach-digest', {
           headers: { authorization: 'Bearer cron-test' },
@@ -94,58 +57,23 @@ describe('firm-outreach approval crons', () => {
       );
       expect(res.status).toBe(200);
       const json = await res.json();
-      expect(json.mode).toBe('approval-reminder');
-      expect(mockApprovalEmail).toHaveBeenCalledWith({ reminder: true });
+      expect(json.mode).toBe('permanently_disabled');
+      expect(json.reason).toBe(FIRM_OUTREACH_EMAIL_DISABLED_REASON);
     });
-  });
-});
-
-describe('firm-outreach RepUK digest cron (approval off)', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    process.env = { ...ENV, CRON_SECRET: 'cron-test', FIRM_OUTREACH_REQUIRE_APPROVAL: 'false' };
-    mockDailyDigest.mockResolvedValue({ sent: true, date: '2026-08-20' });
-  });
-
-  afterEach(() => {
-    process.env = { ...ENV };
-  });
-
-  it('sends PoliceStationRepUK daily digest when approval is off', async () => {
-    const res = await digestGet(
-      new Request('http://localhost/api/cron/firm-outreach-digest', {
-        headers: { authorization: 'Bearer cron-test' },
-      }),
-    );
-    const json = await res.json();
-    expect(json.mode).toBe('repuk_daily_digest');
-    expect(json.campaignId).toBe('whatsapp_invite_v1');
-    expect(json.sent).toBe(true);
-    expect(mockDailyDigest).toHaveBeenCalledOnce();
-    expect(mockApprovalEmail).not.toHaveBeenCalled();
   });
 });
 
 describe('firm-outreach-send cron', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env = { ...ENV, CRON_SECRET: 'cron-test' };
   });
 
   afterEach(() => {
     process.env = { ...ENV };
   });
 
-  it('skips send when approval is required', async () => {
-    process.env = { ...ENV, CRON_SECRET: 'cron-test', FIRM_OUTREACH_REQUIRE_APPROVAL: 'true' };
-    mockWorker.mockResolvedValue({
-      ok: true,
-      skipped: true,
-      reason: 'approval_required',
-      runId: 'w1',
-      accepted: 0,
-      claimed: 0,
-      jobsCreated: 0,
-    });
+  it('returns permanently disabled with accepted=0', async () => {
     const res = await sendGet(
       new Request('http://localhost/api/cron/firm-outreach-send', {
         headers: { authorization: 'Bearer cron-test' },
@@ -153,30 +81,9 @@ describe('firm-outreach-send cron', () => {
     );
     const json = await res.json();
     expect(res.status).toBe(200);
-    expect(json.mode).toBe('outreach-worker');
+    expect(json.mode).toBe('permanently_disabled');
     expect(json.skipped).toBe(true);
-    expect(json.reason).toBe('approval_required');
-    expect(mockWorker).toHaveBeenCalledOnce();
-  });
-
-  it('runs outreach worker when approval disabled', async () => {
-    process.env = { ...ENV, CRON_SECRET: 'cron-test', FIRM_OUTREACH_REQUIRE_APPROVAL: 'false' };
-    mockWorker.mockResolvedValue({
-      ok: true,
-      runId: 'w2',
-      accepted: 2,
-      claimed: 2,
-      jobsCreated: 1,
-    });
-    const res = await sendGet(
-      new Request('http://localhost/api/cron/firm-outreach-send', {
-        headers: { authorization: 'Bearer cron-test' },
-      }),
-    );
-    const json = await res.json();
-    expect(res.status).toBe(200);
-    expect(json.mode).toBe('outreach-worker');
-    expect(json.accepted).toBe(2);
-    expect(mockWorker).toHaveBeenCalledOnce();
+    expect(json.reason).toBe(FIRM_OUTREACH_EMAIL_DISABLED_REASON);
+    expect(json.accepted).toBe(0);
   });
 });

@@ -1,9 +1,14 @@
 /**
  * Exactly one consolidated administrator email per London day at ~07:00.
+ * Permanently disabled while firm outreach email product is off.
  */
 import { Resend } from 'resend';
 import { operatorNotifyFromAddress } from '../outreach/from-address';
 import { newJobRunId, saveJobRun } from '../job-runs';
+import {
+  FIRM_OUTREACH_EMAIL_DISABLED_REASON,
+  isFirmOutreachOperatorMailDisabled,
+} from '../site-config';
 import { buildConsolidatedDailyReport } from './build-daily-report';
 import {
   claimDailyReportSlot,
@@ -49,6 +54,23 @@ export async function sendConsolidatedDailyReport(opts?: {
   const now = opts?.now ?? new Date();
   const runId = newJobRunId('daily_report');
   const started = now.toISOString();
+
+  if (isFirmOutreachOperatorMailDisabled()) {
+    await saveJobRun({
+      workspace: 'both',
+      runId,
+      runType: 'daily_report',
+      started,
+      finished: new Date().toISOString(),
+      status: 'skipped',
+      errorSummary: FIRM_OUTREACH_EMAIL_DISABLED_REASON,
+    });
+    return {
+      ok: true,
+      skipped: true,
+      reason: FIRM_OUTREACH_EMAIL_DISABLED_REASON,
+    };
+  }
 
   if (!opts?.force && !isLondon0700Hour(now)) {
     await saveJobRun({

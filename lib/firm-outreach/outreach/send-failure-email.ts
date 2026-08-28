@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { isFirmOutreachOperatorMailDisabled } from '../site-config';
 import type { OutreachRunStats } from '../types';
 import { operatorNotifyFromAddress } from './from-address';
 import { outreachNotifyEmail } from './notify-recipient';
@@ -75,6 +76,7 @@ export function shouldAlertZeroSends(opts: {
 export async function sendOutreachSendFailureEmail(
   input: OutreachSendFailureEmailInput,
 ): Promise<boolean> {
+  if (isFirmOutreachOperatorMailDisabled()) return false;
   const to = outreachNotifyEmail();
   const date = input.date ?? outreachApprovalDate();
   const subject = `[Firm outreach] Send run had problems — ${date}`;
@@ -130,6 +132,7 @@ export async function maybeNotifyOutreachSendFailure(opts: {
   skipped?: boolean;
   reason?: string;
 }): Promise<void> {
+  if (isFirmOutreachOperatorMailDisabled()) return;
   if (opts.skipped) return;
 
   // Critical: unhealthy provider/domain config lasting across a send cycle.

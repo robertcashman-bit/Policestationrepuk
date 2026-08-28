@@ -6,6 +6,20 @@
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('@/lib/firm-outreach/site-config', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/firm-outreach/site-config')>();
+  return {
+    ...actual,
+    FIRM_OUTREACH_EMAIL_PERMANENTLY_DISABLED: false,
+    SENDABLE_OUTREACH_CAMPAIGN_IDS: ['whatsapp_invite_v1'] as const,
+    isFirmOutreachEmailPermanentlyDisabled: () => false,
+    isFirmOutreachOperatorMailDisabled: () => false,
+    isAgentCoverOutreachDisabled: () => true,
+    isOutreachCampaignSendable: (campaignId: string) => campaignId === 'whatsapp_invite_v1',
+  };
+});
+
+
 const mockSelect = vi.fn();
 
 vi.mock('@/lib/firm-outreach/outreach/candidate-selection', () => ({

@@ -1,6 +1,6 @@
 # Content accuracy problem register
 
-Generated: 2026-06-08T16:49:30.770Z by `npm run audit:content-accuracy`
+Generated: 2026-08-30T12:15:52.942Z by `npm run audit:content-accuracy`
 
 ## Honest limits
 
@@ -15,8 +15,8 @@ Generated: 2026-06-08T16:49:30.770Z by `npm run audit:content-accuracy`
 | Critical (PROBLEM) | 0 |
 | Review | 0 |
 | Compliance gap (GAP) | 0 |
-| OK (verified Tier 8) | 107 |
-| Total editorial URLs | 107 |
+| OK (verified Tier 8) | 114 |
+| Total editorial URLs | 114 |
 
 ## Critical (factual error — fix before rely)
 
@@ -32,6 +32,13 @@ _None._
 
 ## OK (verified Tier 8)
 
+- /Blog/duty-solicitor-police-station · lib/blog/articles-batch-*.ts
+- /Blog/building-firm-panel-freelance-reps · lib/blog/articles-batch-*.ts
+- /Blog/freelance-rep-day-rate-2026 · lib/blog/articles-batch-*.ts
+- /Blog/how-to-become-police-station-representative-2026 · lib/blog/articles-batch-*.ts
+- /Blog/accredited-reps-keep-availability-updated · lib/blog/articles-batch-*.ts
+- /Blog/keep-directory-profile-useful · lib/blog/articles-batch-*.ts
+- /Blog/police-station-rep-coverage-location-matters · lib/blog/articles-batch-*.ts
 - /Blog/sentencing-act-2026-key-changes · lib/blog/articles-batch-*.ts
 - /Blog/why-firms-need-rep-directory · lib/blog/articles-batch-*.ts
 - /Blog/how-firms-source-emergency-rep-cover · lib/blog/articles-batch-*.ts

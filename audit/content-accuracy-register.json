@@ -1,17 +1,94 @@
 {
-  "generatedAt": "2026-06-08T16:49:30.770Z",
-  "totalItems": 107,
+  "generatedAt": "2026-08-30T12:15:52.942Z",
+  "totalItems": 114,
   "critical": 0,
   "review": 0,
   "gaps": 0,
   "byContentType": {
-    "blog": 22,
+    "blog": 29,
     "wiki": 49,
     "legal-update": 8,
     "fee-rights": 8,
     "guide": 20
   },
   "items": [
+    {
+      "url": "/Blog/duty-solicitor-police-station",
+      "contentType": "blog",
+      "sourceFile": "lib/blog/articles-batch-*.ts",
+      "hasReliabilityNotice": true,
+      "hasSourcesFooter": true,
+      "customSourcesInContentSources": true,
+      "auditTier": 8,
+      "auditStatus": "verified-tier-8",
+      "redFlags": []
+    },
+    {
+      "url": "/Blog/building-firm-panel-freelance-reps",
+      "contentType": "blog",
+      "sourceFile": "lib/blog/articles-batch-*.ts",
+      "hasReliabilityNotice": true,
+      "hasSourcesFooter": true,
+      "customSourcesInContentSources": true,
+      "auditTier": 8,
+      "auditStatus": "verified-tier-8",
+      "redFlags": []
+    },
+    {
+      "url": "/Blog/freelance-rep-day-rate-2026",
+      "contentType": "blog",
+      "sourceFile": "lib/blog/articles-batch-*.ts",
+      "hasReliabilityNotice": true,
+      "hasSourcesFooter": true,
+      "customSourcesInContentSources": true,
+      "auditTier": 8,
+      "auditStatus": "verified-tier-8",
+      "redFlags": []
+    },
+    {
+      "url": "/Blog/how-to-become-police-station-representative-2026",
+      "contentType": "blog",
+      "sourceFile": "lib/blog/articles-batch-*.ts",
+      "hasReliabilityNotice": true,
+      "hasSourcesFooter": true,
+      "customSourcesInContentSources": true,
+      "auditTier": 8,
+      "auditStatus": "verified-tier-8",
+      "redFlags": []
+    },
+    {
+      "url": "/Blog/accredited-reps-keep-availability-updated",
+      "contentType": "blog",
+      "sourceFile": "lib/blog/articles-batch-*.ts",
+      "hasReliabilityNotice": true,
+      "hasSourcesFooter": true,
+      "customSourcesInContentSources": true,
+      "auditTier": 8,
+      "auditStatus": "verified-tier-8",
+      "redFlags": []
+    },
+    {
+      "url": "/Blog/keep-directory-profile-useful",
+      "contentType": "blog",
+      "sourceFile": "lib/blog/articles-batch-*.ts",
+      "hasReliabilityNotice": true,
+      "hasSourcesFooter": true,
+      "customSourcesInContentSources": true,
+      "auditTier": 8,
+      "auditStatus": "verified-tier-8",
+      "redFlags": []
+    },
+    {
+      "url": "/Blog/police-station-rep-coverage-location-matters",
+      "contentType": "blog",
+      "sourceFile": "lib/blog/articles-batch-*.ts",
+      "hasReliabilityNotice": true,
+      "hasSourcesFooter": true,
+      "customSourcesInContentSources": true,
+      "auditTier": 8,
+      "auditStatus": "verified-tier-8",
+      "redFlags": []
+    },
     {
       "url": "/Blog/sentencing-act-2026-key-changes",
       "contentType": "blog",

@@ -17,6 +17,8 @@ export interface AuditUnit {
   sectionTitle: string;
   sectionIndex: number;
   text: string;
+  /** When true and OPENAI_API_KEY set, eligible for GPT fact-check if rules/sources flag. */
+  llmEligible?: boolean;
 }
 
 export interface AuditFinding {

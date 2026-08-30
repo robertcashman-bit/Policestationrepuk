@@ -24,12 +24,20 @@ import { resetAuditCursorForTests, selectAuditBatch } from '@/lib/editorial-audi
 import { proposedFixForCode } from '@/lib/editorial-audit/fixes';
 import { notifyIfFindings } from '@/lib/editorial-audit/notify';
 import { scanText } from '@/lib/editorial-audit/rules';
-import { scanUnit } from '@/lib/editorial-audit/runner';
+import { scanBatchFull, scanUnit } from '@/lib/editorial-audit/runner';
 import { splitMarkdownSections } from '@/lib/editorial-audit/units';
 import { sendEditorialAuditDigestEmail } from '@/lib/editorial-audit/email';
-import type { AuditUnit } from '@/lib/editorial-audit/types';
+import { shouldRunLlm } from '@/lib/editorial-audit/llm-check';
+import {
+  hasPaceStatutoryCite,
+  LEGACY_PACE_SOURCING_SNIPPETS,
+  paceSourcingViolation,
+} from '@/lib/editorial-audit/pace-sourcing';
+import { scanFeeRateClaims } from '@/lib/editorial-audit/fee-check';
+import { POLICE_STATION_FIXED_FEE } from '@/lib/laa-rates';
+import type { AuditFinding, AuditUnit } from '@/lib/editorial-audit/types';
 
-function makeUnit(id: string, text = ''): AuditUnit {
+function makeUnit(id: string, text = '', overrides: Partial<AuditUnit> = {}): AuditUnit {
   return {
     id,
     url: `/Blog/${id}`,
@@ -38,6 +46,8 @@ function makeUnit(id: string, text = ''): AuditUnit {
     sectionTitle: 'Test section',
     sectionIndex: 0,
     text,
+    llmEligible: false,
+    ...overrides,
   };
 }
 
@@ -97,9 +107,135 @@ describe('editorial audit cursor rotation', () => {
 describe('editorial audit batch scan', () => {
   it('produces findings with proposed fix from scanUnit', () => {
     const findings = scanUnit(makeUnit('fee-test', 'Police station fee was £181 last year.'));
-    expect(findings).toHaveLength(1);
-    expect(findings[0].severity).toBe('PROBLEM');
-    expect(findings[0].proposedFix).toMatch(/SI 2025\/1251/);
+    expect(findings.some((f) => f.code === 'fee-181' && f.severity === 'PROBLEM')).toBe(true);
+    expect(findings.find((f) => f.code === 'fee-181')?.proposedFix).toMatch(/SI 2025\/1251/);
+  });
+});
+
+describe('editorial audit PACE sourcing', () => {
+  it('flags legacy bare-PACE snippets', () => {
+    for (const snippet of LEGACY_PACE_SOURCING_SNIPPETS) {
+      expect(paceSourcingViolation(snippet.text)).toBe(true);
+    }
+  });
+
+  it('passes when PACE and Codes of Practice are cited', () => {
+    const text =
+      'Reps must apply PACE and Codes of Practice — not improvise. That includes custody rights under Code C, appropriate adults for juveniles and vulnerable adults, interpreter needs, and medical assessments where relevant.';
+    expect(hasPaceStatutoryCite(text)).toBe(true);
+    expect(paceSourcingViolation(text)).toBe(false);
+  });
+
+  it('scanUnit emits pace-sourcing REVIEW for bare PACE copy', () => {
+    const findings = scanUnit(
+      makeUnit('pace', LEGACY_PACE_SOURCING_SNIPPETS[0].text, { contentType: 'guide', url: '/PACE' }),
+    );
+    expect(findings.some((f) => f.code === 'pace-sourcing')).toBe(true);
+  });
+});
+
+describe('editorial audit LAA fee vs canonical rates', () => {
+  it('flags page copy that disagrees with lib/laa-rates police-station fixed fee', () => {
+    const text =
+      'Under the current LAA scheme the harmonised police station fixed fee is £250 for every attendance.';
+    const flags = scanFeeRateClaims(text);
+    expect(flags.some((f) => f.code === 'fee-rate-mismatch-police-station')).toBe(true);
+    expect(POLICE_STATION_FIXED_FEE).toBe(320);
+  });
+
+  it('does not flag the canonical £320 harmonised fee', () => {
+    const text =
+      'The harmonised police station fixed fee is £320 from 22 December 2025 (SI 2025/1251).';
+    expect(scanFeeRateClaims(text)).toHaveLength(0);
+  });
+
+  it('scanUnit surfaces fee mismatch as PROBLEM', () => {
+    const findings = scanUnit(
+      makeUnit(
+        'rates-bad',
+        'The harmonised police station fixed fee is £200 for all schemes.',
+        { contentType: 'fee-rights', url: '/PoliceStationRates', sourceFile: 'app/PoliceStationRates/page.tsx' },
+      ),
+    );
+    expect(findings.some((f) => f.code === 'fee-rate-mismatch-police-station')).toBe(true);
+  });
+});
+
+describe('editorial audit shouldRunLlm', () => {
+  const baseState = { llm_calls_this_month: 0, estimated_spend_usd: 0 };
+  const flagged: AuditFinding[] = [
+    {
+      fingerprint: 'x:fee-181',
+      unitId: 'x',
+      url: '/Blog/x',
+      sectionTitle: 't',
+      sourceFile: 'f',
+      severity: 'PROBLEM',
+      code: 'fee-181',
+      reason: 'bad fee',
+      proposedFix: 'fix',
+    },
+  ];
+
+  it('returns false without OPENAI_API_KEY', () => {
+    const prev = process.env.OPENAI_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    const unit = makeUnit('llm', 'text about fees', { llmEligible: true, contentType: 'guide' });
+    expect(shouldRunLlm(unit, flagged, 0, baseState)).toBe(false);
+    if (prev !== undefined) process.env.OPENAI_API_KEY = prev;
+  });
+
+  it('returns false when rules_flagged_only and no findings', () => {
+    process.env.OPENAI_API_KEY = 'sk-test';
+    const unit = makeUnit('llm', 'clean text', { llmEligible: true, contentType: 'guide' });
+    expect(shouldRunLlm(unit, [], 0, baseState)).toBe(false);
+  });
+
+  it('returns true when key set, eligible, and rules flagged', () => {
+    process.env.OPENAI_API_KEY = 'sk-test';
+    const unit = makeUnit('llm', 'flagged text', { llmEligible: true, contentType: 'guide' });
+    expect(shouldRunLlm(unit, flagged, 0, baseState)).toBe(true);
+  });
+
+  it('respects per-run call cap', () => {
+    process.env.OPENAI_API_KEY = 'sk-test';
+    const unit = makeUnit('llm', 'flagged text', { llmEligible: true, contentType: 'guide' });
+    expect(shouldRunLlm(unit, flagged, 2, baseState)).toBe(false);
+  });
+});
+
+describe('editorial audit live URL', () => {
+  it('flags HTTP errors from live fetch', async () => {
+    const fetchMock = vi.fn(async () => ({
+      status: 500,
+      text: async () => 'error',
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await scanBatchFull(
+      [makeUnit('live', 'ok copy with no red flags here')],
+      {
+        siteUrl: 'https://example.test',
+        skipLlm: true,
+        llmState: { llm_calls_this_month: 0, estimated_spend_usd: 0 },
+      },
+    );
+
+    expect(result.liveUrlsChecked).toBe(1);
+    expect(result.findings.some((f) => f.code === 'live-url-http-error')).toBe(true);
+    vi.unstubAllGlobals();
+  });
+});
+
+describe('editorial audit cron schedule', () => {
+  it('schedules weekdays 06:00 UTC (07:00 BST) not Monday-only 17:00', async () => {
+    const { readFileSync } = await import('fs');
+    const vercel = JSON.parse(readFileSync('vercel.json', 'utf8')) as {
+      crons?: Array<{ path: string; schedule: string }>;
+    };
+    const editorial = (vercel.crons ?? []).filter((c) => c.path === '/api/cron/editorial-audit');
+    expect(editorial).toHaveLength(1);
+    expect(editorial[0].schedule).toBe('0 6 * * 1-5');
   });
 });
 

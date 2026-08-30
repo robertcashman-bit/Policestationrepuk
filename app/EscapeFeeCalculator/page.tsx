@@ -4,6 +4,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ContentReliabilityNotice } from '@/components/ContentReliabilityNotice';
 import { ResolvedContentSources } from '@/components/ContentSourcesFooter';
+import {
+  POLICE_STATION_ESCAPE_THRESHOLD,
+  POLICE_STATION_FIXED_FEE,
+} from '@/lib/laa-rates';
 
 const RATE_CATEGORIES = [
   {
@@ -56,8 +60,8 @@ const RATE_CATEGORIES = [
   },
 ];
 
-const FIXED_FEE = 320.0;
-const ESCAPE_THRESHOLD = 650.0;
+const FIXED_FEE = POLICE_STATION_FIXED_FEE;
+const ESCAPE_THRESHOLD = POLICE_STATION_ESCAPE_THRESHOLD;
 
 const RATE_TABLE = [
   {

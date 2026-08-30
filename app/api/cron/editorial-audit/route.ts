@@ -4,13 +4,13 @@ import { runEditorialAudit } from '@/lib/editorial-audit/scheduler';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 /**
- * Rotating editorial content audit (daily via vercel.json).
- * Scans the next batch of blog/wiki/guide sections from source files,
- * flags factual red flags, and sends at most one digest email per day.
- * Auth: Bearer ${CRON_SECRET} or x-cron-secret header.
+ * Rotating editorial content audit (weekdays 07:00 Europe/London via vercel.json `0 6 * * 1-5`).
+ * Multi-source: regex rules, PACE sourcing, LAA fee vs lib/laa-rates, content-sources map,
+ * live URL fetch, and GPT (gpt-4o-mini) only when rules/sources flag and OPENAI_API_KEY is set.
+ * Findings-only email (no all-clear). Auth: Bearer ${CRON_SECRET} or x-cron-secret header.
  */
 export async function GET(request: Request) {
   if (!isCronAuthorized(request)) {
@@ -20,8 +20,10 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const limitParam = url.searchParams.get('limit');
   const limit = limitParam ? Number(limitParam) : undefined;
+  const skipLiveUrl = url.searchParams.get('skipLiveUrl') === '1';
+  const skipLlm = url.searchParams.get('skipLlm') === '1';
 
-  const result = await runEditorialAudit({ limit });
+  const result = await runEditorialAudit({ limit, skipLiveUrl, skipLlm });
 
   return NextResponse.json({
     ok: true,
@@ -30,6 +32,11 @@ export async function GET(request: Request) {
     nextCursor: result.nextCursor,
     scannedCount: result.scannedUnitIds.length,
     findingCount: result.findings.length,
+    llmCalls: result.llmCalls,
+    liveUrlsChecked: result.liveUrlsChecked,
+    safePatchCount: result.safePatchCount,
+    prUrl: result.prUrl ?? null,
+    prError: result.prError ?? null,
     notification: result.notification,
     scannedUnitIds: result.scannedUnitIds,
     findings: result.findings.map((f) => ({

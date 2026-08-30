@@ -18,6 +18,7 @@ export interface AuditNotifyResult {
 export async function notifyIfFindings(
   findings: AuditFinding[],
   unitsScanned: number,
+  extras?: { extraHtml?: string; prUrl?: string; prError?: string },
 ): Promise<AuditNotifyResult> {
   const today = dailyAuditDate();
 
@@ -55,6 +56,9 @@ export async function notifyIfFindings(
     findings: bucket.findings,
     unitsScanned: bucket.unitsScanned,
     date: today,
+    extraHtml: extras?.extraHtml,
+    prUrl: extras?.prUrl,
+    prError: extras?.prError,
   });
 
   if (emailed) await markDailyAuditSent(today);

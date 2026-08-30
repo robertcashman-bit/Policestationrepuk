@@ -34,6 +34,32 @@ export const PROPOSED_FIXES: Record<string, string> = {
   'citation-ghosh': 'Replace R v Ghosh with Ivey v Genting Casinos [2017] UKSC 67 for dishonesty.',
   'unregistered-case':
     'Add the case to lib/case-law-registry.ts after verifying the citation, or remove/replace with a registered authority.',
+  'pace-sourcing':
+    'Add a statutory or Code cite (e.g. PACE 1984, Code C, s.56) when referring to PACE in substantive copy.',
+  'missing-content-sources-map':
+    'Add a dedicated PAGE_PATH / BLOG_SLUG / WIKI_SLUG / LEGAL_UPDATE_SLUG entry in lib/content-sources.ts.',
+  'fee-rate-mismatch-police-station':
+    'Align the police-station fixed fee with lib/laa-rates.ts (POLICE_STATION_FIXED_FEE / SI 2025/1251).',
+  'fee-rate-mismatch-escape':
+    'Align the escape threshold with lib/laa-rates.ts (POLICE_STATION_ESCAPE_THRESHOLD / SI 2025/1251).',
+  'fee-rate-mismatch-magistrates-1a':
+    'Align Magistrates Category 1A figures with MAGISTRATES_CAT_1A in lib/laa-rates.ts.',
+  'fee-rate-mismatch-181':
+    'Replace £181 with the harmonised £320 fixed fee from lib/laa-rates.ts / SI 2025/1251.',
+  'fee-rate-mismatch-219':
+    'Replace £219 with the harmonised £320 fixed fee from lib/laa-rates.ts / SI 2025/1251.',
+  'live-url-http-error':
+    'Investigate the live URL HTTP error and restore a healthy public page response.',
+  'live-url-missing-title':
+    'Ensure the public page renders a non-empty <title> tag.',
+  'live-url-fetch-failed':
+    'Investigate why the live URL fetch failed (DNS, timeout, or TLS).',
+  'llm-fact-check':
+    'Review the LLM-flagged claim against primary sources; apply the suggested fix only if verified.',
+  'llm-unparseable':
+    'Re-run the audit or inspect the LLM response; treat as a review item.',
+  'llm-check-failed':
+    'Check OPENAI_API_KEY / quota; rules and source findings still stand without the LLM pass.',
 };
 
 export function proposedFixForCode(code: string): string {

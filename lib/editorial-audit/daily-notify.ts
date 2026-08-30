@@ -4,7 +4,8 @@ import type { AuditFinding } from './types';
 
 const BUCKET_PREFIX = 'editorial-audit:daily:';
 const NOTIFY_TIMEZONE = process.env.EDITORIAL_AUDIT_NOTIFY_TIMEZONE?.trim() || 'Europe/London';
-const SEND_AFTER_HOUR = Number(process.env.EDITORIAL_AUDIT_NOTIFY_SEND_HOUR ?? 18);
+/** Cron runs weekdays 07:00 Europe/London — allow digest from that hour (findings-only). */
+const SEND_AFTER_HOUR = Number(process.env.EDITORIAL_AUDIT_NOTIFY_SEND_HOUR ?? 7);
 
 export interface DailyAuditBucket {
   date: string;

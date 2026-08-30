@@ -6,6 +6,14 @@ import type { AuditUnit, ContentType } from './types';
 
 const ROOT = process.cwd();
 
+const LLM_ELIGIBLE_TYPES = new Set<ContentType>([
+  'blog',
+  'wiki',
+  'legal-update',
+  'guide',
+  'fee-rights',
+]);
+
 function readText(filePath: string): string {
   const full = path.join(ROOT, filePath);
   if (!fs.existsSync(full)) return '';
@@ -53,6 +61,7 @@ function makeUnit(
     sectionTitle,
     sectionIndex,
     text,
+    llmEligible: LLM_ELIGIBLE_TYPES.has(contentType),
   };
 }
 

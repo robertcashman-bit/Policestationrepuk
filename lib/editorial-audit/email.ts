@@ -64,11 +64,20 @@ export async function sendEditorialAuditDigestEmail(opts: {
   unitsScanned: number;
   date: string;
   adminEmail?: string;
+  extraHtml?: string;
+  prUrl?: string;
+  prError?: string;
 }): Promise<boolean> {
   const to = opts.adminEmail?.trim() || NOTIFY_EMAIL;
   const problemCount = opts.findings.filter((f) => f.severity === 'PROBLEM').length;
   const reviewCount = opts.findings.filter((f) => f.severity === 'REVIEW').length;
   const subject = `[Editorial audit] ${opts.findings.length} content ${opts.findings.length === 1 ? 'issue' : 'issues'} flagged`;
+
+  const prBlock = opts.prUrl
+    ? `<p style="margin:16px 0 0;font-size:13px;">Auto-PR: <a href="${escapeHtml(opts.prUrl)}">${escapeHtml(opts.prUrl)}</a></p>`
+    : opts.prError
+      ? `<p style="margin:16px 0 0;font-size:12px;color:#64748b;">Auto-PR not opened: ${escapeHtml(opts.prError)}</p>`
+      : '';
 
   const html = `
     <div style="font-family:system-ui,sans-serif;color:#0f172a;max-width:640px;">
@@ -80,6 +89,8 @@ export async function sendEditorialAuditDigestEmail(opts: {
         (${problemCount} critical, ${reviewCount} review).
       </p>
       ${formatFindingRows(opts.findings)}
+      ${opts.extraHtml ?? ''}
+      ${prBlock}
       <p style="color:#64748b;font-size:12px;line-height:1.5;margin-top:24px;">
         Date: ${escapeHtml(opts.date)} · Run <code>npm run audit:content-accuracy</code> for a full-site report.
       </p>

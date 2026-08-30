@@ -119,7 +119,7 @@
     },
     {
       "path": "/api/cron/editorial-audit",
-      "schedule": "0 17 * * 1"
+      "schedule": "0 6 * * 1-5"
     },
     {
       "path": "/api/cron/firm-outreach-pipeline/maintain",

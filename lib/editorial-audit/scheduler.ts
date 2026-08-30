@@ -1,7 +1,6 @@
 import { getAuditConfig } from './config';
 import { selectAuditBatch } from './cursor';
-import { appendAuditRunLog, collectSafeFixPatches, formatSafeFixPatchesForDigest } from './fix-registry';
-import { openAuditPullRequest } from './github-pr';
+import { appendAuditRunLog, formatSuggestedFixesForDigest } from './fix-registry';
 import { loadLlmSpendState, saveLlmSpendState } from './llm-state';
 import { notifyIfFindings } from './notify';
 import { scanBatchFull } from './runner';
@@ -17,9 +16,7 @@ export interface EditorialAuditRunResult {
   findings: AuditFinding[];
   llmCalls: number;
   liveUrlsChecked: number;
-  prUrl?: string;
-  prError?: string;
-  safePatchCount: number;
+  suggestedFixCount: number;
   notification: Awaited<ReturnType<typeof notifyIfFindings>>;
 }
 
@@ -49,30 +46,15 @@ export async function runEditorialAudit(opts?: {
     });
   }
 
-  const patches = collectSafeFixPatches(scanned.findings);
-  let prUrl: string | undefined;
-  let prError: string | undefined;
-  if (patches.length > 0 && cfg.githubToken) {
-    const pr = await openAuditPullRequest(patches);
-    prUrl = pr.url;
-    prError = pr.error;
-  }
-
+  const suggestedFixCount = scanned.findings.filter((f) => f.proposedFix?.trim()).length;
   appendAuditRunLog({
     date: new Date().toISOString(),
     findingCount: scanned.findings.length,
-    patches,
-    prUrl,
-    prError,
+    suggestedFixCount,
   });
 
-  // Attach safe-patch HTML for the digest when findings exist
-  const findingsForNotify: AuditFinding[] = scanned.findings;
-  const patchHtml = formatSafeFixPatchesForDigest(patches);
-  const notification = await notifyIfFindings(findingsForNotify, selection.batch.length, {
-    extraHtml: patchHtml || undefined,
-    prUrl,
-    prError,
+  const notification = await notifyIfFindings(scanned.findings, selection.batch.length, {
+    extraHtml: formatSuggestedFixesForDigest(scanned.findings) || undefined,
   });
 
   return {
@@ -84,9 +66,7 @@ export async function runEditorialAudit(opts?: {
     findings: scanned.findings,
     llmCalls: scanned.llmCalls,
     liveUrlsChecked: scanned.liveUrlsChecked,
-    prUrl,
-    prError,
-    safePatchCount: patches.length,
+    suggestedFixCount,
     notification,
   };
 }

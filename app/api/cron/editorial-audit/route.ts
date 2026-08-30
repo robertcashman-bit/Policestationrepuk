@@ -10,7 +10,8 @@ export const maxDuration = 120;
  * Rotating editorial content audit (weekdays 07:00 Europe/London via vercel.json `0 6 * * 1-5`).
  * Multi-source: regex rules, PACE sourcing, LAA fee vs lib/laa-rates, content-sources map,
  * live URL fetch, and GPT (gpt-4o-mini) only when rules/sources flag and OPENAI_API_KEY is set.
- * Findings-only email (no all-clear). Auth: Bearer ${CRON_SECRET} or x-cron-secret header.
+ * Findings-only email (no all-clear). Suggested fixes are digest metadata only — no auto-edit / auto-PR.
+ * Auth: Bearer ${CRON_SECRET} or x-cron-secret header.
  */
 export async function GET(request: Request) {
   if (!isCronAuthorized(request)) {
@@ -34,9 +35,7 @@ export async function GET(request: Request) {
     findingCount: result.findings.length,
     llmCalls: result.llmCalls,
     liveUrlsChecked: result.liveUrlsChecked,
-    safePatchCount: result.safePatchCount,
-    prUrl: result.prUrl ?? null,
-    prError: result.prError ?? null,
+    suggestedFixCount: result.suggestedFixCount,
     notification: result.notification,
     scannedUnitIds: result.scannedUnitIds,
     findings: result.findings.map((f) => ({

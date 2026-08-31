@@ -96,6 +96,8 @@ Or manually in the Resend dashboard:
 - **Events:** `email.delivered`, `email.opened`, `email.clicked`, `email.bounced`, `email.complained`
 - Copy the endpoint **signing secret** into Vercel production `RESEND_WEBHOOK_SECRET`, then redeploy.
 
+The handler verifies the Svix signature (401 if secret missing/invalid), then returns **HTTP 200 immediately** and runs KV/job matching via Next.js `after()`. Slow or empty storage must not delay the ack — Resend disables endpoints that keep timing out.
+
 Updates the admin Send log with delivery/open/click/bounce status. Webhook matching uses `resendMessageId` first, then falls back to the newest in-flight send for that email across **all** campaigns (`whatsapp_invite_v1` and `agent_cover_kent_v1`).
 
 **PSA (`policestationagent.com`):** every send path must persist `resendMessageId` from Resend (`send.resendMessageId = result.messageId`). Without it, agent-cover sends stay stuck at `sent` in KV. RepUK logs a console warning when a send is saved without it.

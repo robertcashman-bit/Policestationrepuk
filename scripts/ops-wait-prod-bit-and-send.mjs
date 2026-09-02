@@ -208,6 +208,12 @@ async function main() {
   };
   console.log('SUMMARY', JSON.stringify(summary));
   if (send.status !== 200) process.exit(1);
+  // Firm outreach *email* is permanently disabled on Policestationrepuk —
+  // inventory/bootstrap may still run, but send mode is permanently_disabled.
+  if (send.json?.mode === 'permanently_disabled') {
+    console.log('OK: firm outreach email permanently disabled (inventory-only)');
+    return;
+  }
   if (send.json?.mode !== 'outreach-worker' && send.json?.mode !== 'send-only') {
     console.error('Unexpected send mode', send.json?.mode);
     process.exit(1);

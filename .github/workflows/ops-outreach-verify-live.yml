@@ -266,8 +266,14 @@ jobs:
             'report_date': report.get('reportDate'),
             'acceptedTotal': report.get('acceptedTotal'),
           })
-          assert send.get('mode') == 'outreach-worker', send.get('mode')
+          # Firm outreach *email* is permanently disabled on this site.
+          # Verify stays green when send/report crons return permanently_disabled.
+          mode = send.get('mode')
+          assert mode in ('outreach-worker', 'permanently_disabled'), mode
           assert report.get('ok') is True
+          if mode == 'permanently_disabled':
+              print('OK: firm outreach email permanently disabled (inventory-only)')
+              raise SystemExit(0)
           cfg=status.get('config') or {}
           # Stub status means the status probe still timed out — do not fail the
           # whole verify on config fields we could not read; worker+report still ran.

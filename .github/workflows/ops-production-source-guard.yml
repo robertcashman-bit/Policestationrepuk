@@ -124,10 +124,23 @@ jobs:
           STABLE_NEEDED=90
           sent_flag=0
 
+          # Prefer READY production/master only — never reuse CANCELED previews.
           find_url() {
             curl -sS "${API}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_ORG_ID}&limit=40" \
               -H "${AUTH}" \
-              | jq -r --arg sha "$TIP" '.deployments[] | select(.meta.githubCommitSha == $sha) | .url' \
+              | jq -r --arg sha "$TIP" '
+                  .deployments[]
+                  | select(
+                      .meta.githubCommitSha == $sha
+                      and .state == "READY"
+                      and (
+                        .target == "production"
+                        or .meta.githubCommitRef == "master"
+                        or .meta.githubCommitRef == "main"
+                      )
+                    )
+                  | .url
+                ' \
               | head -1
           }
 

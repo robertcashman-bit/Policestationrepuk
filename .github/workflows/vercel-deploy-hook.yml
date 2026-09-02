@@ -200,27 +200,45 @@ jobs:
           API="https://api.vercel.com"
           AUTH="Authorization: Bearer ${VERCEL_TOKEN}"
 
+          # Prefer a READY production/master deployment for this SHA.
+          # Do not reuse canceled/error preview builds (ignoreCommand skips
+          # non-production, so feature-branch URLs for the same SHA are CANCELED).
           find_url() {
-            curl -sS "${API}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_ORG_ID}&limit=25" \
+            curl -sS "${API}/v6/deployments?projectId=${VERCEL_PROJECT_ID}&teamId=${VERCEL_ORG_ID}&limit=40" \
               -H "${AUTH}" \
-              | jq -r --arg sha "$SHA" '.deployments[] | select(.meta.githubCommitSha == $sha) | .url' \
+              | jq -r --arg sha "$SHA" --arg ref "$REF" '
+                  .deployments[]
+                  | select(
+                      .meta.githubCommitSha == $sha
+                      and .state == "READY"
+                      and (
+                        .target == "production"
+                        or .meta.githubCommitRef == $ref
+                        or .meta.githubCommitRef == "master"
+                        or .meta.githubCommitRef == "main"
+                      )
+                    )
+                  | .url
+                ' \
               | head -1
           }
 
           URL="$(find_url || true)"
           if [ -z "$URL" ]; then
-            echo "No deployment for ${SHA}; triggering git production build (repoId=${REPO_ID} ref=${REF})"
+            echo "No READY production/master deployment for ${SHA}; triggering git production build (repoId=${REPO_ID} ref=${REF})"
             RESP=$(curl -sS -X POST "${API}/v13/deployments?teamId=${VERCEL_ORG_ID}" \
               -H "${AUTH}" \
               -H "Content-Type: application/json" \
               -d "{\"name\":\"policestationrepuk-new\",\"project\":\"${VERCEL_PROJECT_ID}\",\"target\":\"production\",\"gitSource\":{\"type\":\"github\",\"repoId\":${REPO_ID},\"ref\":\"${REF}\",\"sha\":\"${SHA}\"}}")
-            echo "$RESP" | jq '{id, url, readyState}'
+            echo "$RESP" | jq '{id, url, readyState, error: .error}'
             URL=$(echo "$RESP" | jq -r '.url // empty')
             if [ -z "$URL" ]; then
               echo "Failed to trigger deployment"
               echo "$RESP"
               exit 1
             fi
+          else
+            echo "Found READY deployment for ${SHA}: ${URL}"
           fi
 
           echo "url=https://${URL}" >> "$GITHUB_OUTPUT"

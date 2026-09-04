@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     template: '%s',
   },
   description:
-    'Free UK directory of accredited police station representatives and police station phone numbers. Search reps by county or station; report updated custody numbers. 100% free.',
+    'Free UK directory of accredited police station representatives for criminal defence firms. Search and instruct reps by county or station. Not the police — 100% free.',
   keywords: [...SITE_KEYWORDS],
   metadataBase: new URL(SITE_URL),
   manifest: '/manifest.json',
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     type: 'website',
     title: 'PoliceStationRepUK — Free Police Station Rep Directory UK',
     description:
-      'The UK\'s free directory for police station reps, station phone numbers, and criminal defence cover across England & Wales.',
+      'The UK\'s free directory for police station reps and criminal defence cover across England & Wales. Instruct accredited representatives directly.',
     url: SITE_URL,
     images: [
       {

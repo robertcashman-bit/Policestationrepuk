@@ -142,16 +142,19 @@ export function HomeSeoConversionHub() {
               <Link
                 href="/directory"
                 className="btn-gold inline-flex justify-center !text-sm"
-                data-event="blog_cta_click"
+                data-event="instruct_cta_click"
                 data-event-placement="home_hub_directory"
               >
-                Find a Police Station Rep
+                Instruct a Police Station Rep
+              </Link>
+              <Link href="/KentAgentCover" className="btn-outline inline-flex justify-center !text-sm">
+                Kent agency cover
               </Link>
               <Link href="/search" className="btn-outline inline-flex justify-center !text-sm">
                 Advanced search
               </Link>
               <Link href="/find-station" className="btn-outline inline-flex justify-center !text-sm">
-                Station phone numbers
+                Browse stations
               </Link>
               <Link
                 href="/Register"
@@ -173,11 +176,8 @@ export function HomeSeoConversionHub() {
               Coverage across England &amp; Wales
             </h2>
             <p className="mt-2 text-sm text-[var(--muted)]">
-              Browse representatives by region — and use our{' '}
-              <Link href="/find-station" className="font-semibold text-[var(--gold-link)] underline">
-                station phone directory
-              </Link>{' '}
-              for custody desk lines and main numbers.
+              Browse representatives by region — instruct them directly from their profile. Station pages
+              are for professional cover routing, not public police switchboards.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               {COVERAGE_LINKS.map((l) => (

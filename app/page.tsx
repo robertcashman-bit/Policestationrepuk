@@ -24,6 +24,7 @@ import { FeaturedListingAdvert } from '@/components/FeaturedListingAdvert';
 import { FeaturedListingFaq } from '@/components/FeaturedListingFaq';
 import { DirectoryCredentialVerificationNotice } from '@/components/DirectoryCredentialVerificationNotice';
 import { LegalDirectoryPromo } from '@/components/legal-directory/LegalDirectoryPromo';
+import { InstructRepPrimaryCta } from '@/components/InstructRepPrimaryCta';
 import {
   getAllReps,
   getAllCounties,
@@ -49,12 +50,12 @@ import { repMatchesAnyCounty } from '@/lib/county-matching';
 export const metadata: Metadata = {
   title: 'Find a Police Station Rep — UK Representative Directory',
   description:
-    'Free UK directory of police station representatives and station telephone numbers. Search reps by county or station; report updated custody desk numbers. Join free.',
+    'Free UK directory of accredited police station representatives for criminal defence firms. Search by county or station and instruct a rep directly. Not the police — join free.',
   alternates: { canonical: SITE_URL },
   openGraph: {
     title: 'Find a Police Station Rep — UK Representative Directory',
     description:
-      'Free UK directory of accredited police station representatives and station telephone numbers. Search reps by county or station; report updated custody desk numbers.',
+      'Free UK directory of accredited police station representatives. Search by county or station and instruct a rep directly. Not the police.',
     url: SITE_URL,
     type: 'website',
     siteName: SITE_NAME,
@@ -71,7 +72,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Find a Police Station Rep — UK Directory',
-    description: 'Free directory of police station reps and station phone numbers across England & Wales.',
+    description: 'Free directory of police station reps across England & Wales. Instruct accredited representatives directly.',
     images: [socialPreviewImageUrl()],
   },
 };
@@ -115,6 +116,10 @@ export default async function HomePage() {
       />
 
       <SisterToolsSlimBar />
+
+      <div className="page-container py-6 sm:py-8">
+        <InstructRepPrimaryCta />
+      </div>
 
       {hasLiveDirectoryCounts && (
         <section

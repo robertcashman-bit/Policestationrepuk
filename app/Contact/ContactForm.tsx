@@ -3,9 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-export function ContactForm() {
+export function ContactForm({ initialSubject = '' }: { initialSubject?: string }) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: initialSubject,
+    message: '',
+  });
   const [hp, setHp] = useState('');
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [submissionRef, setSubmissionRef] = useState<string | null>(null);

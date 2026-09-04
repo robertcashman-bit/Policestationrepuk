@@ -17,17 +17,20 @@ import { buildStationPhonePublicStats } from '@/lib/station-phone-stats-server';
 import { StationContactDisclaimer } from '@/components/StationPhone';
 import { GuideFaqs } from '@/components/StructuredGuideLayout';
 import { buildFindStationSearchUrl } from '@/lib/station-directory-links';
+import { NotPoliceDeflectBanner } from '@/components/NotPoliceDeflectBanner';
+import { InstructRepPrimaryCta } from '@/components/InstructRepPrimaryCta';
+import { STATIONS_DIRECTORY_TITLE } from '@/lib/gsc-harness-copy';
 
 export const metadata = buildMetadata({
-  title: 'UK Police Station Phone Numbers & Addresses Directory',
+  title: STATIONS_DIRECTORY_TITLE,
   description:
-    'Browse UK police stations by force or county. Open a station page for custody desk and main telephone numbers.',
+    'Browse UK police stations by force or county. Find accredited police station representatives covering each station. Not the police — call 101 or 999 for police contact.',
   path: '/StationsDirectory',
   keywords: [
-    'police station phone numbers UK',
-    'custody suite telephone number',
-    'police station address directory',
-    'police force station contacts',
+    'police station directory UK',
+    'find police station representative',
+    'custody suite representatives',
+    'police station cover directory',
   ],
 });
 
@@ -78,20 +81,29 @@ export default async function StationsDirectoryPage({ searchParams }: PageProps)
           </div>
           <h1 className="text-h1 text-white">Browse UK police stations</h1>
           <p className="mt-3 max-w-2xl text-lg leading-relaxed text-white">
-            A–Z and force browse. Open a station to see Call &amp; Copy phone numbers.
+            A–Z and force browse for solicitors and accredited reps. Open a station to find representatives covering that suite.
             {stations.length > 0 ? ` ${stations.length} stations listed.` : ''}
           </p>
-          <p className="mt-4">
+          <div className="mt-5 max-w-2xl">
+            <NotPoliceDeflectBanner variant="hero" />
+          </div>
+          <p className="mt-4 flex flex-wrap gap-3">
             <Link
-              href="/find-station"
+              href="/directory"
               className="inline-flex min-h-[48px] items-center rounded-xl bg-[var(--gold)] px-6 text-sm font-extrabold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
             >
-              Search for a station →
+              Instruct a police station rep →
+            </Link>
+            <Link
+              href="/find-station"
+              className="inline-flex min-h-[48px] items-center rounded-xl border-2 border-white/40 bg-white/10 px-6 text-sm font-bold text-white no-underline hover:border-[var(--gold)]"
+            >
+              Search stations →
             </Link>
           </p>
           {stats.total > 0 ? (
             <p className="mt-3 text-xs text-slate-300">
-              {stats.directLine} direct lines
+              {stats.directLine} professional contact lines listed
               {stats.verifiedCustodyCount > 0
                 ? ` · ${stats.verifiedCustodyCount} verified custody suites`
                 : ''}
@@ -102,6 +114,12 @@ export default async function StationsDirectoryPage({ searchParams }: PageProps)
       </section>
 
       <div className="page-container">
+        <div className="mb-6">
+          <InstructRepPrimaryCta />
+        </div>
+        <div className="mb-6">
+          <NotPoliceDeflectBanner variant="compact" />
+        </div>
         <StationsDataContributeCta variant="slim" className="mb-6" />
         <StationsDirectoryExplorer
           stations={stations}
@@ -113,16 +131,16 @@ export default async function StationsDirectoryPage({ searchParams }: PageProps)
         <StationsDataContributeCta variant="prominent" className="mt-10" />
 
         <div className="mt-10 rounded-xl border border-slate-200 bg-slate-50 p-6">
-          <h2 className="text-lg font-bold text-[var(--navy)]">Help us keep telephone numbers accurate</h2>
+          <h2 className="text-lg font-bold text-[var(--navy)]">Help keep professional contacts accurate</h2>
           <p className="mt-1.5 text-sm text-[var(--muted)]">
-            Reps and firms rely on correct custody desk and main line numbers. Submit the number you use
-            today — we review every correction before it goes live.
+            Reps and firms rely on correct custody desk and main line numbers. Public callers should use 101 or 999.
+            Submit the number you use today — we review every correction before it goes live.
           </p>
           <Link
             href="/UpdateStation"
             className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--gold-link)] no-underline hover:text-[var(--gold)] hover:underline"
           >
-            Report an updated phone number or address &rarr;
+            Report an updated contact or address &rarr;
           </Link>
         </div>
 
@@ -136,18 +154,7 @@ export default async function StationsDirectoryPage({ searchParams }: PageProps)
         </div>
 
         <div className="mt-14 border-t border-[var(--border)] pt-10">
-          <h2 className="text-h2 text-[var(--navy)]">Find a Representative</h2>
-          <p className="mt-2 text-[var(--muted)]">
-            Search our directory of accredited police station representatives covering these stations.
-          </p>
-          <div className="mt-4 flex gap-3">
-            <Link href="/directory" className="btn-gold">
-              Search Directory
-            </Link>
-            <Link href="/directory/counties" className="btn-outline">
-              Browse by County
-            </Link>
-          </div>
+          <InstructRepPrimaryCta />
         </div>
       </div>
     </>

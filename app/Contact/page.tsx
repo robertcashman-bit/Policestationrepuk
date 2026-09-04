@@ -3,6 +3,7 @@ import { SUPPORT_EMAIL, SUPPORT_MAILTO_HREF } from '@/lib/site-contact';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import Link from 'next/link';
 import { ContactForm } from './ContactForm';
+import { InstructRepPrimaryCta } from '@/components/InstructRepPrimaryCta';
 
 export const metadata = buildMetadata({
   title: 'Contact the Directory Team — PoliceStationRepUK',
@@ -11,7 +12,14 @@ export const metadata = buildMetadata({
   path: '/contact',
 });
 
-export default function ContactPage() {
+interface PageProps {
+  searchParams?: Promise<{ [key: string]: string | undefined }>;
+}
+
+export default async function ContactPage({ searchParams }: PageProps) {
+  const params = (await searchParams) ?? {};
+  const initialSubject = params.subject?.trim() ?? '';
+
   return (
     <>
       <section className="bg-[var(--navy)] py-10 sm:py-14">
@@ -34,6 +42,9 @@ export default function ContactPage() {
 
       <div className="page-container">
         <div className="mx-auto max-w-2xl">
+          <div className="mb-6">
+            <InstructRepPrimaryCta />
+          </div>
           <div className="rounded-[var(--radius-lg)] border-2 border-red-600 bg-red-600 p-6 text-white shadow-lg">
             <p className="text-xl font-extrabold uppercase tracking-wide sm:text-2xl">
               We are not the police
@@ -42,7 +53,8 @@ export default function ContactPage() {
               You are not contacting the police. If you submit queries or reports here you will{' '}
               <span className="underline decoration-2">not</span> get a reply from the police with
               regard to any police matters. This is a private directory website for solicitors and
-              accredited representatives&nbsp;&mdash; not a police service.
+              accredited representatives&nbsp;&mdash; not a police service. We do not publish custody
+              switchboard numbers for public use.
             </p>
             <div className="mt-5 rounded-lg bg-white/10 p-4">
               <p className="text-sm font-bold">If you need the police:</p>
@@ -138,7 +150,7 @@ export default function ContactPage() {
               For solicitors, reps, and directory questions only — not the police. If you need the police,
               call 999 or 101.
             </p>
-            <ContactForm />
+            <ContactForm initialSubject={initialSubject} />
           </section>
 
           <div className="mt-6 rounded-[var(--radius)] border border-yellow-200 bg-yellow-50 p-4 text-xs leading-relaxed text-yellow-900">

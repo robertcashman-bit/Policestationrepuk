@@ -67,7 +67,7 @@ export interface StationContactSnapshot {
 export type PublishablePhoneField = StationPhoneField;
 
 export const STATION_CONTACT_DISCLAIMER =
-  'Contact details are provided for general information only and may change without notice. For emergencies call 999. For non-emergencies call 101. Custody suite numbers are included only where publicly available from official or reliable public sources.';
+  'We are not the police. Contact details are for criminal defence professionals only and may change without notice — we do not publish custody switchboard numbers for public use. For emergencies call 999; for non-emergencies call 101. Where a custody desk line appears, it is only from official or reliable public sources for solicitors and accredited reps.';
 
 export const CUSTODY_NOT_PUBLISHED_TEXT = 'Custody number: Not publicly published';
 

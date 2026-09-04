@@ -44,7 +44,7 @@ export function InstructRepPrimaryCta({
         {showKent ? (
           <Link
             href={INSTRUCT_KENT_HREF}
-            className="inline-flex min-h-[2.5rem] items-center rounded-lg border border-[var(--navy)]/20 px-3 py-2 text-sm font-semibold text-[var(--navy)] no-underline hover:border-[var(--gold)]"
+            className="inline-flex min-h-[2.5rem] items-center rounded-lg border border-white/40 bg-white/10 px-3 py-2 text-sm font-semibold text-white no-underline hover:border-[var(--gold)] hover:bg-white/15"
           >
             {INSTRUCT_KENT_LABEL}
           </Link>

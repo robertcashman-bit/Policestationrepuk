@@ -240,7 +240,7 @@ export function stationDirectoryItemListSchema(
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'UK Police Station Directory — Phone Numbers & Addresses',
+    name: 'UK Police Station Directory — Find a Representative',
     description:
       'Searchable directory of UK police station locations for solicitors and accredited reps arranging cover.',
     numberOfItems: count,

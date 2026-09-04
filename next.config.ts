@@ -520,6 +520,11 @@ const nextConfig: NextConfig = {
         destination: "/Blog/duty-solicitor-police-station",
         permanent: true,
       },
+      {
+        source: "/own-solicitor-police-station",
+        destination: "/Blog/own-solicitor-police-station",
+        permanent: true,
+      },
       // google03385fbe80cfcd6b verification handled by public/ static file
     ];
   },

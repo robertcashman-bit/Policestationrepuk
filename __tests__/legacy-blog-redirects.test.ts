@@ -27,6 +27,10 @@ describe('resolveLegacyBlogRedirect', () => {
     expect(resolveLegacyBlogRedirect('duty-solicitor-police-station')).toBeNull();
   });
 
+  it('does not redirect the own-solicitor police station explainer', () => {
+    expect(resolveLegacyBlogRedirect('own-solicitor-police-station')).toBeNull();
+  });
+
   it('keeps legacy duty-solicitor aliases pointing at the comparison article', () => {
     for (const slug of LEGACY_DUTY_SOLICITOR_ALIASES) {
       expect(resolveLegacyBlogRedirect(slug), slug).toBe(DUTY_SOLICITOR_COMPARISON);

@@ -164,6 +164,11 @@ const UNSPLASH_PHOTOS = {
     credit: 'Illia Panasenko / Unsplash',
     description: 'Map of Europe with location pins for coverage planning',
   },
+  'own-solicitor-police-station': {
+    id: 'photo-1556761175-b413da4baf72',
+    credit: 'Austin Distel / Unsplash',
+    description: 'Professionals in a meeting discussing papers — requesting your own solicitor',
+  },
 };
 
 /** Optional Pexels topical queries used only when PEXELS_API_KEY is set. */
@@ -193,6 +198,7 @@ const PEXELS_QUERIES = {
   'accredited-reps-keep-availability-updated': 'clock calendar desk laptop office',
   'keep-directory-profile-useful': 'person typing laptop desk professional',
   'police-station-rep-coverage-location-matters': 'europe map pins location planning',
+  'own-solicitor-police-station': 'professionals meeting office discussion papers',
 };
 
 function unsplashUrl(photoId, width) {

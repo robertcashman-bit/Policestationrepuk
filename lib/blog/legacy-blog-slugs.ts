@@ -33,6 +33,7 @@ export const NEW_BLOG_SLUGS_LIST = [
   'freelance-rep-day-rate-2026',
   'building-firm-panel-freelance-reps',
   'duty-solicitor-police-station',
+  'own-solicitor-police-station',
 ] as const;
 
 export const NEW_BLOG_SLUG_SET = new Set<string>(NEW_BLOG_SLUGS_LIST as unknown as string[]);

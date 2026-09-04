@@ -173,7 +173,7 @@ Triaged all 49 articles for high-risk claim patterns (bail limits, fee figures, 
   - Source: SI 2025/1251 — https://www.legislation.gov.uk/uksi/2025/1251/made
 
 ### Verified accurate (no change)
-- **`legal-aid-billing-complete-guide`, `claiming-fees-police-station`** — correctly state the harmonised £320/£650 (UFN ≥ 22 Dec 2025), with £145.57–£315.86 old fixed fees and £640–£960 old escape thresholds correctly labelled as historical; current escape hourly rates (prep/attendance £49.70 National / £54.86 London; travel & waiting £27.60) cited to SI 2025/1251.
+- **`legal-aid-billing-complete-guide`, `claiming-fees-police-station`** — correctly state the harmonised £320/£650 (UFN ≥ 22 Dec 2025). Escape Fees sections cite the unified **£650** threshold to SI 2025/1251 (no leftover £640 current-threshold claim); old fixed fees £145.57–£315.86 remain labelled as pre-harmonisation where shown.
 - **`police-caution-explained`, `no-comment-interviews`** — case citations checked and are genuine, relevant s.34 authorities (R v Argent, Condron, Roble, Betts & Hall, Knight, Beckles, Nickolson). Caution wording correct.
 - **`adverse-inference-section-34-guide`** (was *pending* → now **verified**) — s.34 mechanics, ss.36/37 special warnings, prepared-statement strategy, and disclosure-dependent advice all accurate and well-hedged.
 - Mileage references across articles (45p first 10,000 miles, then 25p) match HMRC.

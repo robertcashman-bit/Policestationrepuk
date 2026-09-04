@@ -1,4 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import fs from 'fs';
+import path from 'path';
 
 vi.mock('@/lib/editorial-audit/email', () => ({
   sendEditorialAuditDigestEmail: vi.fn(async () => true),
@@ -147,6 +149,39 @@ describe('editorial audit LAA fee vs canonical rates', () => {
     const text =
       'The harmonised police station fixed fee is £320 from 22 December 2025 (SI 2025/1251).';
     expect(scanFeeRateClaims(text)).toHaveLength(0);
+  });
+
+  it('flags a wrong current escape threshold of £640', () => {
+    const text =
+      'The Escape Fee Threshold of £640 applies to all police station schemes under the current LAA rates.';
+    const flags = scanFeeRateClaims(text);
+    expect(flags.some((f) => f.code === 'fee-rate-mismatch-escape')).toBe(true);
+  });
+
+  it('does not flag historical pre-harmonisation escape ranges', () => {
+    const text =
+      'Before 22 December 2025, previous escape thresholds varied by scheme (approximately £640 to £960). The unified threshold is now £650.';
+    expect(scanFeeRateClaims(text).filter((f) => f.code === 'fee-rate-mismatch-escape')).toHaveLength(
+      0,
+    );
+  });
+
+  it('does not flag the Escape Fees section of legal-aid-billing-complete-guide', () => {
+    const articles = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), 'data/wiki-articles.json'), 'utf8'),
+    ) as Array<{ slug: string; content: string }>;
+    const article = articles.find((a) => a.slug === 'legal-aid-billing-complete-guide');
+    expect(article).toBeTruthy();
+    expect(article!.content).not.toContain('£640');
+    const section =
+      article!.content.match(
+        /## Escape Fees: Enhanced Rates for Complex Cases[\s\S]*?(?=\n## |\Z)/,
+      )?.[0] ?? '';
+    expect(section).toContain('£650');
+    expect(section).toMatch(/SI 2025\/1251/);
+    expect(scanFeeRateClaims(section).filter((f) => f.code === 'fee-rate-mismatch-escape')).toHaveLength(
+      0,
+    );
   });
 
   it('scanUnit surfaces fee mismatch as PROBLEM', () => {

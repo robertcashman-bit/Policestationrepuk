@@ -8,6 +8,14 @@ import {
 import { excerpt } from './rules';
 import type { RedFlag } from './types';
 
+/** True when nearby copy frames a fee figure as historical / superseded. */
+export function isHistoricalFeeFraming(text: string, index: number): boolean {
+  const window = text.slice(Math.max(0, index - 80), index + 120);
+  return /pre[-\s]?22|before\s+22|UFNs?\s+before|historical|superseded|old\s+rate|prior\s+to|previous(?:ly)?|2024\/25/i.test(
+    window,
+  );
+}
+
 /**
  * Compare page copy that asserts current LAA police-station / magistrates rates
  * against the canonical figures in lib/laa-rates.ts.
@@ -23,11 +31,7 @@ export function scanFeeRateClaims(text: string): RedFlag[] {
     const m = re.exec(text);
     if (!m) continue;
     // Historical framing is OK
-    if (
-      /pre[-\s]?22|before\s+22|UFNs?\s+before|historical|superseded|old\s+rate|prior\s+to\s+22|2024\/25/i.test(
-        text.slice(Math.max(0, m.index - 60), m.index + 120),
-      )
-    ) {
+    if (isHistoricalFeeFraming(text, m.index)) {
       continue;
     }
     flags.push({
@@ -47,11 +51,7 @@ export function scanFeeRateClaims(text: string): RedFlag[] {
     if (!Number.isFinite(claimed)) continue;
     if (claimed === POLICE_STATION_FIXED_FEE || claimed === POLICE_STATION_FIXED_FEE + 0.0) continue;
     if (claimed === 320.0) continue;
-    if (
-      /pre[-\s]?22|before\s+22|UFNs?\s+before|historical|superseded|old\s+rate|prior\s+to/i.test(
-        text.slice(Math.max(0, m.index - 80), m.index + 100),
-      )
-    ) {
+    if (isHistoricalFeeFraming(text, m.index)) {
       continue;
     }
     flags.push({
@@ -63,16 +63,12 @@ export function scanFeeRateClaims(text: string): RedFlag[] {
   }
 
   const escapeClaim =
-    /escape\s+threshold[^£\d]{0,40}£(\d{2,4}(?:\.\d{2})?)/gi;
+    /escape(?:\s+fee)?\s+thresholds?[^£\d]{0,40}£(\d{2,4}(?:\.\d{2})?)/gi;
   while ((m = escapeClaim.exec(text)) !== null) {
     const claimed = parseFloat(m[1]);
     if (!Number.isFinite(claimed)) continue;
     if (claimed === POLICE_STATION_ESCAPE_THRESHOLD) continue;
-    if (
-      /pre[-\s]?22|before\s+22|UFNs?\s+before|historical|superseded|old\s+rate|prior\s+to/i.test(
-        text.slice(Math.max(0, m.index - 80), m.index + 100),
-      )
-    ) {
+    if (isHistoricalFeeFraming(text, m.index)) {
       continue;
     }
     flags.push({

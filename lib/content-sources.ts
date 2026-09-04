@@ -177,6 +177,12 @@ const BLOG_SLUG: Record<string, ContentSource[]> = {
     SCC_2025,
     { label: 'Find legal advice (justice.gov.uk)', href: 'https://find-legal-advice.justice.gov.uk/' },
   ],
+  'own-solicitor-police-station': [
+    PACE_ACT,
+    { label: 'PACE Code C (2023)', href: 'https://www.gov.uk/government/publications/pace-code-c-2023' },
+    SCC_2025,
+    { label: 'Find legal advice (justice.gov.uk)', href: 'https://find-legal-advice.justice.gov.uk/' },
+  ],
 };
 
 const CRAWL_SLUG: Record<string, ContentSource[]> = {

@@ -24,6 +24,7 @@ const CLUSTER_DEFS: Record<
       'what-does-a-freelance-police-station-representative-do',
       'freelance-police-station-representative-vs-duty-solicitor',
       'duty-solicitor-police-station',
+      'own-solicitor-police-station',
       'what-makes-a-good-police-station-representative',
       'accreditation-and-standards-in-freelance-police-station-work',
       'how-freelance-police-station-reps-win-repeat-instructions',

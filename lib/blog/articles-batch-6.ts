@@ -330,6 +330,7 @@ To standardise attendance notes across everyone on your panel, see [CustodyNote]
       'Classic British navy front door with cream stone surround — featured image for duty solicitor advice',
     ),
     relatedSlugs: [
+      'own-solicitor-police-station',
       'freelance-police-station-representative-vs-duty-solicitor',
       'police-station-attendance-checklist',
       'how-firms-can-instruct-freelance-police-station-reps',
@@ -390,6 +391,87 @@ PoliceStationRepUK is a **directory**, not a law firm. Firms needing overflow or
 ---
 
 *General information only — not legal advice. Applies to England and Wales.*
+`.trim(),
+  },
+  {
+    slug: 'own-solicitor-police-station',
+    title: 'Can I ask for my own solicitor at the police station?',
+    metaTitle: 'Can I Ask for My Own Solicitor at the Police Station?',
+    metaDescription:
+      'Yes. Name your own solicitor or firm at the police station. How custody and the DSCC contact a named firm, and when duty cover steps in.',
+    primaryKeyword: 'own solicitor police station',
+    categories: ['best-practice', 'attendance'],
+    published: '2026-09-04T09:00:00.000Z',
+    modified: '2026-09-04T09:00:00.000Z',
+    excerpt:
+      'Yes — you can name your own solicitor or firm at the police station. Custody contacts the DSCC; if that firm cannot attend, ask for the duty solicitor.',
+    summary:
+      'Explains how to request a named solicitor or firm at the police station in England and Wales, how the DSCC routes the call, when duty cover steps in, and a labelled Kent named-firm option.',
+    image: IMG(
+      'own-solicitor-police-station',
+      'Professionals in a meeting discussing papers — featured image for requesting your own solicitor',
+    ),
+    relatedSlugs: [
+      'duty-solicitor-police-station',
+      'freelance-police-station-representative-vs-duty-solicitor',
+      'police-station-attendance-checklist',
+      'how-firms-can-instruct-freelance-police-station-reps',
+    ],
+    faqs: [
+      {
+        q: 'Can I ask for my own solicitor at the police station?',
+        a: 'Yes. In England and Wales you can ask for your own solicitor or a named firm instead of the duty solicitor. Say the name clearly to the custody officer so the DSCC can try that firm first.',
+      },
+      {
+        q: 'What if my own firm cannot attend?',
+        a: 'If there is no answer, the firm is out of area, or it cannot attend promptly, tell custody you want the duty solicitor instead. That is the national fallback.',
+      },
+      {
+        q: 'Is own-solicitor advice free at the police station?',
+        a: 'Usually yes under legal aid, same as duty advice. You should not be asked to pay at the station. Private charging after release is a separate matter between you and the firm.',
+      },
+    ],
+    bodyMarkdown: `
+**Yes.** In England and Wales you can ask for your **own solicitor** or a **named firm** instead of the duty solicitor. Say the name clearly to the custody officer. Police call the Defence Solicitor Call Centre (**DSCC**). The DSCC tries that firm first.
+
+PoliceStationRepUK is a directory of accredited police station representatives — not a law firm and not the duty scheme.
+
+## Key takeaways
+
+- You can request a **named solicitor** or firm at the police station.
+- Custody contacts the **DSCC**; the DSCC rings that firm's 24/7 number.
+- If your firm cannot attend, ask for the **duty solicitor** instead.
+- Police-station advice is usually **free** under legal aid.
+- In Kent, ask custody to contact [policestationagent.com](https://www.policestationagent.com/?utm_source=policestationrepuk&utm_medium=blog&utm_campaign=own_solicitor_post).
+
+## How to ask for a named firm
+
+When custody reads your rights, say you want legal advice and name the firm. Give a firm name, not a freelance rep. The DSCC routes the call to that firm's emergency line. Who attends — a solicitor or an accredited representative — is the firm's decision.
+
+Do this before interview starts. You can change your mind if you first said no.
+
+## If your own firm is unavailable
+
+No answer, out of area, or cannot attend promptly? Tell custody you want the **duty solicitor**. That is the national fallback. How free duty advice works is covered in our [duty solicitor at the police station](/Blog/duty-solicitor-police-station) guide — this post is only about choosing a named firm.
+
+## Is own-solicitor advice free?
+
+Usually yes at the station under legal aid, same as duty. You should not be asked to pay there. Private charging after release is a separate matter between you and the firm.
+
+## Kent aside
+
+For a named Kent firm (not the national duty rota), ask custody to contact [Police Station Agent](https://www.policestationagent.com/?utm_source=policestationrepuk&utm_medium=blog&utm_campaign=own_solicitor_post). Elsewhere in England and Wales, name any firm you trust and let the DSCC try them.
+
+## Firms needing overflow cover
+
+Need accredited reps when your own team is stretched? Use the directory — not public “find a solicitor” search.
+
+- Directory: [https://policestationrepuk.org/directory](/directory)
+- Firm cover: [https://policestationrepuk.org/PoliceStationCover](/PoliceStationCover)
+
+---
+
+*General information only — not legal advice. If you need advice now, ask custody for a named solicitor or the duty solicitor. Applies to England and Wales.*
 `.trim(),
   },
 ];

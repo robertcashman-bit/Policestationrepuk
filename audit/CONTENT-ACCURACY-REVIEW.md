@@ -414,3 +414,8 @@ Prior Tier 1 fixes retained (`bail-act-2024-changes` retitled to PCSC Act 2022; 
 - CPS adverse inferences — https://www.cps.gov.uk/legal-guidance/adverse-inferences
 - PACE Code C (2023) — https://www.gov.uk/government/publications/pace-code-c-2023
 
+---
+
+## Addendum — `/Blog/own-solicitor-police-station` (2026-09-04)
+
+New public SEO explainer on requesting a **named solicitor/firm** (not duty rota). Claims mirror the verified duty-solicitor post: PACE s.58 / Code C entitlement, DSCC routing to a named firm’s emergency line, duty as national fallback, police-station advice usually free under legal aid (not inventing means-test nuance beyond “usually”). Kent aside labelled to policestationagent.com; directory/cover CTAs for firms only. Sources wired in `lib/content-sources.ts` (PACE Act, Code C 2023, SCC 2025, find-legal-advice.justice.gov.uk). **Verdict:** OK for publish as general information.

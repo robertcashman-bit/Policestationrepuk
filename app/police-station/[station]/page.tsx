@@ -19,6 +19,9 @@ import { countRepsForStation, shouldIndexPoliceStationPage } from '@/lib/station
 import { directoryHrefForAreaName } from '@/lib/county-links';
 import { legalDirectoryHrefForAreaName } from '@/lib/legal-directory/area-links';
 import { LEGAL_DIRECTORY_BASE } from '@/lib/legal-directory/constants';
+import { NotPoliceDeflectBanner } from '@/components/NotPoliceDeflectBanner';
+import { InstructRepPrimaryCta } from '@/components/InstructRepPrimaryCta';
+import { STATION_PAGE_TITLE_SUFFIX } from '@/lib/gsc-harness-copy';
 import {
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_BRAND_NAME,
@@ -48,11 +51,9 @@ export async function generateMetadata({ params }: PageProps) {
   const repCount = countRepsForStation(stationData, allReps, allStations);
   const indexable = shouldIndexPoliceStationPage(stationData, repCount);
   const area = stationData.forceName || stationData.county || 'England & Wales';
-  const listedPhone = displayPhoneNumber(stationData);
-  const phoneSnippet = listedPhone ? ` Phone: ${listedPhone}.` : '';
   return buildMetadata({
-    title: `${stationData.name} Police Station — Phone, Address & Reps`,
-    description: `${stationData.name} (${area}) — police station telephone numbers, address, and accredited representatives.${phoneSnippet} Report updated numbers if ours are wrong.`,
+    title: `${stationData.name} Police Station — ${STATION_PAGE_TITLE_SUFFIX}`,
+    description: `${stationData.name} (${area}) — find accredited police station representatives covering this station. Not the police: for emergencies call 999; for non-emergencies call 101.`,
     path: `/police-station/${stationData.slug}`,
     noIndex: !indexable,
   });
@@ -125,7 +126,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
             <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
               {station.name}
               <span className="block text-lg font-bold text-[var(--gold)] sm:text-2xl lg:text-3xl">
-                Police Station
+                Find a police station representative
               </span>
             </h1>
             {isCustody ? (
@@ -141,10 +142,25 @@ export default async function PoliceStationPage({ params }: PageProps) {
             <p className="mt-1 max-w-2xl text-sm text-white/80 sm:text-base">{station.address}</p>
           ) : null}
 
+          <div className="mt-5 max-w-2xl">
+            <NotPoliceDeflectBanner variant="hero" />
+          </div>
+
+          <div className="mt-4 max-w-2xl">
+            <InstructRepPrimaryCta
+              variant="inline"
+              areaHint={areaLabel || undefined}
+              showKent={/kent|medway/i.test(`${station.county} ${station.forceName}`)}
+            />
+          </div>
+
           <div className="mt-6 rounded-2xl border-2 border-[var(--gold)] bg-[var(--gold-pale)] p-4 shadow-lg sm:mt-8 sm:rounded-3xl sm:p-6 md:p-8">
             <h2 className="text-sm font-extrabold uppercase tracking-wider text-[var(--navy)] sm:text-base">
-              Contact numbers
+              Professional contacts (solicitors &amp; reps)
             </h2>
+            <p className="mt-1 text-xs text-[var(--muted)] sm:text-sm">
+              Not for public switchboard use — call 101 or 999 if you need the police.
+            </p>
             <div className="mt-4">
               <StationPhoneActions station={station} bright />
             </div>
@@ -187,14 +203,26 @@ export default async function PoliceStationPage({ params }: PageProps) {
                         to be listed.
                       </p>
                     </div>
+                    <InstructRepPrimaryCta
+                      areaHint={areaLabel || undefined}
+                      showKent={/kent|medway/i.test(`${station.county} ${station.forceName}`)}
+                    />
                     <FirmCoverCTA countyName={areaLabel || undefined} />
                   </div>
                 ) : (
-                  <div className="mt-5 grid gap-4 sm:grid-cols-2 sm:gap-5">
-                    {reps.map((rep) => (
-                      <RepCard key={rep.id} rep={rep} stationPage />
-                    ))}
-                  </div>
+                  <>
+                    <div className="mt-5 grid gap-4 sm:grid-cols-2 sm:gap-5">
+                      {reps.map((rep) => (
+                        <RepCard key={rep.id} rep={rep} stationPage />
+                      ))}
+                    </div>
+                    <div className="mt-6">
+                      <InstructRepPrimaryCta
+                        areaHint={areaLabel || undefined}
+                        showKent={/kent|medway/i.test(`${station.county} ${station.forceName}`)}
+                      />
+                    </div>
+                  </>
                 )}
               </section>
 

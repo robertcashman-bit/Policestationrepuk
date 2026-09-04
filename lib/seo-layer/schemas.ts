@@ -58,7 +58,7 @@ export function platformLegalServiceSchema() {
     },
     knowsAbout: [
       'Police station representative directory',
-      'UK police station telephone numbers and addresses',
+      'UK police station directory — find accredited representatives',
       'Criminal defence firm police station cover',
       'Accredited police station reps England and Wales',
     ],
@@ -240,9 +240,9 @@ export function stationDirectoryItemListSchema(
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'UK Police Station Directory — Phone Numbers & Addresses',
+    name: 'UK Police Station Directory — Find a Representative',
     description:
-      'Searchable directory of UK police station contact details. Community corrections help keep telephone numbers accurate.',
+      'Searchable directory of UK police station locations for solicitors and accredited reps arranging cover.',
     numberOfItems: count,
     itemListElement: stations.slice(0, 30).map((s, i) => ({
       '@type': 'ListItem',

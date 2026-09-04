@@ -5,6 +5,8 @@ import {
   HomeDirectoryPreview,
   type CountyEntry,
 } from '@/components/HomeDirectoryPreview';
+import { NotPoliceDeflectBanner } from '@/components/NotPoliceDeflectBanner';
+import { InstructRepPrimaryCta } from '@/components/InstructRepPrimaryCta';
 
 interface HomeHeroProps {
   listedRepCount: number;
@@ -53,6 +55,14 @@ export function HomeHero({
           <p className="mt-2 text-xs font-semibold text-white/65">{trustLabel}</p>
         </div>
 
+        <div className="mx-auto mt-5 max-w-2xl">
+          <InstructRepPrimaryCta variant="hero" />
+        </div>
+
+        <div className="mx-auto mt-4 max-w-2xl">
+          <NotPoliceDeflectBanner variant="hero" />
+        </div>
+
         <HomeHeroSearch counties={countyNames} />
 
         <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
@@ -69,7 +79,7 @@ export function HomeHero({
             href="/find-station"
             className="font-semibold text-white/80 no-underline hover:text-[var(--gold)]"
           >
-            Station phone numbers
+            Browse stations
           </Link>
           <span className="text-white/30" aria-hidden>
             ·

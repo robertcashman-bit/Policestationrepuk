@@ -27,17 +27,17 @@ export function HomeStationSearch({ stats }: HomeStationSearchProps) {
   };
 
   return (
-    <section className="section-pad border-b border-[var(--border)] bg-slate-50" aria-label="Police station phone numbers">
+    <section className="section-pad border-b border-[var(--border)] bg-slate-50" aria-label="Browse police stations">
       <div className="page-container !py-0">
         <div className="mx-auto max-w-3xl">
           <div className="text-center">
-            <h2 className="text-h2 mt-0 text-[var(--navy)]">UK police station phone numbers</h2>
+            <h2 className="text-h2 mt-0 text-[var(--navy)]">Browse UK police stations</h2>
             <p className="mt-3 text-sm leading-relaxed text-[var(--muted)]">
-              Search custody desk lines, main numbers, and addresses across England &amp; Wales — kept
-              accurate with help from reps and firms.
+              Search by station, town, or postcode to find representatives covering that suite.
+              Not a public police switchboard — call 101 or 999 if you need the police.
             </p>
             <p className="mt-2 text-xs font-semibold text-[var(--navy)]/80">
-              {stats.directLine} direct lines · {stats.total} stations listed
+              {stats.total} stations listed · professional contacts for solicitors &amp; reps
               {stats.verifiedCustodyCount > 0
                 ? ` · ${stats.verifiedCustodyCount} verified custody suites`
                 : ''}
@@ -46,9 +46,9 @@ export function HomeStationSearch({ stats }: HomeStationSearchProps) {
           </div>
 
           <div className="mt-8 card-surface">
-            <h3 className="text-h3 mt-0 text-[var(--navy)]">Search station numbers</h3>
+            <h3 className="text-h3 mt-0 text-[var(--navy)]">Search stations</h3>
             <p className="mt-1 text-sm text-[var(--muted)]">
-              Opens one station page with Call &amp; Copy numbers — not a list of many stations
+              Opens one station page so you can instruct a covering representative
             </p>
             <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row">
               <input

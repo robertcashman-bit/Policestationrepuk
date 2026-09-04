@@ -7,16 +7,19 @@ import { FindStationSearch } from '@/components/stations/FindStationSearch';
 import { StationSearchPickList } from '@/components/stations/StationSearchPickList';
 import { buildMetadata, breadcrumbSchema } from '@/lib/seo';
 import { findClearStationMatch, searchStations } from '@/lib/station-search';
+import { NotPoliceDeflectBanner } from '@/components/NotPoliceDeflectBanner';
+import { InstructRepPrimaryCta } from '@/components/InstructRepPrimaryCta';
+import { FIND_STATION_TITLE } from '@/lib/gsc-harness-copy';
 
 export const metadata = buildMetadata({
-  title: 'Find a Police Station Phone Number — UK',
+  title: FIND_STATION_TITLE,
   description:
-    'Search for a UK police station by name, town, postcode or phone number. Opens one station page with custody desk and main contact numbers.',
+    'Search UK police stations by name, town, or postcode. Find accredited representatives covering that station. Not the police — call 101 or 999 for police contact.',
   path: '/find-station',
   keywords: [
-    'find police station phone number',
-    'custody desk telephone UK',
-    'police station search',
+    'find police station representative',
+    'police station search UK',
+    'custody suite representatives',
   ],
 });
 
@@ -80,11 +83,14 @@ export default async function FindStationPage({ searchParams }: PageProps) {
               England &amp; Wales · {stationCount.toLocaleString('en-GB')} stations
             </p>
             <h1 className="mt-2 text-[1.65rem] font-extrabold leading-tight tracking-tight text-white sm:text-4xl lg:text-[2.75rem] lg:leading-tight">
-              Find a police station number
+              Find a police station
             </h1>
             <p className="mx-auto mt-3 max-w-xl px-1 text-sm leading-relaxed text-white/75 sm:text-base">
-              Search once, open one station page, then Call or Copy the custody desk or main line.
+              Search once, open one station page, then instruct a representative covering that suite.
             </p>
+            <div className="mx-auto mt-4 max-w-xl text-left">
+              <NotPoliceDeflectBanner variant="hero" />
+            </div>
           </div>
 
           <div className="mx-auto mt-6 w-full max-w-2xl sm:mt-10">
@@ -127,6 +133,10 @@ export default async function FindStationPage({ searchParams }: PageProps) {
       <div className="overflow-x-clip border-b border-[var(--border)] bg-slate-50">
         <div className="page-container !py-6 sm:!py-10">
           <div className="mx-auto w-full max-w-3xl">
+            <div className="mb-6 space-y-3">
+              <NotPoliceDeflectBanner variant="compact" />
+              <InstructRepPrimaryCta />
+            </div>
             {query && pickList.length > 0 ? (
               <StationSearchPickList stations={pickList} query={query} />
             ) : null}
@@ -172,7 +182,7 @@ export default async function FindStationPage({ searchParams }: PageProps) {
                     All stations A–Z
                   </p>
                   <p className="mt-1 text-sm text-[var(--muted)]">
-                    Full list with filters — then open one page for numbers.
+                    Full list with filters — then open a station to find reps.
                   </p>
                 </Link>
                 <Link

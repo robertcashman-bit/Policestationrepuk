@@ -22,9 +22,9 @@ describe('Find-station search flow', () => {
     expect(home).toContain('/find-station');
   });
 
-  it('nav Station Numbers points to find-station', async () => {
+  it('nav Stations points to find-station', async () => {
     const nav = await fs.readFile('lib/site-navigation.ts', 'utf-8');
-    expect(nav).toContain("href: '/find-station', text: 'Station Numbers'");
+    expect(nav).toMatch(/href:\s*['"]\/find-station['"].*text:\s*['"]Stations['"]/);
   });
 });
 

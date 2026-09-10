@@ -9,7 +9,7 @@ import tldextract
 from .classify_contact import classify_contact
 from .classify_firm import classify_firm_text, extract_evidence_snippets
 from .config import EngineConfig
-from .crawler import crawl_firm_website, registrable_domain
+from .crawler import crawl_firm_website, normalize_website_url, registrable_domain
 from .database import Database, utc_now
 from .extract_contacts import extract_contacts_from_html
 from .extract_emails import extract_emails_from_html, normalise_email
@@ -180,11 +180,38 @@ def cmd_crawl(cfg: EngineConfig, db: Database, limit: int = 50) -> dict:
         (limit,),
     )
     crawled = 0
+    skipped = 0
     emails_found = 0
     for row in rows:
         if not row["website"]:
             continue
-        results = crawl_firm_website(cfg, db, row["id"], row["website"])
+        website = normalize_website_url(row["website"])
+        if not website:
+            print(
+                f"[crawl] skip firm_id={row['id']} ({row['firm_name']}): "
+                f"invalid website {row['website']!r}",
+                flush=True,
+            )
+            # Mark checked so invalid rows rotate out of the NULL-first queue.
+            db.execute(
+                "UPDATE firms SET last_checked_at = ? WHERE id = ?",
+                (utc_now(), row["id"]),
+            )
+            skipped += 1
+            continue
+        try:
+            results = crawl_firm_website(cfg, db, row["id"], website)
+        except Exception as exc:  # noqa: BLE001 — one bad firm must not abort the batch
+            print(
+                f"[crawl] skip firm_id={row['id']} ({row['firm_name']}): {exc}",
+                flush=True,
+            )
+            db.execute(
+                "UPDATE firms SET last_checked_at = ? WHERE id = ?",
+                (utc_now(), row["id"]),
+            )
+            skipped += 1
+            continue
         combined_text = " ".join(r.html[:5000] for r in results if r.success)
         urls = [r.url for r in results if r.success]
         classification = classify_firm_text(combined_text, urls)
@@ -216,7 +243,7 @@ def cmd_crawl(cfg: EngineConfig, db: Database, limit: int = 50) -> dict:
                     PUBLIC_WEBSITE, None, r.url, "", None, "inferred" if em.email_type == "guessed" else "public",
                 )
         crawled += 1
-    return {"firms_crawled": crawled, "emails_found": emails_found}
+    return {"firms_crawled": crawled, "firms_skipped": skipped, "emails_found": emails_found}
 
 
 def _store_email(

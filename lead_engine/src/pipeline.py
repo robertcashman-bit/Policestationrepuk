@@ -192,6 +192,11 @@ def cmd_crawl(cfg: EngineConfig, db: Database, limit: int = 50) -> dict:
                 f"invalid website {row['website']!r}",
                 flush=True,
             )
+            # Mark checked so invalid rows rotate out of the NULL-first queue.
+            db.execute(
+                "UPDATE firms SET last_checked_at = ? WHERE id = ?",
+                (utc_now(), row["id"]),
+            )
             skipped += 1
             continue
         try:
@@ -200,6 +205,10 @@ def cmd_crawl(cfg: EngineConfig, db: Database, limit: int = 50) -> dict:
             print(
                 f"[crawl] skip firm_id={row['id']} ({row['firm_name']}): {exc}",
                 flush=True,
+            )
+            db.execute(
+                "UPDATE firms SET last_checked_at = ? WHERE id = ?",
+                (utc_now(), row["id"]),
             )
             skipped += 1
             continue

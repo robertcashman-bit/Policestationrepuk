@@ -21,6 +21,8 @@ Legal/factual accuracy review of site content, verified against primary sources 
 | — | Site-wide reliance/verification warning | ✅ Footer + content/legal/fee/county/rights/career/crawl templates |
 | — | Automated red-flag scan (`npm run audit:content-accuracy`) | ✅ CI gate — fails on new Critical patterns |
 
+
+**Common Offences Guide (2026-09-13):** widened to **216** live-verified `COMMON_OFFENCES` entries (SC definitive guideline + legislation.gov.uk/CPS primary URL HTTP 200). Assault on a constable deferred (interim SC only).
 **Validation:** `vitest` 226/226 passing · `tsc --noEmit` clean · `next build` succeeds (all pages prerender).
 
 **Headline corrections:** removed the non-existent "Bail Act 2024" and corrected pre-charge bail limits site-wide (legal update + wiki); removed hallucinated/misattributed case citations (R v ATH, R v Dobson, ex parte Lee, ex parte Dhesi); corrected the DSCC billing form (SaBC/INVC + CRM18, not CRM6); replaced superseded £181/£219 police-station fees with the harmonised £320/£650 (SI 2025/1251).

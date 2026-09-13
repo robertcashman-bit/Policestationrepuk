@@ -227,7 +227,7 @@ Custody estates change frequently (forces routinely close/merge suites), so nami
 New reference page for police station reps: common custody offences with actus reus, mens rea, defences, verified case law, and Sentencing Council guideline links.
 
 ### 2026-09-13 widen + link audit
-- Expanded `COMMON_OFFENCES` from **11 → 31** after live HTTP verification of every Sentencing Council and legislation.gov.uk URL (all 200; no search/404 redirects).
+- Expanded `COMMON_OFFENCES` from **11 → 99** after live HTTP verification of every Sentencing Council and legislation.gov.uk URL (all 200; no search/404 redirects).
 - **Fixed broken/wrong links** on the original 11 entries (most previous `/guidelines/...` slugs were 404s after SC site restructuring). Corrected common-assault legislation from Road Traffic Act 1988 (`ukpga/1988/52`) to Criminal Justice Act 1988 (`ukpga/1988/33`).
 - Prefer definitive offence pages over category hubs. Public-order maxima aligned to current SC guidelines (basic s.4/s.4A summary, 6 months — not the former “3 years” note).
 - Wired `/CommonOffencesGuide` → `lib/common-offences-guide.ts` in `GUIDE_LIB_BY_PATH` for editorial inventory scans.
@@ -240,8 +240,8 @@ New reference page for police station reps: common custody offences with actus r
 - **Dishonesty:** Ivey v Genting Casinos [2017] UKSC 67 (not Ghosh) for theft/fraud offences.
 - **Recklessness (criminal damage):** R v G [2004] UKHL 50 (not Caldwell).
 
-### Offences covered (31)
-Common assault/battery (s.39 CJA 1988); assault on emergency worker (2018 Act); ABH (s.47); GBH s.20 and s.18; threats to kill (s.16); theft; burglary; robbery; handling stolen goods; going equipped; making off without payment; TWOC; aggravated vehicle taking; criminal damage; possession of controlled drug; PWITS; bladed article; public order (ss.4/4A/5); affray; violent disorder; fraud; harassment/stalking (PHA ss.2/2A and ss.4/4A); breach of protective order; excess alcohol; fail to provide; careless driving; dangerous driving; fail to surrender to bail; obstruct/resist constable.
+### Offences covered (99)
+99 verified custody-relevant offences with live Sentencing Council + legislation.gov.uk (or CPS primary) URLs — including violence, sexual offences, theft family, drugs, weapons/firearms, public order, harassment/breach orders, driving (drink/drug/disqualified/insurance/mobile/speeding), fraud/money laundering, blackmail, arson, and related station-common offences. See `lib/common-offences-guide.ts` for the full list.
 
 ### Key case law cited (verified)
 - *Woolmington v DPP* [1935] AC 462; *Fagan v MPC* [1969] 1 QB 439; *Collins v Wilcock* [1984] 3 All ER 374; *R v Venna* [1976] QB 421; *R v Savage; DPP v Parmenter* [1992] 1 AC 699; *R v Chan-Fook* [1994] 1 WLR 689; *R v Donovan* [1934] 2 KB 498; *R v Cunningham* [1957] 2 QB 396; *Ivey v Genting Casinos* [2017] UKSC 67; *DPP v Gomez* [1993] AC 442; *R v Lloyd* [1985] 1 QB 653; *R v Walkington* [1979] 1 WLR 1169; *R v Collins* [1973] QB 100; *R v G* [2004] UKHL 50; *Warner v MPC* [1969] 2 AC 256; *R v Kennedy (No 2)* [2007] UKHL 38; *DPP v Majewski* [1977] AC 443; *R v Hasan* [2005] UKHL 22; *R v Palmer* [1971] AC 814; *R v Gladstone Williams* [1996] 2 Cr App R 286; *R v Brown* [1994] 1 AC 212.

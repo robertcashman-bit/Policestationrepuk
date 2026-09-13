@@ -34,6 +34,74 @@ const EXPECTED_OFFENCE_IDS = [
   'dangerous-driving',
   'fail-to-surrender',
   'obstruct-police',
+  'shop-theft',
+  'non-domestic-burglary',
+  'aggravated-burglary',
+  'abstracting-electricity',
+  'blackmail',
+  'arson',
+  'arson-endanger-life',
+  'threats-to-damage',
+  'drug-production',
+  'permitting-premises-drugs',
+  'drive-whilst-disqualified',
+  'no-insurance',
+  'aggravated-vehicle-taking-injury',
+  'aggravated-vehicle-taking-dangerous',
+  'wanton-furious-driving',
+  'assault-resist-arrest',
+  'strangulation',
+  'controlling-coercive',
+  'witness-intimidation',
+  'perverting-justice',
+  'sexual-assault',
+  'rape',
+  'assault-by-penetration',
+  'indecent-images',
+  'exposure',
+  'voyeurism',
+  'disclose-private-sexual-images',
+  'sexual-communication-child',
+  'meeting-child-grooming',
+  'sexual-activity-child',
+  'drunk-disorderly',
+  'riot',
+  'breach-cbo',
+  'firearms-public-place',
+  'firearms-prohibited-weapon',
+  'firearms-without-certificate',
+  'firearms-intent-fear',
+  'money-laundering',
+  'cruelty-to-child',
+  'animal-cruelty',
+  'dog-dangerously-out-of-control',
+  'poa-s4a',
+  'poa-s5',
+  'breach-shpo',
+  'fail-notification',
+  'psychoactive-produce',
+  'causing-death-careless',
+  'causing-serious-injury-careless',
+  'drug-driving',
+  'unfit-drink-drugs',
+  'excess-alcohol-in-charge',
+  'fail-stop-report-accident',
+  'mobile-phone-driving',
+  'speeding',
+  'fail-driver-identity',
+  'vehicle-interference',
+  'communication-network',
+  'football-related',
+  'bladed-article-school',
+  'offensive-weapon',
+  'drive-otherwise-licence',
+  'railway-fare-evasion',
+  'taxi-touting',
+  'sexual-assault-child-under-13',
+  'rape-child-under-13',
+  'administering-substance-intent',
+  'slavery-trafficking',
+  'racial-hatred',
 ] as const;
 
 describe('common offences guide', () => {
@@ -54,9 +122,11 @@ describe('common offences guide', () => {
     }
   });
 
-  it('every legislationUrl is https on legislation.gov.uk', () => {
+  it('every legislationUrl is https on legislation.gov.uk or an accepted primary source host', () => {
     for (const offence of COMMON_OFFENCES) {
-      expect(offence.legislationUrl, offence.id).toMatch(/^https:\/\/www\.legislation\.gov\.uk\//);
+      expect(offence.legislationUrl, offence.id).toMatch(
+        /^https:\/\/www\.(legislation\.gov\.uk|cps\.gov\.uk)\//
+      );
     }
   });
 

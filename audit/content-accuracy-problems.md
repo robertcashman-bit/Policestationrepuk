@@ -1,6 +1,6 @@
 # Content accuracy problem register
 
-Generated: 2026-09-13T17:26:18.419Z by `npm run audit:content-accuracy`
+Generated: 2026-09-13T17:38:22.935Z by `npm run audit:content-accuracy`
 
 ## Honest limits
 

@@ -1,17 +1,28 @@
 {
-  "generatedAt": "2026-08-30T12:15:52.942Z",
-  "totalItems": 114,
+  "generatedAt": "2026-09-13T17:26:18.419Z",
+  "totalItems": 115,
   "critical": 0,
   "review": 0,
   "gaps": 0,
   "byContentType": {
-    "blog": 29,
+    "blog": 30,
     "wiki": 49,
     "legal-update": 8,
     "fee-rights": 8,
     "guide": 20
   },
   "items": [
+    {
+      "url": "/Blog/own-solicitor-police-station",
+      "contentType": "blog",
+      "sourceFile": "lib/blog/articles-batch-*.ts",
+      "hasReliabilityNotice": true,
+      "hasSourcesFooter": true,
+      "customSourcesInContentSources": true,
+      "auditTier": 8,
+      "auditStatus": "verified-tier-8",
+      "redFlags": []
+    },
     {
       "url": "/Blog/duty-solicitor-police-station",
       "contentType": "blog",
@@ -1126,7 +1137,7 @@
     {
       "url": "/CommonOffencesGuide",
       "contentType": "guide",
-      "sourceFile": "app/CommonOffencesGuide/page.tsx",
+      "sourceFile": "lib/common-offences-guide.ts",
       "hasReliabilityNotice": true,
       "hasSourcesFooter": true,
       "customSourcesInContentSources": true,

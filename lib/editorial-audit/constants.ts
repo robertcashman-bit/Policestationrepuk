@@ -30,6 +30,7 @@ export const EDITORIAL_PAGE_PATHS = [
 ] as const;
 
 export const GUIDE_LIB_BY_PATH: Record<string, string> = {
+  '/CommonOffencesGuide': 'lib/common-offences-guide.ts',
   '/InterviewUnderCaution': 'lib/guide-interview-under-caution.ts',
   '/PoliceDisclosureGuide': 'lib/guide-police-disclosure.ts',
   '/WhatDoesRepDo': 'lib/guide-what-does-rep-do.ts',

@@ -1,6 +1,6 @@
 # Content accuracy problem register
 
-Generated: 2026-08-30T12:15:52.942Z by `npm run audit:content-accuracy`
+Generated: 2026-09-13T17:26:18.419Z by `npm run audit:content-accuracy`
 
 ## Honest limits
 
@@ -15,8 +15,8 @@ Generated: 2026-08-30T12:15:52.942Z by `npm run audit:content-accuracy`
 | Critical (PROBLEM) | 0 |
 | Review | 0 |
 | Compliance gap (GAP) | 0 |
-| OK (verified Tier 8) | 114 |
-| Total editorial URLs | 114 |
+| OK (verified Tier 8) | 115 |
+| Total editorial URLs | 115 |
 
 ## Critical (factual error — fix before rely)
 
@@ -32,6 +32,7 @@ _None._
 
 ## OK (verified Tier 8)
 
+- /Blog/own-solicitor-police-station · lib/blog/articles-batch-*.ts
 - /Blog/duty-solicitor-police-station · lib/blog/articles-batch-*.ts
 - /Blog/building-firm-panel-freelance-reps · lib/blog/articles-batch-*.ts
 - /Blog/freelance-rep-day-rate-2026 · lib/blog/articles-batch-*.ts
@@ -133,7 +134,7 @@ _None._
 - /RepFAQMaster · app/RepFAQMaster/page.tsx
 - /free-legal-advice-police-station · app/free-legal-advice-police-station/page.tsx
 - /police-station-rights-uk · app/police-station-rights-uk/page.tsx
-- /CommonOffencesGuide · app/CommonOffencesGuide/page.tsx
+- /CommonOffencesGuide · lib/common-offences-guide.ts
 - /Resources · app/Resources/page.tsx
 - /InterviewUnderCaution · lib/guide-interview-under-caution.ts
 - /PoliceDisclosureGuide · lib/guide-police-disclosure.ts

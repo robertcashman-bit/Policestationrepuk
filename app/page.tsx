@@ -77,8 +77,8 @@ export const metadata: Metadata = {
   },
 };
 
-/** ISR: Redis-backed directory data; writes revalidate paths. */
-export const revalidate = 900;
+/** Redis-backed directory data — skipKVInPrerender would bake empty KV overlays into ISR HTML. */
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const [repsRaw, counties, stations, featuredReps, phoneStats] = await Promise.all([

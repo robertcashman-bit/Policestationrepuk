@@ -199,14 +199,12 @@ export async function loadAllReviews(): Promise<Map<string, RepReview>> {
   }
   const map = new Map<string, RepReview>();
   if (skipKVInPrerender()) {
-    _allReviews = map;
-    _allReviewsAt = now;
+    // Do not cache empty prerender results — request-time loads must retry KV.
     return map;
   }
   const kv = getKV();
   if (!kv) {
-    _allReviews = map;
-    _allReviewsAt = now;
+    // Misconfigured env — avoid caching so a later warm instance with KV retries.
     return map;
   }
   try {
@@ -226,12 +224,15 @@ export async function loadAllReviews(): Promise<Map<string, RepReview>> {
         map.set(row.email.toLowerCase(), row);
       }
     }
+    _allReviews = map;
+    _allReviewsAt = now;
+    return map;
   } catch (err) {
     console.error('[admin-review] loadAllReviews failed:', err);
+    // Do not cache failures — empty map would lift publication vetoes for the TTL.
+    if (_allReviews) return _allReviews;
+    return map;
   }
-  _allReviews = map;
-  _allReviewsAt = now;
-  return map;
 }
 
 export function isValidReviewStatus(value: unknown): value is RepReviewStatus {

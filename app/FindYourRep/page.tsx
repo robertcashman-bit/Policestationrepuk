@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   },
 };
 
-/** ISR: Redis-backed directory aggregates via cached getAllReps. */
-export const revalidate = 900;
+/** Redis-backed directory aggregates — skipKVInPrerender would omit KV overlays under ISR. */
+export const dynamic = 'force-dynamic';
 
 function maxRepsPerStation(reps: Awaited<ReturnType<typeof getAllReps>>): number {
   const counts = new Map<string, number>();

@@ -48,8 +48,8 @@ export const metadata: Metadata = {
   },
 };
 
-/** ISR: Redis-backed directory data; profile/review caches invalidate on write. */
-export const revalidate = 900;
+/** Redis-backed directory data — skipKVInPrerender would bake empty KV overlays into ISR HTML. */
+export const dynamic = 'force-dynamic';
 
 export default async function DirectoryPage() {
   const [repsRaw, counties, stations] = await Promise.all([

@@ -15,7 +15,8 @@ import { getKV } from '@/lib/kv';
 const MGET_CHUNK = 200;
 
 function isMetaKey(rest: string): boolean {
-  return rest === 'index' || rest.length === 0;
+  // `index` SET and rebuild staging (`index:rebuild`) must never become members.
+  return rest === 'index' || rest.startsWith('index:') || rest.length === 0;
 }
 
 /** Extract id (email) from a full Redis key given the data prefix. */
@@ -51,7 +52,10 @@ export async function removeFromIndexSet(indexKey: string, id: string): Promise<
 
 /**
  * Rebuild `{prefix}index` from KEYS `{prefix}*`. Returns the id list written.
- * Safe to call repeatedly (idempotent replace).
+ *
+ * Uses a staging SET + RENAME so a failed chunk never leaves the live index
+ * half-deleted, and concurrent `addIndexedId` members on the live key are
+ * unioned into staging before the swap.
  */
 export async function rebuildPrefixIndex(
   indexKey: string,
@@ -64,24 +68,49 @@ export async function rebuildPrefixIndex(
     keys = await kv.keys(`${prefix}*`);
   } catch (err) {
     console.error(`[kv-prefix-index] KEYS ${prefix}* failed:`, err);
-    return [];
+    throw err instanceof Error ? err : new Error(String(err));
   }
-  const ids = keys
+  const fromKeys = keys
     .map((k) => idFromPrefixedKey(k, prefix))
     .filter((id): id is string => Boolean(id));
 
+  // Union live members so a concurrent SADD is not dropped by the RENAME swap.
+  const live = await readIndexMembers(indexKey);
+  const idSet = new Set<string>([...fromKeys, ...live.filter((id) => !isMetaKey(id))]);
+  const ids = [...idSet];
+
+  const stagingKey = `${indexKey}:rebuild`;
   try {
-    await kv.del(indexKey);
+    await kv.del(stagingKey);
   } catch {
     /* ignore */
   }
-  if (ids.length === 0) return [];
 
-  for (let i = 0; i < ids.length; i += MGET_CHUNK) {
-    const chunk = ids.slice(i, i + MGET_CHUNK);
-    const pipeline = kv.pipeline();
-    for (const id of chunk) pipeline.sadd(indexKey, id);
-    await pipeline.exec();
+  if (ids.length === 0) {
+    try {
+      await kv.del(indexKey);
+    } catch {
+      /* ignore */
+    }
+    return [];
+  }
+
+  try {
+    for (let i = 0; i < ids.length; i += MGET_CHUNK) {
+      const chunk = ids.slice(i, i + MGET_CHUNK);
+      const pipeline = kv.pipeline();
+      for (const id of chunk) pipeline.sadd(stagingKey, id);
+      await pipeline.exec();
+    }
+    await kv.rename(stagingKey, indexKey);
+  } catch (err) {
+    try {
+      await kv.del(stagingKey);
+    } catch {
+      /* ignore */
+    }
+    console.error(`[kv-prefix-index] rebuild ${indexKey} failed:`, err);
+    throw err instanceof Error ? err : new Error(String(err));
   }
   return ids;
 }

@@ -20,8 +20,8 @@ import {
   toPublicListing,
 } from '@/lib/legal-directory/storage';
 
-/** ISR: approved-listings snapshot + path revalidation on listing writes. */
-export const revalidate = 900;
+/** KV-backed listings — skipKVInPrerender would bake an empty hub into ISR HTML. */
+export const dynamic = 'force-dynamic';
 
 type Props = { params: Promise<{ categorySlug: string }> };
 

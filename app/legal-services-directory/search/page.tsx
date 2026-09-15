@@ -26,10 +26,10 @@ export const metadata = buildMetadata({
 });
 
 /**
- * Search reads query params (dynamic per request) but loads listings from the
- * approved snapshot (1 GET / warm memory) — not a 1+N Redis fan-out.
+ * Search reads query params and KV-backed listings — must not ISR-prerender
+ * while skipKVInPrerender would bake an empty directory.
  */
-export const revalidate = 900;
+export const dynamic = 'force-dynamic';
 
 type SearchParams = Promise<{
   q?: string;

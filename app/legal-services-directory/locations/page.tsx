@@ -14,8 +14,8 @@ export const metadata = buildMetadata({
   path: `${LEGAL_DIRECTORY_BASE}/locations`,
 });
 
-/** ISR: approved-listings snapshot + path revalidation on listing writes. */
-export const revalidate = 900;
+/** KV-backed listing counts — skipKVInPrerender would bake empty counts into ISR HTML. */
+export const dynamic = 'force-dynamic';
 
 export default async function LocationsIndexPage() {
   const approved = await listApprovedListings();

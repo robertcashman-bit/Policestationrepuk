@@ -20,6 +20,7 @@
 
 import crypto from 'crypto';
 import { claimKey } from '@/lib/kv-atomic';
+import { getKV } from '@/lib/kv';
 import { getDirectoryStore } from './store';
 import { getCategoryBySlug, categorySlugFromProviderType } from './categories';
 import {
@@ -167,6 +168,10 @@ function invalidateApprovedSnapshotMemory(): void {
   _approvedSnapshotAt = 0;
 }
 
+/** Monotonic version so concurrent snapshot rebuilds cannot publish a stale set. */
+const APPROVED_SNAPSHOT_VER_KEY = `${PREFIX}approved:snapshot:ver`;
+let _localSnapshotVer = 0;
+
 /**
  * Rebuild `legaldir:approved:snapshot` from live listing records.
  * Called after every write that can change the approved set or public fields.
@@ -177,10 +182,30 @@ export async function rebuildApprovedListingsSnapshot(): Promise<LegalDirectoryL
     invalidateApprovedSnapshotMemory();
     return [];
   }
+
+  const kv = getKV();
+  let myVer: number;
+  if (kv) {
+    myVer = await kv.incr(APPROVED_SNAPSHOT_VER_KEY);
+  } else {
+    myVer = ++_localSnapshotVer;
+  }
+
   const all = await listAllListings();
   const approved = all
     .filter((l) => l.status === 'approved')
     .map(normalizeListing);
+
+  if (kv) {
+    const cur = await kv.get<number>(APPROVED_SNAPSHOT_VER_KEY);
+    if (Number(cur) !== myVer) {
+      // A newer rebuild claimed the version — do not overwrite its snapshot.
+      return approved;
+    }
+  } else if (myVer !== _localSnapshotVer) {
+    return approved;
+  }
+
   await store.set(APPROVED_SNAPSHOT_KEY, approved);
   _approvedSnapshot = approved;
   _approvedSnapshotAt = Date.now();
@@ -222,8 +247,7 @@ export async function listApprovedListings(): Promise<LegalDirectoryListing[]> {
 
   const store = getDirectoryStore();
   if (!store) {
-    _approvedSnapshot = [];
-    _approvedSnapshotAt = now;
+    // Prerender skip or missing KV — do not cache [] as an authoritative snapshot.
     return [];
   }
 

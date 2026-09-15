@@ -16,8 +16,8 @@ export const metadata = buildMetadata({
   path: '/About',
 });
 
-/** ISR: Redis-backed directory stats via cached getAllReps. */
-export const revalidate = 900;
+/** Redis-backed directory stats — skipKVInPrerender would omit KV overlays under ISR. */
+export const dynamic = 'force-dynamic';
 
 const TIMELINE = [
   {

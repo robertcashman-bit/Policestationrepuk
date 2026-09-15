@@ -18,8 +18,8 @@ export const metadata = buildMetadata({
   path: LEGAL_DIRECTORY_BASE,
 });
 
-/** ISR: approved-listings snapshot + path revalidation on listing writes. */
-export const revalidate = 900;
+/** KV-backed listings — skipKVInPrerender would bake an empty directory into ISR HTML. */
+export const dynamic = 'force-dynamic';
 
 const FAQ = [
   {

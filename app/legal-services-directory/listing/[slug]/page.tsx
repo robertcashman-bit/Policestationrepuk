@@ -22,8 +22,8 @@ import { shouldIndexLegalListingPage } from '@/lib/legal-directory/indexing';
 import { phoneToTelHref } from '@/lib/phone';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
-/** ISR: single listing GET; path revalidation on listing writes. */
-export const revalidate = 900;
+/** KV-backed listing — skipKVInPrerender would bake a not-found shell into ISR HTML. */
+export const dynamic = 'force-dynamic';
 
 type Props = { params: Promise<{ slug: string }> };
 

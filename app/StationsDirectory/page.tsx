@@ -34,8 +34,8 @@ export const metadata = buildMetadata({
   ],
 });
 
-/** ISR: Redis-backed rep counts via cached getAllReps; searchParams still dynamic. */
-export const revalidate = 900;
+/** Redis-backed rep counts — skipKVInPrerender would omit KV overlays under ISR. */
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   searchParams?: Promise<{ [key: string]: string | undefined }>;

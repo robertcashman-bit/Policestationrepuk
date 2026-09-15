@@ -6,11 +6,16 @@
  *   legaldir:slug:{slug}      — listing id
  *   legaldir:email:{email}    — listing id (one primary listing per owner email)
  *   legaldir:ids              — string[] of all listing ids
+ *   legaldir:approved:snapshot — JSON array of approved listings (public hubs)
  *   legaldir:req:{id}         — listing request JSON
  *   legaldir:req-ids          — string[] of request ids
  *   legaldir:mgmt:{tokenHash} — { listingId, email, exp }
  *
  * Logo uploads: POST /api/legal-directory/logo → Vercel Blob; logoUrl on listings.
+ *
+ * Public pages use `listApprovedListings()` which reads the approved snapshot
+ * (1 GET) instead of ids + N listing GETs. Writes invalidate + rebuild the
+ * snapshot so approved-only semantics stay correct.
  */
 
 import crypto from 'crypto';
@@ -34,6 +39,7 @@ import {
 } from './sanitize';
 import { MANAGEMENT_TOKEN_TTL_MS } from './constants';
 import { isUnclaimedSeededListing } from './laa-seed';
+import { revalidateLegalDirectoryPaths } from './revalidate';
 import type {
   LegalDirectoryListing,
   LegalDirectoryListingRequest,
@@ -45,6 +51,13 @@ import type {
 const PREFIX = 'legaldir:';
 const IDS_KEY = `${PREFIX}ids`;
 const REQ_IDS_KEY = `${PREFIX}req-ids`;
+const APPROVED_SNAPSHOT_KEY = `${PREFIX}approved:snapshot`;
+
+/** In-process cache so warm serverless instances skip even the snapshot GET. */
+let _approvedSnapshot: LegalDirectoryListing[] | null = null;
+let _approvedSnapshotAt = 0;
+const APPROVED_SNAPSHOT_CACHE_MS =
+  Math.max(30, Number(process.env.LEGALDIR_APPROVED_CACHE_TTL_SECONDS) || 300) * 1000;
 
 function listingKey(id: string): string {
   return `${PREFIX}listing:${id}`;
@@ -138,14 +151,98 @@ export async function getListingByOwnerEmail(
 }
 
 export async function listAllListings(): Promise<LegalDirectoryListing[]> {
+  const store = getDirectoryStore();
+  if (!store) return [];
   const ids = await readIds();
-  const rows = await Promise.all(ids.map((id) => getListingById(id)));
-  return rows.filter((r): r is LegalDirectoryListing => r !== null);
+  if (ids.length === 0) return [];
+  const keys = ids.map(listingKey);
+  const rows = await store.mget<LegalDirectoryListing>(keys);
+  return rows
+    .filter((r): r is LegalDirectoryListing => r !== null)
+    .map(normalizeListing);
 }
 
-export async function listApprovedListings(): Promise<LegalDirectoryListing[]> {
+function invalidateApprovedSnapshotMemory(): void {
+  _approvedSnapshot = null;
+  _approvedSnapshotAt = 0;
+}
+
+/**
+ * Rebuild `legaldir:approved:snapshot` from live listing records.
+ * Called after every write that can change the approved set or public fields.
+ */
+export async function rebuildApprovedListingsSnapshot(): Promise<LegalDirectoryListing[]> {
+  const store = getDirectoryStore();
+  if (!store) {
+    invalidateApprovedSnapshotMemory();
+    return [];
+  }
   const all = await listAllListings();
-  return all.filter((l) => l.status === 'approved');
+  const approved = all
+    .filter((l) => l.status === 'approved')
+    .map(normalizeListing);
+  await store.set(APPROVED_SNAPSHOT_KEY, approved);
+  _approvedSnapshot = approved;
+  _approvedSnapshotAt = Date.now();
+  return approved;
+}
+
+/** Bust in-memory + KV approved snapshot (next reader rebuilds). */
+export async function invalidateApprovedListingsSnapshot(): Promise<void> {
+  invalidateApprovedSnapshotMemory();
+  const store = getDirectoryStore();
+  if (store) {
+    try {
+      await store.del(APPROVED_SNAPSHOT_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+async function afterListingMutation(): Promise<void> {
+  try {
+    await rebuildApprovedListingsSnapshot();
+  } catch (err) {
+    console.error('[legal-directory] approved snapshot rebuild failed:', err);
+    await invalidateApprovedListingsSnapshot();
+  }
+  void revalidateLegalDirectoryPaths();
+}
+
+/**
+ * Public hubs / search: one snapshot GET (or warm in-memory hit) instead of
+ * 1+N fan-out across ~1600 approved listings.
+ */
+export async function listApprovedListings(): Promise<LegalDirectoryListing[]> {
+  const now = Date.now();
+  if (_approvedSnapshot && now - _approvedSnapshotAt < APPROVED_SNAPSHOT_CACHE_MS) {
+    return _approvedSnapshot;
+  }
+
+  const store = getDirectoryStore();
+  if (!store) {
+    _approvedSnapshot = [];
+    _approvedSnapshotAt = now;
+    return [];
+  }
+
+  try {
+    const snap = await store.get<LegalDirectoryListing[]>(APPROVED_SNAPSHOT_KEY);
+    if (Array.isArray(snap)) {
+      const approved = snap
+        .filter((l) => l && typeof l === 'object' && l.status === 'approved')
+        .map(normalizeListing);
+      _approvedSnapshot = approved;
+      _approvedSnapshotAt = now;
+      return approved;
+    }
+  } catch (err) {
+    console.error('[legal-directory] approved snapshot read failed:', err);
+  }
+
+  // Missing / corrupt snapshot — rebuild from live records (lazy backfill).
+  return rebuildApprovedListingsSnapshot();
 }
 
 export function toPublicListing(listing: LegalDirectoryListing): PublicLegalDirectoryListing {
@@ -342,6 +439,8 @@ export async function createListing(
     await writeIds(ids);
   }
 
+  await afterListingMutation();
+
   return { ok: true, id, slug, status, managementToken: token };
 }
 
@@ -385,6 +484,7 @@ export async function saveListing(listing: LegalDirectoryListing): Promise<void>
   if (!store) return;
   listing.lastUpdated = new Date().toISOString();
   await store.set(listingKey(listing.id), listing);
+  await afterListingMutation();
 }
 
 /**
@@ -415,6 +515,8 @@ export async function upsertSeededListing(
     await writeIds(ids);
   }
 
+  await afterListingMutation();
+
   return { created: !existing };
 }
 
@@ -433,6 +535,8 @@ export async function hardRemoveListingFromDirectory(listing: LegalDirectoryList
   const ids = await readIds();
   const nextIds = ids.filter((id) => id !== listing.id);
   if (nextIds.length !== ids.length) await writeIds(nextIds);
+
+  await afterListingMutation();
 }
 
 export type ClaimSeededResult =
@@ -478,6 +582,7 @@ export async function claimSeededListing(
 
   await store.set(listingKey(updated.id), updated);
   await store.set(emailKey(email), updated.id);
+  await afterListingMutation();
   return { ok: true, listing: updated };
 }
 

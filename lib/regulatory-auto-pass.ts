@@ -12,6 +12,7 @@ import {
   type RepRiskAssessment,
 } from '@/lib/rep-risk';
 import { getKV, skipKVInPrerender } from '@/lib/kv';
+import { listIndexedIds, mgetByKeys } from '@/lib/kv-prefix-index';
 import { listAllVerifications } from '@/lib/rep-verification';
 import {
   type ApplicantCategory,
@@ -348,11 +349,14 @@ export async function loadRegulatoryHintsByEmail(): Promise<Map<string, RepRegul
   const kv = getKV();
   if (kv) {
     try {
-      const keys = await kv.keys('newrep:*');
-      if (keys.length > 0) {
-        const pipeline = kv.pipeline();
-        for (const key of keys) pipeline.get(key);
-        const rows = await pipeline.exec<(Record<string, unknown> | null)[]>();
+      const emails = await listIndexedIds({
+        indexKey: 'newrep:index',
+        prefix: 'newrep:',
+      });
+      if (emails.length > 0) {
+        const rows = await mgetByKeys<Record<string, unknown>>(
+          emails.map((email) => `newrep:${email}`),
+        );
         for (const row of rows) {
           if (!row || typeof row !== 'object') continue;
           const email = typeof row.email === 'string' ? row.email.toLowerCase() : '';

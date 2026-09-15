@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getKV } from '@/lib/kv';
-import { getRawReps, getRegisteredRepByEmail, invalidateProfileCache } from '@/lib/data';
+import { getRawReps, getRegisteredRepByEmail, invalidateProfileCache, indexProfileOverrideEmail } from '@/lib/data';
 import type { Representative } from '@/lib/types';
 import { sendProfileUpdateNotification } from '@/lib/email';
 import { validateEnglishCountySelections } from '@/lib/english-counties';
@@ -190,6 +190,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: 'Could not save your profile. Please try again.' }, { status: 502 });
   }
 
+  await indexProfileOverrideEmail(email);
   invalidateProfileCache();
 
   const changes: Record<string, { from: string; to: string }> = {};

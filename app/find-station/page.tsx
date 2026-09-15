@@ -23,7 +23,8 @@ export const metadata = buildMetadata({
   ],
 });
 
-export const dynamic = 'force-dynamic';
+/** Station search uses query params; station JSON is file-backed (not Redis fan-out). */
+export const revalidate = 900;
 
 interface PageProps {
   searchParams?: Promise<{ [key: string]: string | undefined }>;

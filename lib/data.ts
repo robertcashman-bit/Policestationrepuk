@@ -41,8 +41,13 @@ import {
   PUBLIC_VERIFIED_STATUSES,
   type RepVerificationStatus,
 } from './rep-status';
+import { addIndexedId, listIndexedIds, mgetByKeys, removeFromIndexSet } from './kv-prefix-index';
 
 const KV_HIDDEN_LISTING_EMAILS = 'directory:hidden_listing_emails';
+const PROFILE_PREFIX = 'profile:';
+const PROFILE_INDEX_KEY = `${PROFILE_PREFIX}index`;
+const NEWREP_PREFIX = 'newrep:';
+const NEWREP_INDEX_KEY = `${NEWREP_PREFIX}index`;
 
 type FileData = {
   counties: County[];
@@ -275,13 +280,14 @@ async function loadProfileOverrides(): Promise<Map<string, Record<string, unknow
   const kv = getKV();
   if (!kv) return _profileOverrides;
   try {
-    const keys = await kv.keys('profile:*');
-    if (keys.length === 0) return _profileOverrides;
-    const pipeline = kv.pipeline();
-    for (const key of keys) pipeline.get(key);
-    const results = await pipeline.exec<(Record<string, unknown> | null)[]>();
-    for (let i = 0; i < keys.length; i++) {
-      const row = results[i];
+    const emails = await listIndexedIds({
+      indexKey: PROFILE_INDEX_KEY,
+      prefix: PROFILE_PREFIX,
+    });
+    if (emails.length === 0) return _profileOverrides;
+    const keys = emails.map((email) => `${PROFILE_PREFIX}${email}`);
+    const results = await mgetByKeys<Record<string, unknown>>(keys);
+    for (const row of results) {
       if (row && typeof row === 'object' && 'email' in row && typeof row.email === 'string') {
         _profileOverrides.set(row.email.toLowerCase(), row);
       }
@@ -296,6 +302,21 @@ async function loadProfileOverrides(): Promise<Map<string, Record<string, unknow
 export function invalidateProfileCache(): void {
   _profileOverrides = null;
   _profileOverridesAt = 0;
+}
+
+/** Maintain profile:index when a profile:{email} row is written. */
+export async function indexProfileOverrideEmail(email: string): Promise<void> {
+  await addIndexedId(PROFILE_INDEX_KEY, email.toLowerCase());
+}
+
+/** Maintain profile:index when a profile:{email} row is deleted. */
+export async function unindexProfileOverrideEmail(email: string): Promise<void> {
+  await removeFromIndexSet(PROFILE_INDEX_KEY, email.toLowerCase());
+}
+
+/** Maintain newrep:index when a registration row is deleted. */
+export async function unindexRegisteredRepEmail(email: string): Promise<void> {
+  await removeFromIndexSet(NEWREP_INDEX_KEY, email.toLowerCase());
 }
 
 /* ------------------------------------------------------------------ */
@@ -533,6 +554,7 @@ export async function saveRegistration(input: SaveRegistrationInput): Promise<vo
   if (result !== 'OK') {
     throw new Error('duplicate_registration');
   }
+  await addIndexedId(NEWREP_INDEX_KEY, email);
   invalidateRegisteredRepsCache();
 }
 
@@ -557,16 +579,18 @@ async function loadRegisteredReps(): Promise<Representative[]> {
     return [];
   }
   try {
-    const keys = await kv.keys('newrep:*');
-    if (keys.length === 0) {
+    const emails = await listIndexedIds({
+      indexKey: NEWREP_INDEX_KEY,
+      prefix: NEWREP_PREFIX,
+    });
+    if (emails.length === 0) {
       _registeredReps = [];
       _registeredRawByEmail = new Map();
       _registeredRepsAt = now;
       return [];
     }
-    const pipeline = kv.pipeline();
-    for (const key of keys) pipeline.get(key);
-    const results = await pipeline.exec<(Record<string, unknown> | null)[]>();
+    const keys = emails.map((email) => `${NEWREP_PREFIX}${email}`);
+    const results = await mgetByKeys<Record<string, unknown>>(keys);
     const reps: Representative[] = [];
     const rawByEmail = new Map<string, Record<string, unknown>>();
     const stations = loadDataFromFiles()?.stations ?? [];

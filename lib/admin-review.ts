@@ -6,6 +6,12 @@ import {
   REP_STATUS_LABELS,
 } from '@/lib/rep-status';
 import { redeemPendingContributorReward } from '@/lib/custody-tips/reward';
+import {
+  addIndexedId,
+  listIndexedIds,
+  mgetByKeys,
+  removeFromIndexSet,
+} from '@/lib/kv-prefix-index';
 
 /**
  * Legacy 4-state value used by the original admin UI. New code should prefer
@@ -42,8 +48,23 @@ export interface RepReview {
   reviewedBy: string;
 }
 
+const REVIEW_PREFIX = 'repreview:';
+const REVIEW_INDEX_KEY = `${REVIEW_PREFIX}index`;
+
 function reviewKey(email: string): string {
-  return `repreview:${email.toLowerCase()}`;
+  return `${REVIEW_PREFIX}${email.toLowerCase()}`;
+}
+
+let _allReviews: Map<string, RepReview> | null = null;
+let _allReviewsAt = 0;
+// Match profile/newrep/featured: 5 minute in-process cache. Invalidated on
+// every review write/delete so admin changes are visible immediately.
+const REVIEWS_CACHE_MS =
+  Math.max(30, Number(process.env.REVIEWS_CACHE_TTL_SECONDS) || 300) * 1000;
+
+export function invalidateReviewsCache(): void {
+  _allReviews = null;
+  _allReviewsAt = 0;
 }
 
 export async function getReview(email: string): Promise<RepReview | null> {
@@ -142,6 +163,8 @@ export async function setReview(
   };
 
   await kv.set(reviewKey(lower), record);
+  await addIndexedId(REVIEW_INDEX_KEY, lower);
+  invalidateReviewsCache();
 
   // If this write makes the rep publicly visible, redeem any banked custody
   // contributor reward (fire-and-forget — must never block a review write).
@@ -159,17 +182,45 @@ export async function setReview(
   return record;
 }
 
-export async function loadAllReviews(): Promise<Map<string, RepReview>> {
-  const map = new Map<string, RepReview>();
-  if (skipKVInPrerender()) return map;
+/** Delete a review row and drop it from the id index. */
+export async function deleteReview(email: string): Promise<void> {
   const kv = getKV();
-  if (!kv) return map;
+  if (!kv) return;
+  const lower = email.toLowerCase();
+  await kv.del(reviewKey(lower));
+  await removeFromIndexSet(REVIEW_INDEX_KEY, lower);
+  invalidateReviewsCache();
+}
+
+export async function loadAllReviews(): Promise<Map<string, RepReview>> {
+  const now = Date.now();
+  if (_allReviews && now - _allReviewsAt < REVIEWS_CACHE_MS) {
+    return _allReviews;
+  }
+  const map = new Map<string, RepReview>();
+  if (skipKVInPrerender()) {
+    _allReviews = map;
+    _allReviewsAt = now;
+    return map;
+  }
+  const kv = getKV();
+  if (!kv) {
+    _allReviews = map;
+    _allReviewsAt = now;
+    return map;
+  }
   try {
-    const keys = await kv.keys('repreview:*');
-    if (keys.length === 0) return map;
-    const pipeline = kv.pipeline();
-    for (const key of keys) pipeline.get(key);
-    const results = await pipeline.exec<(RepReview | null)[]>();
+    const emails = await listIndexedIds({
+      indexKey: REVIEW_INDEX_KEY,
+      prefix: REVIEW_PREFIX,
+    });
+    if (emails.length === 0) {
+      _allReviews = map;
+      _allReviewsAt = now;
+      return map;
+    }
+    const keys = emails.map((email) => reviewKey(email));
+    const results = await mgetByKeys<RepReview>(keys);
     for (const row of results) {
       if (row && typeof row === 'object' && typeof row.email === 'string') {
         map.set(row.email.toLowerCase(), row);
@@ -178,6 +229,8 @@ export async function loadAllReviews(): Promise<Map<string, RepReview>> {
   } catch (err) {
     console.error('[admin-review] loadAllReviews failed:', err);
   }
+  _allReviews = map;
+  _allReviewsAt = now;
   return map;
 }
 

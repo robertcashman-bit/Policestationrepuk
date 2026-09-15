@@ -15,6 +15,8 @@ import { getKV, skipKVInPrerender } from '@/lib/kv';
 
 export interface DirectoryStore {
   get<T>(key: string): Promise<T | null>;
+  /** Batch GET — preferred for listing fan-out (one pipeline round-trip). */
+  mget<T>(keys: string[]): Promise<(T | null)[]>;
   set<T>(key: string, value: T): Promise<void>;
   del(key: string): Promise<void>;
   /** True when backed by durable KV; false for the in-memory dev fallback. */
@@ -49,6 +51,14 @@ function memoryStore(): DirectoryStore {
       const raw = memory.get(key);
       return raw === undefined ? null : (JSON.parse(raw) as T);
     },
+    async mget<T>(keys: string[]): Promise<(T | null)[]> {
+      return Promise.all(
+        keys.map(async (key) => {
+          const raw = memory.get(key);
+          return raw === undefined ? null : (JSON.parse(raw) as T);
+        }),
+      );
+    },
     async set<T>(key: string, value: T): Promise<void> {
       memory.set(key, JSON.stringify(value));
     },
@@ -64,6 +74,19 @@ function kvStore(kv: NonNullable<ReturnType<typeof getKV>>): DirectoryStore {
     async get<T>(key: string): Promise<T | null> {
       const v = await kv.get<T>(key);
       return v ?? null;
+    },
+    async mget<T>(keys: string[]): Promise<(T | null)[]> {
+      if (keys.length === 0) return [];
+      const CHUNK = 200;
+      const out: (T | null)[] = [];
+      for (let i = 0; i < keys.length; i += CHUNK) {
+        const chunk = keys.slice(i, i + CHUNK);
+        const pipeline = kv.pipeline();
+        for (const key of chunk) pipeline.get(key);
+        const results = await pipeline.exec<(T | null)[]>();
+        out.push(...results.map((v) => v ?? null));
+      }
+      return out;
     },
     async set<T>(key: string, value: T): Promise<void> {
       await kv.set(key, value);

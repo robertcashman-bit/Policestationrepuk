@@ -48,7 +48,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const dynamic = 'force-dynamic';
+/** ISR: Redis-backed directory data; profile/review caches invalidate on write. */
+export const revalidate = 900;
 
 export default async function DirectoryPage() {
   const [repsRaw, counties, stations] = await Promise.all([

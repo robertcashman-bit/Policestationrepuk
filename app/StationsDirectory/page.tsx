@@ -34,7 +34,8 @@ export const metadata = buildMetadata({
   ],
 });
 
-export const dynamic = 'force-dynamic';
+/** ISR: Redis-backed rep counts via cached getAllReps; searchParams still dynamic. */
+export const revalidate = 900;
 
 interface PageProps {
   searchParams?: Promise<{ [key: string]: string | undefined }>;

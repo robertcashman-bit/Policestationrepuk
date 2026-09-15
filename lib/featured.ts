@@ -1,5 +1,6 @@
 import { getKV, skipKVInPrerender } from './kv';
 import type { Representative } from './types';
+import { addIndexedId, listIndexedIds, mgetByKeys, removeFromIndexSet } from './kv-prefix-index';
 
 export const ROBERT_SLUG = 'robert-cashman';
 export const ROBERT_EMAIL = 'robertdavidcashman@gmail.com';
@@ -34,6 +35,9 @@ export interface FeaturedMeta {
   tier?: string;
 }
 
+const FEATURED_PREFIX = 'featured:';
+const FEATURED_INDEX_KEY = `${FEATURED_PREFIX}index`;
+
 let _featuredFlags: Map<string, FeaturedMeta> | null = null;
 let _featuredFlagsAt = 0;
 // 5 minute in-process cache. Lemon Squeezy webhooks call
@@ -60,11 +64,13 @@ export async function loadFeaturedFlags(): Promise<Map<string, FeaturedMeta>> {
   const kv = getKV();
   if (!kv) { _featuredFlags = map; _featuredFlagsAt = now; return map; }
   try {
-    const keys = await kv.keys('featured:*');
-    if (keys.length === 0) { _featuredFlags = map; _featuredFlagsAt = now; return map; }
-    const pipeline = kv.pipeline();
-    for (const key of keys) pipeline.get(key);
-    const results = await pipeline.exec<(FeaturedMeta | null)[]>();
+    const emails = await listIndexedIds({
+      indexKey: FEATURED_INDEX_KEY,
+      prefix: FEATURED_PREFIX,
+    });
+    if (emails.length === 0) { _featuredFlags = map; _featuredFlagsAt = now; return map; }
+    const keys = emails.map((email) => `${FEATURED_PREFIX}${email}`);
+    const results = await mgetByKeys<FeaturedMeta>(keys);
     for (const row of results) {
       if (row && typeof row === 'object' && typeof row.email === 'string') {
         map.set(row.email.toLowerCase(), row);
@@ -81,6 +87,10 @@ export async function loadFeaturedFlags(): Promise<Map<string, FeaturedMeta>> {
 export function invalidateFeaturedCache(): void {
   _featuredFlags = null;
   _featuredFlagsAt = 0;
+}
+
+export async function unindexFeaturedEmail(email: string): Promise<void> {
+  await removeFromIndexSet(FEATURED_INDEX_KEY, email.toLowerCase());
 }
 
 export async function getFeaturedStatus(email: string): Promise<FeaturedMeta | null> {
@@ -140,6 +150,7 @@ export async function activateFeatured(
     expiresAt: opts.expiresAt,
   };
   await kv.set(`featured:${email.toLowerCase()}`, meta);
+  await addIndexedId(FEATURED_INDEX_KEY, email.toLowerCase());
   invalidateFeaturedCache();
   return meta;
 }
@@ -182,6 +193,7 @@ export async function updateFeaturedSubscription(
     ...updates,
   };
   await kv.set(`featured:${email.toLowerCase()}`, updated);
+  await addIndexedId(FEATURED_INDEX_KEY, email.toLowerCase());
   invalidateFeaturedCache();
   return updated;
 }
@@ -224,6 +236,7 @@ export async function markEmailsSent(email: string, flags: { rep?: boolean; owne
     emailSentToOwner: flags.owner ?? existing.emailSentToOwner,
   };
   await kv.set(`featured:${email.toLowerCase()}`, updated);
+  await addIndexedId(FEATURED_INDEX_KEY, email.toLowerCase());
 }
 
 export async function grandfatherExistingFeaturedReps(reps: Representative[]): Promise<number> {
@@ -253,6 +266,7 @@ export async function grandfatherExistingFeaturedReps(reps: Representative[]): P
       featuredLastWebhookEvent: existing?.featuredLastWebhookEvent ?? 'legacy_migration',
     };
     await kv.set(key, meta);
+    await addIndexedId(FEATURED_INDEX_KEY, rep.email.toLowerCase());
     changed++;
   }
   if (changed > 0) invalidateFeaturedCache();

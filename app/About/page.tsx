@@ -16,7 +16,8 @@ export const metadata = buildMetadata({
   path: '/About',
 });
 
-export const dynamic = 'force-dynamic';
+/** ISR: Redis-backed directory stats via cached getAllReps. */
+export const revalidate = 900;
 
 const TIMELINE = [
   {

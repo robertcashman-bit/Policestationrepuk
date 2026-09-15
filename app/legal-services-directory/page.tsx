@@ -18,8 +18,8 @@ export const metadata = buildMetadata({
   path: LEGAL_DIRECTORY_BASE,
 });
 
-/** KV-backed listing counts; must not use static ISR (DYNAMIC_SERVER_USAGE). */
-export const dynamic = 'force-dynamic';
+/** ISR: approved-listings snapshot + path revalidation on listing writes. */
+export const revalidate = 900;
 
 const FAQ = [
   {

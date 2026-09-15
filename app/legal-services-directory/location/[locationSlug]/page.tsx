@@ -11,7 +11,8 @@ import { LEGAL_DIRECTORY_BASE } from '@/lib/legal-directory/constants';
 import { listApprovedListings, toPublicListing } from '@/lib/legal-directory/storage';
 import { LEGAL_DIRECTORY_CATEGORIES } from '@/lib/legal-directory/categories';
 
-export const dynamic = 'force-dynamic';
+/** ISR: approved-listings snapshot + path revalidation on listing writes. */
+export const revalidate = 900;
 
 type Props = { params: Promise<{ locationSlug: string }> };
 

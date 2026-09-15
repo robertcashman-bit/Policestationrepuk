@@ -14,7 +14,8 @@ export const metadata = buildMetadata({
   path: `${LEGAL_DIRECTORY_BASE}/locations`,
 });
 
-export const dynamic = 'force-dynamic';
+/** ISR: approved-listings snapshot + path revalidation on listing writes. */
+export const revalidate = 900;
 
 export default async function LocationsIndexPage() {
   const approved = await listApprovedListings();

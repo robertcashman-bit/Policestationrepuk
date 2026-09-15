@@ -7,10 +7,13 @@ import {
   hideStaticListingEmail,
   invalidateProfileCache,
   invalidateRegisteredRepsCache,
+  indexProfileOverrideEmail,
+  unindexProfileOverrideEmail,
+  unindexRegisteredRepEmail,
 } from '@/lib/data';
-import { invalidateFeaturedCache } from '@/lib/featured';
+import { invalidateFeaturedCache, unindexFeaturedEmail } from '@/lib/featured';
 import { validateEnglishCountySelections } from '@/lib/english-counties';
-import { getReview } from '@/lib/admin-review';
+import { deleteReview, getReview } from '@/lib/admin-review';
 import { loadFeaturedFlags } from '@/lib/featured';
 
 export const dynamic = 'force-dynamic';
@@ -137,6 +140,7 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ email: st
     return NextResponse.json({ error: 'Could not save profile' }, { status: 502 });
   }
 
+  await indexProfileOverrideEmail(email);
   invalidateProfileCache();
 
   return NextResponse.json({ ok: true, updated_at: now, profile: merged });
@@ -167,12 +171,17 @@ export async function DELETE(_request: Request, ctx: { params: Promise<{ email: 
       await kv.del(`newrep:${email}`);
       await kv.del(`profile:${email}`);
       await kv.del(`featured:${email}`);
-      await kv.del(`repreview:${email}`);
+      await deleteReview(email);
+      await unindexRegisteredRepEmail(email);
+      await unindexProfileOverrideEmail(email);
+      await unindexFeaturedEmail(email);
       invalidateRegisteredRepsCache();
     } else {
       await hideStaticListingEmail(email);
       await kv.del(`profile:${email}`);
       await kv.del(`featured:${email}`);
+      await unindexProfileOverrideEmail(email);
+      await unindexFeaturedEmail(email);
     }
 
     invalidateProfileCache();

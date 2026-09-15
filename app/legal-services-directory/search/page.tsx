@@ -25,7 +25,11 @@ export const metadata = buildMetadata({
   path: `${LEGAL_DIRECTORY_BASE}/search`,
 });
 
-export const dynamic = 'force-dynamic';
+/**
+ * Search reads query params (dynamic per request) but loads listings from the
+ * approved snapshot (1 GET / warm memory) — not a 1+N Redis fan-out.
+ */
+export const revalidate = 900;
 
 type SearchParams = Promise<{
   q?: string;

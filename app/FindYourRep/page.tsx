@@ -24,7 +24,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const dynamic = 'force-dynamic';
+/** ISR: Redis-backed directory aggregates via cached getAllReps. */
+export const revalidate = 900;
 
 function maxRepsPerStation(reps: Awaited<ReturnType<typeof getAllReps>>): number {
   const counts = new Map<string, number>();

@@ -20,7 +20,8 @@ import {
   toPublicListing,
 } from '@/lib/legal-directory/storage';
 
-export const dynamic = 'force-dynamic';
+/** ISR: approved-listings snapshot + path revalidation on listing writes. */
+export const revalidate = 900;
 
 type Props = { params: Promise<{ categorySlug: string }> };
 

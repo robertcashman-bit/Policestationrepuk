@@ -77,7 +77,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const dynamic = 'force-dynamic';
+/** ISR: Redis-backed directory data; writes revalidate paths. */
+export const revalidate = 900;
 
 export default async function HomePage() {
   const [repsRaw, counties, stations, featuredReps, phoneStats] = await Promise.all([

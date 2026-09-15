@@ -22,7 +22,8 @@ import { shouldIndexLegalListingPage } from '@/lib/legal-directory/indexing';
 import { phoneToTelHref } from '@/lib/phone';
 import { SITE_URL } from '@/lib/seo-layer/config';
 
-export const dynamic = 'force-dynamic';
+/** ISR: single listing GET; path revalidation on listing writes. */
+export const revalidate = 900;
 
 type Props = { params: Promise<{ slug: string }> };
 

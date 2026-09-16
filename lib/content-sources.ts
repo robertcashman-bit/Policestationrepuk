@@ -158,7 +158,12 @@ const BLOG_SLUG: Record<string, ContentSource[]> = {
   'out-of-hours-police-station-cover-for-law-firms': [SCC_2025, PSRAS],
   'why-firms-need-rep-directory': [PSRAS, SCC_2025],
   'how-firms-source-emergency-rep-cover': [SCC_2025, PSRAS],
-  'police-station-rep-coverage-location-matters': [SCC_2025, PSRAS],
+  'police-station-rep-coverage-location-matters': [
+    SCC_2025,
+    PSRAS,
+    PACE_ACT,
+    { label: 'PACE Code C (2023)', href: 'https://www.gov.uk/government/publications/pace-code-c-2023' },
+  ],
   'keep-directory-profile-useful': [SRA_PSRAS, SRA_STANDARDS, PSRAS],
   'accredited-reps-keep-availability-updated': [PSRAS, SRA_PSRAS, SCC_2025],
   'freelance-police-station-rep-career': [PSRA_2025_PDF, SRA_PSRAS, PSRAS],

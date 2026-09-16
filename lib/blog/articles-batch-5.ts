@@ -17,7 +17,7 @@ export const ARTICLES_BATCH_5: BlogArticle[] = [
     primaryKeyword: 'police station rep coverage location',
     categories: ['law-firms', 'best-practice'],
     published: '2026-06-09T09:00:00.000Z',
-    modified: '2026-06-09T09:00:00.000Z',
+    modified: '2026-09-16T12:00:00.000Z',
     excerpt:
       'The rep on your panel might be excellent — but if they are two hours from the custody suite, the file still fails. Location is operational, not cosmetic.',
     summary:
@@ -54,11 +54,11 @@ export const ARTICLES_BATCH_5: BlogArticle[] = [
 
 ## Why location beats reputation alone
 
-Criminal defence firms rarely lose cover because they picked an unknown name — they lose it because the only available rep is **too far away** when custody clocks are running. A rep who covers “Kent” on paper may be based at the opposite end of the county from Medway or North Kent suites.
+Criminal defence firms rarely lose cover because they picked an unknown name — they lose it because the only available rep is **too far away** when custody clocks are running under **PACE 1984 ss.41–44** and **Code C** detention reviews. A rep who covers “Kent” on paper may be based at the opposite end of the county from Medway or North Kent suites.
 
 Location matters for:
 
-- **Attendance within PACE time limits** and realistic client contact
+- **Attendance within PACE 1984 detention time limits (ss.41–44; Code C reviews)** and realistic client contact
 - **Cost** — travel and waiting time affect legal aid and private billing
 - **Handover quality** — tired reps after long drives make mistakes in notes and advice
 

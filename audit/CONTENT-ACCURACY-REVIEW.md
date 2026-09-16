@@ -430,3 +430,25 @@ Prior Tier 1 fixes retained (`bail-act-2024-changes` retitled to PCSC Act 2022; 
 ## Addendum — `/Blog/own-solicitor-police-station` (2026-09-04)
 
 New public SEO explainer on requesting a **named solicitor/firm** (not duty rota). Claims mirror the verified duty-solicitor post: PACE s.58 / Code C entitlement, DSCC routing to a named firm’s emergency line, duty as national fallback, police-station advice usually free under legal aid (not inventing means-test nuance beyond “usually”). Kent aside labelled to policestationagent.com; directory/cover CTAs for firms only. Sources wired in `lib/content-sources.ts` (PACE Act, Code C 2023, SCC 2025, find-legal-advice.justice.gov.uk). **Verdict:** OK for publish as general information.
+
+---
+
+## Addendum — editorial digest 2026-09-16 (RepUK)
+
+Robert authorised actioning proposed fixes from the 2026-09-16 editorial audit digest (7 REVIEW; 0 critical).
+
+### A) pace-sourcing
+
+- **FIXED** — `/Blog/police-station-attendance-checklist` Key takeaways: bare “PACE awareness” → **PACE 1984 / Code C**.
+- **FIXED** — same article Disclosure and interview: bare “PACE fairness” → **PACE Code C** fairness + Code C paragraph 11.1A on disclosure.
+- **FIXED** — same article last-section false-positive root cause: FAQ “Does this checklist replace PACE training?” now cites **PACE 1984 and Code C** (FAQs append onto the final markdown section in the audit inventory).
+- **FIXED** — `/Blog/police-station-rep-coverage-location-matters` Why location beats reputation alone: “PACE time limits” → **PACE 1984 ss.41–44; Code C reviews**. Sources footer extended with PACE Act + Code C 2023.
+
+### B) llm-fact-check (`Questions this article answers`)
+
+- **FIXED** — concrete pre-travel checklist (station, custody number/OIC, time window, client details, offence outline, disclosure status, conflict check, kit, travel ETA).
+- **FIXED** — post-attendance notes outline (times, officers, disclosure, advice, interview outcome, bail/release, next steps, billing-relevant facts; no invented fee rates).
+- **FIXED** — voluntary vs booked-in custody: not detention under PACE 1984 Part IV vs Code C questioning standards; timing and records framed carefully.
+
+**Verdict:** OK for publish as operational guidance — not case-specific advice.
+

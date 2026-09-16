@@ -203,7 +203,7 @@ When you need a new name quickly, filter by county and accreditation on the [dir
     primaryKeyword: 'police station attendance checklist',
     categories: ['attendance', 'freelance-reps', 'best-practice'],
     published: '2026-03-18T09:00:00.000Z',
-    modified: '2026-03-26T12:00:00.000Z',
+    modified: '2026-09-16T12:00:00.000Z',
     excerpt:
       'Use this structured checklist to reduce missed steps in custody: from confirming the brief to delivering notes the instructing solicitor can rely on.',
     summary:
@@ -220,7 +220,7 @@ When you need a new name quickly, filter by county and accreditation on the [dir
     faqs: [
       {
         q: 'Should I vary this checklist for voluntary interviews?',
-        a: 'Many steps are the same (disclosure, consultation, outcomes). Voluntary interviews may differ on booking-in mechanics — adjust custody-specific items to the venue’s process.',
+        a: 'Yes. Disclosure, consultation, interview support, and notes still apply. Drop custody-desk booking-in items that only fit detention under PACE 1984 Part IV / Code C, and record that the client attended voluntarily (not detained) unless the position changes.',
       },
       {
         q: 'What if the firm’s strategy changes mid-attendance?',
@@ -228,7 +228,7 @@ When you need a new name quickly, filter by county and accreditation on the [dir
       },
       {
         q: 'Does this checklist replace PACE training?',
-        a: 'No. It complements your accreditation and firm instructions. For context on process and rights, see the in-site [PACE overview](/PACE) and your regulator’s materials.',
+        a: 'No. It complements your accreditation and firm instructions. Keep current on PACE 1984 and Code C (detention, treatment, and questioning), and use the in-site [PACE overview](/PACE) plus your regulator’s materials.',
       },
     ],
     bodyMarkdown: `
@@ -236,22 +236,36 @@ When you need a new name quickly, filter by county and accreditation on the [dir
 
 - Use a **police station attendance checklist** so preparation, custody desk steps, and reporting stay consistent.
 - Document disclosure, outcomes, and follow-ups the same day — tired fee earners skim predictable headings.
-- Align with the firm’s PACE awareness and your accreditation limits; this is operational guidance, not case advice.
+- Align with the firm’s **PACE 1984 / Code C** awareness and your accreditation limits; this is operational guidance, not case advice.
 
 ## Questions this article answers
 
-- What should a rep verify before travelling to custody?
-- What belongs in post-attendance notes for the instructing firm?
-- How do voluntary interviews differ in practice from booked-in custody?
+### What should a rep verify before travelling to custody?
+
+Confirm **station / suite**, **custody number or OIC contact**, **time window**, **client identifiers**, **offence outline**, **disclosure status**, a **conflict check**, **kit and ID**, and a realistic **travel ETA** — then re-read the firm brief. Detail sits in **Before you travel** below.
+
+### What belongs in post-attendance notes for the instructing firm?
+
+Include **attendance times**, **officers**, **disclosure given or refused**, **advice given**, **interview outcome**, **bail / release**, **next steps**, and **billing-relevant facts** (not invented fee rates). See **Post-attendance reporting** and the [handover notes guide](/Blog/best-practice-handover-notes-after-police-station-attendance).
+
+### How do voluntary interviews differ in practice from booked-in custody?
+
+Voluntary attendance is **not detention** under PACE 1984 Part IV, so custody clocks and full booking-in routines usually do not apply; the client can ordinarily leave unless arrested. Interviews under caution still engage **Code C** questioning standards (caution, fairness, consultation). Practical differences are in **Voluntary interviews vs booked-in custody** below.
 
 ## Before you travel
 
-This **police station attendance checklist** is a field aide — adapt it to the instructing firm and the venue.
+This **police station attendance checklist** is a field aide — adapt it to the instructing firm and the venue. Before you leave, verify:
 
-- Confirm **station, suite, and booking window** with the firm and custody where possible.
-- Re-read the brief; flag gaps (missing DOB, offence detail, AA/interpreter).
-- Charge phone; pack notepad, pen, firm notepaper if used, and any required ID for professional visitors.
-- Know **who to call** for escalations (named solicitor, not a generic switchboard if avoidable).
+- **Station / suite** and how to enter (desk location, visitor process).
+- **Custody number** and/or **OIC / interviewing officer** contact if the firm has it.
+- **Time window** for consultation and intended interview — and whether custody expects you earlier.
+- **Client details**: full name, DOB, and any vulnerability flags (AA, interpreter, medical).
+- **Offence outline** and any prior instructions already on the file.
+- **Disclosure status**: what the firm already holds vs what you must obtain on site (Code C paragraph 11.1A context — sufficient information for meaningful advice).
+- **Conflict check** against your other instructions and the firm’s conflict rules.
+- **Kit**: charged phone, notepad/pen, firm notepaper if used, professional visitor ID.
+- **Travel ETA** communicated to the firm (and custody where asked).
+- **Escalation contact**: named solicitor, not a generic switchboard if avoidable.
 
 ## Arrival and custody desk
 
@@ -268,8 +282,8 @@ This **police station attendance checklist** is a field aide — adapt it to the
 
 ## Disclosure and interview
 
-- Obtain **whatever disclosure the officer will give**; note gaps politely if material is missing.
-- During the interview, intervene on **PACE fairness** where appropriate; avoid turning into an advocate outside your role.
+- Obtain **whatever disclosure the officer will give**; note gaps politely if material is missing (Code C paragraph 11.1A — sufficient pre-interview information for meaningful advice, subject to investigation-prejudice limits).
+- During the interview, intervene on **PACE Code C fairness** (oppressive or improper questioning, breaks, further consultation) where appropriate; avoid turning into an advocate outside your role.
 - Track **breaks**, legal consultations mid-interview, and any changes to alleged facts.
 
 ## Outcomes
@@ -283,7 +297,27 @@ Record accurately:
 
 ## Post-attendance reporting
 
-Send structured notes quickly — see [handover notes best practice](/Blog/best-practice-handover-notes-after-police-station-attendance). Include **time in / time out**, who you saw, disclosure summary, outcome, and follow-up tasks for the firm.
+Send structured notes quickly — see [handover notes best practice](/Blog/best-practice-handover-notes-after-police-station-attendance). A firm-ready outline usually includes:
+
+- **Attendance times** (instructed / arrived / left) and venue.
+- **Officers** dealt with (custody officer, OIC, interviewing officer) if recorded.
+- **Disclosure** given, summarised, or refused — and material gaps.
+- **Advice given** at a high level (interview approach agreed; mid-interview changes).
+- **Interview outcome** and any prepared statement used.
+- **Bail / release** position, conditions, return dates, or RUI markers.
+- **Next steps** for the firm (chase CCTV, medical notes, further instructions).
+- **Billing-relevant facts** only — waiting/travel notes the firm asked for; do not invent fee rates.
+
+## Voluntary interviews vs booked-in custody
+
+In practice, adjust the checklist rather than ignoring it:
+
+- **Status:** booked-in custody usually means **detention** under PACE 1984 Part IV with a custody record and detention reviews; a **voluntary interview** means the person is attending by arrangement and is **not detained** unless later arrested.
+- **Rights and records:** detained suspects get the full Code C booking-in and rights package on the custody record; voluntary attendees still need clear advice on the caution, legal advice, and whether they are free to leave — record what was explained.
+- **Timing:** detention clocks (PACE 1984 ss.41–44; Code C reviews) drive urgency in custody; voluntary slots are diary-driven, but late arrival still harms the client and the firm relationship.
+- **Process:** drop custody-desk items that do not apply; keep disclosure, consultation, interview fairness under **Code C**, outcomes, and same-day notes.
+
+Pair with the firm’s [interview under caution](/InterviewUnderCaution) materials where the instruction is voluntary.
 
 ## Professional hygiene
 

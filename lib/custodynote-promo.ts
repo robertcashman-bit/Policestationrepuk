@@ -22,8 +22,8 @@ export const CUSTODYNOTE_CHECKLIST_HREF = cnHref('directory', '/police-station-a
 /** Mac section on the custodynote.com download page (Apple Silicon + Intel pickers). */
 export const CUSTODYNOTE_MAC_DOWNLOAD_HREF = `${CUSTODYNOTE_DOWNLOAD_HREF}#mac`;
 
-/** Current release published on custodynote.com (see custody-note-website/data/releases.json). */
-export const CUSTODYNOTE_VERSION = '1.9.11';
+/** Current release published on custodynote.com/download (direct desktop builds). Not Microsoft Store / MSIX draft. */
+export const CUSTODYNOTE_VERSION = '1.9.103';
 
 /** Plain-language — use in headlines and promos. */
 export const CUSTODYNOTE_APPS_LINE = 'Native desktop apps for Windows PC and Mac';

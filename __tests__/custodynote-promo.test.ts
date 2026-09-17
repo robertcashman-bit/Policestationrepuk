@@ -16,6 +16,16 @@ describe('custodynote-promo commercial line', () => {
     expect(promo.TOP_BANNER_TEXT_MOBILE.toLowerCase()).toContain('free during beta');
   });
 
+  it('matches live desktop release on custodynote.com/download (not Store draft)', () => {
+    expect(promo.CUSTODYNOTE_VERSION).toBe('1.9.103');
+    const surfaces = Object.values(promo)
+      .filter((v): v is string => typeof v === 'string')
+      .join(' ');
+    expect(surfaces.toLowerCase()).not.toMatch(/microsoft store/);
+    expect(surfaces.toLowerCase()).not.toMatch(/\bmsix\b/);
+    expect(surfaces).not.toMatch(/9NFSRVT/);
+  });
+
   it('does not sell a live trial, £11.99 offer, or A2MJY2NQ code', () => {
     const surfaces = Object.values(promo)
       .filter((v): v is string => typeof v === 'string')

@@ -16,6 +16,7 @@ import {
   CUSTODYNOTE_PRICING_HREF,
   CUSTODYNOTE_SHORT_DESCRIPTION,
   CUSTODYNOTE_TAGLINE,
+  CUSTODYNOTE_STORE_STATUS_LINE,
   CUSTODYNOTE_VERSION,
 } from '@/lib/custodynote-promo';
 import { buildMetadata } from '@/lib/seo';
@@ -271,6 +272,9 @@ export default function CustodyNotePage() {
             <p className="mt-2 text-sm font-semibold text-white">{CUSTODYNOTE_APPS_LINE}</p>
             <p className="mt-1 text-xs leading-relaxed text-white/90">
               {CUSTODYNOTE_APPS_DETAIL} {CUSTODYNOTE_FREE_LABEL} on both platforms — {CUSTODYNOTE_BETA_REASON}
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-white/75">
+              {CUSTODYNOTE_STORE_STATUS_LINE}
             </p>
             <a
               href={CUSTODYNOTE_DOWNLOAD_HREF}

@@ -22,8 +22,15 @@ export const CUSTODYNOTE_CHECKLIST_HREF = cnHref('directory', '/police-station-a
 /** Mac section on the custodynote.com download page (Apple Silicon + Intel pickers). */
 export const CUSTODYNOTE_MAC_DOWNLOAD_HREF = `${CUSTODYNOTE_DOWNLOAD_HREF}#mac`;
 
-/** Current release published on custodynote.com/download (direct desktop builds). Not Microsoft Store / MSIX draft. */
-export const CUSTODYNOTE_VERSION = '1.9.103';
+/** Current desktop release to show (GitHub latest tag). Canonical install path remains custodynote.com/download — not Microsoft Store. */
+export const CUSTODYNOTE_VERSION = '1.9.106';
+
+/**
+ * Microsoft Store status — listing is in certification (UK), not installable from Store yet.
+ * Do not claim “available on Microsoft Store” or present Store as a live install path.
+ */
+export const CUSTODYNOTE_STORE_STATUS_LINE =
+  'Microsoft Store listing for Windows is coming soon / in certification (UK) — download now from custodynote.com/download.';
 
 /** Plain-language — use in headlines and promos. */
 export const CUSTODYNOTE_APPS_LINE = 'Native desktop apps for Windows PC and Mac';
@@ -31,7 +38,6 @@ export const CUSTODYNOTE_APPS_LINE = 'Native desktop apps for Windows PC and Mac
 /** Technical requirements — use in footnotes and fine print. */
 export const CUSTODYNOTE_PLATFORM_LINE =
   'Windows 10+ and macOS 11+ (Apple Silicon and Intel)';
-
 /**
  * Planned Pro list price after beta (GBP), as stated on custodynote.com.
  * Payments are not wired yet — do not promote as a current paid offer or discount.

@@ -14,7 +14,7 @@ const ROOT = path.join(__dirname, '..');
 const REPLACEMENTS = [
   // Brand in prose only — never rewrite /CustodyNote paths or route ids.
   [/(?<!\/)CustodyNote(?![\w/])/g, 'Custody Note'],
-  [/Version 1\.4\.\d+/g, 'Version 1.9.103'],
+  [/Version 1\.4\.\d+/g, 'Version 1.9.106'],
   [/Windows 10\+ · From £15\.99\/mo/g, 'Windows 10+ and macOS 11+ · Free during beta'],
   [/From £15\.99\/mo/g, 'Free during beta'],
   [/From £11\.99\/mo/g, 'Free during beta'],

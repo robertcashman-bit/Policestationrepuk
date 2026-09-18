@@ -26,11 +26,15 @@ export const CUSTODYNOTE_MAC_DOWNLOAD_HREF = `${CUSTODYNOTE_DOWNLOAD_HREF}#mac`;
 export const CUSTODYNOTE_VERSION = '1.9.106';
 
 /**
- * Microsoft Store status — listing is in certification (UK), not installable from Store yet.
- * Do not claim “available on Microsoft Store” or present Store as a live install path.
+ * Microsoft Store status — Windows-only listing is in certification (UK), not installable yet.
+ * Store is not for Mac. Do not claim “available on Microsoft Store” or present Store as a live install path.
  */
 export const CUSTODYNOTE_STORE_STATUS_LINE =
-  'Microsoft Store listing for Windows is coming soon / in certification (UK) — download now from custodynote.com/download.';
+  'Microsoft Store (Windows only) is coming soon / in certification (UK) — not for Mac. Download Windows and Mac now from custodynote.com/download.';
+
+/** Where to get both desktop builds (canonical install path). */
+export const CUSTODYNOTE_DOWNLOAD_LOCATION_LINE =
+  'Download for Windows and Mac at custodynote.com/download (Mac builds under the Mac section).';
 
 /** Plain-language — use in headlines and promos. */
 export const CUSTODYNOTE_APPS_LINE = 'Native desktop apps for Windows PC and Mac';

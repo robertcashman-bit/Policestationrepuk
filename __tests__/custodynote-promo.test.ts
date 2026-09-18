@@ -25,8 +25,10 @@ describe('custodynote-promo commercial line', () => {
   it('states Microsoft Store is coming soon / in certification — never live/installable', () => {
     const status = promo.CUSTODYNOTE_STORE_STATUS_LINE.toLowerCase();
     expect(status).toMatch(/microsoft store/);
+    expect(status).toMatch(/windows only|windows-only/);
     expect(status).toMatch(/coming soon|in certification/);
     expect(status).toMatch(/uk/);
+    expect(status).toMatch(/not for mac/);
     expect(status).toContain('custodynote.com/download');
 
     const surfaces = Object.values(promo)
@@ -43,6 +45,16 @@ describe('custodynote-promo commercial line', () => {
     // Do not publish Store ID or MSIX packaging details in promo surfaces
     expect(surfaces).not.toMatch(/9NFSRVT/);
     expect(lower).not.toMatch(/\bmsix\b/);
+  });
+
+  it('makes Windows + Mac and download location clear (Store is Windows-only)', () => {
+    expect(promo.CUSTODYNOTE_APPS_LINE.toLowerCase()).toMatch(/windows/);
+    expect(promo.CUSTODYNOTE_APPS_LINE.toLowerCase()).toMatch(/mac/);
+    expect(promo.CUSTODYNOTE_DOWNLOAD_APPS_CTA.toLowerCase()).toMatch(/windows.*mac|mac.*windows/);
+    expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toContain('custodynote.com/download');
+    expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toMatch(/windows.*mac|mac.*windows/);
+    expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_HREF).toContain('https://custodynote.com/download');
+    expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_HREF).toMatch(/#mac$/);
   });
 
   it('does not sell a live trial, £11.99 offer, or A2MJY2NQ code', () => {

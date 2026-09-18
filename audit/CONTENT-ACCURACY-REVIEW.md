@@ -452,3 +452,9 @@ Robert authorised actioning proposed fixes from the 2026-09-16 editorial audit d
 
 **Verdict:** OK for publish as operational guidance — not case-specific advice.
 
+---
+
+## Addendum — editorial digest 2026-09-18 (RepUK) — pace-sourcing
+
+- **FIXED** — `/Blog/freelance-police-station-representative-vs-duty-solicitor` Directory use (last section): FAQ “Can a firm use both on one file?” bare “PACE materials” → **PACE 1984 / Code C** (detention, treatment, and questioning). FAQs append onto the final markdown section in the audit inventory, which is why the Directory use snippet was flagged.
+

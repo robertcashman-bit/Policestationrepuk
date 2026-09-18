@@ -17,7 +17,7 @@ export const ARTICLES_BATCH_2: BlogArticle[] = [
     primaryKeyword: 'freelance police station representative vs duty solicitor',
     categories: ['law-firms', 'freelance-reps', 'best-practice'],
     published: '2026-03-17T09:00:00.000Z',
-    modified: '2026-03-26T12:00:00.000Z',
+    modified: '2026-09-18T12:00:00.000Z',
     excerpt:
       'The labels are often mixed up. Here is a straight comparison of how duty solicitor schemes and privately instructed freelance reps fit into police station work.',
     summary:
@@ -44,7 +44,7 @@ export const ARTICLES_BATCH_2: BlogArticle[] = [
       },
       {
         q: 'Can a firm use both on one file?',
-        a: 'Sometimes the pathway changes as the case develops. The important point is clarity: record who attended, under what scheme or instruction, and how the client was advised. Use your firm’s PACE materials for process background — this article is not case-specific advice.',
+        a: 'Sometimes the pathway changes as the case develops. The important point is clarity: record who attended, under what scheme or instruction, and how the client was advised. Use your firm’s **PACE 1984 / Code C** materials for process background (detention, treatment, and questioning) — this article is not case-specific advice.',
       },
     ],
     bodyMarkdown: `

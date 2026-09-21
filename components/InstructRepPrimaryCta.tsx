@@ -35,7 +35,7 @@ export function InstructRepPrimaryCta({
       <div className={`flex flex-wrap items-center gap-2 ${className ?? ''}`}>
         <Link
           href={INSTRUCT_PRIMARY_HREF}
-          className="inline-flex min-h-[2.5rem] items-center rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-extrabold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
+          className="inline-flex min-h-[2.75rem] items-center rounded-lg bg-[var(--gold)] px-4 py-2 text-sm font-extrabold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
           data-event="instruct_cta_click"
           data-event-placement="inline"
         >
@@ -44,7 +44,7 @@ export function InstructRepPrimaryCta({
         {showKent ? (
           <Link
             href={INSTRUCT_KENT_HREF}
-            className="inline-flex min-h-[2.5rem] items-center rounded-lg border border-white/40 bg-white/10 px-3 py-2 text-sm font-semibold text-white no-underline hover:border-[var(--gold)] hover:bg-white/15"
+            className="inline-flex min-h-[2.75rem] items-center rounded-lg border border-white/40 bg-white/10 px-3 py-2 text-sm font-semibold text-white no-underline hover:border-[var(--gold)] hover:bg-white/15"
           >
             {INSTRUCT_KENT_LABEL}
           </Link>
@@ -55,11 +55,11 @@ export function InstructRepPrimaryCta({
 
   if (variant === 'hero') {
     return (
-      <div className={`flex flex-col items-center gap-3 ${className ?? ''}`}>
-        <div className="flex flex-wrap items-center justify-center gap-3">
+      <div className={`flex w-full flex-col items-center gap-3 ${className ?? ''}`}>
+        <div className="flex w-full flex-col items-stretch gap-2.5 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
           <Link
             href={INSTRUCT_PRIMARY_HREF}
-            className="inline-flex min-h-[3rem] items-center justify-center rounded-xl bg-[var(--gold)] px-6 text-base font-extrabold text-[var(--navy)] no-underline shadow-md hover:bg-[var(--gold-hover)]"
+            className="inline-flex min-h-[3.25rem] w-full items-center justify-center rounded-xl bg-[var(--gold)] px-7 text-base font-extrabold text-[var(--navy)] no-underline shadow-[0_8px_24px_-8px_rgba(250,204,21,0.65)] transition-colors hover:bg-[var(--gold-hover)] sm:w-auto"
             data-event="instruct_cta_click"
             data-event-placement="hero"
           >
@@ -68,7 +68,7 @@ export function InstructRepPrimaryCta({
           {showKent ? (
             <Link
               href={INSTRUCT_KENT_HREF}
-              className="inline-flex min-h-[3rem] items-center justify-center rounded-xl border-2 border-white/40 bg-white/10 px-5 text-sm font-bold text-white no-underline hover:border-[var(--gold)] hover:bg-white/15"
+              className="inline-flex min-h-[3.25rem] w-full items-center justify-center rounded-xl border-2 border-white/45 bg-white/10 px-5 text-sm font-bold text-white no-underline transition-colors hover:border-[var(--gold)] hover:bg-white/15 sm:w-auto"
             >
               {INSTRUCT_KENT_LABEL}
             </Link>
@@ -88,15 +88,15 @@ export function InstructRepPrimaryCta({
     <div
       className={`rounded-2xl border border-[var(--navy)]/15 bg-gradient-to-br from-[var(--gold-pale)] to-white p-5 text-center shadow-sm sm:p-6 ${className ?? ''}`}
     >
-      <h2 className="text-lg font-extrabold text-[var(--navy)] sm:text-xl">{needLine}</h2>
+      <h2 className="font-display text-lg font-bold text-[var(--navy)] sm:text-xl">{needLine}</h2>
       <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed text-[var(--muted)]">
         Search accredited reps by county or station and instruct them directly. For Kent overflow
         cover, use the Kent agency cover guide or contact the directory team.
       </p>
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+      <div className="mt-4 flex flex-col items-stretch justify-center gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <Link
           href={INSTRUCT_PRIMARY_HREF}
-          className="btn-gold inline-flex !text-sm !no-underline"
+          className="btn-gold inline-flex !min-h-[2.75rem] !text-sm !no-underline"
           data-event="instruct_cta_click"
           data-event-placement="panel"
         >
@@ -105,14 +105,14 @@ export function InstructRepPrimaryCta({
         {showKent ? (
           <Link
             href={INSTRUCT_KENT_HREF}
-            className="inline-flex min-h-[2.5rem] items-center rounded-lg border-2 border-[var(--navy)]/15 px-4 py-2 text-sm font-semibold text-[var(--navy)] no-underline hover:border-[var(--gold-hover)]"
+            className="inline-flex min-h-[2.75rem] items-center justify-center rounded-lg border-2 border-[var(--navy)]/15 px-4 py-2 text-sm font-semibold text-[var(--navy)] no-underline hover:border-[var(--gold-hover)]"
           >
             {INSTRUCT_KENT_LABEL}
           </Link>
         ) : null}
         <Link
           href={INSTRUCT_CONTACT_HREF}
-          className="inline-flex min-h-[2.5rem] items-center rounded-lg border-2 border-[var(--navy)]/15 px-4 py-2 text-sm font-semibold text-[var(--navy)] no-underline hover:border-[var(--gold-hover)]"
+          className="inline-flex min-h-[2.75rem] items-center justify-center rounded-lg border-2 border-[var(--navy)]/15 px-4 py-2 text-sm font-semibold text-[var(--navy)] no-underline hover:border-[var(--gold-hover)]"
         >
           {INSTRUCT_CONTACT_LABEL}
         </Link>

@@ -83,6 +83,14 @@ export default async function DirectoryPage() {
       <section className="relative overflow-hidden bg-[var(--navy)]">
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--navy)] via-[#0f1d45] to-[#0a1633]" />
         <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 70% 50% at 50% -15%, rgba(250,204,21,0.14), transparent 55%)',
+          }}
+          aria-hidden
+        />
+        <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage:
@@ -90,55 +98,59 @@ export default async function DirectoryPage() {
             backgroundSize: '24px 24px',
           }}
         />
-        <div className="relative mx-auto max-w-7xl px-4 pb-5 pt-5 sm:px-6 sm:pb-6 sm:pt-6 lg:px-8">
+        <div className="relative mx-auto max-w-7xl px-4 pb-7 pt-6 sm:px-6 sm:pb-8 sm:pt-7 lg:px-8">
           <Breadcrumbs
             light
             className="!mb-0"
             items={[{ label: 'Home', href: '/' }, { label: 'Directory' }]}
           />
-          <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
+          <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
             <div className="min-w-0 max-w-2xl">
-              <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--gold)]">
+                National coverage · England &amp; Wales
+              </p>
+              <h1 className="font-display mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
                 Police station rep directory
               </h1>
-              <p className="mt-1.5 text-sm leading-relaxed text-slate-300">
-                Search by name, county, force, or station — instruct the rep directly.
+              <p className="mt-2 text-sm leading-relaxed text-white/85 sm:text-base">
+                Search accredited representatives by name, county, force, or station — then instruct
+                the rep directly.
               </p>
             </div>
             <div className="flex flex-wrap gap-2 text-xs sm:text-sm">
-              <span className="rounded-lg bg-white/10 px-3 py-1.5 font-semibold text-white">
+              <span className="rounded-xl border border-white/15 bg-white/10 px-3 py-2 font-semibold text-white">
                 <span className="font-extrabold text-[var(--gold)]">{reps.length}</span> reps
               </span>
-              <span className="rounded-lg bg-white/10 px-3 py-1.5 font-semibold text-white">
+              <span className="rounded-xl border border-white/15 bg-white/10 px-3 py-2 font-semibold text-white">
                 <span className="font-extrabold text-[var(--gold)]">{counties.length}</span> counties
               </span>
-              <span className="rounded-lg bg-white/10 px-3 py-1.5 font-semibold text-white">
+              <span className="rounded-xl border border-white/15 bg-white/10 px-3 py-2 font-semibold text-white">
                 <span className="font-extrabold text-[var(--gold)]">{stations.length}</span> stations
               </span>
             </div>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <Link
               href="/Map"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white no-underline hover:bg-white/20"
+              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white no-underline hover:bg-white/20"
             >
               Map
             </Link>
             <Link
               href="/Forces"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white no-underline hover:bg-white/20"
+              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white no-underline hover:bg-white/20"
             >
               By force
             </Link>
             <Link
               href="/StationsDirectory"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white no-underline hover:bg-white/20"
+              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold text-white no-underline hover:bg-white/20"
             >
               Stations
             </Link>
             <Link
               href="/register"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--gold)]/40 bg-[var(--gold)]/15 px-3 py-1.5 text-xs font-semibold text-[var(--gold)] no-underline hover:bg-[var(--gold)]/25"
+              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-[var(--gold)]/45 bg-[var(--gold)] px-3.5 py-2 text-xs font-extrabold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
             >
               Join free
             </Link>

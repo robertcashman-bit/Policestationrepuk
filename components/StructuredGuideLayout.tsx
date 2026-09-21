@@ -24,12 +24,20 @@ export function GuideHero({
   updated?: string;
 }) {
   return (
-    <section className="bg-[var(--navy)] py-12 sm:py-16">
-      <div className="page-container !py-0">
+    <section className="relative overflow-hidden bg-[var(--navy)] py-12 sm:py-16">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse 70% 55% at 50% -10%, rgba(250,204,21,0.14), transparent 55%)',
+        }}
+        aria-hidden
+      />
+      <div className="page-container relative !py-0">
         <Breadcrumbs light items={breadcrumbs} />
-        <h1 className="mt-4 text-h1 text-white">{title}</h1>
-        <p className="mt-4 max-w-3xl text-lg leading-relaxed text-slate-300">{description}</p>
-        <p className="mt-2 text-xs text-slate-400">
+        <h1 className="font-display mt-4 text-h1 text-white">{title}</h1>
+        <p className="mt-4 max-w-3xl text-lg leading-relaxed text-white/85">{description}</p>
+        <p className="mt-3 text-xs text-white/55">
           Last updated: {updated} · Author: Robert Cashman, Duty Solicitor &amp; Higher Court Advocate
         </p>
       </div>

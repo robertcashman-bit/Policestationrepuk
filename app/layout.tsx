@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Source_Serif_4 } from 'next/font/google';
 import { Header } from '@/components/Header';
 import { PromoBannerStack } from '@/components/PromoBannerStack';
 import { Footer } from '@/components/Footer';
@@ -24,6 +24,15 @@ const BING_SITE_VERIFICATION = process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.t
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
+  display: 'swap',
+  preload: true,
+  adjustFontFallback: true,
+});
+
+/** Display serif for hero / page titles — rivals Law Society authority without leaving navy/gold. */
+const displaySerif = Source_Serif_4({
+  subsets: ['latin'],
+  variable: '--font-display',
   display: 'swap',
   preload: true,
   adjustFontFallback: true,
@@ -98,7 +107,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en-GB" className={inter.variable}>
+    <html lang="en-GB" className={`${inter.variable} ${displaySerif.variable}`}>
       {/* RSS autodiscovery tag — allows browsers and tools such as Buffer, Publer,
           Zapier, and Make to detect the feed without guessing the URL.
           The <link> element is placed here because Next.js metadata API does not

@@ -27,10 +27,13 @@ export function HomeHeroSearch({ counties }: HomeHeroSearchProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto mt-6 w-full max-w-2xl rounded-xl border border-white/15 bg-white/95 p-3 shadow-xl shadow-black/20 backdrop-blur-sm sm:p-4"
+      className="w-full rounded-2xl border border-white/20 bg-white p-3 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.55)] sm:p-4"
       role="search"
       aria-label="Search police station representatives"
     >
+      <p className="mb-2.5 px-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--navy)]/70">
+        Search the directory
+      </p>
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-stretch">
         <label className="sr-only" htmlFor="home-hero-q">
           Search by name, station, or area
@@ -41,7 +44,7 @@ export function HomeHeroSearch({ counties }: HomeHeroSearchProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Name, station, or area…"
-          className="min-h-[48px] flex-1 rounded-lg border border-slate-200 bg-white px-4 text-sm text-[var(--ink)] outline-none placeholder:text-slate-400 focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/30"
+          className="min-h-[52px] flex-1 rounded-xl border border-slate-200 bg-white px-4 text-base text-[var(--ink)] outline-none placeholder:text-slate-400 focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/35"
           autoComplete="off"
         />
         <label className="sr-only" htmlFor="home-hero-county">
@@ -51,7 +54,7 @@ export function HomeHeroSearch({ counties }: HomeHeroSearchProps) {
           id="home-hero-county"
           value={county}
           onChange={(e) => setCounty(e.target.value)}
-          className="min-h-[48px] rounded-lg border border-slate-200 bg-white px-3 text-sm text-[var(--ink)] outline-none focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/30 sm:w-44"
+          className="min-h-[52px] rounded-xl border border-slate-200 bg-white px-3 text-base text-[var(--ink)] outline-none focus:border-[var(--gold)] focus:ring-2 focus:ring-[var(--gold)]/35 sm:w-48"
         >
           <option value="">All counties</option>
           {counties.map((c) => (
@@ -62,7 +65,7 @@ export function HomeHeroSearch({ counties }: HomeHeroSearchProps) {
         </select>
         <button
           type="submit"
-          className="min-h-[48px] shrink-0 rounded-lg bg-[var(--gold)] px-6 text-sm font-extrabold text-[var(--navy)] transition-colors hover:bg-[var(--gold-hover)] sm:px-8"
+          className="min-h-[52px] w-full shrink-0 rounded-xl bg-[var(--gold)] px-7 text-base font-extrabold text-[var(--navy)] transition-colors hover:bg-[var(--gold-hover)] sm:w-auto sm:px-8"
         >
           Search reps
         </button>

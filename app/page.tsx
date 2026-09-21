@@ -114,6 +114,7 @@ export default async function HomePage() {
         countyNames={counties.map((c) => c.name)}
         topCounties={topCounties.slice(0, 6)}
         previewReps={previewReps}
+        stationCount={stationCount}
       />
 
       <SisterToolsSlimBar />
@@ -124,22 +125,23 @@ export default async function HomePage() {
 
       {hasLiveDirectoryCounts && (
         <section
-          className="border-b border-[var(--border)] bg-white py-5 sm:py-6"
+          className="border-b border-[var(--border)] bg-gradient-to-b from-[var(--gold-pale)] to-white py-6 sm:py-8"
           aria-label="Site statistics"
         >
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 gap-4 text-center sm:grid-cols-4 sm:gap-6">
+            <p className="text-center text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--navy)]/55">
+              Live directory coverage
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-4 text-center sm:mt-5 sm:grid-cols-4 sm:gap-6">
               {[
                 { value: String(reps.length), label: 'Listed Reps' },
                 { value: String(stationCount), label: 'Stations Listed' },
                 { value: String(phoneStats.directLine), label: 'With Direct Line' },
                 { value: String(UK_POLICE_FORCES_COUNT), label: 'Police Forces' },
               ].map((s) => (
-                <div key={s.label}>
-                  <p className="text-xl font-extrabold leading-none text-[var(--navy)] sm:text-2xl">
-                    {s.value}
-                  </p>
-                  <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)] sm:text-xs">
+                <div key={s.label} className="rounded-xl border border-[var(--navy)]/8 bg-white/80 px-2 py-3 shadow-sm">
+                  <p className="stats-strip-value">{s.value}</p>
+                  <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--muted)] sm:text-xs">
                     {s.label}
                   </p>
                 </div>

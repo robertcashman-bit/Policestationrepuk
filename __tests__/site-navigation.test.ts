@@ -3,14 +3,17 @@ import {
   FOOTER_COMMUNITY,
   FOOTER_DIRECTORIES,
   FOOTER_FEES_FORMS,
+  FOOTER_FOR_REPRESENTATIVES,
   FOOTER_GUIDES,
   FOOTER_LEGAL,
   FOOTER_LINK_COLUMNS,
   FOOTER_PARTNERS,
   FOOTER_TOOLS,
   HEADER_NAV_DROPDOWNS,
+  HEADER_NAV_GUIDES,
   HEADER_NAV_MORE,
   HEADER_NAV_PRIMARY,
+  HEADER_NAV_PSRAS,
   buildHeaderMobileLinks,
 } from '@/lib/site-navigation';
 
@@ -101,6 +104,24 @@ describe('site navigation', () => {
     expect(texts).toContain('Why Get Accredited');
     expect(hrefs).toContain('/custodynote');
     expect(hrefs).toContain('/whygetpolicestationaccredited');
+  });
+
+  it('Why Get Police Station Accredited is in For Reps, Guides, and footer', () => {
+    const accreditedHref = '/whygetpolicestationaccredited';
+    const accreditedText = 'Why Get Police Station Accredited';
+    expect(HEADER_NAV_PSRAS.some((l) => l.href === accreditedHref && l.text === accreditedText)).toBe(
+      true,
+    );
+    expect(HEADER_NAV_GUIDES.some((l) => l.href === accreditedHref && l.text === accreditedText)).toBe(
+      true,
+    );
+    expect(
+      FOOTER_FOR_REPRESENTATIVES.some(
+        (l) => l.href === accreditedHref && l.label === accreditedText,
+      ),
+    ).toBe(true);
+    const guidesDropdown = HEADER_NAV_DROPDOWNS.find((g) => g.label === 'Guides');
+    expect(guidesDropdown?.links.some((l) => l.href === accreditedHref)).toBe(true);
   });
 
 });

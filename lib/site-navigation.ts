@@ -147,6 +147,10 @@ export const FOOTER_FOR_REPRESENTATIVES: FooterLink[] = withPublicHrefs([
 /** Training & reference guides — header “Guides” menu + footer tools block. */
 export const HEADER_NAV_GUIDES: HeaderNavLink[] = withPublicHrefs([
   { href: "/Resources", text: "Knowledge Centre (all resources)" },
+  {
+    href: "/WhyGetPoliceStationAccredited",
+    text: "Why Get Police Station Accredited",
+  },
   { href: "/PrepareForWrittenExam", text: "PSRAS Written Exam Guide" },
   { href: "/BuildPortfolioGuide", text: "PSRAS Portfolio Guide" },
   { href: "/PrepareForCIT", text: "PSRAS CIT Exam Guide" },

@@ -4,17 +4,14 @@ import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_APPS_LINE,
-  CUSTODYNOTE_TRIAL_CTA,
-  CUSTODYNOTE_DOWNLOAD_APPS_CTA,
+  CUSTODYNOTE_DOWNLOAD_CTA,
   CUSTODYNOTE_DOWNLOAD_HREF,
   CUSTODYNOTE_PLATFORM_LINE,
   CUSTODYNOTE_PROMO_PRICE_LINE,
   CUSTODYNOTE_BETA_REASON,
-  CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
-import { MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
+import { MacDownloadCta, MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
 import { PSRTRAIN_CTA, PSRTRAIN_FREE_TESTING_NOTE, PSRTRAIN_NAME, PSRTRAIN_TRAINING_HREF } from '@/lib/psrtrain-promo';
-import { PartnerOutboundLink } from '@/components/PartnerOutboundLink';
 import { SUPPORT_EMAIL, SUPPORT_MAILTO_HREF } from '@/lib/site-contact';
 import { SiteVersionStamp } from '@/components/SiteVersionStamp';
 import {
@@ -148,6 +145,7 @@ export function Footer() {
               </p>
               <div className="mt-3 flex flex-col gap-2">
                 <MicrosoftStoreCta size="sm" />
+                <MacDownloadCta size="sm" />
                 <Link
                   href="/CustodyNote"
                   className="inline-flex min-h-[40px] w-fit items-center justify-center rounded-lg border border-white/30 px-4 py-2 text-xs font-semibold text-white no-underline hover:bg-white/10"
@@ -163,7 +161,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="font-semibold text-[var(--gold)] underline-offset-2 hover:underline"
                 >
-                  {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
+                  {CUSTODYNOTE_DOWNLOAD_CTA} (Windows backup) →
                 </a>
               </p>
             </div>
@@ -231,8 +229,9 @@ export function Footer() {
               PACE-aligned notes, offline-first, PDF + LAA billing, AES-256 encryption.{' '}
               {CUSTODYNOTE_PROMO_PRICE_LINE} — {CUSTODYNOTE_BETA_REASON}
             </p>
-            <div className="mt-2">
+            <div className="mt-2 flex flex-col gap-2">
               <MicrosoftStoreCta size="sm" />
+              <MacDownloadCta size="sm" />
             </div>
             <Link
               href="/CustodyNote"
@@ -247,7 +246,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
             >
-              {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
+              {CUSTODYNOTE_DOWNLOAD_CTA} (Windows backup) →
             </a>
           </div>
           <div>

@@ -26,6 +26,8 @@ import {
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_FREE_LABEL,
+  CUSTODYNOTE_MAC_DOWNLOAD_CTA,
+  CUSTODYNOTE_MAC_DOWNLOAD_HREF,
   CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
@@ -304,14 +306,24 @@ export default async function PoliceStationPage({ params }: PageProps) {
                   <p className="mt-2 text-sm leading-relaxed text-[var(--navy)]/85">
                     {CUSTODYNOTE_FREE_LABEL}. {CUSTODYNOTE_BETA_REASON}
                   </p>
-                  <a
-                    href={CUSTODYNOTE_TRIAL_HREF}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-gold mt-3 inline-flex !text-sm no-underline"
-                  >
-                    {CUSTODYNOTE_TRIAL_CTA} →
-                  </a>
+                  <div className="mt-3 flex flex-col gap-2">
+                    <a
+                      href={CUSTODYNOTE_TRIAL_HREF}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-gold inline-flex !text-sm no-underline"
+                    >
+                      {CUSTODYNOTE_TRIAL_CTA} →
+                    </a>
+                    <a
+                      href={CUSTODYNOTE_MAC_DOWNLOAD_HREF}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-[40px] items-center justify-center rounded-lg border-2 border-[var(--navy)] bg-white px-4 text-sm font-bold text-[var(--navy)] no-underline hover:border-[var(--gold)] hover:bg-[var(--gold-pale)]"
+                    >
+                      {CUSTODYNOTE_MAC_DOWNLOAD_CTA} →
+                    </a>
+                  </div>
                 </section>
               </div>
             </div>

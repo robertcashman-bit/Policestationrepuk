@@ -5,7 +5,11 @@ import {
   CUSTODYNOTE_DOWNLOAD_CTA,
   CUSTODYNOTE_DOWNLOAD_HREF,
 } from '@/lib/custodynote-promo';
-import { CustodyNoteDownloadLink, MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
+import {
+  CustodyNoteDownloadLink,
+  MacDownloadCta,
+  MicrosoftStoreCta,
+} from '@/components/MicrosoftStoreCta';
 import {
   PSRTRAIN_BULLETS,
   PSRTRAIN_CTA,
@@ -62,9 +66,10 @@ export function ToolsForRepsSection() {
               </div>
               <div className="mt-5 flex flex-col gap-3">
                 <MicrosoftStoreCta size="lg" className="w-full sm:w-auto" />
+                <MacDownloadCta size="lg" className="w-full sm:w-auto" />
                 <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
                   <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-white/90">
-                    {CUSTODYNOTE_DOWNLOAD_CTA}
+                    {CUSTODYNOTE_DOWNLOAD_CTA} (Windows backup)
                   </CustodyNoteDownloadLink>
                   <Link href="/CustodyNote" className="font-semibold text-white/90 underline underline-offset-2">
                     About {CUSTODYNOTE_BRAND_NAME}

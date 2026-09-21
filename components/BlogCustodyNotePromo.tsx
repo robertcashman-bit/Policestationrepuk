@@ -3,9 +3,11 @@ import {
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_BETA_REASON,
+  CUSTODYNOTE_MAC_DOWNLOAD_CTA,
+  CUSTODYNOTE_MAC_DOWNLOAD_HREF,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
-import { MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
+import { MacDownloadCta, MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
 
 /** Internal + trial links for every blog article (conversion funnel). */
 export function BlogCustodyNotePromo({ className }: { className?: string }) {
@@ -25,8 +27,8 @@ export function BlogCustodyNotePromo({ className }: { className?: string }) {
         LAA billing fields in one record. See our{' '}
         <Link href="/CustodyNote" className="font-semibold text-white underline hover:text-[var(--gold)]">
           {CUSTODYNOTE_BRAND_NAME} overview
-        </Link>{' '}
-        or get it on the{' '}
+        </Link>
+        , get it on the{' '}
         <a
           href={CUSTODYNOTE_TRIAL_HREF}
           target="_blank"
@@ -35,7 +37,16 @@ export function BlogCustodyNotePromo({ className }: { className?: string }) {
         >
           Microsoft Store
         </a>
-        {' '}({CUSTODYNOTE_FREE_LABEL}; Mac via direct download). Built for accredited UK police station representatives and defence solicitors.
+        {' '}(Windows), or{' '}
+        <a
+          href={CUSTODYNOTE_MAC_DOWNLOAD_HREF}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold text-[var(--gold)] underline hover:text-white"
+        >
+          {CUSTODYNOTE_MAC_DOWNLOAD_CTA}
+        </a>
+        . {CUSTODYNOTE_FREE_LABEL}. Built for accredited UK police station representatives and defence solicitors.
       </p>
 
       <div className="mt-4 rounded-lg border border-[var(--gold)]/40 bg-black/20 px-4 py-3 text-sm text-white">
@@ -46,6 +57,7 @@ export function BlogCustodyNotePromo({ className }: { className?: string }) {
 
       <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <MicrosoftStoreCta size="md" />
+        <MacDownloadCta size="md" />
         <Link
           href="/CustodyNote"
           className="text-sm font-semibold text-white underline underline-offset-2"

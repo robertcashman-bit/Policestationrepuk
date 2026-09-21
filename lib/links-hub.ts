@@ -1,4 +1,8 @@
-import { CUSTODYNOTE_DOWNLOAD_HREF, CUSTODYNOTE_TRIAL_HREF } from '@/lib/custodynote-promo';
+import {
+  CUSTODYNOTE_DOWNLOAD_HREF,
+  CUSTODYNOTE_MAC_DOWNLOAD_HREF,
+  CUSTODYNOTE_TRIAL_HREF,
+} from '@/lib/custodynote-promo';
 import { PSRTRAIN_HOME_HREF, PSRTRAIN_TRAINING_HREF } from '@/lib/psrtrain-promo';
 import { POLICESTATIONAGENT_HOME_HREF } from '@/lib/policestationagent-promo';
 import { SITE_URL } from '@/lib/seo-layer/config';
@@ -161,7 +165,7 @@ export const LINKS_HUB_SECTIONS: LinksHubSection[] = [
       {
         href: '/CustodyNote',
         label: 'Custody Note — overview',
-        description: 'Product page — Microsoft Store is the primary Windows install.',
+        description: 'Product page — Microsoft Store (Windows) and notarised Mac .dmg.',
       },
       {
         href: '/WhyGetPoliceStationAccredited',
@@ -171,13 +175,19 @@ export const LINKS_HUB_SECTIONS: LinksHubSection[] = [
       {
         href: CUSTODYNOTE_TRIAL_HREF,
         label: 'Custody Note — Microsoft Store',
-        description: 'Windows primary install — free during beta. Mac via direct download.',
+        description: 'Windows primary install — free during beta.',
+        external: true,
+      },
+      {
+        href: CUSTODYNOTE_MAC_DOWNLOAD_HREF,
+        label: 'Custody Note — Mac download (notarised .dmg)',
+        description: 'Mac notarised .dmg — Apple Silicon and Intel. Not on the Mac App Store.',
         external: true,
       },
       {
         href: CUSTODYNOTE_DOWNLOAD_HREF,
-        label: 'Custody Note — direct download',
-        description: 'Backup Windows installer & Mac builds.',
+        label: 'Custody Note — Windows direct download',
+        description: 'Backup Windows installer (Store is primary).',
         external: true,
       },
       {

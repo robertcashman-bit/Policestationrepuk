@@ -1,11 +1,10 @@
 import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_PROMO_PRICE_LINE,
-  CUSTODYNOTE_TRIAL_HREF,
   INLINE_CTA_HEADLINE,
 } from '@/lib/custodynote-promo';
+import { MacDownloadCta, MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
 import { PSRTRAIN_CTA, PSRTRAIN_NAME, PSRTRAIN_TRAINING_HREF } from '@/lib/psrtrain-promo';
 import { AdvertisementLabel } from '@/components/AdvertisementLabel';
 
@@ -27,15 +26,9 @@ export function BlogPartnerToolsPromo({ className = '' }: { className?: string }
           <p className="mt-2 text-[11px] text-white/80">
             {CUSTODYNOTE_PROMO_PRICE_LINE} — free while we test
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <a
-              href={CUSTODYNOTE_TRIAL_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-[36px] items-center rounded-lg bg-[var(--gold)] px-3 text-xs font-bold text-[var(--navy)] no-underline"
-            >
-              {CUSTODYNOTE_TRIAL_CTA}
-            </a>
+          <div className="mt-3 flex flex-col gap-2">
+            <MicrosoftStoreCta size="sm" />
+            <MacDownloadCta size="sm" />
             <Link href="/CustodyNote" className="text-xs font-semibold text-white underline">
               Learn more
             </Link>

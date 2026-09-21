@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { PartnerOutboundLink } from '@/components/PartnerOutboundLink';
 import {
   CUSTODYNOTE_BRAND_NAME,
+  CUSTODYNOTE_MAC_DOWNLOAD_CTA,
+  CUSTODYNOTE_MAC_DOWNLOAD_HREF,
+  CUSTODYNOTE_STORE_CTA,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
 import {
@@ -45,7 +48,20 @@ export function SisterToolsSlimBar({
             rel="noopener noreferrer"
             className="font-semibold text-[var(--navy)] no-underline hover:text-[var(--gold-link)]"
           >
-            {CUSTODYNOTE_BRAND_NAME}
+            {CUSTODYNOTE_BRAND_NAME} — {CUSTODYNOTE_STORE_CTA}
+          </PartnerOutboundLink>
+          <span className="text-slate-300" aria-hidden>
+            |
+          </span>
+          <PartnerOutboundLink
+            href={CUSTODYNOTE_MAC_DOWNLOAD_HREF}
+            partner="custodynote"
+            placement="sister_slim_bar_mac"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-[var(--navy)] no-underline hover:text-[var(--gold-link)]"
+          >
+            {CUSTODYNOTE_MAC_DOWNLOAD_CTA}
           </PartnerOutboundLink>
           <span className="text-slate-300" aria-hidden>
             |

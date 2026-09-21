@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import {
   CUSTODYNOTE_APPS_LINE,
-  CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_FREE_LABEL,
+  CUSTODYNOTE_MAC_DOWNLOAD_CTA,
+  CUSTODYNOTE_MAC_DOWNLOAD_HREF,
+  CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_TRIAL_HREF,
   TOP_BANNER_TEXT,
   TOP_BANNER_TEXT_MOBILE,
@@ -38,7 +40,7 @@ export function CustodyNoteTopBanner({ onDismissChange }: CustodyNoteTopBannerPr
     <div
       className={`relative z-[100] border-b border-[#0a1633] bg-gradient-to-r from-[#0f1d45] via-[#152e6e] to-[#0f1d45] px-3 text-center transition-all duration-200 sm:px-4 ${hidden ? 'invisible h-0 overflow-hidden py-0' : 'visible py-1.5 sm:py-2.5'}`}
     >
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-2 gap-y-1.5 pr-9 sm:gap-4 sm:pr-10">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-2 gap-y-1.5 pr-9 sm:gap-3 sm:pr-10">
         <PartnerOutboundLink
           href={CUSTODYNOTE_TRIAL_HREF}
           partner="custodynote"
@@ -67,6 +69,16 @@ export function CustodyNoteTopBanner({ onDismissChange }: CustodyNoteTopBannerPr
           className="inline-flex shrink-0 items-center rounded-full bg-[var(--gold)] px-3.5 py-2 text-xs font-extrabold text-[var(--navy)] no-underline shadow-md ring-2 ring-[var(--gold)]/40 transition-colors hover:bg-[var(--gold-hover)] sm:px-5 sm:text-[13px]"
         >
           {CUSTODYNOTE_TRIAL_CTA} →
+        </PartnerOutboundLink>
+        <PartnerOutboundLink
+          href={CUSTODYNOTE_MAC_DOWNLOAD_HREF}
+          partner="custodynote"
+          placement="top_banner_mac_cta"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex shrink-0 items-center rounded-full border border-white/60 bg-white/10 px-3.5 py-2 text-xs font-extrabold text-white no-underline transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)] sm:px-4 sm:text-[13px]"
+        >
+          {CUSTODYNOTE_MAC_DOWNLOAD_CTA} →
         </PartnerOutboundLink>
         <button
           type="button"

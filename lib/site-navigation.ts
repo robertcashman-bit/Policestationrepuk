@@ -1,6 +1,9 @@
 import { BLOG_CATEGORIES } from "@/lib/blog/categories";
 import { publicPath } from "@/lib/canonical-path-case";
-import { CUSTODYNOTE_TRIAL_HREF } from "@/lib/custodynote-promo";
+import {
+  CUSTODYNOTE_MAC_DOWNLOAD_HREF,
+  CUSTODYNOTE_TRIAL_HREF,
+} from "@/lib/custodynote-promo";
 import { SUPPORT_MAILTO_HREF } from "@/lib/site-contact";
 import { PSRTRAIN_TRAINING_HREF } from "@/lib/psrtrain-promo";
 
@@ -237,6 +240,11 @@ export const HEADER_NAV_MORE: HeaderNavLink[] = dedupeNavLinks(
       external: true,
     },
     {
+      href: CUSTODYNOTE_MAC_DOWNLOAD_HREF,
+      text: "Custody Note — Mac download (notarised .dmg)",
+      external: true,
+    },
+    {
       href: PSRTRAIN_TRAINING_HREF,
       text: "PSR Train (PSRAS prep)",
       external: true,
@@ -282,6 +290,11 @@ export const FOOTER_PARTNERS: FooterLink[] = withPublicHrefs([
   {
     href: CUSTODYNOTE_TRIAL_HREF,
     label: "Custody Note — Microsoft Store",
+    external: true,
+  },
+  {
+    href: CUSTODYNOTE_MAC_DOWNLOAD_HREF,
+    label: "Custody Note — Mac download (notarised .dmg)",
     external: true,
   },
   {

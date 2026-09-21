@@ -11,7 +11,11 @@ import {
   INLINE_CTA_BULLETS,
   INLINE_CTA_HEADLINE,
 } from '@/lib/custodynote-promo';
-import { CustodyNoteDownloadLink, MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
+import {
+  CustodyNoteDownloadLink,
+  MacDownloadCta,
+  MicrosoftStoreCta,
+} from '@/components/MicrosoftStoreCta';
 
 type Variant = 'full' | 'compact';
 
@@ -37,9 +41,10 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
         </p>
         <div className="mt-3 flex flex-col gap-2">
           <MicrosoftStoreCta size="sm" className="w-full" />
+          <MacDownloadCta size="sm" className="w-full" />
           <div className="flex flex-wrap gap-2">
             <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-xs text-white/90">
-              {CUSTODYNOTE_DOWNLOAD_CTA}
+              {CUSTODYNOTE_DOWNLOAD_CTA} (Windows backup)
             </CustodyNoteDownloadLink>
             <Link href="/CustodyNote" className="text-xs font-semibold text-white/90 underline underline-offset-2">
               About {CUSTODYNOTE_BRAND_NAME}
@@ -82,9 +87,10 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
         </div>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           <MicrosoftStoreCta size="lg" />
+          <MacDownloadCta size="lg" />
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-white/90">
-              {CUSTODYNOTE_DOWNLOAD_CTA}
+              {CUSTODYNOTE_DOWNLOAD_CTA} (Windows backup)
             </CustodyNoteDownloadLink>
             <Link href="/CustodyNote" className="text-sm font-semibold text-white/90 underline underline-offset-2">
               See how it works

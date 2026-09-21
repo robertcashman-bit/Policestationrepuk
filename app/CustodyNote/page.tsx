@@ -1,19 +1,20 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { CustodyNoteDownloadLink, MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
+import {
+  CustodyNoteDownloadLink,
+  MacDownloadCta,
+  MicrosoftStoreCta,
+} from '@/components/MicrosoftStoreCta';
 import {
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_DOWNLOAD_HREF,
-  CUSTODYNOTE_MAC_DOWNLOAD_HREF,
   CUSTODYNOTE_CHECKLIST_HREF,
   CUSTODYNOTE_TOOLS_HREF,
   CUSTODYNOTE_APPS_DETAIL,
   CUSTODYNOTE_APPS_LINE,
-  CUSTODYNOTE_DOWNLOAD_APPS_CTA,
   CUSTODYNOTE_DOWNLOAD_CTA,
   CUSTODYNOTE_DOWNLOAD_LOCATION_LINE,
-  CUSTODYNOTE_MAC_DOWNLOAD_CTA,
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_PLATFORM_LINE,
@@ -248,8 +249,9 @@ export default function CustodyNotePage() {
           </div>
 
           <div className="mt-8 flex flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <MicrosoftStoreCta size="hero" />
+              <MacDownloadCta size="hero" />
               <a
                 href={CUSTODYNOTE_PRICING}
                 target="_blank"
@@ -262,13 +264,11 @@ export default function CustodyNotePage() {
             <p className="text-sm text-white/80">
               Windows:{' '}
               <span className="font-semibold text-[var(--gold)]">Microsoft Store</span>
-              {' '}is the primary install.{' '}
+              {' '}is the primary install. Mac:{' '}
+              <span className="font-semibold text-[var(--gold)]">notarised .dmg</span>
+              {' '}direct download (not Mac App Store).{' '}
               <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD} className="text-white/90">
-                {CUSTODYNOTE_DOWNLOAD_CTA} (Windows &amp; Mac backup)
-              </CustodyNoteDownloadLink>
-              {' '}·{' '}
-              <CustodyNoteDownloadLink href={CUSTODYNOTE_MAC_DOWNLOAD_HREF} className="text-white/90">
-                {CUSTODYNOTE_MAC_DOWNLOAD_CTA}
+                {CUSTODYNOTE_DOWNLOAD_CTA} (Windows backup)
               </CustodyNoteDownloadLink>
             </p>
           </div>
@@ -291,14 +291,10 @@ export default function CustodyNotePage() {
             </p>
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <MicrosoftStoreCta size="lg" />
-              <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/85">
-                <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-[var(--gold)]">
-                  {CUSTODYNOTE_DOWNLOAD_APPS_CTA}
-                </CustodyNoteDownloadLink>
-                <CustodyNoteDownloadLink href={CUSTODYNOTE_MAC_DOWNLOAD_HREF} className="text-white">
-                  {CUSTODYNOTE_MAC_DOWNLOAD_CTA}
-                </CustodyNoteDownloadLink>
-              </div>
+              <MacDownloadCta size="lg" />
+              <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-xs text-[var(--gold)]">
+                {CUSTODYNOTE_DOWNLOAD_CTA} (Windows backup)
+              </CustodyNoteDownloadLink>
             </div>
           </div>
         </div>
@@ -555,12 +551,13 @@ export default function CustodyNotePage() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-6 flex justify-center">
-                <MicrosoftStoreCta size="lg" className="w-full sm:w-auto" />
+              <div className="mt-6 flex flex-col gap-3">
+                <MicrosoftStoreCta size="lg" className="w-full" />
+                <MacDownloadCta size="lg" className="w-full" tone="onLight" />
               </div>
               <p className="mt-3 text-center text-sm text-[var(--muted)]">
                 <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD} className="text-[var(--gold-link)]">
-                  {CUSTODYNOTE_DOWNLOAD_APPS_CTA}
+                  {CUSTODYNOTE_DOWNLOAD_CTA} (Windows backup)
                 </CustodyNoteDownloadLink>
               </p>
             </div>
@@ -572,17 +569,17 @@ export default function CustodyNotePage() {
       <section className="mb-14 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center sm:p-10">
         <h2 className="text-h2 text-white">Ready to try {CUSTODYNOTE_BRAND_NAME}?</h2>
         <p className="mx-auto mt-3 max-w-xl text-slate-300">
-          {CUSTODYNOTE_BETA_REASON} Get {CUSTODYNOTE_BRAND_NAME} on Microsoft Store (Windows) or direct download for Windows &amp; Mac —
+          {CUSTODYNOTE_BETA_REASON} Get {CUSTODYNOTE_BRAND_NAME} on Microsoft Store (Windows) or download the notarised Mac .dmg —
           free during beta, no credit card. Paid Pro is planned after beta.
         </p>
         <div className="mt-6 flex flex-col items-center gap-4">
-          <MicrosoftStoreCta size="hero" />
+          <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+            <MicrosoftStoreCta size="hero" />
+            <MacDownloadCta size="hero" />
+          </div>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-slate-300">
             <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD} className="text-white/90">
-              {CUSTODYNOTE_DOWNLOAD_APPS_CTA}
-            </CustodyNoteDownloadLink>
-            <CustodyNoteDownloadLink href={CUSTODYNOTE_MAC_DOWNLOAD_HREF} className="text-white/90">
-              {CUSTODYNOTE_MAC_DOWNLOAD_CTA}
+              {CUSTODYNOTE_DOWNLOAD_CTA} (Windows backup)
             </CustodyNoteDownloadLink>
             <a
               href={CUSTODYNOTE_PRICING}

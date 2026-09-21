@@ -6,6 +6,8 @@ import {
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_PLATFORM_LINE,
   CUSTODYNOTE_DOWNLOAD_HREF,
+  CUSTODYNOTE_MAC_DOWNLOAD_CTA,
+  CUSTODYNOTE_MAC_DOWNLOAD_HREF,
   CUSTODYNOTE_STORE_CTA,
   CUSTODYNOTE_STORE_HREF,
 } from '@/lib/custodynote-promo';
@@ -73,9 +75,14 @@ export default function AdvertisingPage() {
                     {CUSTODYNOTE_STORE_CTA}
                   </a>
                   {' · '}
-                  Direct download:{' '}
+                  Mac:{' '}
+                  <a href={CUSTODYNOTE_MAC_DOWNLOAD_HREF} target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--navy)] underline">
+                    {CUSTODYNOTE_MAC_DOWNLOAD_CTA}
+                  </a>
+                  {' · '}
+                  Windows backup:{' '}
                   <a href={CUSTODYNOTE_DOWNLOAD_HREF} target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--navy)] underline">
-                    custodynote.com/download
+                    Direct download
                   </a>
                 </p>
               </div>

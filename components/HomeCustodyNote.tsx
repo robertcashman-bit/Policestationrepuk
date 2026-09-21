@@ -12,7 +12,11 @@ import {
   CUSTODYNOTE_PRICING_HREF,
   CUSTODYNOTE_TAGLINE,
 } from '@/lib/custodynote-promo';
-import { CustodyNoteDownloadLink, MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
+import {
+  CustodyNoteDownloadLink,
+  MacDownloadCta,
+  MicrosoftStoreCta,
+} from '@/components/MicrosoftStoreCta';
 import { AdvertisementLabel } from './AdvertisementLabel';
 
 export function HomeCustodyNote() {
@@ -63,10 +67,13 @@ export function HomeCustodyNote() {
             </div>
 
             <div className="mt-6 flex flex-col items-center gap-4">
-              <MicrosoftStoreCta size="hero" className="w-full sm:w-auto" />
+              <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+                <MicrosoftStoreCta size="hero" className="w-full sm:w-auto" />
+                <MacDownloadCta size="hero" className="w-full sm:w-auto" />
+              </div>
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-white/85">
                 <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-white/90">
-                  {CUSTODYNOTE_DOWNLOAD_CTA}
+                  {CUSTODYNOTE_DOWNLOAD_CTA} (Windows backup)
                 </CustodyNoteDownloadLink>
                 <Link href="/CustodyNote" className="font-medium text-white/90 underline underline-offset-2">
                   See how it works

@@ -30,7 +30,8 @@ describe('custodynote-promo commercial line', () => {
 
     expect(promo.TOP_BANNER_TEXT.toLowerCase()).toContain('microsoft store');
     expect(promo.TOP_BANNER_TEXT.toLowerCase()).toContain('free during beta');
-    expect(promo.TOP_BANNER_TEXT_MOBILE.toLowerCase()).toContain('free during beta');
+    expect(promo.TOP_BANNER_TEXT.toLowerCase()).toMatch(/notarised|\.dmg|mac/);
+    expect(promo.TOP_BANNER_TEXT_MOBILE.toLowerCase()).toMatch(/store|mac/);
   });
 
   it('matches desktop release v1.9.106', () => {
@@ -44,6 +45,7 @@ describe('custodynote-promo commercial line', () => {
     expect(status).toMatch(/uk/);
     expect(status).toMatch(/not for mac/);
     expect(status).toContain('custodynote.com/download');
+    expect(status).toMatch(/notarised|\.dmg/);
     expect(status).toMatch(/backup|direct download/);
     expect(status).not.toMatch(/coming soon|in certification|not installable/);
 
@@ -57,10 +59,13 @@ describe('custodynote-promo commercial line', () => {
     expect(lower).not.toMatch(/in certification/);
     expect(lower).not.toMatch(/not installable/);
 
-    // Do not claim Mac is on the Store; avoid MSIX packaging jargon in promo surfaces
+    // Do not claim Mac is on the Store or Mac App Store; avoid MSIX jargon
     expect(lower).not.toMatch(/mac (is |remains )?(also )?available on (the )?microsoft store/);
     expect(promo.CUSTODYNOTE_STORE_STATUS_LINE.toLowerCase()).toContain('not for mac');
     expect(lower).not.toMatch(/\bmsix\b/);
+    // Never market Mac via Mac App Store
+    expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_CTA.toLowerCase()).not.toMatch(/mac app store/);
+    expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_HREF.toLowerCase()).not.toMatch(/apps\.apple\.com|itunes\.apple/);
 
     // Reject download-only Windows primary CTA wording
     expect(promo.CUSTODYNOTE_DOWNLOAD_APPS_CTA.toLowerCase()).not.toBe(
@@ -69,18 +74,28 @@ describe('custodynote-promo commercial line', () => {
     expect(promo.CUSTODYNOTE_TRIAL_CTA.toLowerCase()).not.toMatch(/^download free$/);
   });
 
-  it('makes Windows + Mac and download location clear (Store primary, Mac download-only)', () => {
+  it('promotes Mac as notarised .dmg direct download (not Store / not Mac App Store)', () => {
     expect(promo.CUSTODYNOTE_APPS_LINE.toLowerCase()).toMatch(/windows/);
     expect(promo.CUSTODYNOTE_APPS_LINE.toLowerCase()).toMatch(/mac/);
     expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toContain(
       'custodynote.com/download',
     );
     expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toMatch(/microsoft store/);
-    expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toMatch(/backup|direct download/);
+    expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toMatch(/notarised/);
+    expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toMatch(/\.dmg/);
+    expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toMatch(
+      /not on the microsoft store|not.*mac app store/,
+    );
     expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_HREF).toContain('https://custodynote.com/download');
     expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_HREF).toMatch(/#mac$/);
     expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_CTA.toLowerCase()).toMatch(/mac/);
+    expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_CTA.toLowerCase()).toMatch(/notarised/);
+    expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_CTA.toLowerCase()).toMatch(/\.dmg/);
     expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_CTA.toLowerCase()).not.toMatch(/microsoft store/);
+    expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_CTA.toLowerCase()).not.toMatch(/mac app store/);
+    expect(promo.CUSTODYNOTE_APPS_DETAIL.toLowerCase()).toMatch(/notarised/);
+    expect(promo.CUSTODYNOTE_APPS_DETAIL.toLowerCase()).toMatch(/\.dmg/);
+    expect(promo.CUSTODYNOTE_APPS_DETAIL.toLowerCase()).toMatch(/not on the mac app store/);
   });
 
   it('does not sell a live trial, £11.99 offer, or A2MJY2NQ code', () => {

@@ -3,6 +3,8 @@ import {
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_DOWNLOAD_HREF,
   CUSTODYNOTE_FREE_LABEL,
+  CUSTODYNOTE_MAC_DOWNLOAD_CTA,
+  CUSTODYNOTE_MAC_DOWNLOAD_HREF,
   CUSTODYNOTE_NO_CARD_LINE,
   CUSTODYNOTE_PLANNED_PRO_LINE,
   CUSTODYNOTE_PRICE_GBP,
@@ -21,6 +23,8 @@ export async function GET() {
       noCreditCard: CUSTODYNOTE_NO_CARD_LINE,
       storeHref: CUSTODYNOTE_STORE_HREF,
       storeCta: CUSTODYNOTE_STORE_CTA,
+      macDownloadHref: CUSTODYNOTE_MAC_DOWNLOAD_HREF,
+      macDownloadCta: CUSTODYNOTE_MAC_DOWNLOAD_CTA,
       downloadHref: CUSTODYNOTE_DOWNLOAD_HREF,
       /** Planned after beta only — not a live paid offer or discount code. */
       plannedProPriceGbp: CUSTODYNOTE_PRICE_GBP,

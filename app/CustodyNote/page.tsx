@@ -17,6 +17,8 @@ import {
   CUSTODYNOTE_PRICING_HREF,
   CUSTODYNOTE_SHORT_DESCRIPTION,
   CUSTODYNOTE_TAGLINE,
+  CUSTODYNOTE_STORE_CTA,
+  CUSTODYNOTE_STORE_HREF,
   CUSTODYNOTE_STORE_STATUS_LINE,
   CUSTODYNOTE_VERSION,
 } from '@/lib/custodynote-promo';
@@ -287,6 +289,14 @@ export default function CustodyNotePage() {
                 className="inline-flex min-h-[40px] items-center rounded-lg bg-[var(--gold)] px-4 py-2 text-xs font-bold text-[var(--navy)] no-underline transition-colors hover:bg-[var(--gold-hover)]"
               >
                 {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
+              </a>
+              <a
+                href={CUSTODYNOTE_STORE_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[40px] items-center rounded-lg border border-[var(--gold)]/60 bg-transparent px-4 py-2 text-xs font-bold text-[var(--gold)] no-underline transition-colors hover:bg-[var(--gold)]/10"
+              >
+                {CUSTODYNOTE_STORE_CTA} →
               </a>
               <a
                 href={CUSTODYNOTE_MAC_DOWNLOAD_HREF}

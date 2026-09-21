@@ -22,28 +22,34 @@ describe('custodynote-promo commercial line', () => {
     expect(promo.CUSTODYNOTE_TRIAL_HREF).toBe(promo.CUSTODYNOTE_DOWNLOAD_HREF);
   });
 
-  it('states Microsoft Store is coming soon / in certification — never live/installable', () => {
+  it('states Microsoft Store is available for Windows (UK) — not for Mac', () => {
     const status = promo.CUSTODYNOTE_STORE_STATUS_LINE.toLowerCase();
     expect(status).toMatch(/microsoft store/);
     expect(status).toMatch(/windows only|windows-only/);
-    expect(status).toMatch(/coming soon|in certification/);
+    expect(status).toMatch(/available on microsoft store/);
     expect(status).toMatch(/uk/);
     expect(status).toMatch(/not for mac/);
     expect(status).toContain('custodynote.com/download');
+    expect(status).not.toMatch(/coming soon|in certification|not installable/);
+
+    expect(promo.CUSTODYNOTE_STORE_ID).toBe('9NFSRVT3T45V');
+    expect(promo.CUSTODYNOTE_STORE_HREF).toBe(
+      'https://apps.microsoft.com/detail/9NFSRVT3T45V',
+    );
+    expect(promo.CUSTODYNOTE_STORE_CTA.toLowerCase()).toMatch(/microsoft store/);
 
     const surfaces = Object.values(promo)
       .filter((v): v is string => typeof v === 'string')
       .join(' ');
     const lower = surfaces.toLowerCase();
 
-    // Reject false live-Store claims
-    expect(lower).not.toMatch(/available on (the )?microsoft store/);
-    expect(lower).not.toMatch(/install(able)? from (the )?microsoft store/);
-    expect(lower).not.toMatch(/get it on (the )?microsoft store/);
-    expect(lower).not.toMatch(/download from (the )?microsoft store/);
+    // Reject stale pre-launch wording
+    expect(lower).not.toMatch(/coming soon/);
+    expect(lower).not.toMatch(/in certification/);
+    expect(lower).not.toMatch(/not installable/);
 
-    // Do not publish Store ID or MSIX packaging details in promo surfaces
-    expect(surfaces).not.toMatch(/9NFSRVT/);
+    // Do not claim Mac is on the Store; avoid MSIX packaging jargon in promo surfaces
+    expect(lower).not.toMatch(/mac.*(available on|from) (the )?microsoft store/);
     expect(lower).not.toMatch(/\bmsix\b/);
   });
 
@@ -53,6 +59,7 @@ describe('custodynote-promo commercial line', () => {
     expect(promo.CUSTODYNOTE_DOWNLOAD_APPS_CTA.toLowerCase()).toMatch(/windows.*mac|mac.*windows/);
     expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toContain('custodynote.com/download');
     expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toMatch(/windows.*mac|mac.*windows/);
+    expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toMatch(/microsoft store/);
     expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_HREF).toContain('https://custodynote.com/download');
     expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_HREF).toMatch(/#mac$/);
   });

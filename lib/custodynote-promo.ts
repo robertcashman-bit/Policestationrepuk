@@ -22,19 +22,24 @@ export const CUSTODYNOTE_CHECKLIST_HREF = cnHref('directory', '/police-station-a
 /** Mac section on the custodynote.com download page (Apple Silicon + Intel pickers). */
 export const CUSTODYNOTE_MAC_DOWNLOAD_HREF = `${CUSTODYNOTE_DOWNLOAD_HREF}#mac`;
 
-/** Current desktop release to show (GitHub latest tag). Canonical install path remains custodynote.com/download — not Microsoft Store. */
+/** Current desktop release to show (GitHub latest tag). Primary download page remains custodynote.com/download; Windows also on Microsoft Store (UK). */
 export const CUSTODYNOTE_VERSION = '1.9.106';
 
+/** Microsoft Store product page (Windows only, UK). Not for Mac. */
+export const CUSTODYNOTE_STORE_ID = '9NFSRVT3T45V';
+export const CUSTODYNOTE_STORE_HREF = `https://apps.microsoft.com/detail/${CUSTODYNOTE_STORE_ID}`;
+export const CUSTODYNOTE_STORE_CTA = 'Get on Microsoft Store';
+
 /**
- * Microsoft Store status — Windows-only listing is in certification (UK), not installable yet.
- * Store is not for Mac. Do not claim “available on Microsoft Store” or present Store as a live install path.
+ * Microsoft Store status — Windows listing is live on Microsoft Store (UK) and installable now.
+ * Store is Windows-only; Mac remains direct download from custodynote.com/download#mac.
  */
 export const CUSTODYNOTE_STORE_STATUS_LINE =
-  'Microsoft Store (Windows only) is coming soon / in certification (UK) — not for Mac. Download Windows and Mac now from custodynote.com/download.';
+  'Available on Microsoft Store (Windows only, UK) — not for Mac. Install Windows from the Store, or download Windows and Mac from custodynote.com/download.';
 
 /** Where to get both desktop builds (canonical install path). */
 export const CUSTODYNOTE_DOWNLOAD_LOCATION_LINE =
-  'Download for Windows and Mac at custodynote.com/download (Mac builds under the Mac section).';
+  'Download for Windows and Mac at custodynote.com/download (Mac builds under the Mac section). Windows is also available on Microsoft Store (UK).';
 
 /** Plain-language — use in headlines and promos. */
 export const CUSTODYNOTE_APPS_LINE = 'Native desktop apps for Windows PC and Mac';

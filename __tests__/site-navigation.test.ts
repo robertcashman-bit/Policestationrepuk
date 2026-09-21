@@ -35,6 +35,26 @@ describe('site navigation', () => {
     }
   });
 
+  it('For Reps and Guides menus promote Why Get Police Station Accredited', () => {
+    const forReps = HEADER_NAV_DROPDOWNS.find((g) => g.label === 'For Reps');
+    const guides = HEADER_NAV_DROPDOWNS.find((g) => g.label === 'Guides');
+    expect(forReps).toBeTruthy();
+    expect(guides).toBeTruthy();
+    expect(forReps!.links.some((l) => l.href === '/whygetpolicestationaccredited')).toBe(
+      true,
+    );
+    expect(guides!.links.some((l) => l.href === '/whygetpolicestationaccredited')).toBe(true);
+    const forRepsIndex = forReps!.links.findIndex(
+      (l) => l.href === '/whygetpolicestationaccredited',
+    );
+    const howToIndex = forReps!.links.findIndex((l) =>
+      l.href.toLowerCase().includes('howtobecomepolicestationrep'),
+    );
+    expect(forRepsIndex).toBeGreaterThan(-1);
+    expect(howToIndex).toBeGreaterThan(-1);
+    expect(forRepsIndex).toBeLessThan(howToIndex + 3);
+  });
+
   it('More menu includes directories, community, and legal entries', () => {
     const texts = HEADER_NAV_MORE.map((l) => l.text);
     expect(texts).toContain('Find a Rep');

@@ -105,6 +105,10 @@ export const HEADER_NAV_PSRAS: HeaderNavLink[] = withPublicHrefs([
   { href: "/BuildPortfolioGuide", text: "PSRAS Portfolio Guide" },
   { href: "/PrepareForCIT", text: "PSRAS CIT Exam Guide" },
   { href: "/HowToBecomePoliceStationRep", text: "How to Become a Rep (2026)" },
+  {
+    href: "/WhyGetPoliceStationAccredited",
+    text: "Why Get Police Station Accredited",
+  },
   { href: "/FindSupervisingSolicitor", text: "Find a Supervising Solicitor" },
 ]);
 
@@ -148,6 +152,10 @@ export const HEADER_NAV_GUIDES: HeaderNavLink[] = withPublicHrefs([
   { href: "/PrepareForWrittenExam", text: "PSRAS Written Exam Guide" },
   { href: "/BuildPortfolioGuide", text: "PSRAS Portfolio Guide" },
   { href: "/PrepareForCIT", text: "PSRAS CIT Exam Guide" },
+  {
+    href: "/WhyGetPoliceStationAccredited",
+    text: "Why Get Police Station Accredited",
+  },
   { href: "/Wiki", text: "Rep Wiki" },
   { href: "/CommonOffencesGuide", text: "Common Offences Guide" },
   { href: "/BeginnersGuide", text: "Beginner's Guide" },

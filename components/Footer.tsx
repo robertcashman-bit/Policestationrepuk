@@ -234,7 +234,6 @@ export function Footer() {
             <div className="mt-2">
               <MicrosoftStoreCta size="sm" />
             </div>
-            <span className="mx-1 text-xs text-slate-500">·</span>
             <Link
               href="/CustodyNote"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"

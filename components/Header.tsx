@@ -123,6 +123,7 @@ function NavDropdown({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ignoreToggleRef = useRef(false);
   const panelId = useId();
 
   const clearClose = () => {
@@ -134,7 +135,25 @@ function NavDropdown({
 
   const scheduleClose = () => {
     clearClose();
+    ignoreToggleRef.current = false;
     closeTimer.current = setTimeout(() => setOpen(false), 150);
+  };
+
+  const openFromHover = () => {
+    clearClose();
+    // Mouseenter often precedes click in Playwright; skip the toggle-close that would follow.
+    ignoreToggleRef.current = true;
+    setOpen(true);
+  };
+
+  const onTriggerClick = () => {
+    clearClose();
+    if (ignoreToggleRef.current) {
+      ignoreToggleRef.current = false;
+      setOpen(true);
+      return;
+    }
+    setOpen((v) => !v);
   };
 
   useEffect(() => {
@@ -163,10 +182,7 @@ function NavDropdown({
     <div
       ref={ref}
       className="relative shrink-0"
-      onMouseEnter={() => {
-        clearClose();
-        setOpen(true);
-      }}
+      onMouseEnter={openFromHover}
       onMouseLeave={scheduleClose}
     >
       {labelHref ? (
@@ -182,7 +198,7 @@ function NavDropdown({
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              setOpen((v) => !v);
+              onTriggerClick();
             }}
             className={`${linkClass} rounded-l-none border-l border-white/15 px-1.5 !ring-0 ${activeText}`}
             aria-expanded={open}
@@ -196,7 +212,7 @@ function NavDropdown({
       ) : (
         <button
           type="button"
-          onClick={() => setOpen((v) => !v)}
+          onClick={onTriggerClick}
           className={`${linkClass} ${activeClass} ${activeText}`}
           aria-expanded={open}
           aria-haspopup="true"

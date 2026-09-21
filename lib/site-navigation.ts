@@ -35,8 +35,12 @@ function footerLinksToNav(links: readonly FooterLink[]): HeaderNavLink[] {
 }
 
 /** Always-visible desktop header links (high-traffic destinations). */
+/**
+ * Always-visible desktop header links.
+ * Logo covers Home — keep this list short so one clean header row fits.
+ * Custody Note + Why Get Accredited stay primary for discoverability.
+ */
 export const HEADER_NAV_PRIMARY: HeaderNavLink[] = withPublicHrefs([
-  { href: "/", text: "Home" },
   { href: "/directory", text: "Find a Rep" },
   { href: "/find-station", text: "Stations" },
   { href: "/CustodyNote", text: "Custody Note" },

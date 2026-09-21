@@ -31,6 +31,11 @@ export const GETTING_STARTED_ESSENTIALS = [
 
 export const GETTING_STARTED_RELATED = [
   { href: '/HowToBecomePoliceStationRep', label: 'How to become a rep (full guide)', desc: 'Detailed 2026 PSRAS walkthrough' },
+  {
+    href: '/WhyGetPoliceStationAccredited',
+    label: 'Why get accredited',
+    desc: 'Motivation and firm-value when you’re stuck mid-route',
+  },
   { href: '/AccreditedRepresentativeGuide', label: 'Accredited representative guide', desc: 'What accreditation means on the register' },
   { href: '/CriminalLawCareerGuide', label: 'Criminal law careers', desc: 'Broader solicitor and fee-earner routes' },
   { href: '/register', label: 'Join the directory', desc: 'Free listing for accredited reps' },

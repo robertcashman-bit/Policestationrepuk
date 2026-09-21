@@ -6,6 +6,7 @@ import { INTERVIEW_FAQS } from '@/lib/guide-interview-under-caution';
 import { DISCLOSURE_FAQS } from '@/lib/guide-police-disclosure';
 import { CIT_FAQS } from '@/lib/guide-prepare-for-cit';
 import { WRITTEN_EXAM_FAQS } from '@/lib/guide-prepare-for-written-exam';
+import { WHY_ACCREDITED_FAQS } from '@/lib/guide-why-get-accredited';
 import { REP_DO_FAQS } from '@/lib/guide-what-does-rep-do';
 import { FAQ_PAGE_FAQS } from '@/lib/faq-page';
 import { HOMEPAGE_FAQS } from '@/lib/homepage-faqs';
@@ -135,6 +136,7 @@ function buildCorpus(): AssistantEntry[] {
     ...faqEntries(WRITTEN_EXAM_FAQS, 'PSRAS Written Exam', '/PrepareForWrittenExam', 'written-exam'),
     ...faqEntries(CIT_FAQS, 'PSRAS CIT', '/PrepareForCIT', 'cit'),
     ...faqEntries(ACCREDITED_FAQS, 'Accreditation', '/AccreditedRepresentativeGuide', 'accredited'),
+    ...faqEntries(WHY_ACCREDITED_FAQS, 'Motivation', '/WhyGetPoliceStationAccredited', 'why-accredited'),
     ...faqEntries(CAREER_FAQS, 'Career', '/CriminalLawCareerGuide', 'career'),
     ...faqEntries(REP_DO_FAQS, 'Role', '/WhatDoesRepDo', 'rep-do'),
     ...faqEntries(DSVR_FAQS, 'Role', '/DutySolicitorVsRep', 'dsvr'),

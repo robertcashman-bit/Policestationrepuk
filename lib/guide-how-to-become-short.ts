@@ -21,6 +21,11 @@ export const HOW_TO_BECOME_ROUTE = [
 
 export const HOW_TO_BECOME_RELATED = [
   { href: '/HowToBecomePoliceStationRep', label: 'Complete 2026 PSRAS guide', desc: 'In-depth stages, costs, timelines, FAQs' },
+  {
+    href: '/WhyGetPoliceStationAccredited',
+    label: 'Why get accredited',
+    desc: 'Motivation and firm-value when you’re stuck',
+  },
   { href: '/PrepareForWrittenExam', label: 'Written exam guide', desc: 'Format, exemptions, study plan' },
   { href: '/FindSupervisingSolicitor', label: 'Find a supervising solicitor', desc: 'How to approach firms' },
   { href: '/BuildPortfolioGuide', label: 'Portfolio guide', desc: 'Nine case studies — Part A and Part B' },

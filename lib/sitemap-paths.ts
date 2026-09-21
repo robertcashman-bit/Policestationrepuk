@@ -75,6 +75,7 @@ export const SITEMAP_PATHS: string[] = [
   'TonbridgePoliceStationReps',
   'WhatDoesRepDo',
   'WhatsApp',
+  'WhyGetPoliceStationAccredited',
   'Wiki',
   'police-station-representatives-directory-england-wales',
 ];

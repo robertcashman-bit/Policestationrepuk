@@ -127,6 +127,10 @@ export const FOOTER_FOR_REPRESENTATIVES: FooterLink[] = withPublicHrefs([
     href: "/AccreditedRepresentativeGuide",
     label: "Accredited Representative Guide",
   },
+  {
+    href: "/WhyGetPoliceStationAccredited",
+    label: "Why Get Police Station Accredited",
+  },
   { href: "/CriminalLawCareerGuide", label: "Criminal Law Career Guide" },
   { href: "/GetWork", label: "Get Work Guide" },
   { href: "/DSCCRegistrationGuide", label: "DSCC Registration Guide" },

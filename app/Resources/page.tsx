@@ -192,6 +192,12 @@ const PSRAS_ACCREDITATION = [
 
 const CAREER = [
   {
+    title: 'Why Get Police Station Accredited?',
+    href: '/WhyGetPoliceStationAccredited',
+    desc: 'Motivation and firm-value guide for people stuck mid-route — retention, fee-earner status, and the solicitor pathway.',
+    external: false,
+  },
+  {
     title: 'How to Become a Police Station Representative',
     href: '/HowToBecomePoliceStationRep',
     desc: "Complete guide to the qualifications, accreditation and steps needed to become an accredited rep.",
@@ -231,6 +237,18 @@ const CAREER = [
     title: 'DSCC Registration Guide',
     href: '/DSCCRegistrationGuide',
     desc: 'How to register with the Defence Solicitor Call Centre (DSCC).',
+    external: false,
+  },
+  {
+    title: 'Criminal Law Career Guide',
+    href: '/CriminalLawCareerGuide',
+    desc: 'SQE, CILEX, apprenticeships, and how PSRAS fits a wider criminal career.',
+    external: false,
+  },
+  {
+    title: 'Accredited Representative Guide',
+    href: '/AccreditedRepresentativeGuide',
+    desc: 'What PSRAS accreditation and Police Station Register status mean in practice.',
     external: false,
   },
 ];

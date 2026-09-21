@@ -70,6 +70,11 @@ export const CAREER_FAQS = [
 ] as const;
 
 export const CAREER_RELATED = [
+  {
+    href: '/WhyGetPoliceStationAccredited',
+    label: 'Why get police station accredited',
+    desc: 'Firm value, retention, and motivation when you’re stuck',
+  },
   { href: '/HowToBecomePoliceStationRep', label: 'PSRAS accreditation guide', desc: 'Become a police station rep in 12–18 months' },
   { href: '/WhatDoesRepDo', label: 'What does a rep do?', desc: 'Police station role explained' },
   { href: '/DutySolicitorVsRep', label: 'Duty solicitor vs rep', desc: 'Compare career paths' },

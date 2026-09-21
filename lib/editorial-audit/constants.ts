@@ -27,6 +27,7 @@ export const EDITORIAL_PAGE_PATHS = [
   '/AccreditedRepresentativeGuide',
   '/HowToBecome',
   '/CriminalLawCareerGuide',
+  '/WhyGetPoliceStationAccredited',
 ] as const;
 
 export const GUIDE_LIB_BY_PATH: Record<string, string> = {
@@ -42,6 +43,7 @@ export const GUIDE_LIB_BY_PATH: Record<string, string> = {
   '/AccreditedRepresentativeGuide': 'lib/guide-accredited-representative.ts',
   '/HowToBecome': 'lib/guide-how-to-become-short.ts',
   '/CriminalLawCareerGuide': 'lib/guide-criminal-law-career.ts',
+  '/WhyGetPoliceStationAccredited': 'lib/guide-why-get-accredited.ts',
 };
 
 export const FEE_RIGHTS_PATHS = new Set([

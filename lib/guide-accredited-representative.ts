@@ -29,6 +29,11 @@ export const ACCREDITED_FAQS = [
 ] as const;
 
 export const ACCREDITED_RELATED = [
+  {
+    href: '/WhyGetPoliceStationAccredited',
+    label: 'Why get accredited',
+    desc: 'Motivation, firm value, and career upside when you’re stuck',
+  },
   { href: '/HowToBecomePoliceStationRep', label: 'How to become a rep', desc: 'Full step-by-step PSRAS route' },
   { href: '/PrepareForWrittenExam', label: 'Written exam guide', desc: 'First assessment stage' },
   { href: '/BuildPortfolioGuide', label: 'Portfolio guide', desc: 'Nine case studies — Part A and Part B' },

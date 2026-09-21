@@ -58,6 +58,7 @@ export const LOWERCASE_CANONICAL_FOLDERS = [
   'FirmsWhatsAppGroup',
   'SolicitorPoliceStationCoverUK',
   'CriminalLawCareerGuide',
+  'WhyGetPoliceStationAccredited',
   'BuildPortfolioGuide',
   'PrepareForCIT',
   'PrepareForWrittenExam',

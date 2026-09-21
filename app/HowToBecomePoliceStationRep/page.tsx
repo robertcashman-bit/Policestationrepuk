@@ -214,6 +214,11 @@ const SOURCES = [
 ];
 
 const RELATED = [
+  {
+    href: '/WhyGetPoliceStationAccredited',
+    label: 'Why get police station accredited',
+    desc: 'Motivation, firm value, and career upside when you’re stuck',
+  },
   { href: '/PrepareForWrittenExam', label: 'PSRAS written exam guide', desc: 'Format, exemptions, syllabus, and study plan' },
   { href: '/FindSupervisingSolicitor', label: 'How to find a supervising solicitor', desc: 'In-depth playbook for the single hardest stage' },
   { href: '/BuildPortfolioGuide', label: 'PSRAS portfolio guide', desc: 'Nine case studies — Part A and Part B requirements' },

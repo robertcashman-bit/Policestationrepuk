@@ -57,6 +57,14 @@ const CARDIFF_PSRAS = {
 };
 
 const PSRAS = { label: 'PSRAS — Police Station Register Arrangements 2025', href: 'https://www.gov.uk/guidance/police-station-representatives-and-duty-solicitors' };
+const LAW_SOCIETY_CLAS = {
+  label: 'Law Society — Criminal Litigation Accreditation',
+  href: 'https://www.lawsociety.org.uk/career-advice/individual-accreditations/criminal-litigation-accreditation/',
+};
+const GOV_ARRESTED_RIGHTS = {
+  label: 'GOV.UK — Legal advice at the police station',
+  href: 'https://www.gov.uk/arrested-your-rights/legal-advice-at-the-police-station',
+};
 const BAILII = { label: 'BAILII — free UK case law', href: 'https://www.bailii.org/' };
 
 function dedupe(sources: ContentSource[]): ContentSource[] {
@@ -244,6 +252,15 @@ const PAGE_PATH: Record<string, ContentSource[]> = {
   '/AccreditedRepresentativeGuide': [PSRAS, SCC_2025],
   '/HowToBecome': [PSRAS, SCC_2025],
   '/CriminalLawCareerGuide': [PSRAS, SCC_2025, { label: 'SRA — SQE', href: 'https://www.sra.org.uk/become-solicitor/sqe/' }],
+  '/WhyGetPoliceStationAccredited': [
+    SRA_PSRAS,
+    PSRA_2025_PDF,
+    PSRAS,
+    SCC_2025,
+    LAW_SOCIETY_CLAS,
+    PACE_ACT,
+    GOV_ARRESTED_RIGHTS,
+  ],
   '/HelpUsStationNumbers': [PACE, { label: 'Find legal advice (justice.gov.uk)', href: 'https://find-legal-advice.justice.gov.uk/' }],
   '/UpdateStation': [PACE, { label: 'Find legal advice (justice.gov.uk)', href: 'https://find-legal-advice.justice.gov.uk/' }],
 };

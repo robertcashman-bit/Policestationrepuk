@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
+import { MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
 
 /** Internal + trial links for every blog article (conversion funnel). */
 export function BlogCustodyNotePromo({ className }: { className?: string }) {
@@ -44,18 +44,11 @@ export function BlogCustodyNotePromo({ className }: { className?: string }) {
         <span className="text-slate-200">{CUSTODYNOTE_BETA_REASON}</span>
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-3">
-        <a
-          href={CUSTODYNOTE_TRIAL_HREF}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-[var(--gold)] px-5 py-2.5 text-sm font-bold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
-        >
-          {CUSTODYNOTE_TRIAL_CTA} →
-        </a>
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <MicrosoftStoreCta size="md" />
         <Link
           href="/CustodyNote"
-          className="inline-flex min-h-[44px] items-center justify-center rounded-lg border-2 border-white/30 px-5 py-2.5 text-sm font-semibold text-white no-underline hover:bg-white/10"
+          className="text-sm font-semibold text-white underline underline-offset-2"
         >
           See how it works
         </Link>

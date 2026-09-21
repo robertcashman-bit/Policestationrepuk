@@ -28,7 +28,7 @@ export const CUSTODYNOTE_VERSION = '1.9.106';
 /** Microsoft Store product page (Windows only, UK). Not for Mac. Primary Windows install path. */
 export const CUSTODYNOTE_STORE_ID = '9NFSRVT3T45V';
 export const CUSTODYNOTE_STORE_HREF = `https://apps.microsoft.com/detail/${CUSTODYNOTE_STORE_ID}`;
-export const CUSTODYNOTE_STORE_CTA = 'Get on Microsoft Store';
+export const CUSTODYNOTE_STORE_CTA = 'Get it on Microsoft Store';
 
 /**
  * Microsoft Store status — Windows listing is live on Microsoft Store (UK) and installable now.
@@ -95,10 +95,10 @@ export const CUSTODYNOTE_APPS_DETAIL =
   'Install on your Windows PC (Microsoft Store, or direct download) or Mac (direct download — Apple Silicon and Intel). Signed Mac builds, automatic updates on both platforms.';
 
 export const TOP_BANNER_TEXT =
-  'Custody Note on Microsoft Store (Windows) & Mac — structured attendance notes, free during beta';
+  'Get Custody Note on Microsoft Store (Windows) — free during beta · Mac via direct download';
 
 /** Shorter line for narrow phone screens (full text from `TOP_BANNER_TEXT` on sm+). */
-export const TOP_BANNER_TEXT_MOBILE = 'Custody Note — free during beta';
+export const TOP_BANNER_TEXT_MOBILE = 'Get it on Microsoft Store — free during beta';
 
 export const INLINE_CTA_HEADLINE = 'Stop rewriting custody notes at 2am';
 export const INLINE_CTA_BULLETS = [

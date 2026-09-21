@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { CustodyNoteDownloadLink, MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
 import {
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_DOWNLOAD_HREF,
@@ -19,8 +20,6 @@ import {
   CUSTODYNOTE_PRICING_HREF,
   CUSTODYNOTE_SHORT_DESCRIPTION,
   CUSTODYNOTE_TAGLINE,
-  CUSTODYNOTE_STORE_CTA,
-  CUSTODYNOTE_STORE_HREF,
   CUSTODYNOTE_STORE_STATUS_LINE,
   CUSTODYNOTE_VERSION,
 } from '@/lib/custodynote-promo';
@@ -248,31 +247,30 @@ export default function CustodyNotePage() {
             </p>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href={CUSTODYNOTE_STORE_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-gold inline-flex min-h-[44px] items-center no-underline"
-            >
-              {CUSTODYNOTE_STORE_CTA} →
-            </a>
-            <a
-              href={CUSTODYNOTE_DOWNLOAD}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-outline inline-flex min-h-[44px] items-center !border-white !text-white no-underline hover:!bg-white hover:!text-[var(--navy)]"
-            >
-              {CUSTODYNOTE_DOWNLOAD_CTA} →
-            </a>
-            <a
-              href={CUSTODYNOTE_PRICING}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-outline inline-flex min-h-[44px] items-center !border-white !text-white no-underline hover:!bg-white hover:!text-[var(--navy)]"
-            >
-              View Pricing
-            </a>
+          <div className="mt-8 flex flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <MicrosoftStoreCta size="hero" />
+              <a
+                href={CUSTODYNOTE_PRICING}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline inline-flex min-h-[44px] items-center !border-white !text-white no-underline hover:!bg-white hover:!text-[var(--navy)]"
+              >
+                View Pricing
+              </a>
+            </div>
+            <p className="text-sm text-white/80">
+              Windows:{' '}
+              <span className="font-semibold text-[var(--gold)]">Microsoft Store</span>
+              {' '}is the primary install.{' '}
+              <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD} className="text-white/90">
+                {CUSTODYNOTE_DOWNLOAD_CTA} (Windows &amp; Mac backup)
+              </CustodyNoteDownloadLink>
+              {' '}·{' '}
+              <CustodyNoteDownloadLink href={CUSTODYNOTE_MAC_DOWNLOAD_HREF} className="text-white/90">
+                {CUSTODYNOTE_MAC_DOWNLOAD_CTA}
+              </CustodyNoteDownloadLink>
+            </p>
           </div>
           <p className="mt-3 text-xs text-slate-300">
             {CUSTODYNOTE_PLATFORM_LINE} · {CUSTODYNOTE_FREE_LABEL} · v{APP_VERSION}
@@ -291,31 +289,16 @@ export default function CustodyNotePage() {
             <p className="mt-2 text-xs leading-relaxed text-white/75">
               {CUSTODYNOTE_STORE_STATUS_LINE}
             </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <a
-                href={CUSTODYNOTE_STORE_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-[40px] items-center rounded-lg bg-[var(--gold)] px-4 py-2 text-xs font-bold text-[var(--navy)] no-underline transition-colors hover:bg-[var(--gold-hover)]"
-              >
-                {CUSTODYNOTE_STORE_CTA} →
-              </a>
-              <a
-                href={CUSTODYNOTE_DOWNLOAD_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-[40px] items-center rounded-lg border border-[var(--gold)]/60 bg-transparent px-4 py-2 text-xs font-bold text-[var(--gold)] no-underline transition-colors hover:bg-[var(--gold)]/10"
-              >
-                {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
-              </a>
-              <a
-                href={CUSTODYNOTE_MAC_DOWNLOAD_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-[40px] items-center rounded-lg border border-white/40 bg-transparent px-4 py-2 text-xs font-bold text-white no-underline transition-colors hover:bg-white/10"
-              >
-                {CUSTODYNOTE_MAC_DOWNLOAD_CTA} →
-              </a>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <MicrosoftStoreCta size="lg" />
+              <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/85">
+                <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-[var(--gold)]">
+                  {CUSTODYNOTE_DOWNLOAD_APPS_CTA}
+                </CustodyNoteDownloadLink>
+                <CustodyNoteDownloadLink href={CUSTODYNOTE_MAC_DOWNLOAD_HREF} className="text-white">
+                  {CUSTODYNOTE_MAC_DOWNLOAD_CTA}
+                </CustodyNoteDownloadLink>
+              </div>
             </div>
           </div>
         </div>
@@ -572,22 +555,14 @@ export default function CustodyNotePage() {
                   </li>
                 ))}
               </ul>
-              <a
-                href={CUSTODYNOTE_STORE_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-gold mt-6 flex min-h-[44px] items-center justify-center no-underline"
-              >
-                {CUSTODYNOTE_STORE_CTA} →
-              </a>
-              <a
-                href={CUSTODYNOTE_DOWNLOAD}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-outline mt-3 flex min-h-[44px] items-center justify-center no-underline"
-              >
-                {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
-              </a>
+              <div className="mt-6 flex justify-center">
+                <MicrosoftStoreCta size="lg" className="w-full sm:w-auto" />
+              </div>
+              <p className="mt-3 text-center text-sm text-[var(--muted)]">
+                <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD} className="text-[var(--gold-link)]">
+                  {CUSTODYNOTE_DOWNLOAD_APPS_CTA}
+                </CustodyNoteDownloadLink>
+              </p>
             </div>
           </div>
         </div>
@@ -600,39 +575,24 @@ export default function CustodyNotePage() {
           {CUSTODYNOTE_BETA_REASON} Get {CUSTODYNOTE_BRAND_NAME} on Microsoft Store (Windows) or direct download for Windows &amp; Mac —
           free during beta, no credit card. Paid Pro is planned after beta.
         </p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <a
-            href={CUSTODYNOTE_STORE_HREF}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-gold inline-flex min-h-[44px] items-center no-underline"
-          >
-            {CUSTODYNOTE_STORE_CTA} →
-          </a>
-          <a
-            href={CUSTODYNOTE_DOWNLOAD}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-outline inline-flex min-h-[44px] items-center !border-white !text-white no-underline hover:!bg-white hover:!text-[var(--navy)]"
-          >
-            {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
-          </a>
-          <a
-            href={CUSTODYNOTE_MAC_DOWNLOAD_HREF}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-outline inline-flex min-h-[44px] items-center !border-white !text-white no-underline hover:!bg-white hover:!text-[var(--navy)]"
-          >
-            Mac downloads →
-          </a>
-          <a
-            href={CUSTODYNOTE_PRICING}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-outline inline-flex min-h-[44px] items-center !border-white !text-white no-underline hover:!bg-white hover:!text-[var(--navy)]"
-          >
-            Why it&apos;s free →
-          </a>
+        <div className="mt-6 flex flex-col items-center gap-4">
+          <MicrosoftStoreCta size="hero" />
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-slate-300">
+            <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD} className="text-white/90">
+              {CUSTODYNOTE_DOWNLOAD_APPS_CTA}
+            </CustodyNoteDownloadLink>
+            <CustodyNoteDownloadLink href={CUSTODYNOTE_MAC_DOWNLOAD_HREF} className="text-white/90">
+              {CUSTODYNOTE_MAC_DOWNLOAD_CTA}
+            </CustodyNoteDownloadLink>
+            <a
+              href={CUSTODYNOTE_PRICING}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-white/90 underline underline-offset-2"
+            >
+              Why it&apos;s free
+            </a>
+          </div>
         </div>
         <p className="mt-3 text-xs text-[var(--muted)]">
           {CUSTODYNOTE_DOWNLOAD_LOCATION_LINE} · {CUSTODYNOTE_FREE_LABEL} · No credit card to start ·{' '}

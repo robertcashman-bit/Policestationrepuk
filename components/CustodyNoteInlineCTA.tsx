@@ -4,15 +4,14 @@ import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_APPS_LINE,
-  CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_DOWNLOAD_CTA,
   CUSTODYNOTE_DOWNLOAD_HREF,
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_FREE_LABEL,
-  CUSTODYNOTE_TRIAL_HREF,
   INLINE_CTA_BULLETS,
   INLINE_CTA_HEADLINE,
 } from '@/lib/custodynote-promo';
+import { CustodyNoteDownloadLink, MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
 
 type Variant = 'full' | 'compact';
 
@@ -36,29 +35,16 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
         <p className="mt-3 text-[11px] text-white/85">
           {CUSTODYNOTE_FREE_LABEL} · Windows PC &amp; Mac · {CUSTODYNOTE_BETA_REASON}
         </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <a
-            href={CUSTODYNOTE_TRIAL_HREF}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-w-[8rem] flex-1 items-center justify-center rounded-lg bg-[var(--gold)] px-3 py-2 text-center text-xs font-bold text-[var(--navy)] no-underline transition-colors hover:bg-[var(--gold-hover)]"
-          >
-            {CUSTODYNOTE_TRIAL_CTA}
-          </a>
-          <a
-            href={CUSTODYNOTE_DOWNLOAD_HREF}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-lg border border-white/30 px-3 py-2 text-xs font-semibold text-white no-underline hover:bg-white/10"
-          >
-            {CUSTODYNOTE_DOWNLOAD_CTA}
-          </a>
-          <Link
-            href="/CustodyNote"
-            className="inline-flex items-center justify-center rounded-lg border border-white/30 px-3 py-2 text-xs font-semibold text-white no-underline hover:bg-white/10"
-          >
-            About {CUSTODYNOTE_BRAND_NAME}
-          </Link>
+        <div className="mt-3 flex flex-col gap-2">
+          <MicrosoftStoreCta size="sm" className="w-full" />
+          <div className="flex flex-wrap gap-2">
+            <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-xs text-white/90">
+              {CUSTODYNOTE_DOWNLOAD_CTA}
+            </CustodyNoteDownloadLink>
+            <Link href="/CustodyNote" className="text-xs font-semibold text-white/90 underline underline-offset-2">
+              About {CUSTODYNOTE_BRAND_NAME}
+            </Link>
+          </div>
         </div>
       </aside>
     );
@@ -94,29 +80,16 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
           <span className="mx-2 text-white/40">·</span>
           <span className="text-white/90">{CUSTODYNOTE_BETA_REASON}</span>
         </div>
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <a
-            href={CUSTODYNOTE_TRIAL_HREF}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-[var(--gold)] px-8 py-3 text-base font-bold text-[var(--navy)] no-underline shadow-md transition-colors hover:bg-[var(--gold-hover)]"
-          >
-            {CUSTODYNOTE_TRIAL_CTA}
-          </a>
-          <a
-            href={CUSTODYNOTE_DOWNLOAD_HREF}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:border-[var(--gold)]/50 hover:bg-white/10"
-          >
-            {CUSTODYNOTE_DOWNLOAD_CTA}
-          </a>
-          <Link
-            href="/CustodyNote"
-            className="inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:border-[var(--gold)]/50 hover:bg-white/10"
-          >
-            See how it works
-          </Link>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <MicrosoftStoreCta size="lg" />
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-white/90">
+              {CUSTODYNOTE_DOWNLOAD_CTA}
+            </CustodyNoteDownloadLink>
+            <Link href="/CustodyNote" className="text-sm font-semibold text-white/90 underline underline-offset-2">
+              See how it works
+            </Link>
+          </div>
         </div>
         <p className="mt-4 text-xs text-slate-400">
           Advertisement — {CUSTODYNOTE_BRAND_NAME} is attendance note software by Defence Legal Services Ltd.{' '}

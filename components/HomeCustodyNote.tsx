@@ -5,15 +5,14 @@ import {
   CUSTODYNOTE_APPS_LINE,
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_BETA_REASON,
-  CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_DOWNLOAD_CTA,
   CUSTODYNOTE_DOWNLOAD_HREF,
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_PROMO_PRICE_LINE,
   CUSTODYNOTE_PRICING_HREF,
   CUSTODYNOTE_TAGLINE,
-  CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
+import { CustodyNoteDownloadLink, MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
 import { AdvertisementLabel } from './AdvertisementLabel';
 
 export function HomeCustodyNote() {
@@ -63,37 +62,24 @@ export function HomeCustodyNote() {
               </p>
             </div>
 
-            <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link
-                href={CUSTODYNOTE_TRIAL_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-gold w-full sm:w-auto"
-              >
-                {CUSTODYNOTE_TRIAL_CTA} →
-              </Link>
-              <Link
-                href={CUSTODYNOTE_DOWNLOAD_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-outline w-full !border-white/40 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)] sm:w-auto"
-              >
-                {CUSTODYNOTE_DOWNLOAD_CTA} →
-              </Link>
-              <Link
-                href="/CustodyNote"
-                className="btn-outline w-full !border-white/40 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)] sm:w-auto"
-              >
-                See how it works
-              </Link>
-              <Link
-                href={CUSTODYNOTE_PRICING_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-outline w-full !border-white/40 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)] sm:w-auto"
-              >
-                View pricing →
-              </Link>
+            <div className="mt-6 flex flex-col items-center gap-4">
+              <MicrosoftStoreCta size="hero" className="w-full sm:w-auto" />
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-white/85">
+                <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-white/90">
+                  {CUSTODYNOTE_DOWNLOAD_CTA}
+                </CustodyNoteDownloadLink>
+                <Link href="/CustodyNote" className="font-medium text-white/90 underline underline-offset-2">
+                  See how it works
+                </Link>
+                <Link
+                  href={CUSTODYNOTE_PRICING_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-white/90 underline underline-offset-2"
+                >
+                  View pricing
+                </Link>
+              </div>
             </div>
 
             <div className="mt-8 overflow-hidden rounded-xl border border-white/10 shadow-2xl">

@@ -2,11 +2,10 @@ import Link from 'next/link';
 import {
   CUSTODYNOTE_APPS_LINE,
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_DOWNLOAD_CTA,
   CUSTODYNOTE_DOWNLOAD_HREF,
-  CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
+import { CustodyNoteDownloadLink, MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
 import {
   PSRTRAIN_BULLETS,
   PSRTRAIN_CTA,
@@ -61,29 +60,16 @@ export function ToolsForRepsSection() {
                   In beta — free while we test. No credit card.
                 </p>
               </div>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <a
-                  href={CUSTODYNOTE_TRIAL_HREF}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-[var(--gold)] px-6 py-3 text-sm font-bold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
-                >
-                  {CUSTODYNOTE_TRIAL_CTA}
-                </a>
-                <a
-                  href={CUSTODYNOTE_DOWNLOAD_HREF}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl border-2 border-white/30 px-5 py-3 text-sm font-semibold text-white no-underline hover:bg-white/10"
-                >
-                  {CUSTODYNOTE_DOWNLOAD_CTA}
-                </a>
-                <Link
-                  href="/CustodyNote"
-                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl border-2 border-white/30 px-5 py-3 text-sm font-semibold text-white no-underline hover:bg-white/10"
-                >
-                  About {CUSTODYNOTE_BRAND_NAME}
-                </Link>
+              <div className="mt-5 flex flex-col gap-3">
+                <MicrosoftStoreCta size="lg" className="w-full sm:w-auto" />
+                <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                  <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-white/90">
+                    {CUSTODYNOTE_DOWNLOAD_CTA}
+                  </CustodyNoteDownloadLink>
+                  <Link href="/CustodyNote" className="font-semibold text-white/90 underline underline-offset-2">
+                    About {CUSTODYNOTE_BRAND_NAME}
+                  </Link>
+                </div>
               </div>
               <p className="mt-4 text-xs text-slate-400">Advertisement — see our disclosure.</p>
             </div>

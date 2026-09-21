@@ -12,6 +12,7 @@ import {
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
+import { MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
 import { PSRTRAIN_CTA, PSRTRAIN_FREE_TESTING_NOTE, PSRTRAIN_NAME, PSRTRAIN_TRAINING_HREF } from '@/lib/psrtrain-promo';
 import { PartnerOutboundLink } from '@/components/PartnerOutboundLink';
 import { SUPPORT_EMAIL, SUPPORT_MAILTO_HREF } from '@/lib/site-contact';
@@ -145,18 +146,11 @@ export function Footer() {
                 {CUSTODYNOTE_PROMO_PRICE_LINE} — {CUSTODYNOTE_BETA_REASON} ·{' '}
                 {CUSTODYNOTE_PLATFORM_LINE}
               </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <a
-                  href={CUSTODYNOTE_TRIAL_HREF}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex min-h-[40px] items-center justify-center rounded-lg bg-[var(--gold)] px-4 py-2 text-xs font-bold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
-                >
-                  {CUSTODYNOTE_TRIAL_CTA}
-                </a>
+              <div className="mt-3 flex flex-col gap-2">
+                <MicrosoftStoreCta size="sm" />
                 <Link
                   href="/CustodyNote"
-                  className="inline-flex min-h-[40px] items-center justify-center rounded-lg border border-white/30 px-4 py-2 text-xs font-semibold text-white no-underline hover:bg-white/10"
+                  className="inline-flex min-h-[40px] w-fit items-center justify-center rounded-lg border border-white/30 px-4 py-2 text-xs font-semibold text-white no-underline hover:bg-white/10"
                 >
                   About {CUSTODYNOTE_BRAND_NAME}
                 </Link>
@@ -237,14 +231,9 @@ export function Footer() {
               PACE-aligned notes, offline-first, PDF + LAA billing, AES-256 encryption.{' '}
               {CUSTODYNOTE_PROMO_PRICE_LINE} — {CUSTODYNOTE_BETA_REASON}
             </p>
-            <a
-              href={CUSTODYNOTE_TRIAL_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
-            >
-              {CUSTODYNOTE_TRIAL_CTA} →
-            </a>
+            <div className="mt-2">
+              <MicrosoftStoreCta size="sm" />
+            </div>
             <span className="mx-1 text-xs text-slate-500">·</span>
             <Link
               href="/CustodyNote"

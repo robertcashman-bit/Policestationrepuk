@@ -10,7 +10,9 @@ import {
   CUSTODYNOTE_APPS_DETAIL,
   CUSTODYNOTE_APPS_LINE,
   CUSTODYNOTE_DOWNLOAD_APPS_CTA,
+  CUSTODYNOTE_DOWNLOAD_CTA,
   CUSTODYNOTE_DOWNLOAD_LOCATION_LINE,
+  CUSTODYNOTE_MAC_DOWNLOAD_CTA,
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_PLATFORM_LINE,
@@ -248,12 +250,20 @@ export default function CustodyNotePage() {
 
           <div className="mt-8 flex flex-wrap gap-3">
             <a
-              href={CUSTODYNOTE_DOWNLOAD}
+              href={CUSTODYNOTE_STORE_HREF}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-gold inline-flex min-h-[44px] items-center no-underline"
             >
-              {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
+              {CUSTODYNOTE_STORE_CTA} →
+            </a>
+            <a
+              href={CUSTODYNOTE_DOWNLOAD}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline inline-flex min-h-[44px] items-center !border-white !text-white no-underline hover:!bg-white hover:!text-[var(--navy)]"
+            >
+              {CUSTODYNOTE_DOWNLOAD_CTA} →
             </a>
             <a
               href={CUSTODYNOTE_PRICING}
@@ -271,7 +281,7 @@ export default function CustodyNotePage() {
 
           <div className="mt-6 rounded-[var(--radius-lg)] border border-[var(--gold)]/40 bg-[var(--gold)]/10 p-4 sm:p-5">
             <p className="text-xs font-bold uppercase tracking-widest text-[var(--gold)]">
-              Download — Windows &amp; Mac
+              Get Custody Note — Windows &amp; Mac
             </p>
             <p className="mt-2 text-sm font-semibold text-white">{CUSTODYNOTE_APPS_LINE}</p>
             <p className="mt-1 text-xs leading-relaxed text-white/90">
@@ -283,20 +293,20 @@ export default function CustodyNotePage() {
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <a
-                href={CUSTODYNOTE_DOWNLOAD_HREF}
+                href={CUSTODYNOTE_STORE_HREF}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex min-h-[40px] items-center rounded-lg bg-[var(--gold)] px-4 py-2 text-xs font-bold text-[var(--navy)] no-underline transition-colors hover:bg-[var(--gold-hover)]"
               >
-                {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
+                {CUSTODYNOTE_STORE_CTA} →
               </a>
               <a
-                href={CUSTODYNOTE_STORE_HREF}
+                href={CUSTODYNOTE_DOWNLOAD_HREF}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex min-h-[40px] items-center rounded-lg border border-[var(--gold)]/60 bg-transparent px-4 py-2 text-xs font-bold text-[var(--gold)] no-underline transition-colors hover:bg-[var(--gold)]/10"
               >
-                {CUSTODYNOTE_STORE_CTA} →
+                {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
               </a>
               <a
                 href={CUSTODYNOTE_MAC_DOWNLOAD_HREF}
@@ -304,7 +314,7 @@ export default function CustodyNotePage() {
                 rel="noopener noreferrer"
                 className="inline-flex min-h-[40px] items-center rounded-lg border border-white/40 bg-transparent px-4 py-2 text-xs font-bold text-white no-underline transition-colors hover:bg-white/10"
               >
-                Mac downloads →
+                {CUSTODYNOTE_MAC_DOWNLOAD_CTA} →
               </a>
             </div>
           </div>
@@ -563,10 +573,18 @@ export default function CustodyNotePage() {
                 ))}
               </ul>
               <a
-                href={CUSTODYNOTE_DOWNLOAD}
+                href={CUSTODYNOTE_STORE_HREF}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-gold mt-6 flex min-h-[44px] items-center justify-center no-underline"
+              >
+                {CUSTODYNOTE_STORE_CTA} →
+              </a>
+              <a
+                href={CUSTODYNOTE_DOWNLOAD}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline mt-3 flex min-h-[44px] items-center justify-center no-underline"
               >
                 {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
               </a>
@@ -579,15 +597,23 @@ export default function CustodyNotePage() {
       <section className="mb-14 rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center sm:p-10">
         <h2 className="text-h2 text-white">Ready to try {CUSTODYNOTE_BRAND_NAME}?</h2>
         <p className="mx-auto mt-3 max-w-xl text-slate-300">
-          {CUSTODYNOTE_BETA_REASON} Download {CUSTODYNOTE_BRAND_NAME} for Windows and Mac free today —
-          no credit card. Paid Pro is planned after beta.
+          {CUSTODYNOTE_BETA_REASON} Get {CUSTODYNOTE_BRAND_NAME} on Microsoft Store (Windows) or direct download for Windows &amp; Mac —
+          free during beta, no credit card. Paid Pro is planned after beta.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <a
+            href={CUSTODYNOTE_STORE_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-gold inline-flex min-h-[44px] items-center no-underline"
+          >
+            {CUSTODYNOTE_STORE_CTA} →
+          </a>
           <a
             href={CUSTODYNOTE_DOWNLOAD}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-gold inline-flex min-h-[44px] items-center no-underline"
+            className="btn-outline inline-flex min-h-[44px] items-center !border-white !text-white no-underline hover:!bg-white hover:!text-[var(--navy)]"
           >
             {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
           </a>

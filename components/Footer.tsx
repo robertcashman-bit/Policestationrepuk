@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_APPS_LINE,
+  CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_DOWNLOAD_APPS_CTA,
   CUSTODYNOTE_DOWNLOAD_HREF,
   CUSTODYNOTE_PLATFORM_LINE,
@@ -151,7 +152,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="inline-flex min-h-[40px] items-center justify-center rounded-lg bg-[var(--gold)] px-4 py-2 text-xs font-bold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
                 >
-                  {CUSTODYNOTE_DOWNLOAD_APPS_CTA}
+                  {CUSTODYNOTE_TRIAL_CTA}
                 </a>
                 <Link
                   href="/CustodyNote"
@@ -168,7 +169,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="font-semibold text-[var(--gold)] underline-offset-2 hover:underline"
                 >
-                  Download for Windows &amp; Mac →
+                  {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
                 </a>
               </p>
             </div>
@@ -242,7 +243,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
             >
-              Download free →
+              {CUSTODYNOTE_TRIAL_CTA} →
             </a>
             <span className="mx-1 text-xs text-slate-500">·</span>
             <Link
@@ -258,7 +259,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="mt-2 inline-block text-xs font-semibold !text-[var(--gold)] no-underline hover:!text-white"
             >
-              Download for Windows &amp; Mac →
+              {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
             </a>
           </div>
           <div>

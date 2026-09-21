@@ -5,7 +5,9 @@ import {
   CUSTODYNOTE_APPS_LINE,
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_BETA_REASON,
-  CUSTODYNOTE_DOWNLOAD_APPS_CTA,
+  CUSTODYNOTE_TRIAL_CTA,
+  CUSTODYNOTE_DOWNLOAD_CTA,
+  CUSTODYNOTE_DOWNLOAD_HREF,
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_PROMO_PRICE_LINE,
   CUSTODYNOTE_PRICING_HREF,
@@ -68,7 +70,15 @@ export function HomeCustodyNote() {
                 rel="noopener noreferrer"
                 className="btn-gold w-full sm:w-auto"
               >
-                {CUSTODYNOTE_DOWNLOAD_APPS_CTA} →
+                {CUSTODYNOTE_TRIAL_CTA} →
+              </Link>
+              <Link
+                href={CUSTODYNOTE_DOWNLOAD_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline w-full !border-white/40 !text-white hover:!border-[var(--gold)] hover:!text-[var(--gold)] sm:w-auto"
+              >
+                {CUSTODYNOTE_DOWNLOAD_CTA} →
               </Link>
               <Link
                 href="/CustodyNote"

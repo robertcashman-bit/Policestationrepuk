@@ -4,7 +4,9 @@ import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_APPS_LINE,
-  CUSTODYNOTE_DOWNLOAD_APPS_CTA,
+  CUSTODYNOTE_TRIAL_CTA,
+  CUSTODYNOTE_DOWNLOAD_CTA,
+  CUSTODYNOTE_DOWNLOAD_HREF,
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_TRIAL_HREF,
@@ -41,7 +43,15 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
             rel="noopener noreferrer"
             className="inline-flex min-w-[8rem] flex-1 items-center justify-center rounded-lg bg-[var(--gold)] px-3 py-2 text-center text-xs font-bold text-[var(--navy)] no-underline transition-colors hover:bg-[var(--gold-hover)]"
           >
-            {CUSTODYNOTE_DOWNLOAD_APPS_CTA}
+            {CUSTODYNOTE_TRIAL_CTA}
+          </a>
+          <a
+            href={CUSTODYNOTE_DOWNLOAD_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded-lg border border-white/30 px-3 py-2 text-xs font-semibold text-white no-underline hover:bg-white/10"
+          >
+            {CUSTODYNOTE_DOWNLOAD_CTA}
           </a>
           <Link
             href="/CustodyNote"
@@ -91,7 +101,15 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
             rel="noopener noreferrer"
             className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-[var(--gold)] px-8 py-3 text-base font-bold text-[var(--navy)] no-underline shadow-md transition-colors hover:bg-[var(--gold-hover)]"
           >
-            {CUSTODYNOTE_DOWNLOAD_APPS_CTA}
+            {CUSTODYNOTE_TRIAL_CTA}
+          </a>
+          <a
+            href={CUSTODYNOTE_DOWNLOAD_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold text-white no-underline backdrop-blur-sm transition-colors hover:border-[var(--gold)]/50 hover:bg-white/10"
+          >
+            {CUSTODYNOTE_DOWNLOAD_CTA}
           </a>
           <Link
             href="/CustodyNote"

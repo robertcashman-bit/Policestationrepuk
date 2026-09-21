@@ -2,7 +2,9 @@ import Link from 'next/link';
 import {
   CUSTODYNOTE_APPS_LINE,
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DOWNLOAD_APPS_CTA,
+  CUSTODYNOTE_TRIAL_CTA,
+  CUSTODYNOTE_DOWNLOAD_CTA,
+  CUSTODYNOTE_DOWNLOAD_HREF,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
 import {
@@ -66,7 +68,15 @@ export function ToolsForRepsSection() {
                   rel="noopener noreferrer"
                   className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-[var(--gold)] px-6 py-3 text-sm font-bold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
                 >
-                  {CUSTODYNOTE_DOWNLOAD_APPS_CTA}
+                  {CUSTODYNOTE_TRIAL_CTA}
+                </a>
+                <a
+                  href={CUSTODYNOTE_DOWNLOAD_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-[44px] items-center justify-center rounded-xl border-2 border-white/30 px-5 py-3 text-sm font-semibold text-white no-underline hover:bg-white/10"
+                >
+                  {CUSTODYNOTE_DOWNLOAD_CTA}
                 </a>
                 <Link
                   href="/CustodyNote"

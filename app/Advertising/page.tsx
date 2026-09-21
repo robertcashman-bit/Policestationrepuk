@@ -6,6 +6,8 @@ import {
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_PLATFORM_LINE,
   CUSTODYNOTE_DOWNLOAD_HREF,
+  CUSTODYNOTE_STORE_CTA,
+  CUSTODYNOTE_STORE_HREF,
 } from '@/lib/custodynote-promo';
 import { POLICESTATIONAGENT_HOME_HREF } from '@/lib/policestationagent-promo';
 import { buildMetadata } from '@/lib/seo';
@@ -66,9 +68,14 @@ export default function AdvertisingPage() {
                   {CUSTODYNOTE_BETA_REASON} Paid plans are not the focus of current promotions.
                 </p>
                 <p className="mt-2 text-xs text-[var(--muted)]">
-                  Website:{' '}
+                  Windows:{' '}
+                  <a href={CUSTODYNOTE_STORE_HREF} target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--navy)] underline">
+                    {CUSTODYNOTE_STORE_CTA}
+                  </a>
+                  {' · '}
+                  Direct download:{' '}
                   <a href={CUSTODYNOTE_DOWNLOAD_HREF} target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--navy)] underline">
-                    custodynote.com
+                    custodynote.com/download
                   </a>
                 </p>
               </div>

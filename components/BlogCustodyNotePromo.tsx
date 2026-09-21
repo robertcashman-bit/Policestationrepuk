@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DOWNLOAD_CTA,
+  CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_TRIAL_HREF,
@@ -26,16 +26,16 @@ export function BlogCustodyNotePromo({ className }: { className?: string }) {
         <Link href="/CustodyNote" className="font-semibold text-white underline hover:text-[var(--gold)]">
           {CUSTODYNOTE_BRAND_NAME} overview
         </Link>{' '}
-        or download free on{' '}
+        or get it on the{' '}
         <a
           href={CUSTODYNOTE_TRIAL_HREF}
           target="_blank"
           rel="noopener noreferrer"
           className="font-semibold text-[var(--gold)] underline hover:text-white"
         >
-          custodynote.com
+          Microsoft Store
         </a>
-        {' '}({CUSTODYNOTE_FREE_LABEL}). Built for accredited UK police station representatives and defence solicitors.
+        {' '}({CUSTODYNOTE_FREE_LABEL}; Mac via direct download). Built for accredited UK police station representatives and defence solicitors.
       </p>
 
       <div className="mt-4 rounded-lg border border-[var(--gold)]/40 bg-black/20 px-4 py-3 text-sm text-white">
@@ -51,7 +51,7 @@ export function BlogCustodyNotePromo({ className }: { className?: string }) {
           rel="noopener noreferrer"
           className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-[var(--gold)] px-5 py-2.5 text-sm font-bold text-[var(--navy)] no-underline hover:bg-[var(--gold-hover)]"
         >
-          {CUSTODYNOTE_DOWNLOAD_CTA} →
+          {CUSTODYNOTE_TRIAL_CTA} →
         </a>
         <Link
           href="/CustodyNote"

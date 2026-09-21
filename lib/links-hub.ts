@@ -160,14 +160,14 @@ export const LINKS_HUB_SECTIONS: LinksHubSection[] = [
     items: [
       {
         href: CUSTODYNOTE_TRIAL_HREF,
-        label: 'Custody Note',
-        description: 'Structured custody attendance notes — free during beta while we test.',
+        label: 'Custody Note — Microsoft Store',
+        description: 'Windows primary install — free during beta. Mac via direct download.',
         external: true,
       },
       {
         href: CUSTODYNOTE_DOWNLOAD_HREF,
-        label: 'Custody Note — download',
-        description: 'Windows & Mac desktop apps.',
+        label: 'Custody Note — direct download',
+        description: 'Backup Windows installer & Mac builds.',
         external: true,
       },
       {

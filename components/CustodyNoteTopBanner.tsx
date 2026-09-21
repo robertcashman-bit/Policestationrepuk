@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import {
   CUSTODYNOTE_APPS_LINE,
-  CUSTODYNOTE_DOWNLOAD_CTA,
+  CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_FREE_LABEL,
   CUSTODYNOTE_TRIAL_HREF,
   TOP_BANNER_TEXT,
@@ -66,7 +66,7 @@ export function CustodyNoteTopBanner({ onDismissChange }: CustodyNoteTopBannerPr
           rel="noopener noreferrer"
           className="inline-flex shrink-0 items-center rounded-full bg-[var(--gold)] px-3 py-1.5 text-xs font-bold text-[var(--navy)] no-underline shadow-sm transition-colors hover:bg-[var(--gold-hover)] sm:px-4"
         >
-          {CUSTODYNOTE_DOWNLOAD_CTA} →
+          {CUSTODYNOTE_TRIAL_CTA} →
         </PartnerOutboundLink>
         <button
           type="button"

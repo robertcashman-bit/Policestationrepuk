@@ -6,6 +6,8 @@ import {
   CUSTODYNOTE_NO_CARD_LINE,
   CUSTODYNOTE_PLANNED_PRO_LINE,
   CUSTODYNOTE_PRICE_GBP,
+  CUSTODYNOTE_STORE_CTA,
+  CUSTODYNOTE_STORE_HREF,
 } from '@/lib/custodynote-promo';
 
 export const dynamic = 'force-dynamic';
@@ -17,6 +19,8 @@ export async function GET() {
       freeLabel: CUSTODYNOTE_FREE_LABEL,
       betaReason: CUSTODYNOTE_BETA_REASON,
       noCreditCard: CUSTODYNOTE_NO_CARD_LINE,
+      storeHref: CUSTODYNOTE_STORE_HREF,
+      storeCta: CUSTODYNOTE_STORE_CTA,
       downloadHref: CUSTODYNOTE_DOWNLOAD_HREF,
       /** Planned after beta only — not a live paid offer or discount code. */
       plannedProPriceGbp: CUSTODYNOTE_PRICE_GBP,

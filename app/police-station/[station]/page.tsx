@@ -26,6 +26,7 @@ import {
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_FREE_LABEL,
+  CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_TRIAL_HREF,
 } from '@/lib/custodynote-promo';
 
@@ -309,7 +310,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
                     rel="noopener noreferrer"
                     className="btn-gold mt-3 inline-flex !text-sm no-underline"
                   >
-                    Download free →
+                    {CUSTODYNOTE_TRIAL_CTA} →
                   </a>
                 </section>
               </div>

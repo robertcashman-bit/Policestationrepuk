@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import {
   CUSTODYNOTE_BRAND_NAME,
-  CUSTODYNOTE_DOWNLOAD_CTA,
+  CUSTODYNOTE_TRIAL_CTA,
   CUSTODYNOTE_PROMO_PRICE_LINE,
   CUSTODYNOTE_TRIAL_HREF,
   INLINE_CTA_HEADLINE,
@@ -34,7 +34,7 @@ export function BlogPartnerToolsPromo({ className = '' }: { className?: string }
               rel="noopener noreferrer"
               className="inline-flex min-h-[36px] items-center rounded-lg bg-[var(--gold)] px-3 text-xs font-bold text-[var(--navy)] no-underline"
             >
-              {CUSTODYNOTE_DOWNLOAD_CTA}
+              {CUSTODYNOTE_TRIAL_CTA}
             </a>
             <Link href="/CustodyNote" className="text-xs font-semibold text-white underline">
               Learn more

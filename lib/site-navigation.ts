@@ -223,7 +223,7 @@ export const HEADER_NAV_MORE: HeaderNavLink[] = dedupeNavLinks(
     { href: "/CustodyNote", text: "Custody Note — overview" },
     {
       href: CUSTODYNOTE_TRIAL_HREF,
-      text: "Custody Note — download free",
+      text: "Custody Note — Microsoft Store",
       external: true,
     },
     {
@@ -271,7 +271,7 @@ export const FOOTER_PARTNERS: FooterLink[] = withPublicHrefs([
   { href: "/CustodyNote", label: "Custody Note — overview" },
   {
     href: CUSTODYNOTE_TRIAL_HREF,
-    label: "Custody Note — download free",
+    label: "Custody Note — Microsoft Store",
     external: true,
   },
   {

@@ -6,37 +6,46 @@ describe('custodynote-promo commercial line', () => {
     expect(promo.CUSTODYNOTE_FREE_LABEL).toBe('Free during beta');
     expect(promo.CUSTODYNOTE_BETA_REASON.toLowerCase()).toContain('beta');
     expect(promo.CUSTODYNOTE_NO_CARD_LINE.toLowerCase()).toContain('no credit card');
-    expect(promo.CUSTODYNOTE_TRIAL_CTA.toLowerCase()).toContain('download');
   });
 
-  it('points CTAs at custodynote.com/download', () => {
+  it('makes Microsoft Store the primary Windows CTA; direct download is backup only', () => {
+    expect(promo.CUSTODYNOTE_STORE_ID).toBe('9NFSRVT3T45V');
+    expect(promo.CUSTODYNOTE_STORE_HREF).toBe(
+      'https://apps.microsoft.com/detail/9NFSRVT3T45V',
+    );
+    expect(promo.CUSTODYNOTE_STORE_CTA.toLowerCase()).toMatch(/microsoft store/);
+
+    // Single-button / primary conversion surfaces → Store
+    expect(promo.CUSTODYNOTE_TRIAL_HREF).toBe(promo.CUSTODYNOTE_STORE_HREF);
+    expect(promo.CUSTODYNOTE_TRIAL_CTA).toBe(promo.CUSTODYNOTE_STORE_CTA);
+    expect(promo.CUSTODYNOTE_TRIAL_HREF).not.toContain('custodynote.com/download');
+
+    // Direct download remains available as backup (not primary)
     expect(promo.CUSTODYNOTE_DOWNLOAD_HREF).toContain('https://custodynote.com/download');
-    expect(promo.CUSTODYNOTE_TRIAL_HREF).toBe(promo.CUSTODYNOTE_DOWNLOAD_HREF);
+    expect(promo.CUSTODYNOTE_DOWNLOAD_CTA.toLowerCase()).toMatch(/direct download/);
+    expect(promo.CUSTODYNOTE_DOWNLOAD_APPS_CTA.toLowerCase()).toMatch(/direct download/);
+    expect(promo.CUSTODYNOTE_DOWNLOAD_APPS_CTA.toLowerCase()).not.toMatch(
+      /^download for windows/,
+    );
+
+    expect(promo.TOP_BANNER_TEXT.toLowerCase()).toContain('microsoft store');
     expect(promo.TOP_BANNER_TEXT.toLowerCase()).toContain('free during beta');
     expect(promo.TOP_BANNER_TEXT_MOBILE.toLowerCase()).toContain('free during beta');
   });
 
-  it('matches desktop release v1.9.106 and keeps download as canonical install path', () => {
+  it('matches desktop release v1.9.106', () => {
     expect(promo.CUSTODYNOTE_VERSION).toBe('1.9.106');
-    expect(promo.CUSTODYNOTE_DOWNLOAD_HREF).toContain('https://custodynote.com/download');
-    expect(promo.CUSTODYNOTE_TRIAL_HREF).toBe(promo.CUSTODYNOTE_DOWNLOAD_HREF);
   });
 
   it('states Microsoft Store is available for Windows (UK) — not for Mac', () => {
     const status = promo.CUSTODYNOTE_STORE_STATUS_LINE.toLowerCase();
     expect(status).toMatch(/microsoft store/);
     expect(status).toMatch(/windows only|windows-only/);
-    expect(status).toMatch(/available on microsoft store/);
     expect(status).toMatch(/uk/);
     expect(status).toMatch(/not for mac/);
     expect(status).toContain('custodynote.com/download');
+    expect(status).toMatch(/backup|direct download/);
     expect(status).not.toMatch(/coming soon|in certification|not installable/);
-
-    expect(promo.CUSTODYNOTE_STORE_ID).toBe('9NFSRVT3T45V');
-    expect(promo.CUSTODYNOTE_STORE_HREF).toBe(
-      'https://apps.microsoft.com/detail/9NFSRVT3T45V',
-    );
-    expect(promo.CUSTODYNOTE_STORE_CTA.toLowerCase()).toMatch(/microsoft store/);
 
     const surfaces = Object.values(promo)
       .filter((v): v is string => typeof v === 'string')
@@ -52,17 +61,26 @@ describe('custodynote-promo commercial line', () => {
     expect(lower).not.toMatch(/mac (is |remains )?(also )?available on (the )?microsoft store/);
     expect(promo.CUSTODYNOTE_STORE_STATUS_LINE.toLowerCase()).toContain('not for mac');
     expect(lower).not.toMatch(/\bmsix\b/);
+
+    // Reject download-only Windows primary CTA wording
+    expect(promo.CUSTODYNOTE_DOWNLOAD_APPS_CTA.toLowerCase()).not.toBe(
+      'download for windows & mac',
+    );
+    expect(promo.CUSTODYNOTE_TRIAL_CTA.toLowerCase()).not.toMatch(/^download free$/);
   });
 
-  it('makes Windows + Mac and download location clear (Store is Windows-only)', () => {
+  it('makes Windows + Mac and download location clear (Store primary, Mac download-only)', () => {
     expect(promo.CUSTODYNOTE_APPS_LINE.toLowerCase()).toMatch(/windows/);
     expect(promo.CUSTODYNOTE_APPS_LINE.toLowerCase()).toMatch(/mac/);
-    expect(promo.CUSTODYNOTE_DOWNLOAD_APPS_CTA.toLowerCase()).toMatch(/windows.*mac|mac.*windows/);
-    expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toContain('custodynote.com/download');
-    expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toMatch(/windows.*mac|mac.*windows/);
+    expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toContain(
+      'custodynote.com/download',
+    );
     expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toMatch(/microsoft store/);
+    expect(promo.CUSTODYNOTE_DOWNLOAD_LOCATION_LINE.toLowerCase()).toMatch(/backup|direct download/);
     expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_HREF).toContain('https://custodynote.com/download');
     expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_HREF).toMatch(/#mac$/);
+    expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_CTA.toLowerCase()).toMatch(/mac/);
+    expect(promo.CUSTODYNOTE_MAC_DOWNLOAD_CTA.toLowerCase()).not.toMatch(/microsoft store/);
   });
 
   it('does not sell a live trial, £11.99 offer, or A2MJY2NQ code', () => {

@@ -104,7 +104,7 @@ export default function RepsHubPage() {
                 key={section.title}
                 className="rounded-2xl border border-[var(--card-border)] bg-white p-6 shadow-sm"
               >
-                <h2 className="font-display text-lg font-bold text-[var(--navy)]">{section.title}</h2>
+                <h2 className="font-display !mt-0 text-lg font-bold text-[var(--navy)]">{section.title}</h2>
                 <p className="mt-1 text-sm text-[var(--muted)]">{section.blurb}</p>
                 <ul className="mt-4 space-y-2">
                   {section.links.map((link) => (
@@ -123,7 +123,7 @@ export default function RepsHubPage() {
           </div>
 
           <section className="rounded-2xl bg-[var(--navy)] p-8 text-center">
-            <h2 className="font-display text-xl font-bold text-white">Need help?</h2>
+            <h2 className="font-display !mt-0 text-xl font-bold text-white">Need help?</h2>
             <p className="mt-2 text-slate-300">
               Find an accredited police station representative or get in touch with our team.
             </p>

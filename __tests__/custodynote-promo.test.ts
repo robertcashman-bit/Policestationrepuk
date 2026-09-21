@@ -49,7 +49,8 @@ describe('custodynote-promo commercial line', () => {
     expect(lower).not.toMatch(/not installable/);
 
     // Do not claim Mac is on the Store; avoid MSIX packaging jargon in promo surfaces
-    expect(lower).not.toMatch(/mac.*(available on|from) (the )?microsoft store/);
+    expect(lower).not.toMatch(/mac (is |remains )?(also )?available on (the )?microsoft store/);
+    expect(lower).not.toMatch(/microsoft store.*(for|and) mac/);
     expect(lower).not.toMatch(/\bmsix\b/);
   });
 

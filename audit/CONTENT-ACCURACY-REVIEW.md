@@ -458,3 +458,27 @@ Robert authorised actioning proposed fixes from the 2026-09-16 editorial audit d
 
 - **FIXED** — `/Blog/freelance-police-station-representative-vs-duty-solicitor` Directory use (last section): FAQ “Can a firm use both on one file?” bare “PACE materials” → **PACE 1984 / Code C** (detention, treatment, and questioning). FAQs append onto the final markdown section in the audit inventory, which is why the Directory use snippet was flagged.
 
+---
+
+## Addendum — editorial digest 2026-09-21 (RepUK)
+
+Robert authorised actioning the 2026-09-21 editorial audit digest (10 REVIEW; 0 critical).
+
+### A) pace-sourcing
+
+- **FIXED** — `/Blog/how-to-become-police-station-representative-2026` What a police station representative does: bare “under PACE” → **Police and Criminal Evidence Act 1984 (PACE)** and **Code C**.
+- **FIXED** — same article The assessed knowledge element: “PACE and the Codes” → **PACE 1984** and the **Codes of Practice (especially Code C)**.
+- **FIXED (false-positive root)** — same article Cross-site training resources: FAQ “The pace depends…” matched `\bPACE\b/i`. Rephrased to “How long it takes depends…” and tightened `paceSourcingViolation` to require uppercase **PACE**.
+- **FIXED** — `/Blog/how-to-review-custody-record` Common friction points: bare “Deep **PACE**” → **PACE 1984 / Code C**.
+- **FIXED** — same article Firm handover (last section + summary): summary “PACE custody records” → **PACE 1984 / Code C** custody records.
+
+### B) llm-fact-check (`how-to-become-police-station-representative-2026`)
+
+- **SOFTENED / aligned** — intro: framed as a **2026 guide** for England and Wales (current-year guide, not a future prediction); LLM “year not yet reached” nag treated as empty uncertainty fluff.
+- **FIXED** — Key takeaways PSRAS wording: full scheme name, SRA-authorised, Cardiff/Datalaw assessment orgs, confirm handbook.
+- **FIXED** — Critical Incidents / portfolio: typical components named; portfolio Part A/B framing with “confirm current case counts”; CIT points to assessment-org handbook.
+- **FIXED** — supervision / portability: probationary needs SCC firm; fully accredited + Police Station Register; still needs firm engagement (not independent licence).
+- **FIXED** — directory profile: factual “accreditation, areas, availability helps firms find cover” (dropped unsupported “with confidence”).
+
+**Verdict:** OK for publish as general professional information — not case-specific advice.
+

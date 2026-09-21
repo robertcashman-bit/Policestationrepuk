@@ -481,11 +481,11 @@ Members of the public needing a solicitor should be directed to [Need a solicito
     primaryKeyword: 'custody record review',
     categories: ['attendance', 'best-practice'],
     published: '2026-03-25T09:00:00.000Z',
-    modified: '2026-03-31T09:00:00.000Z',
+    modified: '2026-09-21T12:00:00.000Z',
     excerpt:
       'The custody record is a timeline — read it like one, not like prose.',
     summary:
-      'Structured tips for representatives reviewing PACE custody records: what to scan first, common anomalies, welfare flags, and how to summarise findings for solicitors.',
+      'Structured tips for representatives reviewing PACE 1984 / Code C custody records: what to scan first, common anomalies, welfare flags, and how to summarise findings for solicitors.',
     image: IMG(
       'how-to-review-custody-record',
       'Overhead view of reviewing handwritten notes beside a keyboard'
@@ -538,7 +538,7 @@ Cross-check against what the client tells you in [pre-interview consultation](/B
 - Handover between custody officers
 - Delay between arrest and interview — without speculation, note the fact pattern
 
-Deep **PACE** context sits on our [PACE hub](/PACE) — use it as reference, not a substitute for supervision.
+Deep **PACE 1984 / Code C** context (detention, treatment, reviews, and questioning) sits on our [PACE hub](/PACE) — use it as reference, not a substitute for supervision.
 
 ## Firm handover
 

@@ -13,7 +13,9 @@ export function hasPaceStatutoryCite(text: string): boolean {
 
 /** True when text should raise a PACE sourcing review finding. */
 export function paceSourcingViolation(text: string): boolean {
-  return /\bPACE\b/i.test(text) && !hasPaceStatutoryCite(text) && text.length > 200;
+  // Require uppercase PACE (the statute acronym). Case-insensitive matching
+  // false-positives ordinary English "pace" (e.g. "The pace depends…").
+  return /\bPACE\b/.test(text) && !hasPaceStatutoryCite(text) && text.length > 200;
 }
 
 /** Common legacy phrases — used in regression tests. */

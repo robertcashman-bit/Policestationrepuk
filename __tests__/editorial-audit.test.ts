@@ -128,6 +128,17 @@ describe('editorial audit PACE sourcing', () => {
     expect(paceSourcingViolation(text)).toBe(false);
   });
 
+  it('does not flag ordinary English "pace"', () => {
+    const text =
+      'It varies by candidate and firm. How long it takes depends on study time, how quickly you secure supervised attendances, and assessment scheduling. Confirm current timescales with your assessment organisation. ' +
+      'x'.repeat(80);
+    expect(paceSourcingViolation(text)).toBe(false);
+    const falsePositive =
+      'It varies by candidate and firm. The pace depends on study time, how quickly you secure supervised attendances, and assessment scheduling. Confirm current timescales with your assessment organisation. ' +
+      'x'.repeat(80);
+    expect(paceSourcingViolation(falsePositive)).toBe(false);
+  });
+
   it('scanUnit emits pace-sourcing REVIEW for bare PACE copy', () => {
     const findings = scanUnit(
       makeUnit('pace', LEGACY_PACE_SOURCING_SNIPPETS[0].text, { contentType: 'guide', url: '/PACE' }),

@@ -17,7 +17,7 @@ export const ARTICLES_BATCH_6: BlogArticle[] = [
     primaryKeyword: 'how to become police station representative',
     categories: ['freelance-reps'],
     published: '2026-06-26T09:00:00.000Z',
-    modified: '2026-06-26T09:00:00.000Z',
+    modified: '2026-09-21T12:00:00.000Z',
     excerpt:
       'Accreditation through the PSRAS, supervised attendances, and a portfolio signed off by a solicitor — then a clear directory profile so firms can find you.',
     summary:
@@ -39,7 +39,7 @@ export const ARTICLES_BATCH_6: BlogArticle[] = [
       },
       {
         q: 'How long does accreditation take?',
-        a: 'It varies by candidate and firm. The pace depends on study time, how quickly you secure supervised attendances, and assessment scheduling. Confirm current timescales with your assessment organisation.',
+        a: 'It varies by candidate and firm. How long it takes depends on study time, how quickly you secure supervised attendances, and assessment scheduling. Confirm current timescales with your assessment organisation.',
       },
       {
         q: 'What pass mark do I need for the PSRAS assessments?',
@@ -47,23 +47,23 @@ export const ARTICLES_BATCH_6: BlogArticle[] = [
       },
     ],
     bodyMarkdown: `
-This guide explains **how to become a police station representative** in 2026 — the PSRAS accreditation route, the supervised attendances and portfolio you need, and how to pick up your first instructions once you qualify.
+This **2026 guide** explains **how to become a police station representative** in England and Wales — the PSRAS accreditation route, the supervised attendances and portfolio you need, and how to pick up your first instructions once you qualify. Confirm current scheme rules with your assessment organisation and the latest Police Station Register Arrangements.
 
 ## Key takeaways
 
-- Becoming a police station representative means accreditation through the **PSRAS** — an assessed knowledge element, the **Critical Incidents Test**, and a **supervised portfolio**.
-- You work under a **firm’s supervision** while training; accreditation is portable once achieved.
-- Once accredited, a clear [directory profile](/directory) helps firms instruct you with confidence.
+- Non-solicitor police station representatives are accredited through the **Police Station Representatives Accreditation Scheme (PSRAS)** (SRA-authorised; assessment organisations such as Cardiff University or Datalaw). Typical components are a **written / knowledge assessment**, the **Critical Incidents Test (CIT)**, and a **supervised portfolio** — confirm the current handbook rather than relying on second-hand summaries.
+- While training / probationary you need a **Standard Crime Contract firm** to supervise you. Once **fully accredited** and on the **Police Station Register**, other SCC firms can instruct you — you still need a firm engagement; accreditation is not a licence to practise independently.
+- A clear [directory profile](/directory) listing **accreditation status, areas covered, and availability** helps firms find cover when they need a rep.
 
 ## What a police station representative does
 
-A police station representative advises and represents suspects in custody and in voluntary interviews under PACE. The role sits alongside — but is distinct from — a duty solicitor. If you are weighing the two paths, read our comparison of the [freelance rep versus duty solicitor route](/Blog/freelance-police-station-representative-vs-duty-solicitor).
+A police station representative advises and represents suspects in custody and in voluntary interviews under the **Police and Criminal Evidence Act 1984 (PACE)** and **Code C** (detention, treatment, and questioning). The role sits alongside — but is distinct from — a duty solicitor. If you are weighing the two paths, read our comparison of the [freelance rep versus duty solicitor route](/Blog/freelance-police-station-representative-vs-duty-solicitor).
 
 Representatives attend at all hours, review disclosure, advise on whether to answer questions, and protect the client’s position from the first hour of detention. It is responsible work, which is exactly why accreditation matters.
 
 ## The PSRAS route, step by step
 
-To advise clients at the police station you must be accredited through the **Police Station Representatives Accreditation Scheme (PSRAS)**. The route generally involves:
+To advise clients at the police station as a non-solicitor representative you must be accredited through the **Police Station Representatives Accreditation Scheme (PSRAS)**. The route generally involves:
 
 1. **Get linked to a firm** that can supervise you and provide attendances.
 2. **Build underpinning knowledge** of PACE and the Codes of Practice — especially Code C (detention and questioning) and Code D (identification).
@@ -74,17 +74,17 @@ Because the scheme is updated from time to time, **confirm the current component
 
 ## The assessed knowledge element
 
-The knowledge assessment tests core law and procedure: PACE and the Codes, the caution and the right to silence, detention and the custody clock, vulnerable suspects and appropriate adults, and professional conduct.
+The knowledge assessment tests core law and procedure: **PACE 1984** and the **Codes of Practice** (especially **Code C**), the caution and the right to silence, detention and the custody clock, vulnerable suspects and appropriate adults, and professional conduct.
 
 Most candidates prepare with timed multiple-choice practice so they can answer **accurately under time pressure**, not just recognise the law when they see it. Reviewing every practice answer against the underlying Code provision builds durable knowledge.
 
 ## The Critical Incidents Test (CIT)
 
-The CIT is a practical assessment of how you handle a realistic police-station scenario: identifying the issues, prioritising client consultation, and reaching a defensible decision on advice. It rewards **structured thinking**, not memorised quotes. Practising scenarios out loud — issue-spotting, then a clear decision trail — is the most effective preparation.
+The CIT is a practical assessment of how you handle a realistic police-station scenario: identifying the issues, prioritising client consultation, and reaching a defensible decision on advice. It rewards **structured thinking**, not memorised quotes. Practising scenarios out loud — issue-spotting, then a clear decision trail — is the most effective preparation. Assessment criteria and format are set by your assessment organisation — check the current handbook.
 
 ## The portfolio
 
-Alongside the assessments you build a portfolio evidencing **real, supervised attendances**. This is firm-led: your supervising solicitor signs off competence against the standards. Start collecting structured attendance evidence early — good contemporaneous notes make portfolio sign-off far easier.
+Alongside the assessments you build a portfolio evidencing **real, supervised attendances** (typically Part A supervised cases, then Part B once probationary status is in place — confirm current case counts with your assessment organisation). This is firm-led: your supervising solicitor signs off competence against the standards. Start collecting structured attendance evidence early — good contemporaneous notes make portfolio sign-off far easier.
 
 ## Practical considerations before you start
 
@@ -95,7 +95,7 @@ Alongside the assessments you build a portfolio evidencing **real, supervised at
 
 ## Getting your first instructions
 
-Once accredited, freelance reps find work through firm relationships and directories. A clear profile — **areas covered, availability, and accreditation status** — helps firms instruct you with confidence.
+Once fully accredited and on the Police Station Register, freelance reps find work through firm relationships and directories. A clear profile — **areas covered, availability, and accreditation status** — helps firms find and instruct you.
 
 - [Register as a police station rep](/Register) and complete your profile.
 - List your counties and stations in the [directory](/directory) so firms searching under pressure can find you.

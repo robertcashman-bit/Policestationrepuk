@@ -36,7 +36,8 @@ export const HEADER_NAV_PRIMARY: HeaderNavLink[] = withPublicHrefs([
   { href: "/", text: "Home" },
   { href: "/directory", text: "Find a Rep" },
   { href: "/find-station", text: "Stations" },
-  { href: "/custodynote", text: "Custody Note" },
+  { href: "/CustodyNote", text: "Custody Note" },
+  { href: "/WhyGetPoliceStationAccredited", text: "Why Get Accredited" },
 ]);
 
 /** Blog hub + topic filters for the header Blog menu. */
@@ -101,6 +102,7 @@ export const FOOTER_DIRECTORIES: FooterLink[] = withPublicHrefs([
 
 /** PSRAS accreditation study guides — promoted in header For Reps menu. */
 export const HEADER_NAV_PSRAS: HeaderNavLink[] = withPublicHrefs([
+  { href: "/WhyGetPoliceStationAccredited", text: "Why Get Police Station Accredited" },
   { href: "/PrepareForWrittenExam", text: "PSRAS Written Exam Guide" },
   { href: "/BuildPortfolioGuide", text: "PSRAS Portfolio Guide" },
   { href: "/PrepareForCIT", text: "PSRAS CIT Exam Guide" },

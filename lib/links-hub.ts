@@ -159,6 +159,16 @@ export const LINKS_HUB_SECTIONS: LinksHubSection[] = [
     title: 'Our other sites',
     items: [
       {
+        href: '/CustodyNote',
+        label: 'Custody Note — overview',
+        description: 'Product page — Microsoft Store is the primary Windows install.',
+      },
+      {
+        href: '/WhyGetPoliceStationAccredited',
+        label: 'Why Get Police Station Accredited',
+        description: 'National motivation guide — career upside, firm value, soft pathways.',
+      },
+      {
         href: CUSTODYNOTE_TRIAL_HREF,
         label: 'Custody Note — Microsoft Store',
         description: 'Windows primary install — free during beta. Mac via direct download.',

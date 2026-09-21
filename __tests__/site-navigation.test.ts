@@ -93,4 +93,14 @@ describe('site navigation', () => {
     expect(hrefs).toContain('/police-station-rep-kent');
     expect(hrefs.some((h) => h.includes('psrtrain'))).toBe(true);
   });
+
+  it('primary header nav includes Custody Note and Why Get Accredited', () => {
+    const texts = HEADER_NAV_PRIMARY.map((l) => l.text);
+    const hrefs = HEADER_NAV_PRIMARY.map((l) => l.href);
+    expect(texts).toContain('Custody Note');
+    expect(texts).toContain('Why Get Accredited');
+    expect(hrefs).toContain('/custodynote');
+    expect(hrefs).toContain('/whygetpolicestationaccredited');
+  });
+
 });

@@ -41,8 +41,8 @@ export function SidebarWhatsAppPromo() {
       <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">Community</p>
       <p className="mt-1 text-sm font-bold">WhatsApp cover group</p>
       <p className="mt-1 text-xs leading-relaxed text-emerald-100/90">
-        Accredited reps &amp; verified firms. Criminal practices can also post asking for cover — text{' '}
-        {WHATSAPP_JOIN_PHONE} to join.
+        Accredited reps &amp; verified firms. Criminal practices can also post asking for custody and
+        court cover — text {WHATSAPP_JOIN_PHONE} to join.
       </p>
       <a
         href={WHATSAPP_JOIN_URL}

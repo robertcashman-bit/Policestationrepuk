@@ -25,10 +25,14 @@ describe('community-messaging', () => {
     expect(FORUM_ALTERNATIVE_REPS.toLowerCase()).toContain('forum');
   });
 
-  it('tells criminal practices they can post asking for cover', () => {
-    expect(WHATSAPP_FIRM_COVER_ASK.toLowerCase()).toContain('asking for police station cover');
-    expect(WHATSAPP_FIRM_COVER_ASK_SHORT.toLowerCase()).toContain('asking for cover');
-    expect(WHATSAPP_FIRM_ELIGIBILITY.toLowerCase()).toContain('asking for police station cover');
+  it('tells criminal practices they can post asking for police station and court cover', () => {
+    expect(WHATSAPP_FIRM_COVER_ASK.toLowerCase()).toContain(
+      'asking for police station and court cover',
+    );
+    expect(WHATSAPP_FIRM_COVER_ASK_SHORT.toLowerCase()).toContain('custody and court cover');
+    expect(WHATSAPP_FIRM_ELIGIBILITY.toLowerCase()).toContain(
+      'asking for police station and court cover',
+    );
   });
 
   it('warns firms about unverified Facebook job posts', async () => {

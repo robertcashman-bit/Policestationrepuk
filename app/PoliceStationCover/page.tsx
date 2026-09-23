@@ -5,7 +5,7 @@ import { buildMetadata } from '@/lib/seo';
 export const metadata = buildMetadata({
   title: 'Police Station Cover for Criminal Defence Firms',
   description:
-    'Find reliable police station cover for your criminal defence firm. Search our free directory of accredited representatives, or join the WhatsApp group — criminal practices can also post asking for cover.',
+    'Find reliable police station cover for your criminal defence firm. Search our free directory of accredited representatives, or join the WhatsApp group — criminal practices can also post asking for police station and court cover.',
   path: '/PoliceStationCover',
 });
 
@@ -117,7 +117,7 @@ export default function PoliceStationCoverPage() {
           <Link href="/WhatsApp" className="font-medium text-[var(--gold-link)] hover:underline">
             WhatsApp group
           </Link>{' '}
-          asking for police station cover. Accredited reps monitor the group and can respond quickly — the
+          asking for police station and court cover. Accredited reps monitor the group and can respond quickly — the
           fastest route for overnight, weekend, and bank holiday attendances.
         </p>
       </section>
@@ -127,7 +127,7 @@ export default function PoliceStationCoverPage() {
         <h2 className="text-h2 text-white">Find Cover Now</h2>
         <p className="mt-3 text-slate-300">
           Search our directory of accredited representatives or join the WhatsApp group — criminal
-          practices can also post asking for cover.
+          practices can also post asking for police station and court cover.
         </p>
         <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link href="/directory" className="btn-gold">

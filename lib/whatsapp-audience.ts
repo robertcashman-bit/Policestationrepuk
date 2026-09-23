@@ -57,12 +57,12 @@ export const WHATSAPP_AUDIENCE_PAGES = {
     joinUrl: WHATSAPP_SOLICITOR_JOIN_URL,
     seoTitle: "Join WhatsApp — Criminal Defence Solicitors",
     seoDescription:
-      "Join the PoliceStationRepUK WhatsApp group as a criminal defence solicitor or duty solicitor. You can also post asking for police station cover and connect with accredited reps. Free to join.",
+      "Join the PoliceStationRepUK WhatsApp group as a criminal defence solicitor or duty solicitor. You can also post asking for police station and court cover and connect with accredited reps. Free to join.",
     headline: "Join the WhatsApp group as a criminal defence solicitor",
     intro:
-      "Duty solicitors, accredited representatives, and firm fee-earners use the same professional group. You can also post asking for police station cover and share operational updates.",
+      "Duty solicitors, accredited representatives, and firm fee-earners use the same professional group. You can also post asking for police station and court cover and share operational updates.",
     benefits: [
-      "Post in the group asking for police station cover when your panel or rota needs a rep",
+      "Post in the group asking for police station and court cover when your panel or rota needs a rep",
       "Reach accredited reps who cover your stations and counties",
       "Coordinate directly in the thread — no middleman",
       "Free to join; verified members only",
@@ -70,7 +70,7 @@ export const WHATSAPP_AUDIENCE_PAGES = {
     joinSteps: [
       "Text us on WhatsApp with your name, firm name, firm email, and SRA number if applicable.",
       "We verify firm / solicitor details where needed.",
-      "Accept your WhatsApp invite — then you can also post asking for cover alongside reps and firms.",
+      "Accept your WhatsApp invite — then you can also post asking for custody and court cover alongside reps and firms.",
     ],
     cta: "Join on WhatsApp as a solicitor",
     related: [
@@ -92,11 +92,11 @@ export const WHATSAPP_AUDIENCE_PAGES = {
     joinUrl: WHATSAPP_FIRM_JOIN_URL,
     seoTitle: "Join WhatsApp — Criminal Defence Firms",
     seoDescription:
-      "Join the PoliceStationRepUK WhatsApp group as a criminal defence firm. Criminal practices can also post asking for police station cover from accredited reps across England and Wales. Free to join.",
+      "Join the PoliceStationRepUK WhatsApp group as a criminal defence firm. Criminal practices can also post asking for police station and court cover from accredited reps across England and Wales. Free to join.",
     headline: "Join the WhatsApp group as a criminal defence firm",
-    intro: `${WHATSAPP_FIRM_COVER_ASK} Post out-of-hours and weekend attendance requests to accredited reps who cover your custody suites and interview stations.`,
+    intro: `${WHATSAPP_FIRM_COVER_ASK} Post out-of-hours and weekend attendance requests to accredited reps who cover your custody suites, interview stations, and court lists.`,
     benefits: [
-      "Post in the group asking for police station cover when your duty rota or panel needs a rep",
+      "Post in the group asking for police station and court cover when your duty rota or panel needs a rep",
       "Hear back from accredited reps who cover your areas and stations",
       "Instruct the rep directly once cover is agreed — no agency layer",
       "Works alongside the free PoliceStationRepUK directory",
@@ -104,7 +104,7 @@ export const WHATSAPP_AUDIENCE_PAGES = {
     joinSteps: [
       "Text us on WhatsApp with your name, firm name, and firm email address.",
       "We verify firm details (e.g. against public records).",
-      "Accept your invite — then you can also post in the group asking for cover when you need attendance.",
+      "Accept your invite — then you can also post in the group asking for custody and court cover when you need attendance.",
     ],
     cta: "Join on WhatsApp as a firm",
     related: [

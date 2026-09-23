@@ -243,7 +243,7 @@ export function HomeSeoConversionHub() {
                   <Link href="/whatsapp/firms" className="font-semibold text-[var(--gold)] underline">
                     WhatsApp group
                   </Link>{' '}
-                  — criminal practices can also post asking for cover.
+                  — criminal practices can also post asking for police station and court cover.
                 </p>
               </div>
               <p className="mt-3 text-sm text-white">

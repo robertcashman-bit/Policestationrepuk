@@ -253,7 +253,8 @@ export function Footer() {
             <h4 className="text-sm font-bold text-white">WhatsApp — reps &amp; firms</h4>
             <p className="mt-1 text-xs text-white">
               One verified group for accredited reps and criminal defence firms. Criminal practices can also
-              post asking for police station cover. Text {WHATSAPP_JOIN_PHONE} — verification required.
+              post asking for police station and court cover. Text {WHATSAPP_JOIN_PHONE} — verification
+              required.
             </p>
             <Link
               href="/WhatsApp"

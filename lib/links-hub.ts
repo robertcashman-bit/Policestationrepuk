@@ -145,7 +145,7 @@ export const LINKS_HUB_SECTIONS: LinksHubSection[] = [
         href: WHATSAPP_PAGE_FIRMS,
         label: 'Join WhatsApp — firms',
         description:
-          'Verified criminal defence firms — you can also post in the group asking for cover.',
+          'Verified criminal defence firms — you can also post in the group asking for police station and court cover.',
       },
       {
         href: WHATSAPP_JOIN_URL,

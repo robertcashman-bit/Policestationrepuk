@@ -21,15 +21,15 @@ export const WHATSAPP_REP_ELIGIBILITY =
   'Fully accredited police station reps only (PSRAS, LCCSA, CLSA or equivalent). You must be fully qualified — not in training or probationary-only. We ask for proof of accreditation and may verify against the Police Station Register or your supervising firm. Requests without adequate proof are declined.';
 
 export const WHATSAPP_FIRM_ELIGIBILITY =
-  'Criminal defence firms and solicitors only. We verify firm details (e.g. against public SRA records) before sending an invite. Once in, criminal practices can also post in the group asking for police station cover. Only instruct accredited reps for billable police station work.';
+  'Criminal defence firms and solicitors only. We verify firm details (e.g. against public SRA records) before sending an invite. Once in, criminal practices can also post in the group asking for police station and court cover. Only instruct accredited reps for billable police station work.';
 
-/** Firm action line — same verified group as reps; practices can ask for cover. */
+/** Firm action line — same verified group as reps; practices can ask for custody and court cover. */
 export const WHATSAPP_FIRM_COVER_ASK =
-  'Criminal defence practices can also post in the WhatsApp group asking for police station cover — the same verified group as accredited reps.';
+  'Criminal defence practices can also post in the WhatsApp group asking for police station and court cover — the same verified group as accredited reps.';
 
 /** Compact firm action for banners and footers. */
 export const WHATSAPP_FIRM_COVER_ASK_SHORT =
-  'Criminal practices can also post asking for cover.';
+  'Criminal practices can also post asking for custody and court cover.';
 
 export const LAA_PAYMENT_REPS =
   'If you are not fully accredited, instructing firms cannot claim legal aid for your police station attendance and you will not be paid for that work. Do not join the WhatsApp group or list in the directory expecting paid cover requests.';

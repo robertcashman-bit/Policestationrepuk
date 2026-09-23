@@ -34,7 +34,7 @@ export function FirmCoverCTA({ countyName, compact = false }: FirmCoverCTAProps)
       <h3 className="text-lg font-bold text-[var(--navy)]">Need police station cover{area}?</h3>
       <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[var(--muted)]">
         Search accredited representatives by county or station, or join our WhatsApp group — criminal
-        practices can also post asking for police station cover.
+        practices can also post asking for police station and court cover.
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
         <Link href="/directory" className="btn-gold inline-flex !text-sm !no-underline">

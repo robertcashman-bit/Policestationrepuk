@@ -12,7 +12,7 @@ import {
 } from '@/lib/site-navigation';
 
 const FIRM_BENEFITS = [
-  'Post in the group asking for police station cover — out of hours and weekends',
+  'Post in the group asking for police station and court cover — out of hours and weekends',
   'Hear back from accredited reps who cover your stations and areas',
   'No agency fees — you instruct the rep directly once cover is agreed',
 ] as const;
@@ -119,7 +119,7 @@ export function HomeCommunityWhatsAppPromo() {
           <Link href={WHATSAPP_PAGE_SOLICITORS} className="font-semibold text-emerald-200 underline hover:text-white">
             Criminal defence solicitors
           </Link>
-          {' '}can also post in the same group asking for cover — see the{' '}
+          {' '}can also post in the same group asking for police station and court cover — see the{' '}
           <Link href={WHATSAPP_PAGE_SOLICITORS} className="font-semibold text-emerald-200 underline hover:text-white">
             solicitor join guide
           </Link>

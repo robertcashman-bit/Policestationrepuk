@@ -40,7 +40,7 @@ const CHANNEL_GUIDE = [
 const COMMUNITY_FEATURES = [
   {
     title: 'Urgent Cover Requests',
-    desc: 'Criminal practices can also post in the WhatsApp group asking for cover. Accredited reps respond in real time.',
+    desc: 'Criminal practices can also post in the WhatsApp group asking for police station and court cover. Accredited reps respond in real time.',
   },
   {
     title: 'Peer Support & Advice',
@@ -167,7 +167,7 @@ export default function ForumPage() {
             <p className="mb-4 text-sm leading-relaxed text-slate-300">
               The PoliceStationRepUK WhatsApp group is for <strong className="text-white">fully accredited reps</strong>{' '}
               and <strong className="text-white">verified criminal defence firms</strong>. Criminal practices can
-              also post in the group asking for police station cover. Proof of accreditation is required;
+              also post in the group asking for police station and court cover. Proof of accreditation is required;
               unverified requests are declined.
             </p>
             <p className="mb-6 text-sm leading-relaxed text-slate-300">

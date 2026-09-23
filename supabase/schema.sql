@@ -1,5 +1,10 @@
 -- Police Station Rep UK - Supabase Schema
 -- Run this in the Supabase SQL Editor to create tables.
+--
+-- Data API (Oct 30 2026): new public-schema tables need explicit GRANTs for
+-- anon / authenticated / service_role. Prefer service_role; GRANT to anon ONLY
+-- for genuine public-read with RLS enabled. See migrations/README.md and
+-- migrations/20260923_data_api_explicit_grants.sql. Do not blanket-grant anon.
 
 -- Counties
 CREATE TABLE IF NOT EXISTS counties (
@@ -126,12 +131,38 @@ CREATE TABLE IF NOT EXISTS approved_custody_numbers (
   notes TEXT NOT NULL DEFAULT ''
 );
 
--- Enable RLS if required (optional; adjust policies per your security needs)
--- ALTER TABLE counties ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE stations ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE representatives ENABLE ROW LEVEL SECURITY;
+-- ---------------------------------------------------------------------------
+-- Access model (aligned with 20260923_data_api_explicit_grants.sql)
+-- Directory + custody tables are optional mirrors; live app uses JSON/KV.
+-- submissions: service_role / dashboard only (RLS on, no client policies).
+-- No anon Data API exposure unless a future migration adds public-read + RLS.
+-- ---------------------------------------------------------------------------
 
--- Example policy for public read-only access:
--- CREATE POLICY "Allow public read" ON counties FOR SELECT USING (true);
--- CREATE POLICY "Allow public read" ON stations FOR SELECT USING (true);
--- CREATE POLICY "Allow public read" ON representatives FOR SELECT USING (true);
+ALTER TABLE counties ENABLE ROW LEVEL SECURITY;
+ALTER TABLE stations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE representatives ENABLE ROW LEVEL SECURITY;
+ALTER TABLE submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE custody_suites ENABLE ROW LEVEL SECURITY;
+ALTER TABLE custody_number_findings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE approved_custody_numbers ENABLE ROW LEVEL SECURITY;
+
+REVOKE ALL ON TABLE counties FROM anon, authenticated;
+REVOKE ALL ON TABLE stations FROM anon, authenticated;
+REVOKE ALL ON TABLE representatives FROM anon, authenticated;
+REVOKE ALL ON TABLE submissions FROM anon, authenticated;
+REVOKE ALL ON TABLE custody_suites FROM anon, authenticated;
+REVOKE ALL ON TABLE custody_number_findings FROM anon, authenticated;
+REVOKE ALL ON TABLE approved_custody_numbers FROM anon, authenticated;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE counties TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE stations TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE representatives TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE submissions TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE custody_suites TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE custody_number_findings TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE approved_custody_numbers TO service_role;
+
+-- If you later expose directory tables as public-read via Data API:
+--   GRANT SELECT ON TABLE counties TO anon;
+--   CREATE POLICY "Allow public read" ON counties FOR SELECT USING (true);
+-- (and the same pattern for stations / representatives). Never GRANT ALL TO anon.

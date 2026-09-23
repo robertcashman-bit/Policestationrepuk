@@ -1,6 +1,10 @@
 -- Harden form submissions: enable RLS with no anon policies.
 -- Service role / dashboard access only. Apply manually in the Supabase SQL editor
 -- if the optional Supabase submissions table is used in production.
+--
+-- Data API (from 30 Oct 2026): explicit GRANTs required for new public tables.
+-- See 20260923_data_api_explicit_grants.sql — submissions: service_role only
+-- (REVOKE anon/authenticated). Do not GRANT insert to anon.
 
 ALTER TABLE IF EXISTS public.submissions ENABLE ROW LEVEL SECURITY;
 

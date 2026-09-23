@@ -1,5 +1,9 @@
 -- Autonomous custody telephone discovery tables
 -- Run in Supabase SQL Editor (optional mirror of KV-backed production store).
+--
+-- Data API (from 30 Oct 2026): CREATE TABLE no longer auto-GRANTs to
+-- anon/authenticated/service_role. Explicit GRANTs live in
+-- 20260923_data_api_explicit_grants.sql (service_role only; RLS on; no anon).
 
 CREATE TABLE IF NOT EXISTS custody_suites (
   id TEXT PRIMARY KEY,

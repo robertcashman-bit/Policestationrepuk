@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { CommunityEligibilityCallout } from '@/components/CommunityEligibilityCallout';
+import { WHATSAPP_FIRM_COVER_ASK } from '@/lib/community-messaging';
 import { buildMetadata } from '@/lib/seo';
 import {
   WHATSAPP_JOIN_URL,
@@ -14,7 +15,7 @@ import {
 export const metadata = buildMetadata({
   title: 'WhatsApp Group — Fully Accredited Reps & Verified Firms',
   description:
-    'Join the PoliceStationRepUK WhatsApp group — fully accredited police station reps and verified criminal defence firms only. Proof required. Not qualified? Use the community forum.',
+    'Join the PoliceStationRepUK WhatsApp group — fully accredited police station reps and verified criminal defence firms. Criminal practices can also post asking for police station cover. Proof required.',
   path: '/WhatsApp',
 });
 
@@ -26,8 +27,8 @@ const FEATURES = [
   },
   {
     icon: '⚡',
-    title: 'Instant job notifications',
-    desc: 'Firms post police station cover requests; reps respond in real time — including evenings, weekends, and bank holidays.',
+    title: 'Ask for cover — and respond to it',
+    desc: 'Criminal practices can also post in the group asking for police station cover; accredited reps respond in real time — including evenings, weekends, and bank holidays.',
   },
   {
     icon: '💬',
@@ -61,7 +62,7 @@ const JOIN_STEPS = [
   {
     step: 3,
     title: 'Get added to the group',
-    desc: "Once verified, you'll receive a WhatsApp invitation. Accept it — then you're in the same group as reps and firms.",
+    desc: "Once verified, you'll receive a WhatsApp invitation. Accept it — then you're in the same group as reps and firms. Criminal practices can also post asking for police station cover.",
   },
 ];
 
@@ -106,8 +107,9 @@ export default function WhatsAppPage() {
           <p className="mt-3 max-w-2xl text-lg leading-relaxed text-slate-300">
             One WhatsApp community for <strong className="text-white">fully accredited police station reps</strong>,{' '}
             <strong className="text-white">criminal defence solicitors</strong>, and{' '}
-            <strong className="text-white">criminal defence firms</strong> across England &amp; Wales. Proof of
-            accreditation is required — members are verified before being added. Not fully qualified?{' '}
+            <strong className="text-white">criminal defence firms</strong> across England &amp; Wales.{' '}
+            {WHATSAPP_FIRM_COVER_ASK} Proof of accreditation is required — members are verified before being
+            added. Not fully qualified?{' '}
             <Link href="/Forum" className="font-semibold text-emerald-300 underline hover:text-white">
               Use the community forum
             </Link>
@@ -197,7 +199,7 @@ export default function WhatsAppPage() {
           <h2 className="text-h2 mb-4 text-[var(--navy)]">What to Expect</h2>
           <ul className="space-y-3 text-sm text-[var(--muted)]">
             {[
-              'Cover requests from solicitor firms posted in real time — respond instantly to secure work',
+              'Criminal practices can also post asking for police station cover — accredited reps respond in real time',
               'Professional environment — group rules are enforced to maintain quality and relevance',
               'Networking opportunities with fellow reps and criminal solicitors nationwide',
               'Industry updates, rate changes, and PACE developments shared by the community',

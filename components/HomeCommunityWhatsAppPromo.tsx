@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { CommunityEligibilityCallout } from '@/components/CommunityEligibilityCallout';
+import { WHATSAPP_FIRM_COVER_ASK } from '@/lib/community-messaging';
 import {
   WHATSAPP_FIRM_JOIN_URL,
   WHATSAPP_JOIN_URL,
@@ -11,7 +12,7 @@ import {
 } from '@/lib/site-navigation';
 
 const FIRM_BENEFITS = [
-  'Post out-of-hours and weekend police station cover requests',
+  'Post in the group asking for police station cover — out of hours and weekends',
   'Hear back from accredited reps who cover your stations and areas',
   'No agency fees — you instruct the rep directly once cover is agreed',
 ] as const;
@@ -38,9 +39,9 @@ export function HomeCommunityWhatsAppPromo() {
             Need police station cover out of hours?
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-emerald-100/85 sm:text-base">
-            Join the PoliceStationRepUK WhatsApp group to post urgent custody attendance requests to{' '}
-            <strong className="text-white">accredited police station reps</strong> across England &amp; Wales.
-            Verified firms only — free to join, no middleman.
+            {WHATSAPP_FIRM_COVER_ASK} Join as a verified firm to ask{' '}
+            <strong className="text-white">accredited police station reps</strong> across England &amp; Wales
+            for urgent custody attendance. Free to join, no middleman.
           </p>
         </div>
 
@@ -118,7 +119,7 @@ export function HomeCommunityWhatsAppPromo() {
           <Link href={WHATSAPP_PAGE_SOLICITORS} className="font-semibold text-emerald-200 underline hover:text-white">
             Criminal defence solicitors
           </Link>
-          {' '}can join the same group to post cover requests — see the{' '}
+          {' '}can also post in the same group asking for cover — see the{' '}
           <Link href={WHATSAPP_PAGE_SOLICITORS} className="font-semibold text-emerald-200 underline hover:text-white">
             solicitor join guide
           </Link>

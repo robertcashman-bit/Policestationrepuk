@@ -33,8 +33,8 @@ export function FirmCoverCTA({ countyName, compact = false }: FirmCoverCTAProps)
     <div className="rounded-2xl border border-[var(--navy)]/10 bg-gradient-to-br from-slate-50 to-white p-6 text-center shadow-sm sm:p-8">
       <h3 className="text-lg font-bold text-[var(--navy)]">Need police station cover{area}?</h3>
       <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[var(--muted)]">
-        Search accredited representatives by county or station, or join our WhatsApp group for criminal
-        defence firms arranging out-of-hours cover.
+        Search accredited representatives by county or station, or join our WhatsApp group — criminal
+        practices can also post asking for police station cover.
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
         <Link href="/directory" className="btn-gold inline-flex !text-sm !no-underline">

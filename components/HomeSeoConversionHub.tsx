@@ -241,9 +241,9 @@ export function HomeSeoConversionHub() {
                   </Link>{' '}
                   or join the{' '}
                   <Link href="/whatsapp/firms" className="font-semibold text-[var(--gold)] underline">
-                    firm WhatsApp group
-                  </Link>
-                  .
+                    WhatsApp group
+                  </Link>{' '}
+                  — criminal practices can also post asking for cover.
                 </p>
               </div>
               <p className="mt-3 text-sm text-white">

@@ -5,6 +5,9 @@ import {
   LAA_PAYMENT_REPS,
   REGISTER_PATH,
   WHATSAPP_BANNER_QUALIFICATION,
+  WHATSAPP_FIRM_COVER_ASK,
+  WHATSAPP_FIRM_COVER_ASK_SHORT,
+  WHATSAPP_FIRM_ELIGIBILITY,
   WHATSAPP_REP_ELIGIBILITY,
 } from '@/lib/community-messaging';
 
@@ -20,6 +23,12 @@ describe('community-messaging', () => {
     expect(LAA_PAYMENT_REPS.toLowerCase()).toContain('legal aid');
     expect(DIRECTORY_ELIGIBILITY_REPS.toLowerCase()).toContain('fully accredited');
     expect(FORUM_ALTERNATIVE_REPS.toLowerCase()).toContain('forum');
+  });
+
+  it('tells criminal practices they can post asking for cover', () => {
+    expect(WHATSAPP_FIRM_COVER_ASK.toLowerCase()).toContain('asking for police station cover');
+    expect(WHATSAPP_FIRM_COVER_ASK_SHORT.toLowerCase()).toContain('asking for cover');
+    expect(WHATSAPP_FIRM_ELIGIBILITY.toLowerCase()).toContain('asking for police station cover');
   });
 
   it('warns firms about unverified Facebook job posts', async () => {

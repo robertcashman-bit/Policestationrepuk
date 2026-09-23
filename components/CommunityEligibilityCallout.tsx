@@ -5,6 +5,7 @@ import {
   FORUM_PATH,
   LAA_PAYMENT_REPS,
   REGISTER_PATH,
+  WHATSAPP_FIRM_ELIGIBILITY,
   WHATSAPP_REP_ELIGIBILITY,
 } from '@/lib/community-messaging';
 import { FACEBOOK_GROUP_URL } from '@/lib/site-navigation';
@@ -43,7 +44,10 @@ export function CommunityEligibilityCallout({ variant = 'full' }: { variant?: Va
       </h2>
       <ul className="mt-3 space-y-3 text-sm leading-relaxed text-amber-900/95">
         <li>
-          <strong className="text-amber-950">WhatsApp group:</strong> {WHATSAPP_REP_ELIGIBILITY}
+          <strong className="text-amber-950">WhatsApp — reps:</strong> {WHATSAPP_REP_ELIGIBILITY}
+        </li>
+        <li>
+          <strong className="text-amber-950">WhatsApp — firms:</strong> {WHATSAPP_FIRM_ELIGIBILITY}
         </li>
         <li>
           <strong className="text-amber-950">Paid work:</strong> {LAA_PAYMENT_REPS}

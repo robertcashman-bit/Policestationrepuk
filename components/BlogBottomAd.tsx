@@ -16,7 +16,8 @@ export function BlogBottomAd() {
           </h3>
           <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
             Search the free PoliceStationRepUK directory for accredited representatives across England
-            &amp; Wales, or join the verified firm WhatsApp group for real-time cover requests.
+            &amp; Wales, or join the verified WhatsApp group — criminal practices can also post asking for
+            cover.
           </p>
         </div>
         <div className="flex shrink-0 flex-col gap-2 sm:items-end">

@@ -55,7 +55,7 @@ const SITE_INTENT_ENTRIES: AssistantEntry[] = [
     id: 'site-whatsapp',
     question: 'How do I join the WhatsApp group?',
     answer:
-      'Text the published number or use the audience-specific join pages for reps, solicitors, or firms. Verification is required before you are added to the community group.',
+      'Text the published number or use the audience-specific join pages for reps, solicitors, or firms. Verification is required before you are added. Criminal defence practices can also post in the group asking for police station cover — the same verified group as accredited reps.',
     category: 'Community',
     href: '/whatsapp',
     keywords: ['whatsapp', 'group chat', 'cover requests', 'community'],

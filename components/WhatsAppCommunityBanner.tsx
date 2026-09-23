@@ -1,5 +1,8 @@
 import Link from 'next/link';
-import { WHATSAPP_BANNER_QUALIFICATION } from '@/lib/community-messaging';
+import {
+  WHATSAPP_BANNER_QUALIFICATION,
+  WHATSAPP_FIRM_COVER_ASK_SHORT,
+} from '@/lib/community-messaging';
 import {
   WHATSAPP_PAGE_FIRMS,
   WHATSAPP_PAGE_REPS,
@@ -9,7 +12,7 @@ import {
 const AUDIENCE_LINKS = [
   { href: WHATSAPP_PAGE_REPS, label: 'Reps', title: 'Police station representatives — join guide' },
   { href: WHATSAPP_PAGE_SOLICITORS, label: 'Solicitors', title: 'Criminal defence solicitors — join guide' },
-  { href: WHATSAPP_PAGE_FIRMS, label: 'Firms', title: 'Criminal defence firms — join guide' },
+  { href: WHATSAPP_PAGE_FIRMS, label: 'Firms', title: 'Criminal defence firms — join and ask for cover' },
 ] as const;
 
 /**
@@ -25,9 +28,9 @@ export function WhatsAppCommunityBanner() {
             <span className="text-emerald-300/90" aria-hidden>
               💬{' '}
             </span>
-            <span className="sm:hidden">Join our WhatsApp — reps &amp; firms. </span>
+            <span className="sm:hidden">WhatsApp — {WHATSAPP_FIRM_COVER_ASK_SHORT} </span>
             <span className="hidden sm:inline">
-              Join the PoliceStationRepUK WhatsApp group — cover, networking &amp; peer support.{' '}
+              Join the PoliceStationRepUK WhatsApp group — {WHATSAPP_FIRM_COVER_ASK_SHORT}{' '}
             </span>
             <span className="font-normal text-emerald-100/85">{WHATSAPP_BANNER_QUALIFICATION}</span>
           </p>

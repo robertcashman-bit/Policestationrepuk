@@ -5,7 +5,7 @@ import { buildMetadata } from '@/lib/seo';
 export const metadata = buildMetadata({
   title: 'Police Station Cover for Criminal Defence Firms',
   description:
-    'Find reliable police station cover for your criminal defence firm. Search our free directory of accredited representatives or post urgent requests via our WhatsApp group.',
+    'Find reliable police station cover for your criminal defence firm. Search our free directory of accredited representatives, or join the WhatsApp group — criminal practices can also post asking for cover.',
   path: '/PoliceStationCover',
 });
 
@@ -113,12 +113,12 @@ export default function PoliceStationCoverPage() {
       <section className="mb-14 rounded-[var(--radius-lg)] border border-[var(--card-border)] bg-[var(--card-bg)] p-8 shadow-[var(--card-shadow)]">
         <h2 className="text-h2 mb-4 text-[var(--navy)]">Need Urgent Cover?</h2>
         <p className="text-sm leading-relaxed text-[var(--muted)]">
-          For urgent or out-of-hours cover requests, post directly to our{' '}
+          For urgent or out-of-hours cover, criminal practices can also post in our{' '}
           <Link href="/WhatsApp" className="font-medium text-[var(--gold-link)] hover:underline">
             WhatsApp group
-          </Link>
-          . Accredited reps monitor the group 24/7 and can respond within minutes. This is the
-          fastest way to find cover for overnight, weekend, and bank holiday attendances.
+          </Link>{' '}
+          asking for police station cover. Accredited reps monitor the group and can respond quickly — the
+          fastest route for overnight, weekend, and bank holiday attendances.
         </p>
       </section>
 
@@ -126,8 +126,8 @@ export default function PoliceStationCoverPage() {
       <div className="rounded-[var(--radius-lg)] bg-[var(--navy)] p-8 text-center">
         <h2 className="text-h2 text-white">Find Cover Now</h2>
         <p className="mt-3 text-slate-300">
-          Search our directory of accredited representatives or join the WhatsApp group for
-          instant cover requests.
+          Search our directory of accredited representatives or join the WhatsApp group — criminal
+          practices can also post asking for cover.
         </p>
         <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Link href="/directory" className="btn-gold">

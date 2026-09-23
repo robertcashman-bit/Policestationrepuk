@@ -252,8 +252,8 @@ export function Footer() {
           <div>
             <h4 className="text-sm font-bold text-white">WhatsApp — reps &amp; firms</h4>
             <p className="mt-1 text-xs text-white">
-              One community group for cover requests. Text {WHATSAPP_JOIN_PHONE} — fully accredited only, proof
-              required.
+              One verified group for accredited reps and criminal defence firms. Criminal practices can also
+              post asking for police station cover. Text {WHATSAPP_JOIN_PHONE} — verification required.
             </p>
             <Link
               href="/WhatsApp"

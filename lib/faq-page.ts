@@ -22,7 +22,7 @@ export const FAQ_PAGE_FAQS = [
   },
   {
     q: 'How does the WhatsApp group work?',
-    a: "The WhatsApp group is for fully accredited police station reps and verified criminal defence firms/solicitors only. You must provide proof of accreditation (PSRAS, LCCSA, CLSA or equivalent — not in training). Instructing firms cannot claim legal aid for non-accredited reps and you will not be paid for that work. Once verified, you'll receive cover requests in real time. Not fully qualified? Use the community forum at /Forum. Join via the WhatsApp page.",
+    a: "The WhatsApp group is for fully accredited police station reps and verified criminal defence firms/solicitors only. Criminal defence practices can also post in the group asking for police station cover. Reps must provide proof of accreditation (PSRAS, LCCSA, CLSA or equivalent — not in training). Instructing firms cannot claim legal aid for non-accredited reps and those reps will not be paid for that work. Not fully qualified? Use the community forum at /Forum. Join via the WhatsApp page.",
   },
   {
     q: 'Is the Facebook group verified like WhatsApp?',

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getRepBySlug, stripPrivateFields } from '@/lib/data';
 import { getClientIp, rateLimitOk } from '@/lib/contact-guards';
-import { publicDirectoryPhone } from '@/lib/operator-public-phones';
+import { isOperatorMobile, publicDirectoryPhone } from '@/lib/operator-public-phones';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,12 +35,20 @@ export async function GET(
   }
 
   const rep = stripPrivateFields(found);
-  const phone = publicDirectoryPhone(rep.phone) || '';
+  let phone = publicDirectoryPhone(rep.phone) || '';
+  let whatsappLink = rep.whatsappLink || '';
+  // Robert's direct mobile is never returned here — only via /direct-mobile after confirm.
+  if (slug === 'robert-cashman') {
+    if (isOperatorMobile(phone)) phone = '';
+    if (whatsappLink.includes('7535494446') || isOperatorMobile(whatsappLink)) {
+      whatsappLink = '';
+    }
+  }
 
   return NextResponse.json({
     slug: rep.slug,
     phone,
     email: rep.email || '',
-    whatsappLink: rep.whatsappLink || '',
+    whatsappLink,
   });
 }

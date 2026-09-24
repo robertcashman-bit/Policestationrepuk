@@ -2,9 +2,12 @@
  * Robert Cashman / Police Station Agent numbers that must not be scraped as
  * site-wide or station “police” contact lines.
  *
- * - Landline: never emit in public HTML / JSON-LD.
- * - Mobile: allowed on Robert’s own directory profile and WhatsApp join copy;
- *   omit from station-page “Call” CTAs (reads like a custody desk number).
+ * - Landline: omit from site-wide HTML, JSON-LD, station Call buttons, and
+ *   directory contact-reveal. Allowed on Robert’s own /rep/robert-cashman
+ *   visible Call button via ownProfileDirectoryPhone() (labelled answering service).
+ * - Mobile: omit from station-page Call CTAs, profile SSR/RSC/JSON-LD, and
+ *   directory contact-reveal. Revealed only client-side on Robert’s profile
+ *   after a solicitor/agency confirm step.
  */
 
 export const OPERATOR_LANDLINE_DIGITS = '01732247427';
@@ -37,6 +40,27 @@ export function publicDirectoryPhone(phone: string | null | undefined): string {
   if (!phone?.trim()) return '';
   if (isOperatorLandline(phone)) return '';
   return phone.trim();
+}
+
+/**
+ * Visible Call-button phone on a rep’s own /rep/[slug] profile page.
+ * Permits the operator landline only on Robert Cashman’s profile; every other
+ * slug still strips it. JSON-LD on the same page must keep using
+ * publicDirectoryPhone() so schema.org never receives the landline.
+ */
+export function ownProfileDirectoryPhone(
+  phone: string | null | undefined,
+  slug: string,
+): string {
+  if (slug === 'robert-cashman') {
+    const trimmed = phone?.trim() || '';
+    // Mobile is never SSR'd on Robert's profile — client reveal only.
+    if (!trimmed || isOperatorMobile(trimmed)) return '01732 247427';
+    if (isOperatorLandline(trimmed)) return trimmed;
+    return trimmed;
+  }
+  if (!phone?.trim()) return '';
+  return publicDirectoryPhone(phone);
 }
 
 /**

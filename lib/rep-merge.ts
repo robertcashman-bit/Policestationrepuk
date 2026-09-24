@@ -4,7 +4,6 @@
  */
 
 import type { Representative } from './types';
-import { publicDirectoryPhone } from './operator-public-phones';
 
 /** Shape of entries in data/scraped-reps.json */
 export interface ScrapedRepRow {
@@ -118,7 +117,7 @@ export function finalizeRepresentative(rep: Representative): Representative {
     id: trimStr(rep.id) || `id:${slug}`,
     slug,
     name: trimStr(rep.name) || 'Unknown',
-    phone: publicDirectoryPhone(trimStr(rep.phone)),
+    phone: trimStr(rep.phone),
     email: trimStr(rep.email),
     county: trimStr(rep.county),
     counties: Array.isArray(rep.counties)

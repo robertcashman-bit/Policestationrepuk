@@ -8,7 +8,13 @@ import { RepTrustBadges } from '@/components/RepTrustBadges';
 import { DirectoryCredentialVerificationNotice } from '@/components/DirectoryCredentialVerificationNotice';
 import { ReportProfileButton } from '@/components/ReportProfileButton';
 import { phoneToTelHref } from '@/lib/phone';
-import { publicDirectoryPhone } from '@/lib/operator-public-phones';
+import { RobertProfileContact } from '@/components/RobertProfileContact';
+import {
+  isOperatorMobile,
+  normalizeUkPhoneDigits,
+  ownProfileDirectoryPhone,
+  publicDirectoryPhone,
+} from '@/lib/operator-public-phones';
 import { availabilityBucket, isUrgentCoverCapable, profileCompleteness } from '@/lib/directory-ranking';
 import { isStrictDirectoryListing } from '@/lib/rep-public-trust';
 import { looksIneligible } from '@/lib/rep-status';
@@ -108,19 +114,21 @@ export default async function RepPage({ params }: PageProps) {
   const avail = availabilitySummary(rep.availability || '');
   const urgentCapable = isUrgentCoverCapable(rep);
   const completeness = profileCompleteness(rep);
-  const publicPhone = publicDirectoryPhone(rep.phone);
+  // Schema: never emit operator landline. Call button: allow it only on Robert's profile.
+  const schemaPhone = publicDirectoryPhone(rep.phone);
+  const publicPhone = ownProfileDirectoryPhone(rep.phone, rep.slug);
 
   const legalService = legalServiceSchema({
     name: rep.name,
     slug: rep.slug,
     counties: [rep.county].filter(Boolean),
     accreditation: rep.accreditation,
-    phone: publicPhone,
+    phone: schemaPhone,
   });
   const person = personSchema({
     name: rep.name,
     slug: rep.slug,
-    phone: publicPhone,
+    phone: schemaPhone,
     accreditation: rep.accreditation,
     counties: [rep.county].filter(Boolean),
   });
@@ -260,29 +268,42 @@ export default async function RepPage({ params }: PageProps) {
                 <h2 className="text-lg font-bold text-[var(--navy)]">Contact</h2>
                 <p className="mt-1 text-xs text-slate-600">Reach out direct — your contract is with the firm / rep, not the directory.</p>
                 <div className="mt-4 space-y-3">
-                  {publicPhone ? (
-                    <a href={phoneToTelHref(publicPhone)} className="btn-gold w-full text-center font-bold">
-                      Call {publicPhone}
-                    </a>
-                  ) : null}
-                  {rep.email ? (
+                  {rep.slug === 'robert-cashman' ? (
+                    <RobertProfileContact officePhone={publicPhone || '01732 247427'} />
+                  ) : (
+                    <>
+                      {publicPhone ? (
+                        <a href={phoneToTelHref(publicPhone)} className="btn-gold w-full text-center font-bold">
+                          Call {publicPhone}
+                        </a>
+                      ) : null}
+                      {rep.email ? (
+                        <a href={`mailto:${rep.email}`} className="btn-outline w-full text-center font-semibold">
+                          Send email
+                        </a>
+                      ) : null}
+                      {rep.whatsappLink &&
+                      !normalizeUkPhoneDigits(rep.whatsappLink).includes('07535494446') &&
+                      !isOperatorMobile(rep.whatsappLink) ? (
+                        <a
+                          href={rep.whatsappLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-outline w-full !border-emerald-300 !font-semibold !text-emerald-800 hover:!bg-emerald-50"
+                        >
+                          WhatsApp
+                        </a>
+                      ) : null}
+                      {!publicPhone && !rep.email && (
+                        <p className="text-sm text-slate-600">Use the directory search or your firm networks to reach this rep.</p>
+                      )}
+                    </>
+                  )}
+                  {rep.slug === 'robert-cashman' && rep.email ? (
                     <a href={`mailto:${rep.email}`} className="btn-outline w-full text-center font-semibold">
                       Send email
                     </a>
                   ) : null}
-                  {rep.whatsappLink ? (
-                    <a
-                      href={rep.whatsappLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-outline w-full !border-emerald-300 !font-semibold !text-emerald-800 hover:!bg-emerald-50"
-                    >
-                      WhatsApp
-                    </a>
-                  ) : null}
-                  {!publicPhone && !rep.email && (
-                    <p className="text-sm text-slate-600">Use the directory search or your firm networks to reach this rep.</p>
-                  )}
                 </div>
               </section>
 

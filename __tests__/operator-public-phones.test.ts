@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   isOperatorLandline,
   isOperatorMobile,
+  ownProfileDirectoryPhone,
   publicDirectoryPhone,
   stationPageRepCallPhone,
 } from '@/lib/operator-public-phones';
@@ -21,6 +22,15 @@ describe('operator-public-phones', () => {
     expect(publicDirectoryPhone('01732 247427')).toBe('');
     expect(publicDirectoryPhone('07535 494446')).toBe('07535 494446');
     expect(publicDirectoryPhone('(01732) 847839')).toBe('(01732) 847839');
+  });
+
+
+  it('permits landline only on Robert own profile Call helper; never SSR mobile', () => {
+    expect(ownProfileDirectoryPhone('01732 247427', 'robert-cashman')).toBe('01732 247427');
+    expect(ownProfileDirectoryPhone('01732 247427', 'jane-doe')).toBe('');
+    expect(ownProfileDirectoryPhone('07535 494446', 'robert-cashman')).toBe('01732 247427');
+    expect(ownProfileDirectoryPhone('', 'robert-cashman')).toBe('01732 247427');
+    expect(ownProfileDirectoryPhone('01634 792277', 'robert-cashman')).toBe('01634 792277');
   });
 
   it('omits operator mobile from station-page Call', () => {

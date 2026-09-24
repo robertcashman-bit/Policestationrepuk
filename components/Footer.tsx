@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   CUSTODYNOTE_BRAND_NAME,
   CUSTODYNOTE_APPS_LINE,
@@ -124,6 +125,8 @@ function FooterPartnersColumn({ title, links }: { title: string; links: FooterLi
 }
 
 export function Footer() {
+  const pathname = usePathname();
+  const hideOperatorMobileDigits = pathname === '/rep/robert-cashman';
   const year = new Date().getFullYear();
 
   return (
@@ -253,8 +256,14 @@ export function Footer() {
             <h4 className="text-sm font-bold text-white">WhatsApp — reps &amp; firms</h4>
             <p className="mt-1 text-xs text-white">
               One verified group for accredited reps and criminal defence firms. Criminal practices can also
-              post asking for police station and court cover. Text {WHATSAPP_JOIN_PHONE} — verification
-              required.
+              post asking for police station and court cover.{' '}
+              {hideOperatorMobileDigits ? (
+                <>Use How to join below — verification required.</>
+              ) : (
+                <>
+                  Text {WHATSAPP_JOIN_PHONE} — verification required.
+                </>
+              )}
             </p>
             <Link
               href="/WhatsApp"

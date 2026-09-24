@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { phoneToTelHref } from '@/lib/phone';
+import { TurnstileWidget } from '@/components/TurnstileWidget';
 
 type RevealPayload = {
   display: string;
@@ -12,40 +13,81 @@ type RevealPayload = {
 /**
  * Robert Cashman profile contact block:
  * - Office landline is visible (passed in — never the mobile).
- * - Direct mobile is fetched client-side only after an explicit solicitor/agency confirm.
+ * - Direct mobile is fetched client-side only after an explicit solicitor/agency
+ *   confirm AND a Cloudflare Turnstile challenge.
  */
-export function RobertProfileContact({ officePhone }: { officePhone: string }) {
+export function RobertProfileContact({
+  officePhone,
+  turnstileSiteKey = null,
+}: {
+  officePhone: string;
+  turnstileSiteKey?: string | null;
+}) {
   const [step, setStep] = useState<'closed' | 'confirm' | 'loading' | 'shown' | 'error'>('closed');
   const [confirmed, setConfirmed] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [mobile, setMobile] = useState<RevealPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const officeTel = officePhone ? phoneToTelHref(officePhone) : '';
 
-  const reveal = useCallback(async () => {
-    if (!confirmed) return;
-    setStep('loading');
-    setError(null);
-    try {
-      const res = await fetch('/api/rep/robert-cashman/direct-mobile', {
-        method: 'GET',
-        headers: { Accept: 'application/json' },
-        cache: 'no-store',
-      });
-      if (!res.ok) {
-        throw new Error(
-          res.status === 429 ? 'Too many requests. Try again shortly.' : 'Could not load number.',
-        );
+  const handleTurnstileToken = useCallback((t: string) => {
+    setTurnstileToken(t);
+  }, []);
+
+  const reveal = useCallback(
+    async (tokenOverride?: string) => {
+      if (!confirmed) return;
+      const token = (tokenOverride ?? turnstileToken).trim();
+      if (!token) {
+        setError('Please complete the bot-protection check before revealing.');
+        setStep('error');
+        return;
       }
-      const data = (await res.json()) as RevealPayload;
-      if (!data?.display || !data?.tel) throw new Error('Could not load number.');
-      setMobile(data);
-      setStep('shown');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not load number.');
-      setStep('error');
-    }
-  }, [confirmed]);
+      setStep('loading');
+      setError(null);
+      try {
+        const res = await fetch('/api/rep/robert-cashman/direct-mobile', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-store',
+          body: JSON.stringify({ turnstileToken: token }),
+        });
+        if (!res.ok) {
+          if (res.status === 429) {
+            throw new Error('Too many requests. Try again in an hour.');
+          }
+          if (res.status === 403) {
+            throw new Error('Bot-protection check failed. Please try again.');
+          }
+          throw new Error('Could not load number.');
+        }
+        const data = (await res.json()) as RevealPayload;
+        if (!data?.display || !data?.tel) throw new Error('Could not load number.');
+        setMobile(data);
+        setStep('shown');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Could not load number.');
+        setStep('error');
+        setTurnstileToken('');
+      }
+    },
+    [confirmed, turnstileToken],
+  );
+
+  // Auto-reveal once Turnstile issues a fresh token after the checkbox is ticked.
+  const onTurnstileToken = useCallback(
+    (t: string) => {
+      handleTurnstileToken(t);
+      if (t && confirmed) {
+        void reveal(t);
+      }
+    },
+    [confirmed, handleTurnstileToken, reveal],
+  );
 
   return (
     <div className="space-y-4">
@@ -81,18 +123,42 @@ export function RobertProfileContact({ officePhone }: { officePhone: string }) {
                 type="checkbox"
                 className="mt-1"
                 checked={confirmed}
-                onChange={(e) => setConfirmed(e.target.checked)}
+                onChange={(e) => {
+                  const next = e.target.checked;
+                  setConfirmed(next);
+                  if (!next) {
+                    setTurnstileToken('');
+                    setError(null);
+                  }
+                }}
               />
               <span>I am instructing on behalf of a solicitors&apos; firm or agency</span>
             </label>
-            <button
-              type="button"
-              className="btn-gold w-full text-center text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!confirmed || step === 'loading'}
-              onClick={() => void reveal()}
-            >
-              {step === 'loading' ? 'Loading…' : 'Reveal direct mobile'}
-            </button>
+
+            {confirmed ? (
+              <div className="space-y-2">
+                <p className="text-xs text-slate-600">
+                  Complete the bot-protection check to reveal the number.
+                </p>
+                {turnstileSiteKey ? (
+                  <TurnstileWidget
+                    key={confirmed ? 'ready' : 'idle'}
+                    siteKey={turnstileSiteKey}
+                    onToken={onTurnstileToken}
+                    action="robert-direct-mobile"
+                  />
+                ) : (
+                  <p className="text-xs text-amber-700">
+                    Bot-protection is not configured in this environment, so the direct mobile
+                    cannot be revealed here.
+                  </p>
+                )}
+                {step === 'loading' ? (
+                  <p className="text-xs font-medium text-slate-600">Loading…</p>
+                ) : null}
+              </div>
+            ) : null}
+
             {error ? <p className="text-xs text-red-700">{error}</p> : null}
             <button
               type="button"
@@ -100,6 +166,7 @@ export function RobertProfileContact({ officePhone }: { officePhone: string }) {
               onClick={() => {
                 setStep('closed');
                 setConfirmed(false);
+                setTurnstileToken('');
                 setError(null);
               }}
             >

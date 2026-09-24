@@ -269,7 +269,7 @@ export default async function RepPage({ params }: PageProps) {
                 <p className="mt-1 text-xs text-slate-600">Reach out direct — your contract is with the firm / rep, not the directory.</p>
                 <div className="mt-4 space-y-3">
                   {rep.slug === 'robert-cashman' ? (
-                    <RobertProfileContact officePhone={publicPhone || '01732 247427'} />
+                    <RobertProfileContact officePhone={publicPhone || '01732 247427'} turnstileSiteKey={turnstileSiteKey()} />
                   ) : (
                     <>
                       {publicPhone ? (

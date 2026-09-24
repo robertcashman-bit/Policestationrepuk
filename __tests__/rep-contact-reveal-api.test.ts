@@ -17,22 +17,27 @@ vi.mock('@/lib/contact-guards', () => ({
   rateLimitOk: async () => ({ ok: true }),
 }));
 
-vi.mock('@/lib/operator-public-phones', () => ({
-  publicDirectoryPhone: (phone: string | undefined) => phone || '',
-}));
+vi.mock('@/lib/operator-public-phones', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/operator-public-phones')>();
+  return {
+    ...actual,
+    // Keep directory phone passthrough for this route unit test.
+    publicDirectoryPhone: (phone: string | undefined) => phone || '',
+  };
+});
 
 describe('GET /api/rep/[slug]/contact', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetRepBySlug.mockResolvedValue({
       id: '1',
-      slug: 'robert-cashman',
-      name: 'Robert Cashman',
-      email: 'Robertdavidcashman@gmail.com',
-      phone: '07535 494446',
-      whatsappLink: 'https://wa.me/447535494446',
-      address: 'Greenacre London Road West Kingsdown',
-      postcode: 'TN15 6ER',
+      slug: 'jane-rep',
+      name: 'Jane Rep',
+      email: 'jane.rep@example.com',
+      phone: '07123 456789',
+      whatsappLink: 'https://wa.me/447123456789',
+      address: '1 Example Street',
+      postcode: 'AA1 1AA',
       county: 'Kent',
       stations: [],
       availability: 'Any',
@@ -43,13 +48,13 @@ describe('GET /api/rep/[slug]/contact', () => {
 
   it('returns contact fields for a listed rep', async () => {
     const { GET } = await import('@/app/api/rep/[slug]/contact/route');
-    const res = await GET(new Request('http://localhost/api/rep/robert-cashman/contact'), {
-      params: Promise.resolve({ slug: 'robert-cashman' }),
+    const res = await GET(new Request('http://localhost/api/rep/jane-rep/contact'), {
+      params: Promise.resolve({ slug: 'jane-rep' }),
     });
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body.email).toBe('Robertdavidcashman@gmail.com');
-    expect(body.phone).toBe('07535 494446');
+    expect(body.email).toBe('jane.rep@example.com');
+    expect(body.phone).toBe('07123 456789');
     expect(body.whatsappLink).toContain('wa.me');
     expect(body.address).toBeUndefined();
   });

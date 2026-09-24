@@ -3,7 +3,7 @@ import {
   CUSTODYNOTE_MAC_DOWNLOAD_CTA,
   CUSTODYNOTE_MAC_DOWNLOAD_HREF,
   CUSTODYNOTE_TRIAL_CTA,
-  CUSTODYNOTE_TRIAL_HREF,
+  custodyNoteStoreUrl,
 } from '@/lib/custodynote-promo';
 import { WHATSAPP_PAGE_REPS } from '@/lib/site-navigation';
 
@@ -29,7 +29,7 @@ export function PromoRestoreBar({ cnDismissed, onExpand }: PromoRestoreBarProps)
         {!cnDismissed && (
           <>
             <a
-              href={CUSTODYNOTE_TRIAL_HREF}
+              href={custodyNoteStoreUrl('promo')}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex h-8 min-h-[2rem] max-w-[40%] shrink-0 items-center justify-center truncate rounded-full bg-[var(--gold)] px-2.5 py-0.5 text-[10px] font-bold text-[var(--navy)] no-underline transition-colors hover:bg-[var(--gold-hover)] sm:h-9 sm:max-w-none sm:px-3 sm:text-[11px]"

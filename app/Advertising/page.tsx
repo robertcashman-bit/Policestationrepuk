@@ -9,7 +9,7 @@ import {
   CUSTODYNOTE_MAC_DOWNLOAD_CTA,
   CUSTODYNOTE_MAC_DOWNLOAD_HREF,
   CUSTODYNOTE_STORE_CTA,
-  CUSTODYNOTE_STORE_HREF,
+  custodyNoteStoreUrl,
 } from '@/lib/custodynote-promo';
 import { POLICESTATIONAGENT_HOME_HREF } from '@/lib/policestationagent-promo';
 import { buildMetadata } from '@/lib/seo';
@@ -71,7 +71,7 @@ export default function AdvertisingPage() {
                 </p>
                 <p className="mt-2 text-xs text-[var(--muted)]">
                   Windows:{' '}
-                  <a href={CUSTODYNOTE_STORE_HREF} target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--navy)] underline">
+                  <a href={custodyNoteStoreUrl('advertising')} target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--navy)] underline">
                     {CUSTODYNOTE_STORE_CTA}
                   </a>
                   {' · '}

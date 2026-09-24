@@ -250,7 +250,7 @@ export default function CustodyNotePage() {
 
           <div className="mt-8 flex flex-col gap-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-              <MicrosoftStoreCta size="hero" />
+              <MicrosoftStoreCta placement="custodynote" size="hero" />
               <MacDownloadCta size="hero" />
               <a
                 href={CUSTODYNOTE_PRICING}
@@ -290,7 +290,7 @@ export default function CustodyNotePage() {
               {CUSTODYNOTE_STORE_STATUS_LINE}
             </p>
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-              <MicrosoftStoreCta size="lg" />
+              <MicrosoftStoreCta placement="custodynote" size="lg" />
               <MacDownloadCta size="lg" />
               <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-xs text-[var(--gold)]">
                 {CUSTODYNOTE_DOWNLOAD_CTA} (Windows backup)
@@ -552,7 +552,7 @@ export default function CustodyNotePage() {
                 ))}
               </ul>
               <div className="mt-6 flex flex-col gap-3">
-                <MicrosoftStoreCta size="lg" className="w-full" />
+                <MicrosoftStoreCta placement="custodynote" size="lg" className="w-full" />
                 <MacDownloadCta size="lg" className="w-full" tone="onLight" />
               </div>
               <p className="mt-3 text-center text-sm text-[var(--muted)]">
@@ -574,7 +574,7 @@ export default function CustodyNotePage() {
         </p>
         <div className="mt-6 flex flex-col items-center gap-4">
           <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
-            <MicrosoftStoreCta size="hero" />
+            <MicrosoftStoreCta placement="custodynote" size="hero" />
             <MacDownloadCta size="hero" />
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-slate-300">

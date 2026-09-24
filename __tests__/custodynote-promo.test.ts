@@ -10,8 +10,17 @@ describe('custodynote-promo commercial line', () => {
 
   it('makes Microsoft Store the primary Windows CTA; direct download is backup only', () => {
     expect(promo.CUSTODYNOTE_STORE_ID).toBe('9NFSRVT3T45V');
-    expect(promo.CUSTODYNOTE_STORE_HREF).toBe(
+    expect(promo.CUSTODYNOTE_STORE_BASE).toBe(
       'https://apps.microsoft.com/detail/9NFSRVT3T45V',
+    );
+    expect(promo.CUSTODYNOTE_STORE_HREF).toBe(
+      'https://apps.microsoft.com/detail/9NFSRVT3T45V?hl=en-GB&gl=GB&cid=repuk-home',
+    );
+    expect(promo.custodyNoteStoreUrl('nav')).toBe(
+      'https://apps.microsoft.com/detail/9NFSRVT3T45V?hl=en-GB&gl=GB&cid=repuk-nav',
+    );
+    expect(promo.custodyNoteStoreUrl('repuk-footer')).toBe(
+      'https://apps.microsoft.com/detail/9NFSRVT3T45V?hl=en-GB&gl=GB&cid=repuk-footer',
     );
     expect(promo.CUSTODYNOTE_STORE_CTA.toLowerCase()).toMatch(/microsoft store/);
 
@@ -19,6 +28,8 @@ describe('custodynote-promo commercial line', () => {
     expect(promo.CUSTODYNOTE_TRIAL_HREF).toBe(promo.CUSTODYNOTE_STORE_HREF);
     expect(promo.CUSTODYNOTE_TRIAL_CTA).toBe(promo.CUSTODYNOTE_STORE_CTA);
     expect(promo.CUSTODYNOTE_TRIAL_HREF).not.toContain('custodynote.com/download');
+    expect(promo.CUSTODYNOTE_TRIAL_HREF).toContain('gl=GB');
+    expect(promo.CUSTODYNOTE_TRIAL_HREF).toContain('cid=repuk-');
 
     // Direct download remains available as backup (not primary)
     expect(promo.CUSTODYNOTE_DOWNLOAD_HREF).toContain('https://custodynote.com/download');

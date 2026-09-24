@@ -3,7 +3,7 @@ import {
   CUSTODYNOTE_MAC_DOWNLOAD_CTA,
   CUSTODYNOTE_MAC_DOWNLOAD_HREF,
   CUSTODYNOTE_STORE_CTA,
-  CUSTODYNOTE_STORE_HREF,
+  custodyNoteStoreUrl,
 } from '@/lib/custodynote-promo';
 
 type Size = 'hero' | 'lg' | 'md' | 'sm';
@@ -51,21 +51,25 @@ function MacIcon({ className }: { className?: string }) {
  * Use for Custody Note promo surfaces. Mac is never claimed to be on the Store.
  */
 export function MicrosoftStoreCta({
+  placement,
   size = 'md',
   className = '',
   label = CUSTODYNOTE_STORE_CTA,
-  href = CUSTODYNOTE_STORE_HREF,
+  href,
   showIcon = true,
 }: {
+  /** Campaign placement slug → cid=repuk-<placement> (e.g. home, nav, footer). */
+  placement: string;
   size?: Size;
   className?: string;
   label?: string;
   href?: string;
   showIcon?: boolean;
 }) {
+  const resolvedHref = href ?? custodyNoteStoreUrl(placement);
   return (
     <a
-      href={href}
+      href={resolvedHref}
       target="_blank"
       rel="noopener noreferrer"
       className={`inline-flex items-center justify-center bg-[var(--gold)] font-extrabold tracking-tight text-[var(--navy)] no-underline shadow-[0_4px_14px_-2px_rgba(250,204,21,0.45)] transition-colors hover:bg-[var(--gold-hover)] ${sizeClass[size]} ${className}`}

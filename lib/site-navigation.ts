@@ -2,7 +2,7 @@ import { BLOG_CATEGORIES } from "@/lib/blog/categories";
 import { publicPath } from "@/lib/canonical-path-case";
 import {
   CUSTODYNOTE_MAC_DOWNLOAD_HREF,
-  CUSTODYNOTE_TRIAL_HREF,
+  custodyNoteStoreUrl,
 } from "@/lib/custodynote-promo";
 import { SUPPORT_MAILTO_HREF } from "@/lib/site-contact";
 import { PSRTRAIN_TRAINING_HREF } from "@/lib/psrtrain-promo";
@@ -239,7 +239,7 @@ export const HEADER_NAV_MORE: HeaderNavLink[] = dedupeNavLinks(
     ...footerLinksToNav(FOOTER_LEGAL),
     { href: "/CustodyNote", text: "Custody Note — overview" },
     {
-      href: CUSTODYNOTE_TRIAL_HREF,
+      href: custodyNoteStoreUrl("nav"),
       text: "Custody Note — Microsoft Store",
       external: true,
     },
@@ -292,7 +292,7 @@ export const FOOTER_PARTNERS: FooterLink[] = withPublicHrefs([
   { href: "/links", label: "Quick links hub" },
   { href: "/CustodyNote", label: "Custody Note — overview" },
   {
-    href: CUSTODYNOTE_TRIAL_HREF,
+    href: custodyNoteStoreUrl("footer"),
     label: "Custody Note — Microsoft Store",
     external: true,
   },

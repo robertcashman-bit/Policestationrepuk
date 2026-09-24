@@ -68,7 +68,7 @@ export function HomeCustodyNote() {
 
             <div className="mt-6 flex flex-col items-center gap-4">
               <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
-                <MicrosoftStoreCta size="hero" className="w-full sm:w-auto" />
+                <MicrosoftStoreCta placement="home" size="hero" className="w-full sm:w-auto" />
                 <MacDownloadCta size="hero" className="w-full sm:w-auto" />
               </div>
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-white/85">

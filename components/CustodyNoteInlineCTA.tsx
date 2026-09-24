@@ -40,7 +40,7 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
           {CUSTODYNOTE_FREE_LABEL} · Windows PC &amp; Mac · {CUSTODYNOTE_BETA_REASON}
         </p>
         <div className="mt-3 flex flex-col gap-2">
-          <MicrosoftStoreCta size="sm" className="w-full" />
+          <MicrosoftStoreCta placement="sidebar" size="sm" className="w-full" />
           <MacDownloadCta size="sm" className="w-full" />
           <div className="flex flex-wrap gap-2">
             <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-xs text-white/90">
@@ -86,7 +86,7 @@ export function CustodyNoteInlineCTA({ variant = 'full' }: { variant?: Variant }
           <span className="text-white/90">{CUSTODYNOTE_BETA_REASON}</span>
         </div>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          <MicrosoftStoreCta size="lg" />
+          <MicrosoftStoreCta placement="sidebar" size="lg" />
           <MacDownloadCta size="lg" />
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-white/90">

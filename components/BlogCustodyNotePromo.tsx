@@ -5,7 +5,7 @@ import {
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_MAC_DOWNLOAD_CTA,
   CUSTODYNOTE_MAC_DOWNLOAD_HREF,
-  CUSTODYNOTE_TRIAL_HREF,
+  custodyNoteStoreUrl,
 } from '@/lib/custodynote-promo';
 import { MacDownloadCta, MicrosoftStoreCta } from '@/components/MicrosoftStoreCta';
 
@@ -30,7 +30,7 @@ export function BlogCustodyNotePromo({ className }: { className?: string }) {
         </Link>
         , get it on the{' '}
         <a
-          href={CUSTODYNOTE_TRIAL_HREF}
+          href={custodyNoteStoreUrl('blog')}
           target="_blank"
           rel="noopener noreferrer"
           className="font-semibold text-[var(--gold)] underline hover:text-white"
@@ -56,7 +56,7 @@ export function BlogCustodyNotePromo({ className }: { className?: string }) {
       </div>
 
       <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-        <MicrosoftStoreCta size="md" />
+        <MicrosoftStoreCta placement="blog" size="md" />
         <MacDownloadCta size="md" />
         <Link
           href="/CustodyNote"

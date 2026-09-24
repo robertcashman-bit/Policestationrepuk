@@ -1,7 +1,7 @@
 import {
   CUSTODYNOTE_DOWNLOAD_HREF,
   CUSTODYNOTE_MAC_DOWNLOAD_HREF,
-  CUSTODYNOTE_TRIAL_HREF,
+  custodyNoteStoreUrl,
 } from '@/lib/custodynote-promo';
 import { PSRTRAIN_HOME_HREF, PSRTRAIN_TRAINING_HREF } from '@/lib/psrtrain-promo';
 import { POLICESTATIONAGENT_HOME_HREF } from '@/lib/policestationagent-promo';
@@ -174,7 +174,7 @@ export const LINKS_HUB_SECTIONS: LinksHubSection[] = [
         description: 'National motivation guide — career upside, firm value, soft pathways.',
       },
       {
-        href: CUSTODYNOTE_TRIAL_HREF,
+        href: custodyNoteStoreUrl('links'),
         label: 'Custody Note — Microsoft Store',
         description: 'Windows primary install — free during beta.',
         external: true,

@@ -65,7 +65,7 @@ export function ToolsForRepsSection() {
                 </p>
               </div>
               <div className="mt-5 flex flex-col gap-3">
-                <MicrosoftStoreCta size="lg" className="w-full sm:w-auto" />
+                <MicrosoftStoreCta placement="tools" size="lg" className="w-full sm:w-auto" />
                 <MacDownloadCta size="lg" className="w-full sm:w-auto" />
                 <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
                   <CustodyNoteDownloadLink href={CUSTODYNOTE_DOWNLOAD_HREF} className="text-white/90">

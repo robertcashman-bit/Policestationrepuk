@@ -7,7 +7,7 @@ import {
   CUSTODYNOTE_MAC_DOWNLOAD_CTA,
   CUSTODYNOTE_MAC_DOWNLOAD_HREF,
   CUSTODYNOTE_TRIAL_CTA,
-  CUSTODYNOTE_TRIAL_HREF,
+  custodyNoteStoreUrl,
   TOP_BANNER_TEXT,
   TOP_BANNER_TEXT_MOBILE,
 } from '@/lib/custodynote-promo';
@@ -42,7 +42,7 @@ export function CustodyNoteTopBanner({ onDismissChange }: CustodyNoteTopBannerPr
     >
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-2 gap-y-1.5 pr-9 sm:gap-3 sm:pr-10">
         <PartnerOutboundLink
-          href={CUSTODYNOTE_TRIAL_HREF}
+          href={custodyNoteStoreUrl('banner')}
           partner="custodynote"
           placement="top_banner"
           target="_blank"
@@ -61,7 +61,7 @@ export function CustodyNoteTopBanner({ onDismissChange }: CustodyNoteTopBannerPr
           {CUSTODYNOTE_FREE_LABEL}
         </span>
         <PartnerOutboundLink
-          href={CUSTODYNOTE_TRIAL_HREF}
+          href={custodyNoteStoreUrl('banner')}
           partner="custodynote"
           placement="top_banner_cta"
           target="_blank"

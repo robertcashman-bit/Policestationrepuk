@@ -27,7 +27,7 @@ export function BlogPartnerToolsPromo({ className = '' }: { className?: string }
             {CUSTODYNOTE_PROMO_PRICE_LINE} — free while we test
           </p>
           <div className="mt-3 flex flex-col gap-2">
-            <MicrosoftStoreCta size="sm" />
+            <MicrosoftStoreCta placement="blog" size="sm" />
             <MacDownloadCta size="sm" />
             <Link href="/CustodyNote" className="text-xs font-semibold text-white underline">
               Learn more

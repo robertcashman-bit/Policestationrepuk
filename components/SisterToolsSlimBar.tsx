@@ -5,7 +5,7 @@ import {
   CUSTODYNOTE_MAC_DOWNLOAD_CTA,
   CUSTODYNOTE_MAC_DOWNLOAD_HREF,
   CUSTODYNOTE_STORE_CTA,
-  CUSTODYNOTE_TRIAL_HREF,
+  custodyNoteStoreUrl,
 } from '@/lib/custodynote-promo';
 import {
   PSRTRAIN_CTA,
@@ -41,7 +41,7 @@ export function SisterToolsSlimBar({
             </Link>
           )}
           <PartnerOutboundLink
-            href={CUSTODYNOTE_TRIAL_HREF}
+            href={custodyNoteStoreUrl('promo')}
             partner="custodynote"
             placement="sister_slim_bar"
             target="_blank"

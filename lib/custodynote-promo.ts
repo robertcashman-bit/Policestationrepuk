@@ -26,8 +26,31 @@ export const CUSTODYNOTE_MAC_DOWNLOAD_HREF = `${CUSTODYNOTE_DOWNLOAD_HREF}#mac`;
 export const CUSTODYNOTE_VERSION = '1.9.106';
 
 /** Microsoft Store product page (Windows only, UK). Not for Mac. Primary Windows install path. */
+/** Microsoft Store product page (Windows only, UK). Not for Mac. Primary Windows install path. */
 export const CUSTODYNOTE_STORE_ID = '9NFSRVT3T45V';
-export const CUSTODYNOTE_STORE_HREF = `https://apps.microsoft.com/detail/${CUSTODYNOTE_STORE_ID}`;
+/** Base Store detail URL (no query). Prefer `custodyNoteStoreUrl(placement)` at call sites. */
+export const CUSTODYNOTE_STORE_BASE = `https://apps.microsoft.com/detail/${CUSTODYNOTE_STORE_ID}`;
+
+/**
+ * Build a Microsoft Store product URL with UK locale + campaign cid.
+ * Every public Store link on RepUK should go through this helper so Partner
+ * Center can attribute installs by placement (`cid=repuk-<placement>`).
+ */
+export function custodyNoteStoreUrl(placement: string): string {
+  const slug = placement.trim().replace(/^repuk-/i, '');
+  if (!slug) {
+    throw new Error('custodyNoteStoreUrl: placement is required');
+  }
+  const params = new URLSearchParams({
+    hl: 'en-GB',
+    gl: 'GB',
+    cid: `repuk-${slug}`,
+  });
+  return `${CUSTODYNOTE_STORE_BASE}?${params.toString()}`;
+}
+
+/** Default Store href (home placement). Prefer passing an explicit placement. */
+export const CUSTODYNOTE_STORE_HREF = custodyNoteStoreUrl('home');
 export const CUSTODYNOTE_STORE_CTA = 'Get it on Microsoft Store';
 
 /**

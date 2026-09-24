@@ -9,7 +9,7 @@ import {
   CUSTODYNOTE_PLANNED_PRO_LINE,
   CUSTODYNOTE_PRICE_GBP,
   CUSTODYNOTE_STORE_CTA,
-  CUSTODYNOTE_STORE_HREF,
+  custodyNoteStoreUrl,
 } from '@/lib/custodynote-promo';
 
 export const dynamic = 'force-dynamic';
@@ -21,7 +21,7 @@ export async function GET() {
       freeLabel: CUSTODYNOTE_FREE_LABEL,
       betaReason: CUSTODYNOTE_BETA_REASON,
       noCreditCard: CUSTODYNOTE_NO_CARD_LINE,
-      storeHref: CUSTODYNOTE_STORE_HREF,
+      storeHref: custodyNoteStoreUrl('api'),
       storeCta: CUSTODYNOTE_STORE_CTA,
       macDownloadHref: CUSTODYNOTE_MAC_DOWNLOAD_HREF,
       macDownloadCta: CUSTODYNOTE_MAC_DOWNLOAD_CTA,

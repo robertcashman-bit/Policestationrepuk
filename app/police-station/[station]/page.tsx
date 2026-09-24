@@ -29,7 +29,7 @@ import {
   CUSTODYNOTE_MAC_DOWNLOAD_CTA,
   CUSTODYNOTE_MAC_DOWNLOAD_HREF,
   CUSTODYNOTE_TRIAL_CTA,
-  CUSTODYNOTE_TRIAL_HREF,
+  custodyNoteStoreUrl,
 } from '@/lib/custodynote-promo';
 
 export const dynamic = 'force-static';
@@ -308,7 +308,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
                   </p>
                   <div className="mt-3 flex flex-col gap-2">
                     <a
-                      href={CUSTODYNOTE_TRIAL_HREF}
+                      href={custodyNoteStoreUrl('station')}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn-gold inline-flex !text-sm no-underline"

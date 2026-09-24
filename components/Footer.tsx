@@ -147,7 +147,7 @@ export function Footer() {
                 {CUSTODYNOTE_PLATFORM_LINE}
               </p>
               <div className="mt-3 flex flex-col gap-2">
-                <MicrosoftStoreCta size="sm" />
+                <MicrosoftStoreCta placement="footer" size="sm" />
                 <MacDownloadCta size="sm" />
                 <Link
                   href="/CustodyNote"
@@ -233,7 +233,7 @@ export function Footer() {
               {CUSTODYNOTE_PROMO_PRICE_LINE} — {CUSTODYNOTE_BETA_REASON}
             </p>
             <div className="mt-2 flex flex-col gap-2">
-              <MicrosoftStoreCta size="sm" />
+              <MicrosoftStoreCta placement="footer" size="sm" />
               <MacDownloadCta size="sm" />
             </div>
             <Link

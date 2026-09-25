@@ -30,14 +30,10 @@ import { LEGAL_DIRECTORY_BASE } from "@/lib/legal-directory/constants";
 
 const now = new Date();
 
-/** Emit sitemap path segments matching live canonical URLs (lowercase; `/Blog` stays PascalCase). */
+/** Emit sitemap paths in public canonical case (`publicPath`; Blog stays `/Blog`). */
 function toPublicSitemapPath(path: string): string {
   if (!path) return path;
-  const publicized = publicPath(`/${path.replace(/^\//, "")}`);
-  const segments = publicized.replace(/^\//, "").split("/").filter(Boolean);
-  return segments
-    .map((seg, i) => (i === 0 && seg.toLowerCase() === "blog" ? "Blog" : seg.toLowerCase()))
-    .join("/");
+  return publicPath(`/${path.replace(/^\//, "")}`).replace(/^\//, "");
 }
 
 function sitemapAbsoluteUrl(path: string): string {

@@ -32,8 +32,8 @@ describe('buildSitemap SEO quick wins', () => {
       expect(urls.some((u) => u.includes(fragment))).toBe(false);
     }
 
-    expect(urls.some((u) => u.endsWith('/updatestation'))).toBe(true);
-    expect(urls.some((u) => u.includes('/HowToBecomePoliceStationRep'))).toBe(false);
+    expect(urls.some((u) => u.endsWith('/UpdateStation'))).toBe(true);
+    expect(urls.some((u) => u.includes('/howtobecomepolicestationrep'))).toBe(false);
     expect(urls.some((u) => u.includes('/LegalUpdates/'))).toBe(false);
     expect(urls.some((u) => u.includes('/legalupdates/'))).toBe(true);
     expect(urls.some((u) => u.includes('/Wiki/'))).toBe(false);

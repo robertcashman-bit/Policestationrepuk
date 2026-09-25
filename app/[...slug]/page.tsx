@@ -6,6 +6,7 @@ import { getMirrorPage, getMirrorPaths, hasMirrorData } from '@/lib/mirror-data'
 import { getLiveSiteMultiSegmentPaths } from '@/lib/live-site-paths';
 import { isUsableBlogMirror, resolveBlogArticle } from '@/lib/blog-article-resolve';
 import { normalizeDirectoryNavPath } from '@/lib/internal-link-normalize';
+import { isMirrorCatchAllJunkPath, shouldOmitPathFromSitemap } from '@/lib/sitemap-mirror-junk';
 
 const SITE_TITLE = 'PoliceStationRepUK';
 
@@ -44,7 +45,11 @@ export const revalidate = false;
 
 /** Pre-render multi-segment paths from mirror and live-site-map; rest on demand. */
 export function generateStaticParams() {
-  const mirrorPaths = hasMirrorData() ? getMirrorPaths().filter((p) => p !== '/' && p.includes('/')) : [];
+  const mirrorPaths = hasMirrorData()
+    ? getMirrorPaths().filter(
+        (p) => p !== '/' && p.includes('/') && !shouldOmitPathFromSitemap(p.replace(/^\//, '')),
+      )
+    : [];
   const liveMulti = getLiveSiteMultiSegmentPaths();
   const pathStrings = Array.from(new Set([...mirrorPaths.map((p) => p.replace(/^\//, '')), ...liveMulti]));
   return pathStrings.map((pathNorm) => ({ slug: pathNorm.split('/') }));
@@ -54,9 +59,10 @@ export const dynamicParams = true;
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
+  const pathNorm = slug.join('/');
+  if (isMirrorCatchAllJunkPath(pathNorm)) notFound();
   const pathStr = '/' + slug.join('/');
   const mirror = getMirrorPage(pathStr);
-  const pathNorm = slug.join('/');
   const isBlog = slug[0]?.toLowerCase() === 'blog';
   const blogKey = isBlog ? slug.slice(1).join('/') : '';
 
@@ -129,12 +135,17 @@ const INTERNAL_NAV = [
 
 export default async function CatchAllSlugPage({ params }: PageProps) {
   const { slug } = await params;
-  const pathStr = '/' + slug.join('/');
   const pathNorm = slug.join('/');
+  if (isMirrorCatchAllJunkPath(pathNorm)) notFound();
+  const pathStr = '/' + slug.join('/');
 
   const mirror = getMirrorPage(pathStr);
 
-  const mirrorPaths = hasMirrorData() ? getMirrorPaths().filter((p) => p !== '/' && p.includes('/')) : [];
+  const mirrorPaths = hasMirrorData()
+    ? getMirrorPaths().filter(
+        (p) => p !== '/' && p.includes('/') && !shouldOmitPathFromSitemap(p.replace(/^\//, '')),
+      )
+    : [];
   const liveMulti = getLiveSiteMultiSegmentPaths();
   const allowedPaths = Array.from(new Set([...mirrorPaths.map((p) => p.replace(/^\//, '')), ...liveMulti]));
   if (!allowedPaths.includes(pathNorm)) notFound();

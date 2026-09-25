@@ -31,5 +31,14 @@ export function isMirrorCatchAllJunkSlug(slug: string): boolean {
 /** `getMirrorPaths()` segment (no leading slash). */
 export function shouldOmitPathFromSitemap(path: string): boolean {
   if (!path || path === '/') return true;
-  return isMirrorCatchAllJunkSlug(path.replace(/^\//, ''));
+  const stripped = path.replace(/^\//, '');
+  if (isMirrorCatchAllJunkSlug(stripped)) return true;
+  return isMirrorCatchAllJunkPath(stripped);
+}
+
+/** Multi-segment mirror path without leading slash (e.g. `N/A`, `blog/foo`). */
+export function isMirrorCatchAllJunkPath(pathNorm: string): boolean {
+  const lower = normalizeMirrorSlug(pathNorm).toLowerCase();
+  if (lower === 'n/a') return true;
+  return false;
 }

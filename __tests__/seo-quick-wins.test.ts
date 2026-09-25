@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildSitemap } from '@/lib/sitemap-build';
 import { shouldIncludeMirrorPathInSitemap } from '@/lib/mirror-data';
-import { isMirrorCatchAllJunkSlug } from '@/lib/sitemap-mirror-junk';
+import { isMirrorCatchAllJunkPath, isMirrorCatchAllJunkSlug } from '@/lib/sitemap-mirror-junk';
 import { stationPageDocumentTitle, stationPoliceStationLabel } from '@/lib/station-page-title';
 
 describe('sitemap mirror junk', () => {
@@ -12,6 +12,7 @@ describe('sitemap mirror junk', () => {
       expect(isMirrorCatchAllJunkSlug(slug)).toBe(true);
       expect(shouldIncludeMirrorPathInSitemap(slug)).toBe(false);
     }
+    expect(isMirrorCatchAllJunkPath('N/A')).toBe(true);
   });
 });
 

@@ -30,10 +30,19 @@ import { LEGAL_DIRECTORY_BASE } from "@/lib/legal-directory/constants";
 
 const now = new Date();
 
-/** Emit sitemap paths in public canonical case (lowercase marketing routes). */
+/** Emit sitemap path segments matching live canonical URLs (lowercase; `/Blog` stays PascalCase). */
 function toPublicSitemapPath(path: string): string {
   if (!path) return path;
-  return publicPath(`/${path}`).replace(/^\//, "");
+  const publicized = publicPath(`/${path.replace(/^\//, "")}`);
+  const segments = publicized.replace(/^\//, "").split("/").filter(Boolean);
+  return segments
+    .map((seg, i) => (i === 0 && seg.toLowerCase() === "blog" ? "Blog" : seg.toLowerCase()))
+    .join("/");
+}
+
+function sitemapAbsoluteUrl(path: string): string {
+  const normalized = toPublicSitemapPath(path.replace(/^\//, ""));
+  return normalized ? `${BASE}/${normalized}` : BASE;
 }
 function safeLastModified(
   input: string | Date | undefined | null,
@@ -178,7 +187,7 @@ export async function buildSitemap(): Promise<MetadataRoute.Sitemap> {
       err,
     );
     return HIGH_PRIORITY_PAGES.map((p) => ({
-      url: p.path ? `${BASE}/${toPublicSitemapPath(p.path)}` : BASE,
+      url: p.path ? sitemapAbsoluteUrl(p.path) : BASE,
       lastModified: now,
       changeFrequency: p.freq,
       priority: p.priority,
@@ -207,7 +216,7 @@ export function diffSitemapUrls(
 
 async function buildSitemapEntries(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = HIGH_PRIORITY_PAGES.map((p) => ({
-    url: p.path ? `${BASE}/${toPublicSitemapPath(p.path)}` : BASE,
+    url: p.path ? sitemapAbsoluteUrl(p.path) : BASE,
     lastModified: now,
     changeFrequency: p.freq,
     priority: p.priority,
@@ -224,7 +233,7 @@ async function buildSitemapEntries(): Promise<MetadataRoute.Sitemap> {
     );
     for (const p of paths) {
       entries.push({
-        url: `${BASE}/${toPublicSitemapPath(p)}`,
+        url: sitemapAbsoluteUrl(p),
         lastModified: now,
         changeFrequency: "weekly",
         priority: 0.5,
@@ -238,7 +247,7 @@ async function buildSitemapEntries(): Promise<MetadataRoute.Sitemap> {
         const pathSeg = canonicalSeg ?? p;
         if (canonicalSeg && HIGH_PRIORITY_SET.has(canonicalSeg)) continue;
         entries.push({
-          url: `${BASE}/${toPublicSitemapPath(pathSeg)}`,
+          url: sitemapAbsoluteUrl(pathSeg),
           lastModified: now,
           changeFrequency: "weekly",
           priority: 0.5,
@@ -274,7 +283,7 @@ async function buildSitemapEntries(): Promise<MetadataRoute.Sitemap> {
     blogPostUrls = blogArticles
       .filter((a) => a.slug && String(a.slug).trim())
       .map((a) => ({
-        url: `${BASE}/Blog/${a.slug}`,
+        url: sitemapAbsoluteUrl(`Blog/${a.slug}`),
         lastModified: safeLastModified(a.modified ?? a.published, now),
         changeFrequency: "monthly" as const,
         priority: 0.58,
@@ -314,7 +323,7 @@ async function buildSitemapEntries(): Promise<MetadataRoute.Sitemap> {
   const wikiUrls = wikiArticles
     .filter((a) => a.slug && String(a.slug).trim())
     .map((a) => ({
-      url: `${BASE}/Wiki/${a.slug}`,
+      url: sitemapAbsoluteUrl(`Wiki/${a.slug}`),
       lastModified: safeLastModified(a.lastImprovedDate, now),
       changeFrequency: "monthly" as const,
       priority: 0.65,
@@ -322,7 +331,7 @@ async function buildSitemapEntries(): Promise<MetadataRoute.Sitemap> {
   const legalUpdateUrls = legalUpdates
     .filter((u) => u.slug && String(u.slug).trim())
     .map((u) => ({
-      url: `${BASE}/LegalUpdates/${u.slug}`,
+      url: sitemapAbsoluteUrl(`LegalUpdates/${u.slug}`),
       lastModified: safeLastModified(u.publishedDate, now),
       changeFrequency: "monthly" as const,
       priority: 0.6,

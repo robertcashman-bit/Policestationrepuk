@@ -22,6 +22,7 @@ import { LEGAL_DIRECTORY_BASE } from '@/lib/legal-directory/constants';
 import { NotPoliceDeflectBanner } from '@/components/NotPoliceDeflectBanner';
 import { InstructRepPrimaryCta } from '@/components/InstructRepPrimaryCta';
 import { STATION_PAGE_TITLE_SUFFIX } from '@/lib/gsc-harness-copy';
+import { stationPageDocumentTitle, stationPoliceStationLabel } from '@/lib/station-page-title';
 import {
   CUSTODYNOTE_BETA_REASON,
   CUSTODYNOTE_BRAND_NAME,
@@ -55,7 +56,7 @@ export async function generateMetadata({ params }: PageProps) {
   const indexable = shouldIndexPoliceStationPage(stationData, repCount);
   const area = stationData.forceName || stationData.county || 'England & Wales';
   return buildMetadata({
-    title: `${stationData.name} Police Station — ${STATION_PAGE_TITLE_SUFFIX}`,
+    title: stationPageDocumentTitle(stationData.name, STATION_PAGE_TITLE_SUFFIX),
     description: `${stationData.name} (${area}) — find accredited police station representatives covering this station. Not the police: for emergencies call 999; for non-emergencies call 101.`,
     path: `/police-station/${stationData.slug}`,
     noIndex: !indexable,
@@ -96,7 +97,7 @@ export default async function PoliceStationPage({ params }: PageProps) {
   const bc = breadcrumbSchema([
     { name: 'Home', url: '/' },
     { name: 'Station Directory', url: '/StationsDirectory' },
-    { name: `${station.name} Police Station`, url: `/police-station/${station.slug}` },
+    { name: stationPoliceStationLabel(station.name), url: `/police-station/${station.slug}` },
   ]);
   const areaLabel = station.county || station.forceName || '';
   const isCustody = Boolean(station.isCustodyStation || station.custodySuite);

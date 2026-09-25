@@ -6,6 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { LEGACY_COUNTY_MIRROR_PATHS } from '@/lib/legacy-county-redirects';
+import { shouldOmitPathFromSitemap } from '@/lib/sitemap-mirror-junk';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const PAGES_PATH = path.join(DATA_DIR, 'pages.json');
@@ -89,6 +90,7 @@ export function hasMirrorData(): boolean {
  */
 export function shouldIncludeMirrorPathInSitemap(path: string): boolean {
   if (!path || path === '/') return false;
+  if (shouldOmitPathFromSitemap(path)) return false;
   if (LEGACY_COUNTY_MIRROR_PATHS.has(path)) return false;
 
   let decoded: string;

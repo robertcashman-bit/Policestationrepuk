@@ -11,6 +11,7 @@ import { buildMetadata } from '@/lib/seo';
 import { segmentCrawlContent } from '@/components/CrawlContent';
 import { ContentReliabilityNotice } from '@/components/ContentReliabilityNotice';
 import { ResolvedContentSources } from '@/components/ContentSourcesFooter';
+import { isMirrorCatchAllJunkSlug } from '@/lib/sitemap-mirror-junk';
 
 const SITE_TITLE = 'PoliceStationRepUK';
 
@@ -154,7 +155,8 @@ export function generateStaticParams() {
           p !== '/' &&
           !p.includes('/') &&
           !DEDICATED_ROUTES.has(p) &&
-          !countySlugs.has(p),
+          !countySlugs.has(p) &&
+          !isMirrorCatchAllJunkSlug(p),
       )
     : [];
   const livePaths = getLiveSiteSingleSegmentPaths().filter(
@@ -168,6 +170,7 @@ export const dynamicParams = true;
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
+  if (isMirrorCatchAllJunkSlug(slug)) notFound();
   const mirror = getMirrorPage(slug);
   const title = mirror?.title?.replace(/\s*\|\s*.*$/, '').trim() || pathToTitle(slug);
   const rawDesc =
@@ -224,13 +227,19 @@ function ContentBlock({ content }: { content: string }) {
 
 export default async function SlugPage({ params }: PageProps) {
   const { slug } = await params;
+  if (isMirrorCatchAllJunkSlug(slug)) notFound();
   const mirror = getMirrorPage(slug);
   const title = pathToTitle(slug);
 
   const countySlugs = getCountySlugSet();
   const mirrorPaths = hasMirrorData()
     ? getMirrorPaths().filter(
-        (p) => p !== '/' && !p.includes('/') && !DEDICATED_ROUTES.has(p) && !DEDICATED_ROUTES.has(p.toLowerCase()),
+        (p) =>
+          p !== '/' &&
+          !p.includes('/') &&
+          !DEDICATED_ROUTES.has(p) &&
+          !DEDICATED_ROUTES.has(p.toLowerCase()) &&
+          !isMirrorCatchAllJunkSlug(p),
       )
     : [];
   const livePaths = getLiveSiteSingleSegmentPaths().filter(
